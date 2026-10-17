@@ -35,6 +35,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm exec supabase db push` – pubblica le nuove migrazioni (`supabase/migrations`) sul progetto collegato.
 - `pnpm deploy:arbitro` – impacchetta `packages/server` in `supabase/functions/arbitro/nucleo.js` e pubblica l'arbitro.
   Da rifare a ogni modifica delle regole o dell'arbitro, poi `pnpm test:supabase`.
+- Prova a due giocatori in locale: `pnpm --filter @og/web build`, poi anteprima "web" su `localhost:4173` (giocatore 1)
+  e `bruno.localhost:4173` (giocatore 2: indirizzo diverso = sessione separata).
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 
 ## Architettura
@@ -54,7 +56,7 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 ## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
-In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–3 fatti: `apps/web` su Render; database in `supabase/migrations`;
+In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–4 fatti; pagine in `apps/web/src/pagine`: `apps/web` su Render; database in `supabase/migrations`;
 arbitro in `packages/server` + `supabase/functions/arbitro`).
 Supabase di prova: progetto `vxkcinfkbsextubabibe` (eu-west-1), collegato con la CLI. Accesso anonimo attivo.
 I browser non scrivono mai nel database: scrive solo l'arbitro (Edge Function). `stati_partita` e `mosse` non sono leggibili dai browser.
