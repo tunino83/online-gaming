@@ -12,6 +12,7 @@ import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
 import { PannelloAttivazione } from "./Attivazione";
+import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
 
@@ -27,7 +28,22 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // (versione più nuova di questa), così non si può toccare una mossa ormai vecchia.
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
-  const [ingrandita, setIngrandita] = useState<string | null>(null);
+  const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string } | null>(null);
+  // Pesca in corso: quali carte avevo prima, per mostrare quella nuova appena arriva la vista aggiornata
+  const pescaInCorso = useRef<{ tipo: "numero" | "personaggio"; versione: number; prima: Set<string> } | null>(null);
+  useEffect(() => {
+    const pesca = pescaInCorso.current;
+    if (!riga || !pesca || riga.versione <= pesca.versione) return;
+    pescaInCorso.current = null;
+    const io_ = riga.vista.giocatori[io];
+    if (pesca.tipo === "numero") {
+      const nuova = riga.vista.mano.find((c) => !pesca.prima.has(c.id));
+      if (nuova) setPrimoPiano({ carta: { tipo: "numero", valore: nuova.valore }, titolo: "Hai pescato" });
+    } else {
+      const nuova = io_?.posti.find((c) => !pesca.prima.has(c.id));
+      if (nuova) setPrimoPiano({ carta: { tipo: "personaggio", id: nuova.personaggio }, titolo: "Hai pescato" });
+    }
+  }, [riga, io]);
   // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
   const [daScartare, setDaScartare] = useState<string[]>([]);
   // Personaggio (id carta) di cui è aperto il pannello di attivazione
@@ -66,12 +82,18 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     setInvio(true);
     setErrore(null);
     setAspettoOltre(riga!.versione);
+    if (mossa.tipo === "pescaNumero" || mossa.tipo === "pescaPersonaggio") {
+      const numero = mossa.tipo === "pescaNumero";
+      const prima = numero ? riga!.vista.mano : (riga!.vista.giocatori[io]?.posti ?? []);
+      pescaInCorso.current = { tipo: numero ? "numero" : "personaggio", versione: riga!.versione, prima: new Set(prima.map((c) => c.id)) };
+    }
     const r = await chiediArbitro({ azione: "mossa", partitaId: partita.id, mossa });
     setInvio(false);
     if (r.ok) {
       ricarica(); // non aspettiamo solo il tempo reale: rileggiamo subito
     } else {
       setAspettoOltre(null);
+      pescaInCorso.current = null;
       setErrore(r.errore);
     }
   }
@@ -81,7 +103,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     const m = mosse.find(cerca);
     return m ? () => gioca(m) : undefined;
   };
-  const ingrandisci = (c: CartaPersonaggio) => () => setIngrandita(c.personaggio);
+  const ingrandisci = (c: CartaPersonaggio) => () => setPrimoPiano({ carta: { tipo: "personaggio", id: c.personaggio } });
 
   const gruppi = new Map<GruppoElenco, Mossa[]>();
   for (const m of mosse) {
@@ -354,14 +376,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         />
       )}
 
-      {ingrandita && (
-        <div className="velo" onClick={() => setIngrandita(null)} role="dialog" aria-label="Carta ingrandita">
-          <div className="flex flex-col items-center gap-3">
-            <CartaPersonaggioGrafica id={ingrandita} larghezza={Math.min(320, window.innerWidth - 48)} />
-            <span className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold">Tocca per chiudere</span>
-          </div>
-        </div>
-      )}
+      {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
     </div>
   );
 }
