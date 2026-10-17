@@ -49,6 +49,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
 In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passo 1 fatto: `apps/web` su Render).
 
+Sito online: https://online-gaming.onrender.com/
+
 Render (sito statico): build `npm install -g pnpm@9.15.0 && pnpm install --frozen-lockfile && pnpm --filter @og/web build`,
 publish `apps/web/dist`, rewrite `/*` → `/index.html`, variabili `NODE_VERSION=20`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
