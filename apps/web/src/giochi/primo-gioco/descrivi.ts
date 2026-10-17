@@ -5,6 +5,7 @@ import {
   type CartaDiamante,
   type CartaNumero,
   type CartaPersonaggio,
+  type Evento,
   type Elemento,
   type Mossa,
   type VistaGiocatore,
@@ -132,5 +133,49 @@ export function gruppoMossa(m: Mossa): "scelta" | "attiva" | "tavolo" | "gratis"
       return "fine";
     default:
       return "gratis";
+  }
+}
+
+/** Frase per una voce del registro ("Bruno ha preso il 7 dal tavolo"). */
+export function descriviEvento(e: Evento, nickname: (id: string) => string, io: string): string {
+  const chi = e.giocatore === io ? "Hai" : `${nickname(e.giocatore)} ha`;
+  const nome = (id: string) => personaggio(id).nome;
+  const di = (id: string) => (id === io ? "tuo" : `di ${nickname(id)}`);
+  switch (e.tipo) {
+    case "prendiNumero":
+      return `${chi} preso ${ilNumero(e.valore)} dal tavolo`;
+    case "prendiPersonaggio":
+      return `${chi} preso ${nome(e.personaggio)} dal tavolo`;
+    case "pescaNumero":
+      return `${chi} pescato una carta numero`;
+    case "pescaPersonaggio":
+      return `${chi} pescato ${nome(e.personaggio)}`;
+    case "brucia":
+      return `${chi} bruciato le carte numero del tavolo${e.gratis ? " (Bacchetta magica)" : ""}`;
+    case "attiva": {
+      let t = `${chi} attivato ${nome(e.personaggio)}${e.valori.length ? ` con ${e.valori.join(", ")}` : ""} (+${e.punti})`;
+      if (e.da) t += `, la Lucciola ${di(e.da)}`;
+      if (e.bersaglio) t += `, scartando ${nome(e.bersaglio.personaggio)} ${di(e.bersaglio.giocatore)}`;
+      if (e.avversario) t += `, guardando la mano ${e.avversario === io ? "tua" : `di ${nickname(e.avversario)}`}`;
+      return t;
+    }
+    case "scartaPersonaggio":
+      return `${chi} scartato ${nome(e.personaggio)}`;
+    case "fulmine":
+      return `${chi} giocato un fulmine (+1 mossa)`;
+    case "dueInDiamante":
+      return `${chi} scambiato un 2 con un diamante (Biancaneve)`;
+    case "scambiaConTavolo":
+      return `${chi} scambiato ${nome(e.dato)} con ${nome(e.preso)} del tavolo (Cappellaio)`;
+    case "prendiDaFatina":
+      return `${chi} preso una carta dalla mano ${e.da === io ? "tua" : `di ${nickname(e.da)}`} (Fatina)`;
+    case "fineTurno": {
+      const parti = [`${e.giocatore === io ? "Hai chiuso" : `${nickname(e.giocatore)} ha chiuso`} il turno`];
+      if (e.scartate > 0) parti.push(`scartando ${e.scartate} ${e.scartate === 1 ? "carta" : "carte"}`);
+      if (e.cambiaMano) parti.push("e cambiato la mano (Scheletro)");
+      return parti.join(" ");
+    }
+    case "ultimoGiro":
+      return `${e.giocatore === io ? "Hai" : `${nickname(e.giocatore)} ha`} raggiunto ${e.punti} punti: ultimo giro!`;
   }
 }

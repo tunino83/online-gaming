@@ -5,14 +5,15 @@
  * Le mosse possibili le calcola sempre il server.
  */
 import type { CartaDiamante, CartaPersonaggio, Mossa, VistaGiocatore } from "@og/primo-gioco";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
 import { PannelloAttivazione } from "./Attivazione";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
-import { aPersona, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
+import { aPersona, descriviEvento, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
 
 const TITOLI_GRUPPI = {
   gratis: "Azioni gratuite",
@@ -33,6 +34,18 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
+  const suoni = useSuoniAttivi();
+  const precedente = useRef<{ versione: number; turnoDi: string } | null>(null);
+  useEffect(() => {
+    if (!riga) return;
+    const ora = { versione: riga.versione, turnoDi: riga.vista.turno.giocatore };
+    const prima = precedente.current;
+    precedente.current = ora;
+    if (!prima || ora.versione <= prima.versione) return; // primo caricamento o nulla di nuovo
+    if (ora.turnoDi === io && prima.turnoDi !== io && !riga.vista.finita) suonoTuoTurno();
+    else suonoMossa();
+  }, [riga, io]);
+  const [registroCompleto, setRegistroCompleto] = useState(false);
   const nick = useMemo(() => {
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
     return (id: string) => m.get(id) ?? "?";
@@ -41,7 +54,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   if (erroreLettura) return <Errore testo={erroreLettura} />;
   if (!riga) return <Caricamento testo="Preparo il tavolo…" />;
 
-  const v = riga.vista;
+  // Le viste salvate prima dell'arrivo del registro non lo contengono
+  const v: VistaGiocatore = { ...riga.vista, registro: riga.vista.registro ?? [] };
   const carte = raccogliCarte(v);
   const mioTurno = v.turno.giocatore === io && !v.finita;
   const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
@@ -117,7 +131,17 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-60">
+      <div className="-mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => impostaSuoni(!suoni)}
+          className="rounded-full bg-carta px-3 py-1 text-sm font-semibold"
+          aria-label={suoni ? "Spegni i suoni" : "Accendi i suoni"}
+        >
+          {suoni ? "🔊 Suoni" : "🔇 Suoni spenti"}
+        </button>
+      </div>
       {v.finita ? (
         <Esito partita={partita} v={v} nick={nick} io={io} />
       ) : (
@@ -249,49 +273,28 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         </Riquadro>
       )}
 
-      <Riquadro titolo={`La tua mano (${v.mano.length}/${v.limiteMano})`}>
-        <div className="flex flex-wrap gap-2">
-          {v.mano.length === 0 && <span className="text-sm text-tenue">Nessuna carta</span>}
-          {[...v.mano]
-            .sort((a, b) => a.valore - b.valore)
-            .map((c) => (
-              <CartaNumeroGrafica
-                key={c.id}
-                valore={c.valore}
-                larghezza={60}
-                selezionata={daScartare.includes(c.id)}
-                onTocca={scegliScarti ? alternaScarto(c.id) : undefined}
-                disabilitata={bloccato}
-              />
-            ))}
-        </div>
-        <Diamanti diamanti={v.giocatori[io]?.diamanti ?? []} />
-        {puoChiudere && (
-          <div className="mt-4 space-y-2">
-            {scegliScarti && (
-              <p className="text-sm font-semibold text-rosso">
-                Da scartare: {daScartare.length} di {eccesso}
-              </p>
-            )}
-            <button
-              type="button"
-              disabled={bloccato || !scartiPronti}
-              onClick={() => chiudiTurno(false)}
-              className="w-full rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
-            >
-              {eccesso > 0 ? `Scarta ${eccesso} e chiudi il turno` : "Chiudi il turno"}
-            </button>
-            {conScheletro && (
-              <button
-                type="button"
-                disabled={bloccato || !scartiPronti}
-                onClick={() => chiudiTurno(true)}
-                className="w-full rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40"
-              >
-                💀 Chiudi il turno cambiando tutta la mano (Scheletro)
-              </button>
-            )}
-          </div>
+      <Riquadro titolo="Ultime mosse">
+        {v.registro.length === 0 ? (
+          <p className="text-sm text-tenue">Ancora nessuna mossa.</p>
+        ) : (
+          <ol className="space-y-1 text-sm">
+            {[...v.registro]
+              .reverse()
+              .slice(0, registroCompleto ? undefined : 8)
+              .map((e, i) => (
+                <li
+                  key={e.n}
+                  className={`rounded-lg px-2 py-1 ${i === 0 ? "bg-white font-semibold" : ""} ${e.tipo === "fineTurno" ? "text-tenue" : ""}`}
+                >
+                  {descriviEvento(e, nick, io)}
+                </li>
+              ))}
+          </ol>
+        )}
+        {v.registro.length > 8 && (
+          <button type="button" onClick={() => setRegistroCompleto((x) => !x)} className="mt-2 text-sm font-semibold text-blu underline">
+            {registroCompleto ? "Mostra meno" : `Mostra tutte (${v.registro.length})`}
+          </button>
         )}
       </Riquadro>
 
@@ -314,6 +317,26 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           disabilitata={bloccato}
         />
       ))}
+
+      <BarraMieCarte
+        v={v}
+        io={io}
+        daScartare={daScartare}
+        scegliScarti={scegliScarti}
+        alternaScarto={alternaScarto}
+        eccesso={eccesso}
+        puoChiudere={puoChiudere}
+        conScheletro={conScheletro}
+        scartiPronti={scartiPronti}
+        chiudiTurno={chiudiTurno}
+        bloccato={bloccato}
+        toccaPosto={(c) =>
+          attesa?.tipo === "scartaPersonaggio"
+            ? seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
+            : apriAttivazione(c)
+        }
+        ingrandisci={ingrandisci}
+      />
 
       {cartaDaAttivare && mioTurno && (
         <PannelloAttivazione
@@ -371,10 +394,11 @@ function SchedaGiocatore({
         </h3>
         <span className="rounded-full bg-inchiostro px-3 py-1 text-sm font-bold text-carta">{g.punti} punti</span>
       </div>
+      {tu && <p className="text-xs text-tenue">I tuoi posti e la tua mano sono nella barra in basso.</p>}
       {!tu && <p className="text-xs text-tenue">Carte in mano: {g.carteInMano}</p>}
       {!tu && <Diamanti diamanti={g.diamanti} />}
-      <p className="mt-2 mb-1 text-xs font-bold text-tenue">Nei posti</p>
-      <div className="flex flex-wrap gap-3">
+      {!tu && <p className="mt-2 mb-1 text-xs font-bold text-tenue">Nei posti</p>}
+      <div className={`flex flex-wrap gap-3 ${tu ? "hidden" : ""}`}>
         {g.posti.map((c) => (
           <CartaPersonaggioGrafica
             key={c.id}
@@ -441,5 +465,114 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
         ))}
       </ol>
     </Riquadro>
+  );
+}
+
+/** Barra fissa in basso: i miei personaggi nei posti, la mia mano, i diamanti e la fine del turno. */
+function BarraMieCarte({
+  v,
+  io,
+  daScartare,
+  scegliScarti,
+  alternaScarto,
+  eccesso,
+  puoChiudere,
+  conScheletro,
+  scartiPronti,
+  chiudiTurno,
+  bloccato,
+  toccaPosto,
+  ingrandisci,
+}: {
+  v: VistaGiocatore;
+  io: string;
+  daScartare: string[];
+  scegliScarti: boolean;
+  alternaScarto: (id: string) => () => void;
+  eccesso: number;
+  puoChiudere: boolean;
+  conScheletro: boolean;
+  scartiPronti: boolean;
+  chiudiTurno: (cambiaMano: boolean) => void;
+  bloccato: boolean;
+  toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
+  ingrandisci: (c: CartaPersonaggio) => () => void;
+}) {
+  const io_ = v.giocatori[io]!;
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
+      <div className="mx-auto max-w-md px-3 pt-1 pb-[max(8px,env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-between text-xs font-semibold text-tenue">
+          <span>
+            I tuoi posti · Mano {v.mano.length}/{v.limiteMano}
+          </span>
+          <span className="rounded-full bg-inchiostro px-2 py-0.5 text-carta">{io_.punti} punti</span>
+        </div>
+        <div className="flex items-end gap-3">
+          <div className="flex shrink-0 gap-1.5 pt-2">
+            {io_.posti.map((c) => (
+              <CartaPersonaggioGrafica
+                key={c.id}
+                id={c.personaggio}
+                larghezza={62}
+                compatta
+                onTocca={toccaPosto(c)}
+                onIngrandisci={ingrandisci(c)}
+                disabilitata={bloccato}
+              />
+            ))}
+            {Array.from({ length: Math.max(0, 2 - io_.posti.length) }, (_, i) => (
+              <PostoVuoto key={i} larghezza={62} />
+            ))}
+          </div>
+          <div className="min-w-0 flex-1 overflow-x-auto">
+            <div className="flex gap-1.5 pt-4 pb-1 pr-2">
+              {v.mano.length === 0 && <span className="py-6 text-xs text-tenue">Nessuna carta in mano</span>}
+              {[...v.mano]
+                .sort((a, b) => a.valore - b.valore)
+                .map((c) => (
+                  <CartaNumeroGrafica
+                    key={c.id}
+                    valore={c.valore}
+                    larghezza={42}
+                    selezionata={daScartare.includes(c.id)}
+                    onTocca={scegliScarti ? alternaScarto(c.id) : undefined}
+                    disabilitata={bloccato}
+                  />
+                ))}
+            </div>
+          </div>
+        </div>
+        {io_.diamanti.length > 0 && (
+          <div className="flex flex-wrap items-center text-xs">
+            {io_.diamanti.map((d) => (
+              <Diamante key={d.id} d={d} />
+            ))}
+          </div>
+        )}
+        {puoChiudere && (
+          <div className="mt-1 flex gap-2">
+            <button
+              type="button"
+              disabled={bloccato || !scartiPronti}
+              onClick={() => chiudiTurno(false)}
+              className="flex-1 rounded-xl bg-inchiostro px-3 py-2.5 text-sm font-semibold text-carta disabled:opacity-40"
+            >
+              {eccesso > 0 ? `Scarta ${eccesso} (${daScartare.length}/${eccesso}) e chiudi` : "Chiudi il turno"}
+            </button>
+            {conScheletro && (
+              <button
+                type="button"
+                disabled={bloccato || !scartiPronti}
+                onClick={() => chiudiTurno(true)}
+                className="rounded-xl border-2 border-inchiostro px-3 py-2.5 text-sm font-semibold disabled:opacity-40"
+              >
+                💀 Chiudi e cambia mano
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

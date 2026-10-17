@@ -847,3 +847,80 @@ describe("chiusura automatica del turno", () => {
     expect(mossaAutomatica(s)).toBeNull();
   });
 });
+
+describe("registro delle ultime mosse", () => {
+  it("racconta prendere, pescare e fine turno, con numeri progressivi", () => {
+    let s = partita();
+    const preso = s.tavolo.numeri[1]!.valore;
+    s = gioca(s, "A", { tipo: "prendiNumero", posizione: 1 });
+    s = gioca(s, "A", { tipo: "pescaNumero" });
+    s = gioca(s, "A", { tipo: "pescaPersonaggio" });
+    const pescato = s.giocatori.A!.posti[0]!.personaggio;
+    s = gioca(s, "A", fine());
+    expect(s.registro).toEqual([
+      { n: 1, giocatore: "A", tipo: "prendiNumero", valore: preso },
+      { n: 2, giocatore: "A", tipo: "pescaNumero" },
+      { n: 3, giocatore: "A", tipo: "pescaPersonaggio", personaggio: pescato },
+      { n: 4, giocatore: "A", tipo: "fineTurno", scartate: 0, cambiaMano: false },
+    ]);
+  });
+
+  it("pescare una carta numero non rivela quale", () => {
+    const s = gioca(partita(), "A", { tipo: "pescaNumero" });
+    const pescata = s.giocatori.A!.mano[0]!;
+    const evento = s.registro.at(-1)!;
+    expect(JSON.stringify(evento)).not.toContain(pescata.id);
+    expect(evento).toEqual({ n: 1, giocatore: "A", tipo: "pescaNumero" });
+  });
+
+  it("attivazione: personaggio, punti, valori usati e vittima della Strega", () => {
+    const mano = [num(1), num(2), num(4)];
+    const { s, carta } = conPersonaggio("strega", mano);
+    const vittima = pers("leone");
+    s.giocatori.B!.posti = [vittima];
+    const dopo = gioca(s, "A", { tipo: "attiva", carta: carta.id, combinazione: usa(...mano), bersaglio: { giocatore: "B", carta: vittima.id } });
+    expect(dopo.registro.at(-1)).toEqual({
+      n: 1,
+      giocatore: "A",
+      tipo: "attiva",
+      personaggio: "strega",
+      punti: 1,
+      valori: [1, 2, 4],
+      bersaglio: { giocatore: "B", personaggio: "leone" },
+    });
+  });
+
+  it("Fatina: si sa da chi si è presa una carta, non quale", () => {
+    const mano = [num(5), num(6), num(7)];
+    const { s, carta } = conPersonaggio("fatina", mano);
+    const segreta = num(8);
+    s.giocatori.B!.mano = [segreta];
+    let dopo = gioca(s, "A", { tipo: "attiva", carta: carta.id, combinazione: usa(...mano), avversario: "B" });
+    dopo = gioca(dopo, "A", { tipo: "prendiDaFatina", carta: segreta.id });
+    expect(dopo.registro.at(-1)).toEqual({ n: 2, giocatore: "A", tipo: "prendiDaFatina", da: "B" });
+    expect(JSON.stringify(vistaGiocatore(dopo, "C" in dopo.giocatori ? "C" : "B").registro)).not.toContain(segreta.id);
+  });
+
+  it("si annuncia l'ultimo giro e si tengono solo gli ultimi 40 eventi", () => {
+    let s = partita();
+    s.giocatori.A!.punti = 10;
+    s.giocatori.A!.mano = [num(8), num(8), num(8), num(8)];
+    const leone = pers("leone");
+    s.giocatori.A!.posti = [leone];
+    s = gioca(s, "A", { tipo: "attiva", carta: leone.id, combinazione: usa(...s.giocatori.A!.mano) });
+    expect(s.registro.map((e) => e.tipo)).toEqual(["attiva", "ultimoGiro"]);
+    let lunga = partita();
+    for (let i = 0; i < 30; i++) lunga = passaTurno(lunga);
+    expect(lunga.registro).toHaveLength(40);
+    expect(lunga.registro.at(-1)!.n).toBe(30 * 4);
+  });
+
+  it("la vista contiene il registro; le partite vecchie senza registro funzionano", () => {
+    const s = gioca(partita(), "A", { tipo: "pescaNumero" });
+    expect(vistaGiocatore(s, "B").registro).toHaveLength(1);
+    const vecchia = partita() as Partial<StatoPartita>;
+    delete vecchia.registro;
+    const dopo = gioca(vecchia as StatoPartita, "A", { tipo: "pescaNumero" });
+    expect(dopo.registro).toHaveLength(1);
+  });
+});

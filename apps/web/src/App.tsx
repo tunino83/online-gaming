@@ -3,6 +3,7 @@ import { configurato } from "./lib/supabase";
 import { Home } from "./pagine/Home";
 import { Invito } from "./pagine/Invito";
 import { Partita } from "./pagine/Partita";
+import { Protezione } from "./Protezione";
 import { Errore, Pagina } from "./ui";
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
     );
   }
   return (
+    <Protezione>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -22,5 +24,6 @@ export function App() {
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
+    </Protezione>
   );
 }

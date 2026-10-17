@@ -14,7 +14,7 @@ import {
   PERSONAGGI_SCOPERTI,
 } from "./parametri";
 import { personaggio } from "./personaggi";
-import type { Mazzi, Mossa, StatoGiocatore, StatoPartita } from "./stato";
+import { type DatiEvento, LUNGHEZZA_REGISTRO, type Mazzi, type Mossa, type StatoGiocatore, type StatoPartita } from "./stato";
 import { validaMossa } from "./valida-mossa";
 import type { CartaPersonaggio, Effetto } from "./tipi-carte";
 
@@ -58,10 +58,22 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
       ]),
     ),
     turno: { giocatore: "", mosseRimaste: 0, virtualiUsate: [], bruciaGratisUsata: false, iniziato: false, attesa: null },
+    registro: [],
   };
   riempiTavolo(stato);
   iniziaTurno(stato);
   return stato;
+}
+
+/* ------------------------------------------------------------------ */
+/* Registro (ultime mosse, solo informazioni pubbliche)                */
+/* ------------------------------------------------------------------ */
+
+function registra(s: StatoPartita, giocatore: IdGiocatore, e: DatiEvento): void {
+  s.registro ??= []; // partite iniziate prima che esistesse il registro
+  const n = (s.registro.at(-1)?.n ?? 0) + 1;
+  s.registro.push({ n, giocatore, ...e });
+  if (s.registro.length > LUNGHEZZA_REGISTRO) s.registro.splice(0, s.registro.length - LUNGHEZZA_REGISTRO);
 }
 
 /* ------------------------------------------------------------------ */
@@ -183,6 +195,7 @@ function controllaTraguardo(s: StatoPartita): void {
   const n = s.ordine.length;
   const giro = Math.floor(s.numeroTurno / n);
   s.ultimoTurno = (giro + 2) * n - 1;
+  registra(s, s.turno.giocatore, { tipo: "ultimoGiro", punti: s.opzioni.puntiPerVincere });
 }
 
 /** Il giocatore può ancora fare una mossa che costa (prendere, pescare, bruciare)? */
@@ -226,7 +239,9 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (m.carta === t.attesa.nuovo) rifiuta("Devi scartare uno dei personaggi che avevi già");
       const i = g.posti.findIndex((c) => c.id === m.carta);
       if (i < 0) rifiuta("Personaggio non nei tuoi posti");
-      s.scarti.personaggi.push(...g.posti.splice(i, 1));
+      const [scartato] = g.posti.splice(i, 1);
+      s.scarti.personaggi.push(scartato!);
+      registra(s, id, { tipo: "scartaPersonaggio", personaggio: scartato!.personaggio });
       t.attesa = null;
       riempiTavolo(s);
       return;
@@ -236,6 +251,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       const i = altro.mano.findIndex((c) => c.id === m.carta);
       if (i < 0) rifiuta("Carta non nella mano dell'avversario");
       g.mano.push(...altro.mano.splice(i, 1));
+      registra(s, id, { tipo: "prendiDaFatina", da: t.attesa.avversario });
       t.attesa = null;
       return;
     }
@@ -250,6 +266,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     const dalTavolo = s.tavolo.personaggi[m.posizione];
     if (!dalTavolo) rifiuta("Nessun personaggio in quella posizione del tavolo");
     s.tavolo.personaggi[m.posizione] = g.posti[i]!;
+    registra(s, id, { tipo: "scambiaConTavolo", dato: g.posti[i]!.personaggio, preso: dalTavolo!.personaggio });
     g.posti[i] = dalTavolo!;
     t.iniziato = true;
     return;
@@ -262,6 +279,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (i < 0) rifiuta("Non hai quel fulmine");
       s.scarti.diamanti.push(...g.diamanti.splice(i, 1));
       t.mosseRimaste += 1;
+      registra(s, id, { tipo: "fulmine" });
       return;
     }
     case "dueInDiamante": {
@@ -271,6 +289,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (!puoPescare(s, "diamanti")) rifiuta("Non ci sono diamanti da pescare");
       s.scarti.numeri.push(...g.mano.splice(i, 1));
       g.diamanti.push(pesca(s, "diamanti")!);
+      registra(s, id, { tipo: "dueInDiamante" });
       return;
     }
     case "bruciaGratis":
@@ -278,6 +297,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (t.bruciaGratisUsata) rifiuta("La Bacchetta magica si usa una volta per turno");
       brucia(s);
       t.bruciaGratisUsata = true;
+      registra(s, id, { tipo: "brucia", gratis: true });
       return;
     case "fineTurno":
       fineTurno(s, g, m.scarta, m.cambiaMano);
@@ -297,12 +317,14 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (!carta) rifiuta("Nessuna carta in quella posizione");
       g.mano.push(carta!);
       s.tavolo.numeri[m.posizione] = null;
+      registra(s, id, { tipo: "prendiNumero", valore: carta!.valore });
       break;
     }
     case "prendiPersonaggio": {
       const carta = s.tavolo.personaggi[m.posizione];
       if (!carta) rifiuta("Nessun personaggio in quella posizione");
       s.tavolo.personaggi[m.posizione] = null;
+      registra(s, id, { tipo: "prendiPersonaggio", personaggio: carta!.personaggio });
       riceviPersonaggio(s, g, carta!);
       break;
     }
@@ -310,16 +332,19 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       const carta = pesca(s, "numeri");
       if (!carta) rifiuta("Il mazzo numeri è vuoto");
       g.mano.push(carta!);
+      registra(s, id, { tipo: "pescaNumero" });
       break;
     }
     case "pescaPersonaggio": {
       const carta = pesca(s, "personaggi");
       if (!carta) rifiuta("Il mazzo personaggi è vuoto");
+      registra(s, id, { tipo: "pescaPersonaggio", personaggio: carta!.personaggio });
       riceviPersonaggio(s, g, carta!);
       break;
     }
     case "brucia":
       brucia(s);
+      registra(s, id, { tipo: "brucia", gratis: false });
       break;
     case "attiva":
       attiva(s, id, m);
@@ -375,8 +400,26 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   g.attivati.push(carta);
   g.punti += p.punti;
 
+  // Nome del personaggio colpito dalla Strega, letto prima che venga scartato (per il registro)
+  const colpito = m.bersaglio
+    ? s.giocatori[m.bersaglio.giocatore]?.posti.find((c) => c.id === m.bersaglio!.carta)?.personaggio
+    : undefined;
+
   // Il Gatto (se attivato con una carta tenuta) l'ha già applicato; gli altri poteri:
   for (const { effetto } of p.poteri) applicaPotere(s, id, effetto, m);
+
+  const effetti = p.poteri.map((x) => x.effetto.tipo);
+  registra(s, id, {
+    tipo: "attiva",
+    personaggio: carta.personaggio,
+    punti: p.punti,
+    valori: m.combinazione.flatMap((el) => (el.valore === undefined ? [] : [el.valore])),
+    ...(proprietario !== id ? { da: proprietario } : {}),
+    ...(effetti.includes("scartaPersonaggioAvversario") && m.bersaglio && colpito
+      ? { bersaglio: { giocatore: m.bersaglio.giocatore, personaggio: colpito } }
+      : {}),
+    ...(effetti.includes("rubaCarta") && m.avversario ? { avversario: m.avversario } : {}),
+  });
   // Il potere blu Biancaneve/Mago/ecc. vale da subito perché il personaggio è già negli attivati.
   controllaTraguardo(s);
 }
@@ -447,6 +490,7 @@ function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[], cambiaM
     }
   }
   riempiTavolo(s);
+  registra(s, s.turno.giocatore, { tipo: "fineTurno", scartate: scarta.length, cambiaMano });
 
   if (s.ultimoTurno !== null && s.numeroTurno >= s.ultimoTurno) {
     s.finita = true;

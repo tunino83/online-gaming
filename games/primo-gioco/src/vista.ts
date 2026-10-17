@@ -8,7 +8,7 @@ import type { IdGiocatore } from "@og/engine";
 import type { Risorse } from "./codici";
 import { limiteMano, risorseGiocatore } from "./regole";
 import { personaggio } from "./personaggi";
-import type { Attesa, StatoPartita } from "./stato";
+import type { Attesa, Evento, StatoPartita } from "./stato";
 import type { CartaDiamante, CartaNumero, CartaPersonaggio } from "./tipi-carte";
 
 export interface VistaAvversario {
@@ -45,6 +45,8 @@ export interface VistaGiocatore {
   primoPersonaggio?: CartaPersonaggio;
   /** Fatina: mano dell'avversario scelto (solo durante la scelta). */
   manoAvversario?: CartaNumero[];
+  /** Ultime cose successe (solo informazioni pubbliche), dalla più vecchia alla più recente. */
+  registro: Evento[];
 }
 
 export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore {
@@ -68,6 +70,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     mazzi: { numeri: s.mazzi.numeri.length, personaggi: s.mazzi.personaggi.length, diamanti: s.mazzi.diamanti.length },
     scarti: { numeri: s.scarti.numeri.length, personaggi: s.scarti.personaggi.length, diamanti: s.scarti.diamanti.length },
     mano: structuredClone(g.mano),
+    registro: structuredClone(s.registro ?? []),
     limiteMano: limiteMano(s, g),
     giocatori: Object.fromEntries(
       s.ordine.map((x) => {

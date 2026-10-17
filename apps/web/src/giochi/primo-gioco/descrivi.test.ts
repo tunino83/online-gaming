@@ -1,6 +1,6 @@
 import { type Mossa, type StatoPartita, applicaMossa, mosseValide, setup, vistaGiocatore } from "@og/primo-gioco";
 import { describe, expect, it } from "vitest";
-import { aPersona, descriviMossa, gruppoMossa, ilNumero, raccogliCarte } from "./descrivi";
+import { aPersona, descriviEvento, descriviMossa, gruppoMossa, ilNumero, raccogliCarte } from "./descrivi";
 
 /** Partita a 2 con una situazione preparata per A. */
 function situazione(prepara: (s: StatoPartita) => void) {
@@ -90,6 +90,44 @@ describe("descrizione delle mosse", () => {
       if (!r.ok) throw new Error(r.errore);
       s = r.stato;
       if (s.finita) break;
+    }
+  });
+});
+
+describe("frasi del registro", () => {
+  const nick = (id: string) => ({ A: "Anna", B: "Bruno" })[id] ?? id;
+  it("dal punto di vista di chi legge", () => {
+    const e = { n: 1, giocatore: "B", tipo: "prendiNumero", valore: 8 } as const;
+    expect(descriviEvento(e, nick, "A")).toBe("Bruno ha preso l'8 dal tavolo");
+    expect(descriviEvento(e, nick, "B")).toBe("Hai preso l'8 dal tavolo");
+  });
+
+  it("attivazioni con Strega e fine turno", () => {
+    expect(
+      descriviEvento(
+        { n: 2, giocatore: "A", tipo: "attiva", personaggio: "strega", punti: 1, valori: [1, 2, 4], bersaglio: { giocatore: "B", personaggio: "leone" } },
+        nick,
+        "B",
+      ),
+    ).toBe("Anna ha attivato Strega con 1, 2, 4 (+1), scartando Leone tuo");
+    expect(descriviEvento({ n: 3, giocatore: "A", tipo: "fineTurno", scartate: 2, cambiaMano: false }, nick, "B")).toBe(
+      "Anna ha chiuso il turno scartando 2 carte",
+    );
+  });
+
+  it("ogni evento di una partita vera ha una frase sensata", () => {
+    let s = setup(["A", "B", "C"], {}, 4);
+    for (let passo = 0; passo < 300 && !s.finita; passo++) {
+      const chi = s.turno.giocatore;
+      const mosse = mosseValide(s, chi);
+      const r = applicaMossa(s, chi, mosse.find((m) => m.tipo === "attiva") ?? mosse[passo % mosse.length]!);
+      if (!r.ok) throw new Error(r.errore);
+      s = r.stato;
+    }
+    for (const e of s.registro) {
+      const t = descriviEvento(e, (id) => id, "A");
+      expect(t).not.toContain("undefined");
+      expect(t.length).toBeGreaterThan(8);
     }
   });
 });

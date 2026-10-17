@@ -64,7 +64,43 @@ export interface StatoPartita {
   };
   giocatori: Record<IdGiocatore, StatoGiocatore>;
   turno: StatoTurno;
+  /** Ultime cose successe, in forma pubblica (vedi Evento). Può mancare nelle partite iniziate prima. */
+  registro: Evento[];
 }
+
+/**
+ * Una cosa successa nella partita, raccontata SOLO con informazioni pubbliche:
+ * per esempio si dice che qualcuno ha pescato una carta numero, ma non quale.
+ */
+export type Evento = { n: number; giocatore: IdGiocatore } & DatiEvento;
+
+export type DatiEvento =
+  | { tipo: "prendiNumero"; valore: number }
+  | { tipo: "prendiPersonaggio"; personaggio: string }
+  | { tipo: "pescaNumero" }
+  | { tipo: "pescaPersonaggio"; personaggio: string }
+  | { tipo: "brucia"; gratis: boolean }
+  | {
+      tipo: "attiva";
+      personaggio: string;
+      punti: number;
+      /** Valori usati nel codice (le carte giocate finiscono scoperte negli scarti). */
+      valori: number[];
+      /** Lucciola presa dai posti di un vicino. */
+      da?: IdGiocatore;
+      bersaglio?: { giocatore: IdGiocatore; personaggio: string };
+      avversario?: IdGiocatore;
+    }
+  | { tipo: "scartaPersonaggio"; personaggio: string }
+  | { tipo: "fulmine" }
+  | { tipo: "dueInDiamante" }
+  | { tipo: "scambiaConTavolo"; dato: string; preso: string }
+  | { tipo: "prendiDaFatina"; da: IdGiocatore }
+  | { tipo: "fineTurno"; scartate: number; cambiaMano: boolean }
+  | { tipo: "ultimoGiro"; punti: number };
+
+/** Quanti eventi si tengono nel registro. */
+export const LUNGHEZZA_REGISTRO = 40;
 
 /** Tutte le mosse e azioni che un giocatore può inviare. */
 export type Mossa =
