@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TavoloPrimoGioco } from "../giochi/primo-gioco/Tavolo";
 import { Link, useParams } from "react-router-dom";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
 import { chiediArbitro } from "../lib/supabase";
@@ -28,10 +29,11 @@ export function Partita() {
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
     <Pagina>
-      <Riquadro titolo={partita.stato === "finita" ? "Partita finita" : "La partita è iniziata!"}>
-        <p className="text-sm text-tenue">La schermata di gioco arriva con il prossimo passo.</p>
-        <ListaGiocatori giocatori={giocatori} io={io} creatore={partita.creatore} />
-      </Riquadro>
+      {partita.gioco === "primo-gioco" ? (
+        <TavoloPrimoGioco partita={partita} giocatori={giocatori} io={io} />
+      ) : (
+        <Errore testo="Gioco non ancora disponibile nel browser." />
+      )}
     </Pagina>
   );
 }

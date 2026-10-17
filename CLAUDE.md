@@ -56,7 +56,7 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 ## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
-In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–4 fatti; pagine in `apps/web/src/pagine`: `apps/web` su Render; database in `supabase/migrations`;
+In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–5 fatti; pagine in `apps/web/src/pagine`, tavolo del primo gioco in `apps/web/src/giochi/primo-gioco`: `apps/web` su Render; database in `supabase/migrations`;
 arbitro in `packages/server` + `supabase/functions/arbitro`).
 Supabase di prova: progetto `vxkcinfkbsextubabibe` (eu-west-1), collegato con la CLI. Accesso anonimo attivo.
 I browser non scrivono mai nel database: scrive solo l'arbitro (Edge Function). `stati_partita` e `mosse` non sono leggibili dai browser.
