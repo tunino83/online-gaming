@@ -31,6 +31,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm check` – entrambi: da lanciare prima di ogni commit.
 - `pnpm simula [n]` – simula n partite tra bot (default 1000) e scrive `docs/statistiche-simulazione.md`.
 - `pnpm web` – avvia il sito in locale (sviluppo). Build: `pnpm --filter @og/web build` → `apps/web/dist`.
+- `pnpm test:supabase` – test delle regole di accesso sul progetto Supabase di prova (serve `apps/web/.env`).
+- `pnpm exec supabase db push` – pubblica le nuove migrazioni (`supabase/migrations`) sul progetto collegato.
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 
 ## Architettura
@@ -47,7 +49,9 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 ## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
-In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passo 1 fatto: `apps/web` su Render).
+In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–2 fatti: `apps/web` su Render; database in `supabase/migrations`).
+Supabase di prova: progetto `vxkcinfkbsextubabibe` (eu-west-1), collegato con la CLI. Accesso anonimo attivo.
+I browser non scrivono mai nel database: scrive solo l'arbitro (Edge Function). `stati_partita` e `mosse` non sono leggibili dai browser.
 
 Sito online: https://online-gaming.onrender.com/
 

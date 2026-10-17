@@ -10,13 +10,17 @@
     "check": "pnpm typecheck && pnpm test",
     "simula": "tsx games/primo-gioco/scripts/simula.ts",
     "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts",
-    "web": "pnpm --filter @og/web dev"
+    "web": "pnpm --filter @og/web dev",
+    "test:supabase": "vitest run -c vitest.supabase.config.ts"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "@types/node": "^20",
+    "@types/ws": "^8.5.13",
     "supabase": "^2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "ws": "^8.18.0"
   }
 }
