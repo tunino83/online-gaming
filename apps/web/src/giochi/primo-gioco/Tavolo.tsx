@@ -12,15 +12,18 @@ import { aPersona, descriviMossa, gruppoMossa, raccogliCarte, testoDiamante } fr
 
 const TITOLI_GRUPPI = {
   scelta: "Devi scegliere",
-  mosse: "Mosse (costano 1)",
   attiva: "Attiva un personaggio (costa 1)",
   gratis: "Azioni gratuite",
+  mosse: "Mosse (costano 1)",
   fine: "Chiudi il turno",
 } as const;
 
 export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
-  const { riga, errore: erroreLettura } = useVista<VistaGiocatore, Mossa>(partita.id, true);
+  const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
   const [invio, setInvio] = useState(false);
+  // Dopo una mossa riuscita i pulsanti restano spenti finché non arriva la situazione aggiornata
+  // (versione più nuova di questa), così non si può toccare una mossa ormai vecchia.
+  const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
   const nick = useMemo(() => {
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
@@ -34,12 +37,21 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const carte = raccogliCarte(v);
   const mioTurno = v.turno.giocatore === io && !v.finita;
 
+  const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
+
   async function gioca(mossa: Mossa) {
+    if (bloccato) return;
     setInvio(true);
     setErrore(null);
+    setAspettoOltre(riga!.versione);
     const r = await chiediArbitro({ azione: "mossa", partitaId: partita.id, mossa });
     setInvio(false);
-    if (!r.ok) setErrore(r.errore);
+    if (r.ok) {
+      ricarica(); // non aspettiamo solo il tempo reale: rileggiamo subito
+    } else {
+      setAspettoOltre(null);
+      setErrore(r.errore);
+    }
   }
 
   const gruppi = new Map<keyof typeof TITOLI_GRUPPI, Mossa[]>();
@@ -106,11 +118,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                 <div key={g}>
                   <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">{TITOLI_GRUPPI[g]}</h3>
                   <div className="space-y-1.5">
-                    {gruppi.get(g)!.map((m, i) => (
+                    {gruppi.get(g)!.map((m) => (
                       <button
-                        key={i}
+                        key={JSON.stringify(m)}
                         type="button"
-                        disabled={invio}
+                        disabled={bloccato}
                         onClick={() => gioca(m)}
                         className="w-full rounded-lg border-2 border-inchiostro/20 bg-white px-3 py-2 text-left text-sm hover:border-blu disabled:opacity-40"
                       >

@@ -56,5 +56,5 @@ export function useVista<Vista, Mossa>(partitaId: string, attiva: boolean) {
     };
   }, [partitaId, attiva, carica, aggiorna]);
 
-  return { riga, errore };
+  return { riga, errore, ricarica: carica };
 }
