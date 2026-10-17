@@ -113,19 +113,21 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, c: Carte, nickname: (
 }
 
 /** Gruppo in cui mostrare la mossa. */
-export function gruppoMossa(m: Mossa): "scelta" | "attiva" | "mosse" | "gratis" | "fine" {
+export function gruppoMossa(m: Mossa): "scelta" | "attiva" | "tavolo" | "gratis" | "fine" {
   switch (m.tipo) {
     case "scartaPersonaggio":
     case "prendiDaFatina":
       return "scelta";
     case "attiva":
       return "attiva";
+    // Si fanno toccando il tavolo (carte, mazzi, pulsanti "Brucia")
     case "prendiNumero":
     case "prendiPersonaggio":
     case "pescaNumero":
     case "pescaPersonaggio":
     case "brucia":
-      return "mosse";
+    case "bruciaGratis":
+      return "tavolo";
     case "fineTurno":
       return "fine";
     default:

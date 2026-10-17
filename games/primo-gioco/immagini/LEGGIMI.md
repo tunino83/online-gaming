@@ -3,8 +3,9 @@
 Metti qui l'illustrazione di un personaggio con il **nome del file uguale al suo codice** qui sotto,
 con estensione `.png`, `.jpg`, `.jpeg` o `.webp`. Esempio: `leone.png`.
 
-Formato consigliato: quadrato, circa **600 × 600 pixel** (la parte centrale della carta); l'immagine viene
-ritagliata per riempire lo spazio. Poi lancia `pnpm carte` per rigenerare `docs/anteprima-carte.html`.
+Formato consigliato: **solo l'illustrazione** (niente cornice, numeri o testi: li disegna l'app),
+un po' più larga che alta, circa **5:4** (es. 1000 × 800 pixel); viene ritagliata per riempire lo spazio.
+L'app la usa da sola; per l'anteprima lancia `pnpm carte`. Per vederla online va salvata su GitHub.
 
 Le copie dello stesso personaggio usano la stessa immagine. Usa solo immagini di cui hai i diritti.
 

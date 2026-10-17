@@ -83,7 +83,7 @@ describe("descrizione delle mosse", () => {
         expect(t.length).toBeGreaterThan(3);
         expect(t).not.toContain("undefined");
         expect(t).not.toContain("?");
-        expect(["scelta", "attiva", "mosse", "gratis", "fine"]).toContain(gruppoMossa(m));
+        expect(["scelta", "attiva", "tavolo", "gratis", "fine"]).toContain(gruppoMossa(m));
       }
       const attiva = mosse.find((m) => m.tipo === "attiva");
       const r = applicaMossa(s, chi, attiva ?? mosse[passo % mosse.length]!);

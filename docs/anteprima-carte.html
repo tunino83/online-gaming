@@ -5,626 +5,741 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Carte personaggio</title>
 <style>
-  :root {
-    --sfondo: #f3efe6; --testo: #2b2620; --tenue: #6d655a; --carta: #fffaf0; --bordo-carta: #d9cfbd;
-    --blu: #2f6fb3; --rosso: #c0392b; --speciale: #c9971c; --nessuno: #8a8275; --misto: linear-gradient(135deg, #c0392b, #2f6fb3);
-    --tessera: #ffffff; --tessera-bordo: #2b2620;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --sfondo: #1c1a17; --testo: #f1ebe0; --tenue: #a99f90; --carta: #2a2622; --bordo-carta: #4a433b;
-      --tessera: #3a352f; --tessera-bordo: #e9e1d3; }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; padding: 24px 16px 48px; background: var(--sfondo); color: var(--testo);
+  body { margin: 0; padding: 24px 16px 48px; background: #f3efe6; color: #2b2620;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   .intro { max-width: 1100px; margin: 0 auto 24px; }
   .intro h1 { font-family: Georgia, "Times New Roman", serif; margin: 0 0 6px; font-size: 28px; }
-  .intro p { margin: 4px 0; color: var(--tenue); font-size: 14px; }
-  .legenda { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 12px; font-size: 13px; }
-  .legenda span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px;
-    margin-right: 6px; vertical-align: -1px; background: var(--c); }
-  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;
-    max-width: 1100px; margin: 0 auto; }
+  .intro p { margin: 4px 0; color: #6d655a; font-size: 14px; }
+  .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px 20px;
+    max-width: 1100px; margin: 0 auto; justify-items: center; }
+  figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  figcaption { font-size: 12px; color: #6d655a; text-align: center; }
+/*
+ * Carte del primo gioco. Tutte le misure sono in "em": la dimensione della carta
+ * si sceglie impostando la larghezza (--larghezza) e tutto il resto si adatta.
+ * Stile: cornice colorata per tipo di potere, punti in alto a destra, illustrazione,
+ * codice in tessere bianche sul bordo dell'illustrazione, etichetta e testo del potere.
+ */
+.carta,
+.carta * {
+  box-sizing: border-box;
+}
+.carta {
+  --c: #1f4f8f;
+  --scuro: #14213d;
+  font-size: calc(var(--larghezza, 180px) / 12);
+  width: 12em;
+  aspect-ratio: 63 / 88;
+  position: relative;
+  flex: none;
+  border-radius: 0.9em;
+  padding: 0.3em;
+  background: #eef1f6;
+  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.25);
+  color: var(--scuro);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  user-select: none;
+}
+.carta.rosso { --c: #b3261e; }
+.carta.speciale { --c: #c08a12; }
+.carta.nessuno { --c: #6b7280; }
+.carta.misto { --c: #6d3fa0; }
 
-  .carta { --c: var(--nessuno); position: relative; aspect-ratio: 63 / 88; background: var(--carta);
-    border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px;
-    border: 6px solid var(--c); box-shadow: 0 2px 8px rgb(0 0 0 / .12); }
-  .carta.blu { --c: var(--blu); }
-  .carta.rosso { --c: var(--rosso); }
-  .carta.speciale { --c: var(--speciale); }
-  .carta.misto { border-image: var(--misto) 1; border-radius: 0; --c: #7b4a9e; }
+.carta .cornice {
+  height: 100%;
+  border: 0.32em solid var(--c);
+  border-radius: 0.7em;
+  background: #fff;
+  padding: 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.carta.misto .cornice {
+  border-color: transparent;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
+}
 
-  header { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  h2 { font-family: Georgia, "Times New Roman", serif; font-size: 15px; line-height: 1.15; margin: 0; }
-  .punti { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--c); color: #fff;
-    font-weight: 700; font-size: 17px; display: grid; place-items: center; }
-  .carta.misto .punti { background: var(--misto); }
+.carta .punti {
+  position: absolute;
+  top: -0.15em;
+  right: -0.15em;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background: var(--c);
+  border: 0.22em solid #fff;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1em;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0.05em 0.2em rgb(0 0 0 / 0.3);
+  z-index: 2;
+}
+.carta .punti span { font-size: 1.45em; line-height: 1; }
+.carta.misto .punti { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
 
-  .arte { flex: 1; min-height: 0; border-radius: 8px; overflow: hidden; display: grid; place-items: center;
-    background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 25%, var(--carta)), color-mix(in srgb, var(--c) 8%, var(--carta)));
-    border: 1px solid var(--bordo-carta); }
-  .arte img { width: 100%; height: 100%; object-fit: cover; }
-  .simbolo { font-size: 56px; line-height: 1; }
+.carta .arte {
+  width: 100%;
+  height: 7.9em;
+  flex: none;
+  margin-top: 0.9em;
+  border: 0.12em solid var(--scuro);
+  border-radius: 0.45em;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 22%, #fff), color-mix(in srgb, var(--c) 6%, #fff));
+}
+.carta .arte img { width: 100%; height: 100%; object-fit: cover; }
+.carta .arte .simbolo { font-size: 3.4em; line-height: 1; }
+.carta .arte .nome { font-size: 0.75em; font-weight: 700; margin-top: 0.2em; padding: 0 0.3em; line-height: 1.1; }
+.carta .arte .segnaposto { display: flex; flex-direction: column; align-items: center; padding-bottom: 1.2em; }
 
-  .codice { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; min-height: 30px; }
-  .tessera { width: 22px; height: 30px; border-radius: 4px; border: 1.5px solid var(--tessera-bordo);
-    background: var(--tessera); display: grid; place-items: center; font-weight: 700; font-size: 15px; }
-  .tessera.generica { border-style: dashed; color: var(--tenue); font-size: 12px; }
-  .tessera.diamante { color: #1f9bb5; border-color: #1f9bb5; }
-  .pillola { font-size: 11px; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--bordo-carta); color: var(--tenue); }
-  .piu { font-weight: 700; margin: 0 2px; }
-  .oppure { font-size: 12px; color: var(--tenue); margin: 0 2px; }
-  .gruppo { display: inline-flex; gap: 3px; white-space: nowrap; }
-  .gruppo .tessera { width: 19px; }
+.carta .codice {
+  margin-top: -1.5em;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.18em;
+  max-width: 100%;
+  z-index: 1;
+}
+.carta .tessera {
+  min-width: 2.05em;
+  height: 2.45em;
+  padding: 0 0.15em;
+  border-radius: 0.35em;
+  border: 0.14em solid var(--scuro);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1em;
+  box-shadow: 0 0.05em 0.15em rgb(0 0 0 / 0.25);
+}
+.carta .tessera span { font-size: 1.55em; line-height: 1; }
+.carta .tessera.generica { border-style: dashed; color: #6b7280; }
+.carta .tessera.generica span { font-size: 1em; }
+.carta .tessera.diamante { color: #1f9bb5; border-color: #1f9bb5; }
+.carta .nota {
+  font-size: 0.55em;
+  font-weight: 700;
+  background: #fff;
+  border: 0.15em solid var(--scuro);
+  border-radius: 99em;
+  padding: 0.15em 0.6em;
+}
+.carta .segno { font-weight: 800; font-size: 0.9em; background: #fff; border-radius: 99em; padding: 0 0.25em; }
 
-  .potere { font-size: 11.5px; line-height: 1.3; min-height: 42px; }
-  .tipo { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    color: #fff; background: var(--c); padding: 2px 6px; border-radius: 4px; }
-  .carta.misto .tipo { background: var(--misto); }
-  .potere-testo { margin: 4px 0 0; }
-  footer { font-size: 10.5px; color: var(--tenue); text-align: right; }
+.carta .tipo {
+  margin-top: 0.45em;
+  background: var(--c);
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.74em;
+  padding: 0.3em 1em;
+  border-radius: 99em;
+}
+.carta.misto .tipo { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
+.carta .testo-potere {
+  margin-top: 0.35em;
+  font-size: 0.8em;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Versione compatta (carte piccole): niente testo del potere. */
+.carta.compatta .testo-potere { display: none; }
+.carta.compatta .arte { height: 8.6em; }
+
+/* Carta numero */
+.carta.numero .cornice { justify-content: center; position: relative; }
+.carta.numero .valore { font-size: 5.2em; font-weight: 800; line-height: 1; }
+.carta.numero .angolo { position: absolute; font-size: 1.3em; font-weight: 800; line-height: 1; }
+.carta.numero .angolo.alto { top: 0.35em; left: 0.4em; }
+.carta.numero .angolo.basso { bottom: 0.35em; right: 0.4em; transform: rotate(180deg); }
+
+/* Dorso dei mazzi coperti */
+.carta.dorso .cornice {
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.08) 0 0.5em, transparent 0.5em 1em),
+    linear-gradient(160deg, var(--c), var(--scuro));
+  justify-content: center;
+  color: #fff;
+}
+.carta.dorso .etichetta-mazzo { font-size: 1em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+.carta.dorso .conteggio { font-size: 2.6em; font-weight: 800; line-height: 1.1; }
+.carta.dorso.vuoto { opacity: 0.35; }
+
+/* Posto vuoto */
+.carta.vuota { background: transparent; box-shadow: none; border: 0.15em dashed rgb(0 0 0 / 0.2); }
+
+/* Carta che si può toccare */
+.carta.toccabile { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.carta.toccabile { box-shadow: 0 0 0 0.25em #f4b400, 0 0.3em 0.8em rgb(0 0 0 / 0.3); }
+.carta.toccabile:hover { transform: translateY(-0.25em); }
+.carta.toccabile:active { transform: scale(0.97); }
+button.carta { border: none; }
+button.carta:disabled { cursor: wait; opacity: 0.7; }
+
+/* Diamanti */
+.gettone {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  margin: 0.15em;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, #3cc4dd, #1f7f95);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.gettone.fulmine { background: linear-gradient(135deg, #ffd34d, #e39b00); color: #3a2a00; }
+.carta.ingrandibile { cursor: zoom-in; }
+
+/* Carta ingrandita sopra tutto */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 0.6);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+/* Codici lunghi (5 o più pezzi): tessere più strette, per stare su una riga */
+.carta .codice.lungo { gap: 0.1em; }
+.carta .codice.lungo .tessera { min-width: 1.6em; height: 2.15em; padding: 0; }
+.carta .codice.lungo .tessera span { font-size: 1.3em; }
+.carta .codice.lungo .nota { font-size: 0.45em; padding: 0.15em 0.4em; }
+.carta.dorso .etichetta-mazzo { font-size: 1.25em; }
+.carta .testo-potere.lungo { font-size: 0.66em; -webkit-line-clamp: 6; }
+
 </style>
 </head>
 <body>
   <div class="intro">
     <h1>Carte personaggio</h1>
-    <p>42 personaggi, 55 carte. Generata dai dati del gioco con <code>pnpm carte</code>.</p>
-    <p>Illustrazioni caricate: 0 su 42. Le altre mostrano un simbolo provvisorio.</p>
-    <div class="legenda">
-      <span style="--c: var(--blu)">Potere blu (permanente)</span>
-      <span style="--c: var(--rosso)">Potere rosso (una volta)</span>
-      <span style="--c: var(--misto)">Rosso + Blu</span>
-      <span style="--c: var(--speciale)">Speciale</span>
-      <span style="--c: var(--nessuno)">Nessun potere</span>
-    </div>
+    <p>42 personaggi, 55 carte. Generata dai dati del gioco con <code>pnpm carte</code>, con lo stesso stile dell'app.</p>
+    <p>Illustrazioni caricate: 1 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
   </div>
   <main class="griglia">
-  <article class="carta blu" title="nano-1">
-    <header>
-      <h2>Nano dell'1</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="11"><span class="tessera">1</span><span class="tessera">1</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-2">
-    <header>
-      <h2>Nano del 2</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="22"><span class="tessera">2</span><span class="tessera">2</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 2 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-3">
-    <header>
-      <h2>Nano del 3</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="33"><span class="tessera">3</span><span class="tessera">3</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 3 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-4">
-    <header>
-      <h2>Nano del 4</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="44"><span class="tessera">4</span><span class="tessera">4</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 4 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-5">
-    <header>
-      <h2>Nano del 5</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="55"><span class="tessera">5</span><span class="tessera">5</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 5 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-6">
-    <header>
-      <h2>Nano del 6</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="66"><span class="tessera">6</span><span class="tessera">6</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 6 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="nano-7">
-    <header>
-      <h2>Nano del 7</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⛏️</span></div>
-    <div class="codice" title="77"><span class="tessera">7</span><span class="tessera">7</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 7 a disposizione, una volta per turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="fenice">
-    <header>
-      <h2>Fenice</h2>
-      <span class="punti" title="Punti">0</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🔥</span></div>
-    <div class="codice" title="12"><span class="tessera">1</span><span class="tessera">2</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Hai un 8 a disposizione, una volta per turno</p>
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta blu" title="drago">
-    <header>
-      <h2>Drago</h2>
-      <span class="punti" title="Punti">0</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🐉</span></div>
-    <div class="codice" title="1111"><span class="tessera">1</span><span class="tessera">1</span><span class="tessera">1</span><span class="tessera">1</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Come un nano, ma a ogni turno scegli tu il valore della carta</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="cappuccetto-rosso">
-    <header>
-      <h2>Cappuccetto Rosso</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🧺</span></div>
-    <div class="codice" title="45678"><span class="tessera">4</span><span class="tessera">5</span><span class="tessera">6</span><span class="tessera">7</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Fai 4 mosse per turno invece di 3</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="scimmia">
-    <header>
-      <h2>Scimmia</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🐒</span></div>
-    <div class="codice" title="Carte con somma 10 (quante si vuole)"><span class="tessera generica">?</span><span class="tessera generica">…</span><span class="pillola">somma 10</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Limite della mano +1</p>
-    </div>
-    <footer>× 3 copie</footer>
-  </article>
-  <article class="carta rosso" title="strega">
-    <header>
-      <h2>Strega</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🧙</span></div>
-    <div class="codice" title="3 carte con somma 7"><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="pillola">somma 7</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Scarta un personaggio non ancora attivato dai posti di un avversario</p>
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta rosso" title="gatto-con-gli-stivali">
-    <header>
-      <h2>Gatto con gli stivali</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🐈</span></div>
-    <div class="codice" title="345"><span class="tessera">3</span><span class="tessera">4</span><span class="tessera">5</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Una delle carte del codice, a tua scelta, non si scarta e resta in mano</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="unicorno">
-    <header>
-      <h2>Unicorno</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🦄</span></div>
-    <div class="codice" title="1234"><span class="tessera">1</span><span class="tessera">2</span><span class="tessera">3</span><span class="tessera">4</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 2 diamanti</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="pinco">
-    <header>
-      <h2>Pinco</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🎈</span></div>
-    <div class="codice" title="7788"><span class="tessera">7</span><span class="tessera">7</span><span class="tessera">8</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 1 diamante</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="panco">
-    <header>
-      <h2>Panco</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🎪</span></div>
-    <div class="codice" title="7788"><span class="tessera">7</span><span class="tessera">7</span><span class="tessera">8</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 1 diamante</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta nessuno" title="leone">
-    <header>
-      <h2>Leone</h2>
-      <span class="punti" title="Punti">5</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🦁</span></div>
-    <div class="codice" title="8888"><span class="tessera">8</span><span class="tessera">8</span><span class="tessera">8</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta nessuno" title="giganti">
-    <header>
-      <h2>Giganti</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🗿</span></div>
-    <div class="codice" title="6688"><span class="tessera">6</span><span class="tessera">6</span><span class="tessera">8</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>× 3 copie</footer>
-  </article>
-  <article class="carta nessuno" title="hansel-e-gretel">
-    <header>
-      <h2>Hansel e Gretel</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🍬</span></div>
-    <div class="codice" title="88"><span class="tessera">8</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta nessuno" title="goblin">
-    <header>
-      <h2>Goblin</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">👺</span></div>
-    <div class="codice" title="Coppia"><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="pillola">coppia</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>× 3 copie</footer>
-  </article>
-  <article class="carta nessuno" title="cerbero">
-    <header>
-      <h2>Cerbero</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🐕</span></div>
-    <div class="codice" title="Tris"><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="pillola">tris</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta nessuno" title="quercia-umana">
-    <header>
-      <h2>Quercia umana</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🌳</span></div>
-    <div class="codice" title="Poker"><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="pillola">poker</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta nessuno" title="regina">
-    <header>
-      <h2>Regina</h2>
-      <span class="punti" title="Punti">4</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">👑</span></div>
-    <div class="codice" title="7777"><span class="tessera">7</span><span class="tessera">7</span><span class="tessera">7</span><span class="tessera">7</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta rosso" title="gnomo">
-    <header>
-      <h2>Gnomo</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🍄</span></div>
-    <div class="codice" title="66 + una coppia qualsiasi (anche 66)"><span class="tessera">6</span><span class="tessera">6</span><span class="piu">+</span><span class="tessera generica">=</span><span class="tessera generica">=</span><span class="pillola">coppia</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 1 diamante</p>
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta blu" title="mago">
-    <header>
-      <h2>Mago</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🔮</span></div>
-    <div class="codice" title="Scala da 3"><span class="tessera generica">n</span><span class="tessera generica">+1</span><span class="tessera generica">+2</span><span class="pillola">scala da 3</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Puoi vedere la prima carta coperta del mazzo personaggi</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="fantasma">
-    <header>
-      <h2>Fantasma</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">👻</span></div>
-    <div class="codice" title="Doppia coppia"><span class="tessera generica">a</span><span class="tessera generica">a</span><span class="tessera generica">b</span><span class="tessera generica">b</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Il giocatore successivo ha una mossa in più nel suo prossimo turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="bacchetta-magica">
-    <header>
-      <h2>Bacchetta magica (superpotere)</h2>
-      <span class="punti" title="Punti">0</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🪄</span></div>
-    <div class="codice" title="4"><span class="tessera">4</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Una volta per turno puoi bruciare senza consumare una mossa</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="robin-hood">
-    <header>
-      <h2>Robin Hood</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🏹</span></div>
-    <div class="codice" title="3 carte con somma 10"><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="pillola">somma 10</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="hobbit-pari">
-    <header>
-      <h2>Hobbit pari</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🥾</span></div>
-    <div class="codice" title="3 carte pari"><span class="tessera generica">P</span><span class="tessera generica">P</span><span class="tessera generica">P</span><span class="pillola">pari</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 1 diamante</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="hobbit-dispari">
-    <header>
-      <h2>Hobbit dispari</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🥾</span></div>
-    <div class="codice" title="3 carte dispari"><span class="tessera generica">D</span><span class="tessera generica">D</span><span class="tessera generica">D</span><span class="pillola">dispari</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Ricevi 1 diamante</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="golem-pari">
-    <header>
-      <h2>Golem pari</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🪨</span></div>
-    <div class="codice" title="2468"><span class="tessera">2</span><span class="tessera">4</span><span class="tessera">6</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">3 mosse in più in questo turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="golem-dispari">
-    <header>
-      <h2>Golem dispari</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🪨</span></div>
-    <div class="codice" title="1357"><span class="tessera">1</span><span class="tessera">3</span><span class="tessera">5</span><span class="tessera">7</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">3 mosse in più in questo turno</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta nessuno" title="ercole">
-    <header>
-      <h2>Ercole</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">💪</span></div>
-    <div class="codice" title="3 carte con somma 20"><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="tessera generica">?</span><span class="pillola">somma 20</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta rosso" title="fatina">
-    <header>
-      <h2>Fatina</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🧚</span></div>
-    <div class="codice" title="567"><span class="tessera">5</span><span class="tessera">6</span><span class="tessera">7</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso · una volta</span>
-      <p class="potere-testo">Guardi tutte le carte in mano a un avversario e ne prendi una a scelta</p>
-    </div>
-    <footer>× 2 copie</footer>
-  </article>
-  <article class="carta blu" title="scheletro">
-    <header>
-      <h2>Scheletro (la Morte)</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">💀</span></div>
-    <div class="codice" title="18"><span class="tessera">1</span><span class="tessera">8</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="cappellaio-matto">
-    <header>
-      <h2>Cappellaio matto</h2>
-      <span class="punti" title="Punti">2</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🎩</span></div>
-    <div class="codice" title="Scala da 5"><span class="tessera generica">n</span><span class="tessera generica">+1</span><span class="tessera generica">+2</span><span class="tessera generica">+3</span><span class="tessera generica">+4</span><span class="pillola">scala da 5</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta misto" title="xena">
-    <header>
-      <h2>Xena</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">⚔️</span></div>
-    <div class="codice" title="357"><span class="tessera">3</span><span class="tessera">5</span><span class="tessera">7</span></div>
-    <div class="potere">
-      <span class="tipo">Rosso + Blu</span>
-      <p class="potere-testo">Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta nessuno" title="capitan-uncino">
-    <header>
-      <h2>Capitan Uncino</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🏴‍☠️</span></div>
-    <div class="codice" title="222 + un diamante qualsiasi (obbligatorio, anche un fulmine)"><span class="tessera">2</span><span class="tessera">2</span><span class="tessera">2</span><span class="piu">+</span><span class="tessera diamante">◆</span></div>
-    <div class="potere">
-      <span class="tipo">Nessun potere</span>
-      
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="folletto">
-    <header>
-      <h2>Folletto</h2>
-      <span class="punti" title="Punti">1</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🍀</span></div>
-    <div class="codice" title="333"><span class="tessera">3</span><span class="tessera">3</span><span class="tessera">3</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Ogni 3 in mano può valere qualsiasi numero da 1 a 8</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta blu" title="biancaneve">
-    <header>
-      <h2>Biancaneve</h2>
-      <span class="punti" title="Punti">0</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">🍎</span></div>
-    <div class="codice" title="2"><span class="tessera">2</span></div>
-    <div class="potere">
-      <span class="tipo">Blu · sempre</span>
-      <p class="potere-testo">Ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta speciale" title="lucciola-444-555">
-    <header>
-      <h2>Lucciola 444/555</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">✨</span></div>
-    <div class="codice" title="444 oppure 555"><span class="gruppo"><span class="tessera">4</span><span class="tessera">4</span><span class="tessera">4</span></span><span class="oppure">o</span><span class="gruppo"><span class="tessera">5</span><span class="tessera">5</span><span class="tessera">5</span></span></div>
-    <div class="potere">
-      <span class="tipo">Speciale</span>
-      <p class="potere-testo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
-  <article class="carta speciale" title="lucciola-333-666">
-    <header>
-      <h2>Lucciola 333/666</h2>
-      <span class="punti" title="Punti">3</span>
-    </header>
-    <div class="arte"><span class="simbolo" aria-hidden="true">✨</span></div>
-    <div class="codice" title="333 oppure 666"><span class="gruppo"><span class="tessera">3</span><span class="tessera">3</span><span class="tessera">3</span></span><span class="oppure">o</span><span class="gruppo"><span class="tessera">6</span><span class="tessera">6</span><span class="tessera">6</span></span></div>
-    <div class="potere">
-      <span class="tipo">Speciale</span>
-      <p class="potere-testo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>
-    </div>
-    <footer>1 copia</footer>
-  </article>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano dell'1">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano dell'1</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano dell'1</strong> · <code>nano-1</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 2">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 2</span></div></div>
+          <div class="codice "><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 2 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 2</strong> · <code>nano-2</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 3">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 3</span></div></div>
+          <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 3 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 3</strong> · <code>nano-3</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 4">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 4</span></div></div>
+          <div class="codice "><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 4 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 4</strong> · <code>nano-4</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 5">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-5.png" alt="Nano del 5"></div>
+          <div class="codice "><span class="tessera"><span>5</span></span><span class="tessera"><span>5</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 5 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 5</strong> · <code>nano-5</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 6">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 6</span></div></div>
+          <div class="codice "><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 6 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 6</strong> · <code>nano-6</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Nano del 7">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 7</span></div></div>
+          <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 7 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Nano del 7</strong> · <code>nano-7</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Fenice">
+        <span class="punti"><span>0</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🔥</span><span class="nome">Fenice</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>2</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Hai un 8 a disposizione, una volta per turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Fenice</strong> · <code>fenice</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Drago">
+        <span class="punti"><span>0</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐉</span><span class="nome">Drago</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Come un nano, ma a ogni turno scegli tu il valore della carta</p>
+        </div>
+      </div>
+      <figcaption><strong>Drago</strong> · <code>drago</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Cappuccetto Rosso">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🧺</span><span class="nome">Cappuccetto Rosso</span></div></div>
+          <div class="codice lungo"><span class="tessera"><span>4</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Fai 4 mosse per turno invece di 3</p>
+        </div>
+      </div>
+      <figcaption><strong>Cappuccetto Rosso</strong> · <code>cappuccetto-rosso</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Scimmia">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐒</span><span class="nome">Scimmia</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>…</span></span><span class="nota">somma 10</span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Limite della mano +1</p>
+        </div>
+      </div>
+      <figcaption><strong>Scimmia</strong> · <code>scimmia</code> · 3 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Strega">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🧙</span><span class="nome">Strega</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="nota">somma 7</span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Scarta un personaggio non ancora attivato dai posti di un avversario</p>
+        </div>
+      </div>
+      <figcaption><strong>Strega</strong> · <code>strega</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Gatto con gli stivali">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐈</span><span class="nome">Gatto con gli stivali</span></div></div>
+          <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>5</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Una delle carte del codice, a tua scelta, non si scarta e resta in mano</p>
+        </div>
+      </div>
+      <figcaption><strong>Gatto con gli stivali</strong> · <code>gatto-con-gli-stivali</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Unicorno">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🦄</span><span class="nome">Unicorno</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>2</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>4</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 2 diamanti</p>
+        </div>
+      </div>
+      <figcaption><strong>Unicorno</strong> · <code>unicorno</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Pinco">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🎈</span><span class="nome">Pinco</span></div></div>
+          <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 1 diamante</p>
+        </div>
+      </div>
+      <figcaption><strong>Pinco</strong> · <code>pinco</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Panco">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🎪</span><span class="nome">Panco</span></div></div>
+          <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 1 diamante</p>
+        </div>
+      </div>
+      <figcaption><strong>Panco</strong> · <code>panco</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Leone">
+        <span class="punti"><span>5</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🦁</span><span class="nome">Leone</span></div></div>
+          <div class="codice "><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Leone</strong> · <code>leone</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Giganti">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🗿</span><span class="nome">Giganti</span></div></div>
+          <div class="codice "><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Giganti</strong> · <code>giganti</code> · 3 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Hansel e Gretel">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍬</span><span class="nome">Hansel e Gretel</span></div></div>
+          <div class="codice "><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Hansel e Gretel</strong> · <code>hansel-e-gretel</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Goblin">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">👺</span><span class="nome">Goblin</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">coppia</span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Goblin</strong> · <code>goblin</code> · 3 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Cerbero">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐕</span><span class="nome">Cerbero</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">tris</span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Cerbero</strong> · <code>cerbero</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Quercia umana">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🌳</span><span class="nome">Quercia umana</span></div></div>
+          <div class="codice lungo"><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">poker</span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Quercia umana</strong> · <code>quercia-umana</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Regina">
+        <span class="punti"><span>4</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">👑</span><span class="nome">Regina</span></div></div>
+          <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Regina</strong> · <code>regina</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Gnomo">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍄</span><span class="nome">Gnomo</span></div></div>
+          <div class="codice lungo"><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="segno">+</span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">coppia</span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 1 diamante</p>
+        </div>
+      </div>
+      <figcaption><strong>Gnomo</strong> · <code>gnomo</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Mago">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🔮</span><span class="nome">Mago</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>n</span></span><span class="tessera generica"><span>+1</span></span><span class="tessera generica"><span>+2</span></span><span class="nota">scala da 3</span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Puoi vedere la prima carta coperta del mazzo personaggi</p>
+        </div>
+      </div>
+      <figcaption><strong>Mago</strong> · <code>mago</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Fantasma">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">👻</span><span class="nome">Fantasma</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>a</span></span><span class="tessera generica"><span>a</span></span><span class="tessera generica"><span>b</span></span><span class="tessera generica"><span>b</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Il giocatore successivo ha una mossa in più nel suo prossimo turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Fantasma</strong> · <code>fantasma</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Bacchetta magica (superpotere)">
+        <span class="punti"><span>0</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪄</span><span class="nome">Bacchetta magica (superpotere)</span></div></div>
+          <div class="codice "><span class="tessera"><span>4</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Una volta per turno puoi bruciare senza consumare una mossa</p>
+        </div>
+      </div>
+      <figcaption><strong>Bacchetta magica (superpotere)</strong> · <code>bacchetta-magica</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Robin Hood">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🏹</span><span class="nome">Robin Hood</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="nota">somma 10</span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano</p>
+        </div>
+      </div>
+      <figcaption><strong>Robin Hood</strong> · <code>robin-hood</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Hobbit pari">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🥾</span><span class="nome">Hobbit pari</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>P</span></span><span class="tessera generica"><span>P</span></span><span class="tessera generica"><span>P</span></span><span class="nota">pari</span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 1 diamante</p>
+        </div>
+      </div>
+      <figcaption><strong>Hobbit pari</strong> · <code>hobbit-pari</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Hobbit dispari">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🥾</span><span class="nome">Hobbit dispari</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>D</span></span><span class="tessera generica"><span>D</span></span><span class="tessera generica"><span>D</span></span><span class="nota">dispari</span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Ricevi 1 diamante</p>
+        </div>
+      </div>
+      <figcaption><strong>Hobbit dispari</strong> · <code>hobbit-dispari</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Golem pari">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪨</span><span class="nome">Golem pari</span></div></div>
+          <div class="codice "><span class="tessera"><span>2</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">3 mosse in più in questo turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Golem pari</strong> · <code>golem-pari</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Golem dispari">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪨</span><span class="nome">Golem dispari</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>7</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">3 mosse in più in questo turno</p>
+        </div>
+      </div>
+      <figcaption><strong>Golem dispari</strong> · <code>golem-dispari</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Ercole">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">💪</span><span class="nome">Ercole</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="nota">somma 20</span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Ercole</strong> · <code>ercole</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta rosso" style="--larghezza: 220px" title="Fatina">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🧚</span><span class="nome">Fatina</span></div></div>
+          <div class="codice "><span class="tessera"><span>5</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>7</span></span></div>
+          <span class="tipo">Rosso - una volta</span>
+          <p class="testo-potere ">Guardi tutte le carte in mano a un avversario e ne prendi una a scelta</p>
+        </div>
+      </div>
+      <figcaption><strong>Fatina</strong> · <code>fatina</code> · 2 copie</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Scheletro (la Morte)">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">💀</span><span class="nome">Scheletro (la Morte)</span></div></div>
+          <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>8</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo</p>
+        </div>
+      </div>
+      <figcaption><strong>Scheletro (la Morte)</strong> · <code>scheletro</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Cappellaio matto">
+        <span class="punti"><span>2</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🎩</span><span class="nome">Cappellaio matto</span></div></div>
+          <div class="codice "><span class="tessera generica"><span>n</span></span><span class="tessera generica"><span>…</span></span><span class="tessera generica"><span>+4</span></span><span class="nota">scala da 5</span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere lungo">A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa</p>
+        </div>
+      </div>
+      <figcaption><strong>Cappellaio matto</strong> · <code>cappellaio-matto</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta misto" style="--larghezza: 220px" title="Xena">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⚔️</span><span class="nome">Xena</span></div></div>
+          <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>7</span></span></div>
+          <span class="tipo">Rosso + Blu</span>
+          <p class="testo-potere lungo">Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta</p>
+        </div>
+      </div>
+      <figcaption><strong>Xena</strong> · <code>xena</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta nessuno" style="--larghezza: 220px" title="Capitan Uncino">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🏴‍☠️</span><span class="nome">Capitan Uncino</span></div></div>
+          <div class="codice lungo"><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span><span class="segno">+</span><span class="tessera diamante"><span>◆</span></span></div>
+          <span class="tipo">Senza potere</span>
+          
+        </div>
+      </div>
+      <figcaption><strong>Capitan Uncino</strong> · <code>capitan-uncino</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Folletto">
+        <span class="punti"><span>1</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍀</span><span class="nome">Folletto</span></div></div>
+          <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere ">Ogni 3 in mano può valere qualsiasi numero da 1 a 8</p>
+        </div>
+      </div>
+      <figcaption><strong>Folletto</strong> · <code>folletto</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta blu" style="--larghezza: 220px" title="Biancaneve">
+        <span class="punti"><span>0</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍎</span><span class="nome">Biancaneve</span></div></div>
+          <div class="codice "><span class="tessera"><span>2</span></span></div>
+          <span class="tipo">Blu - sempre</span>
+          <p class="testo-potere lungo">Ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa</p>
+        </div>
+      </div>
+      <figcaption><strong>Biancaneve</strong> · <code>biancaneve</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta speciale" style="--larghezza: 220px" title="Lucciola 444/555">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">✨</span><span class="nome">Lucciola 444/555</span></div></div>
+          <div class="codice lungo"><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span><span class="segno">o</span><span class="tessera"><span>5</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>5</span></span></div>
+          <span class="tipo">Speciale</span>
+          <p class="testo-potere lungo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>
+        </div>
+      </div>
+      <figcaption><strong>Lucciola 444/555</strong> · <code>lucciola-444-555</code> · 1 copia</figcaption>
+    </figure>
+    <figure>
+      <div class="carta speciale" style="--larghezza: 220px" title="Lucciola 333/666">
+        <span class="punti"><span>3</span></span>
+        <div class="cornice">
+          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">✨</span><span class="nome">Lucciola 333/666</span></div></div>
+          <div class="codice lungo"><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="segno">o</span><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span></div>
+          <span class="tipo">Speciale</span>
+          <p class="testo-potere lungo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>
+        </div>
+      </div>
+      <figcaption><strong>Lucciola 333/666</strong> · <code>lucciola-333-666</code> · 1 copia</figcaption>
+    </figure>
   </main>
 </body>
 </html>

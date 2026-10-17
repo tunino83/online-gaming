@@ -1,30 +1,38 @@
 /**
- * Schermata di gioco essenziale del primo gioco: tutto ciò che il giocatore vede,
- * e le mosse possibili come pulsanti (le calcola il server).
+ * Schermata di gioco del primo gioco.
+ * Sul tavolo si tocca una carta per prenderla e un mazzo coperto per pescare;
+ * le altre mosse (attivare, azioni gratuite, scelte, fine turno) sono pulsanti.
+ * Le mosse possibili le calcola sempre il server.
  */
-import { type CartaDiamante, type CartaPersonaggio, type Mossa, type VistaGiocatore, personaggio } from "@og/primo-gioco";
-import { useMemo, useState } from "react";
+import type { CartaDiamante, CartaPersonaggio, Mossa, VistaGiocatore } from "@og/primo-gioco";
+import { useEffect, useMemo, useState } from "react";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
-import { aPersona, descriviMossa, gruppoMossa, raccogliCarte, testoDiamante } from "./descrivi";
+import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
+import { aPersona, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
 
 const TITOLI_GRUPPI = {
   scelta: "Devi scegliere",
   attiva: "Attiva un personaggio (costa 1)",
   gratis: "Azioni gratuite",
-  mosse: "Mosse (costano 1)",
   fine: "Chiudi il turno",
 } as const;
+type GruppoElenco = keyof typeof TITOLI_GRUPPI;
 
 export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
   const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
   const [invio, setInvio] = useState(false);
-  // Dopo una mossa riuscita i pulsanti restano spenti finché non arriva la situazione aggiornata
+  // Dopo una mossa riuscita i comandi restano spenti finché non arriva la situazione aggiornata
   // (versione più nuova di questa), così non si può toccare una mossa ormai vecchia.
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
+  const [ingrandita, setIngrandita] = useState<string | null>(null);
+  // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
+  const [daScartare, setDaScartare] = useState<string[]>([]);
+  const versione = riga?.versione;
+  useEffect(() => setDaScartare([]), [versione]);
   const nick = useMemo(() => {
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
     return (id: string) => m.get(id) ?? "?";
@@ -36,8 +44,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const v = riga.vista;
   const carte = raccogliCarte(v);
   const mioTurno = v.turno.giocatore === io && !v.finita;
-
   const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
+  const mosse = mioTurno ? riga.mosse_valide : [];
 
   async function gioca(mossa: Mossa) {
     if (bloccato) return;
@@ -54,11 +62,44 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     }
   }
 
-  const gruppi = new Map<keyof typeof TITOLI_GRUPPI, Mossa[]>();
-  for (const m of riga.mosse_valide) {
+  /** Funzione da chiamare toccando qualcosa sul tavolo, se quella mossa è possibile ora. */
+  const seValida = (cerca: (m: Mossa) => boolean) => {
+    const m = mosse.find(cerca);
+    return m ? () => gioca(m) : undefined;
+  };
+  const ingrandisci = (c: CartaPersonaggio) => () => setIngrandita(c.personaggio);
+
+  const gruppi = new Map<GruppoElenco, Mossa[]>();
+  for (const m of mosse) {
     const g = gruppoMossa(m);
+    // Si fanno toccando le carte: tavolo, scarto del personaggio in più, Fatina, fine turno
+    if (g === "tavolo" || g === "scelta" || g === "fine") continue;
     gruppi.set(g, [...(gruppi.get(g) ?? []), m]);
   }
+
+  // Fine turno: si toccano le carte da scartare (se troppe), poi "Chiudi il turno"
+  const puoChiudere = mosse.some((m) => m.tipo === "fineTurno");
+  const conScheletro = mosse.some((m) => m.tipo === "fineTurno" && m.cambiaMano);
+  const eccesso = Math.max(0, v.mano.length - v.limiteMano);
+  const scegliScarti = puoChiudere && eccesso > 0;
+  const scartiPronti = daScartare.length === eccesso;
+  const alternaScarto = (id: string) => () =>
+    setDaScartare((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < eccesso ? [...s, id] : s));
+  const chiudiTurno = (cambiaMano: boolean) => gioca({ tipo: "fineTurno", scarta: daScartare, cambiaMano });
+
+  const attesa = mioTurno ? v.turno.attesa : null;
+  const suggerimento =
+    attesa?.tipo === "scartaPersonaggio"
+      ? "Hai 3 personaggi: tocca nei tuoi posti quello da scartare (non il nuovo)"
+      : attesa?.tipo === "fatina"
+        ? "Tocca la carta che vuoi prendere"
+        : scegliScarti
+          ? `Hai troppe carte: tocca nella tua mano le ${eccesso} da scartare, poi chiudi il turno`
+          : v.turno.mosseRimaste > 0
+            ? "Tocca una carta evidenziata per prenderla, o un mazzo per pescare"
+            : null;
+  const brucia = seValida((m) => m.tipo === "brucia");
+  const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
 
   return (
     <div className="space-y-4">
@@ -67,53 +108,109 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       ) : (
         <div className={`rounded-xl px-4 py-3 text-center font-semibold ${mioTurno ? "bg-blu text-white" : "bg-carta"}`}>
           {mioTurno ? `Tocca a te! Mosse rimaste: ${v.turno.mosseRimaste}` : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
+          {mioTurno && suggerimento && <div className="text-xs font-normal">{suggerimento}</div>}
           {v.ultimoTurno !== null && <div className="text-xs font-normal">Ultimo giro: qualcuno ha raggiunto i punti per vincere</div>}
         </div>
       )}
+      <Errore testo={errore} />
 
       <Riquadro titolo="Tavolo">
-        <div className="mb-2 flex flex-wrap gap-2">
-          {v.tavolo.numeri.map((c, i) => (c ? <Numero key={c.id} valore={c.valore} /> : <Vuoto key={`n${i}`} />))}
+        <div className="flex items-start justify-center gap-3">
+          <DorsoMazzo
+            nome="Numeri"
+            quante={v.mazzi.numeri}
+            larghezza={80}
+            onTocca={seValida((m) => m.tipo === "pescaNumero")}
+            disabilitata={bloccato}
+          />
+          <DorsoMazzo
+            nome="Personaggi"
+            quante={v.mazzi.personaggi}
+            larghezza={80}
+            onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
+            disabilitata={bloccato}
+          />
+          <div className="text-center text-xs text-tenue">
+            <DorsoMazzo nome="Diamanti" quante={v.mazzi.diamanti} larghezza={64} />
+            <div className="mt-1">solo dai poteri</div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          {v.tavolo.personaggi.map((c, i) => (c ? <MiniPersonaggio key={c.id} carta={c} /> : <Vuoto key={`p${i}`} />))}
+
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {v.tavolo.numeri.map((c, i) =>
+            c ? (
+              <CartaNumeroGrafica
+                key={c.id}
+                valore={c.valore}
+                larghezza={64}
+                onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
+                disabilitata={bloccato}
+              />
+            ) : (
+              <PostoVuoto key={`n${i}`} larghezza={64} />
+            ),
+          )}
         </div>
-        <p className="mt-2 text-xs text-tenue">
-          Mazzi coperti: {v.mazzi.numeri} numeri · {v.mazzi.personaggi} personaggi · {v.mazzi.diamanti} diamanti
-        </p>
+        {(brucia || bruciaGratis) && (
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            {brucia && (
+              <button type="button" disabled={bloccato} onClick={brucia} className="rounded-full border-2 border-rosso px-4 py-1.5 text-sm font-semibold text-rosso disabled:opacity-40">
+                🔥 Brucia le 4 carte (costa 1)
+              </button>
+            )}
+            {bruciaGratis && (
+              <button type="button" disabled={bloccato} onClick={bruciaGratis} className="rounded-full border-2 border-blu px-4 py-1.5 text-sm font-semibold text-blu disabled:opacity-40">
+                🪄 Brucia gratis
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          {v.tavolo.personaggi.map((c, i) =>
+            c ? (
+              <CartaPersonaggioGrafica
+                key={c.id}
+                id={c.personaggio}
+                larghezza={138}
+                onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
+                onIngrandisci={ingrandisci(c)}
+                disabilitata={bloccato}
+              />
+            ) : (
+              <PostoVuoto key={`p${i}`} larghezza={138} />
+            ),
+          )}
+        </div>
+
         {v.primoPersonaggio && (
-          <div className="mt-3">
+          <div className="mt-4 flex flex-col items-center">
             <p className="mb-1 text-xs font-bold text-tenue">Prima carta del mazzo personaggi (Mago):</p>
-            <MiniPersonaggio carta={v.primoPersonaggio} />
+            <CartaPersonaggioGrafica id={v.primoPersonaggio.personaggio} larghezza={120} compatta onIngrandisci={ingrandisci(v.primoPersonaggio)} />
           </div>
         )}
       </Riquadro>
 
       {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
         <Riquadro titolo={`Mano di ${nick(v.turno.attesa.avversario)} (Fatina)`}>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {v.manoAvversario.map((c) => (
-              <Numero key={c.id} valore={c.valore} />
+              <CartaNumeroGrafica
+                key={c.id}
+                valore={c.valore}
+                larghezza={64}
+                onTocca={seValida((m) => m.tipo === "prendiDaFatina" && m.carta === c.id)}
+                disabilitata={bloccato}
+              />
             ))}
           </div>
         </Riquadro>
       )}
 
-      <Riquadro titolo={`La tua mano (${v.mano.length}/${v.limiteMano})`}>
-        <div className="flex flex-wrap gap-2">
-          {v.mano.length === 0 && <span className="text-sm text-tenue">Nessuna carta</span>}
-          {[...v.mano].sort((a, b) => a.valore - b.valore).map((c) => (
-            <Numero key={c.id} valore={c.valore} />
-          ))}
-        </div>
-        <Diamanti diamanti={v.giocatori[io]?.diamanti ?? []} />
-      </Riquadro>
-
-      {mioTurno && (
+      {gruppi.size > 0 && (
         <Riquadro titolo="Cosa vuoi fare?">
-          <Errore testo={errore} />
           <div className="space-y-4">
-            {(Object.keys(TITOLI_GRUPPI) as (keyof typeof TITOLI_GRUPPI)[]).map((g) =>
+            {(Object.keys(TITOLI_GRUPPI) as GruppoElenco[]).map((g) =>
               gruppi.has(g) ? (
                 <div key={g}>
                   <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">{TITOLI_GRUPPI[g]}</h3>
@@ -137,35 +234,138 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         </Riquadro>
       )}
 
+      <Riquadro titolo={`La tua mano (${v.mano.length}/${v.limiteMano})`}>
+        <div className="flex flex-wrap gap-2">
+          {v.mano.length === 0 && <span className="text-sm text-tenue">Nessuna carta</span>}
+          {[...v.mano]
+            .sort((a, b) => a.valore - b.valore)
+            .map((c) => (
+              <CartaNumeroGrafica
+                key={c.id}
+                valore={c.valore}
+                larghezza={60}
+                selezionata={daScartare.includes(c.id)}
+                onTocca={scegliScarti ? alternaScarto(c.id) : undefined}
+                disabilitata={bloccato}
+              />
+            ))}
+        </div>
+        <Diamanti diamanti={v.giocatori[io]?.diamanti ?? []} />
+        {puoChiudere && (
+          <div className="mt-4 space-y-2">
+            {scegliScarti && (
+              <p className="text-sm font-semibold text-rosso">
+                Da scartare: {daScartare.length} di {eccesso}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={bloccato || !scartiPronti}
+              onClick={() => chiudiTurno(false)}
+              className="w-full rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
+            >
+              {eccesso > 0 ? `Scarta ${eccesso} e chiudi il turno` : "Chiudi il turno"}
+            </button>
+            {conScheletro && (
+              <button
+                type="button"
+                disabled={bloccato || !scartiPronti}
+                onClick={() => chiudiTurno(true)}
+                className="w-full rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40"
+              >
+                💀 Chiudi il turno cambiando tutta la mano (Scheletro)
+              </button>
+            )}
+          </div>
+        )}
+      </Riquadro>
+
       {v.ordine.map((id) => (
-        <SchedaGiocatore key={id} nome={nick(id)} tu={id === io} diTurno={id === v.turno.giocatore && !v.finita} g={v.giocatori[id]!} />
+        <SchedaGiocatore
+          key={id}
+          nome={nick(id)}
+          tu={id === io}
+          diTurno={id === v.turno.giocatore && !v.finita}
+          g={v.giocatori[id]!}
+          postiMax={2}
+          ingrandisci={ingrandisci}
+          toccaPosto={
+            id === io
+              ? (c) => seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
+              : () => undefined
+          }
+          disabilitata={bloccato}
+        />
       ))}
+
+      {ingrandita && (
+        <div className="velo" onClick={() => setIngrandita(null)} role="dialog" aria-label="Carta ingrandita">
+          <div className="flex flex-col items-center gap-3">
+            <CartaPersonaggioGrafica id={ingrandita} larghezza={Math.min(320, window.innerWidth - 48)} />
+            <span className="rounded-full bg-white px-4 py-1.5 text-sm font-semibold">Tocca per chiudere</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function SchedaGiocatore({ nome, tu, diTurno, g }: { nome: string; tu: boolean; diTurno: boolean; g: VistaGiocatore["giocatori"][string] }) {
+function SchedaGiocatore({
+  nome,
+  tu,
+  diTurno,
+  g,
+  postiMax,
+  ingrandisci,
+  toccaPosto,
+  disabilitata,
+}: {
+  nome: string;
+  tu: boolean;
+  diTurno: boolean;
+  g: VistaGiocatore["giocatori"][string];
+  postiMax: number;
+  ingrandisci: (c: CartaPersonaggio) => () => void;
+  toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
+  disabilitata: boolean;
+}) {
+  const larghezza = tu ? 138 : 112;
   return (
     <section className={`rounded-2xl border-2 bg-carta p-4 ${diTurno ? "border-blu" : "border-inchiostro/15"}`}>
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-titolo text-lg font-bold">
-          {nome} {tu && <span className="text-sm font-normal text-tenue">(tu)</span>}
+          {tu ? "I tuoi personaggi" : nome}
         </h3>
         <span className="rounded-full bg-inchiostro px-3 py-1 text-sm font-bold text-carta">{g.punti} punti</span>
       </div>
-      <p className="text-xs text-tenue">Carte in mano: {g.carteInMano}</p>
-      <Diamanti diamanti={g.diamanti} />
-      <p className="mt-2 text-xs font-bold text-tenue">Nei posti</p>
-      <div className="grid grid-cols-2 gap-2">
-        {g.posti.length === 0 && <span className="text-sm text-tenue">Vuoti</span>}
+      {!tu && <p className="text-xs text-tenue">Carte in mano: {g.carteInMano}</p>}
+      {!tu && <Diamanti diamanti={g.diamanti} />}
+      <p className="mt-2 mb-1 text-xs font-bold text-tenue">Nei posti</p>
+      <div className="flex flex-wrap gap-3">
         {g.posti.map((c) => (
-          <MiniPersonaggio key={c.id} carta={c} />
+          <CartaPersonaggioGrafica
+            key={c.id}
+            id={c.personaggio}
+            larghezza={larghezza}
+            compatta={!tu}
+            onTocca={toccaPosto(c)}
+            onIngrandisci={ingrandisci(c)}
+            disabilitata={disabilitata}
+          />
+        ))}
+        {Array.from({ length: Math.max(0, postiMax - g.posti.length) }, (_, i) => (
+          <PostoVuoto key={i} larghezza={larghezza} />
         ))}
       </div>
       {g.attivati.length > 0 && (
-        <p className="mt-2 text-xs text-tenue">
-          <strong>Attivati:</strong> {g.attivati.map((c) => personaggio(c.personaggio).nome).join(", ")}
-        </p>
+        <>
+          <p className="mt-3 mb-1 text-xs font-bold text-tenue">Attivati ({g.attivati.length})</p>
+          <div className="flex flex-wrap gap-1.5">
+            {g.attivati.map((c) => (
+              <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={64} compatta onIngrandisci={ingrandisci(c)} />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
@@ -174,47 +374,11 @@ function SchedaGiocatore({ nome, tu, diTurno, g }: { nome: string; tu: boolean; 
 function Diamanti({ diamanti }: { diamanti: CartaDiamante[] }) {
   if (diamanti.length === 0) return null;
   return (
-    <p className="mt-2 text-sm">
-      Diamanti:{" "}
+    <div className="mt-2 flex flex-wrap items-center text-sm">
+      <span className="mr-1">Diamanti:</span>
       {diamanti.map((d) => (
-        <span key={d.id} className="mr-1 rounded bg-[#1f9bb5]/10 px-1.5 py-0.5 font-semibold text-[#1f7f95]">
-          {testoDiamante(d)}
-        </span>
+        <Diamante key={d.id} d={d} />
       ))}
-    </p>
-  );
-}
-
-function Numero({ valore }: { valore: number }) {
-  return (
-    <span className="grid h-12 w-9 place-items-center rounded-md border-2 border-inchiostro bg-white font-titolo text-xl font-bold">
-      {valore}
-    </span>
-  );
-}
-
-function Vuoto() {
-  return <span className="grid h-12 w-9 place-items-center rounded-md border-2 border-dashed border-inchiostro/20 text-tenue">–</span>;
-}
-
-function coloreTipo(c: CartaPersonaggio): string {
-  const colori = new Set(personaggio(c.personaggio).poteri.map((p) => p.colore));
-  if (colori.size === 0) return "border-tenue";
-  if (colori.has("speciale")) return "border-oro";
-  if (colori.has("rosso") && colori.has("blu")) return "border-[#7b4a9e]";
-  return colori.has("rosso") ? "border-rosso" : "border-blu";
-}
-
-function MiniPersonaggio({ carta }: { carta: CartaPersonaggio }) {
-  const p = personaggio(carta.personaggio);
-  return (
-    <div className={`rounded-lg border-[3px] bg-white p-2 text-xs ${coloreTipo(carta)}`}>
-      <div className="flex items-start justify-between gap-1">
-        <strong className="font-titolo text-sm leading-tight">{p.nome}</strong>
-        <span className="shrink-0 rounded-full bg-inchiostro px-1.5 text-[11px] font-bold text-carta">{p.punti}</span>
-      </div>
-      <div className="mt-1 font-semibold">Codice: {p.codiceTesto}</div>
-      {p.poteri.length > 0 && <div className="mt-0.5 leading-snug text-tenue">{p.potereTesto}</div>}
     </div>
   );
 }

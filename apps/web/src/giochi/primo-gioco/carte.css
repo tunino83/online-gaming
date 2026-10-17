@@ -1,0 +1,233 @@
+/*
+ * Carte del primo gioco. Tutte le misure sono in "em": la dimensione della carta
+ * si sceglie impostando la larghezza (--larghezza) e tutto il resto si adatta.
+ * Stile: cornice colorata per tipo di potere, punti in alto a destra, illustrazione,
+ * codice in tessere bianche sul bordo dell'illustrazione, etichetta e testo del potere.
+ */
+.carta,
+.carta * {
+  box-sizing: border-box;
+}
+.carta {
+  --c: #1f4f8f;
+  --scuro: #14213d;
+  font-size: calc(var(--larghezza, 180px) / 12);
+  width: 12em;
+  aspect-ratio: 63 / 88;
+  position: relative;
+  flex: none;
+  border-radius: 0.9em;
+  padding: 0.3em;
+  background: #eef1f6;
+  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.25);
+  color: var(--scuro);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  user-select: none;
+}
+.carta.rosso { --c: #b3261e; }
+.carta.speciale { --c: #c08a12; }
+.carta.nessuno { --c: #6b7280; }
+.carta.misto { --c: #6d3fa0; }
+
+.carta .cornice {
+  height: 100%;
+  border: 0.32em solid var(--c);
+  border-radius: 0.7em;
+  background: #fff;
+  padding: 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.carta.misto .cornice {
+  border-color: transparent;
+  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
+}
+
+.carta .punti {
+  position: absolute;
+  top: -0.15em;
+  right: -0.15em;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: 50%;
+  background: var(--c);
+  border: 0.22em solid #fff;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1em;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0.05em 0.2em rgb(0 0 0 / 0.3);
+  z-index: 2;
+}
+.carta .punti span { font-size: 1.45em; line-height: 1; }
+.carta.misto .punti { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
+
+.carta .arte {
+  width: 100%;
+  height: 7.9em;
+  flex: none;
+  margin-top: 0.9em;
+  border: 0.12em solid var(--scuro);
+  border-radius: 0.45em;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--c) 22%, #fff), color-mix(in srgb, var(--c) 6%, #fff));
+}
+.carta .arte img { width: 100%; height: 100%; object-fit: cover; }
+.carta .arte .simbolo { font-size: 3.4em; line-height: 1; }
+.carta .arte .nome { font-size: 0.75em; font-weight: 700; margin-top: 0.2em; padding: 0 0.3em; line-height: 1.1; }
+.carta .arte .segnaposto { display: flex; flex-direction: column; align-items: center; padding-bottom: 1.2em; }
+
+.carta .codice {
+  margin-top: -1.5em;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.18em;
+  max-width: 100%;
+  z-index: 1;
+}
+.carta .tessera {
+  min-width: 2.05em;
+  height: 2.45em;
+  padding: 0 0.15em;
+  border-radius: 0.35em;
+  border: 0.14em solid var(--scuro);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1em;
+  box-shadow: 0 0.05em 0.15em rgb(0 0 0 / 0.25);
+}
+.carta .tessera span { font-size: 1.55em; line-height: 1; }
+.carta .tessera.generica { border-style: dashed; color: #6b7280; }
+.carta .tessera.generica span { font-size: 1em; }
+.carta .tessera.diamante { color: #1f9bb5; border-color: #1f9bb5; }
+.carta .nota {
+  font-size: 0.55em;
+  font-weight: 700;
+  background: #fff;
+  border: 0.15em solid var(--scuro);
+  border-radius: 99em;
+  padding: 0.15em 0.6em;
+}
+.carta .segno { font-weight: 800; font-size: 0.9em; background: #fff; border-radius: 99em; padding: 0 0.25em; }
+
+.carta .tipo {
+  margin-top: 0.45em;
+  background: var(--c);
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.74em;
+  padding: 0.3em 1em;
+  border-radius: 99em;
+}
+.carta.misto .tipo { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
+.carta .testo-potere {
+  margin-top: 0.35em;
+  font-size: 0.8em;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Versione compatta (carte piccole): niente testo del potere. */
+.carta.compatta .testo-potere { display: none; }
+.carta.compatta .arte { height: 8.6em; }
+
+/* Carta numero */
+.carta.numero .cornice { justify-content: center; position: relative; }
+.carta.numero .valore { font-size: 5.2em; font-weight: 800; line-height: 1; }
+.carta.numero .angolo { position: absolute; font-size: 1.3em; font-weight: 800; line-height: 1; }
+.carta.numero .angolo.alto { top: 0.35em; left: 0.4em; }
+.carta.numero .angolo.basso { bottom: 0.35em; right: 0.4em; transform: rotate(180deg); }
+
+/* Dorso dei mazzi coperti */
+.carta.dorso .cornice {
+  background:
+    repeating-linear-gradient(45deg, rgb(255 255 255 / 0.08) 0 0.5em, transparent 0.5em 1em),
+    linear-gradient(160deg, var(--c), var(--scuro));
+  justify-content: center;
+  color: #fff;
+}
+.carta.dorso .etichetta-mazzo { font-size: 1em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+.carta.dorso .conteggio { font-size: 2.6em; font-weight: 800; line-height: 1.1; }
+.carta.dorso.vuoto { opacity: 0.35; }
+
+/* Posto vuoto */
+.carta.vuota { background: transparent; box-shadow: none; border: 0.15em dashed rgb(0 0 0 / 0.2); }
+
+/* Carta che si può toccare */
+.carta.toccabile { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+.carta.toccabile { box-shadow: 0 0 0 0.25em #f4b400, 0 0.3em 0.8em rgb(0 0 0 / 0.3); }
+.carta.toccabile:hover { transform: translateY(-0.25em); }
+.carta.toccabile:active { transform: scale(0.97); }
+button.carta { border: none; }
+button.carta:disabled { cursor: wait; opacity: 0.7; }
+
+/* Diamanti */
+.gettone {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  margin: 0.15em;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, #3cc4dd, #1f7f95);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+.gettone.fulmine { background: linear-gradient(135deg, #ffd34d, #e39b00); color: #3a2a00; }
+.carta.ingrandibile { cursor: zoom-in; }
+
+/* Carta ingrandita sopra tutto */
+.velo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgb(0 0 0 / 0.6);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+/* Codici lunghi (5 o più pezzi): tessere più strette, per stare su una riga */
+.carta .codice.lungo { gap: 0.1em; }
+.carta .codice.lungo .tessera { min-width: 1.6em; height: 2.15em; padding: 0; }
+.carta .codice.lungo .tessera span { font-size: 1.3em; }
+.carta .codice.lungo .nota { font-size: 0.45em; padding: 0.15em 0.4em; }
+.carta.dorso .etichetta-mazzo { font-size: 1.25em; }
+.carta .testo-potere.lungo { font-size: 0.66em; -webkit-line-clamp: 6; }
+
+/* Carta scelta per essere scartata */
+.carta.selezionata,
+.carta.toccabile.selezionata { box-shadow: 0 0 0 0.4em #b3261e, 0 0.3em 0.8em rgb(0 0 0 / 0.3); transform: translateY(-0.4em); }
+.carta.selezionata .cornice { opacity: 0.45; }
+.carta.selezionata::after {
+  content: "✕";
+  position: absolute;
+  top: -0.6em;
+  right: -0.6em;
+  width: 3.2em;
+  height: 3.2em;
+  border-radius: 50%;
+  background: #b3261e;
+  color: #fff;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  font-size: 1.3em;
+  z-index: 3;
+}
