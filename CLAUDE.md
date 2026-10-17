@@ -30,6 +30,7 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm typecheck` – controllo dei tipi TypeScript.
 - `pnpm check` – entrambi: da lanciare prima di ogni commit.
 - `pnpm simula [n]` – simula n partite tra bot (default 1000) e scrive `docs/statistiche-simulazione.md`.
+- `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 
 ## Architettura
 
@@ -51,3 +52,5 @@ File principali del primo gioco (`games/primo-gioco/src`):
 - `personaggi.ts` dati dei personaggi; `mazzi.ts` composizione dei mazzi
 - `codici.ts` verifica dei codici di attivazione; `regole.ts` turno, poteri, fine partita
 - `stato.ts` stato e mosse; `vista.ts` cosa vede ogni giocatore; `bot.ts` e `simulazione.ts`
+- Immagini dei personaggi: `games/primo-gioco/immagini/<id>.png|jpg|webp` (vedi `LEGGIMI.md` lì dentro);
+  senza immagine la carta mostra un simbolo provvisorio. La grafica della carta in Fase 2 riprende quella di `scripts/anteprima-carte.ts`.

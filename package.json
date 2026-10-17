@@ -8,7 +8,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "check": "pnpm typecheck && pnpm test",
-    "simula": "tsx games/primo-gioco/scripts/simula.ts"
+    "simula": "tsx games/primo-gioco/scripts/simula.ts",
+    "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts"
   },
   "devDependencies": {
     "@types/node": "^20",
