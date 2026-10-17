@@ -34,8 +34,13 @@ export interface StatoTurno {
   virtualiUsate: string[];
   /** Bacchetta magica già usata in questo turno. */
   bruciaGratisUsata: boolean;
-  /** È già stata fatta un'azione in questo turno (per il Cappellaio matto). */
+  /**
+   * È già stata fatta un'azione "normale" in questo turno: da quel momento non si possono più
+   * usare i poteri di inizio turno (Cappellaio matto, Bacchetta magica).
+   */
   iniziato: boolean;
+  /** Cappellaio matto già usato in questo turno (può mancare nelle partite vecchie). */
+  scambioUsato?: boolean;
   attesa: Attesa | null;
   /**
    * Mago: id della prima carta del mazzo personaggi vista a inizio turno (null se niente Mago).

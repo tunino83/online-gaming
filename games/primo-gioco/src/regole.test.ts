@@ -626,6 +626,33 @@ describe("poteri blu", () => {
     );
   });
 
+  it("Bacchetta magica: si usa solo a inizio turno, prima di ogni altra azione", () => {
+    let s = partita();
+    s.giocatori.A!.attivati = [pers("bacchetta-magica")];
+    s = gioca(s, "A", { tipo: "pescaNumero" });
+    expect(errore(s, "A", { tipo: "bruciaGratis" })).toBe("La Bacchetta magica si usa solo a inizio turno");
+    expect(mosseValide(s, "A")).not.toContainEqual({ tipo: "bruciaGratis" });
+  });
+
+  it("a inizio turno si possono usare sia il Cappellaio sia la Bacchetta, in qualsiasi ordine", () => {
+    for (const primaBacchetta of [true, false]) {
+      let s = partita();
+      s.giocatori.A!.attivati = [pers("bacchetta-magica"), pers("cappellaio-matto")];
+      const mio = pers("goblin");
+      s.giocatori.A!.posti = [mio];
+      const scambio: Mossa = { tipo: "scambiaConTavolo", carta: mio.id, posizione: 0 };
+      if (primaBacchetta) {
+        s = gioca(gioca(s, "A", { tipo: "bruciaGratis" }), "A", scambio);
+      } else {
+        s = gioca(gioca(s, "A", scambio), "A", { tipo: "bruciaGratis" });
+      }
+      expect(s.turno.mosseRimaste).toBe(3);
+      // il Cappellaio resta una volta sola
+      const altro = s.giocatori.A!.posti[0]!;
+      expect(errore(s, "A", { tipo: "scambiaConTavolo", carta: altro.id, posizione: 1 })).toBe("Lo scambio si fa solo a inizio turno");
+    }
+  });
+
   it("Cappellaio matto: non dopo un'altra azione del turno", () => {
     let s = partita();
     s.giocatori.A!.attivati = [pers("cappellaio-matto")];
@@ -855,15 +882,23 @@ describe("chiusura automatica del turno", () => {
     expect(mossaAutomatica(s)).toBeNull();
   });
 
-  it("si chiude da solo anche con Biancaneve o Bacchetta (si usano durante il turno)", async () => {
+  it("Bacchetta (si usa solo a inizio turno) non blocca la chiusura", async () => {
     const { mossaAutomatica } = await import("./regole");
-    for (const [personaggio, mano] of [["biancaneve", [num(2)]], ["bacchetta-magica", []]] as const) {
-      const s = partita();
-      s.giocatori.A!.attivati = [pers(personaggio)];
-      s.giocatori.A!.mano = [...mano];
-      s.turno.mosseRimaste = 0;
-      expect(mossaAutomatica(s), personaggio).toEqual({ giocatore: "A", mossa: fine() });
-    }
+    const s = partita();
+    s.giocatori.A!.attivati = [pers("bacchetta-magica")];
+    s.turno.mosseRimaste = 0;
+    expect(mossaAutomatica(s)).toEqual({ giocatore: "A", mossa: fine() });
+  });
+
+  it("Biancaneve blocca la chiusura solo se c'è un 2 in mano", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    const s = partita();
+    s.giocatori.A!.attivati = [pers("biancaneve")];
+    s.turno.mosseRimaste = 0;
+    s.giocatori.A!.mano = [num(2), num(5)];
+    expect(mossaAutomatica(s)).toBeNull();
+    s.giocatori.A!.mano = [num(3), num(5)];
+    expect(mossaAutomatica(s)).toEqual({ giocatore: "A", mossa: fine() });
   });
 
   it("con mosse ancora disponibili non si chiude da solo", async () => {

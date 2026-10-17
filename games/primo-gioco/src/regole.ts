@@ -262,7 +262,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
 
   if (m.tipo === "scambiaConTavolo") {
     if (!ha(g, "scambiaConTavolo")) rifiuta("Serve il Cappellaio matto");
-    if (t.iniziato) rifiuta("Lo scambio si fa solo a inizio turno");
+    if (t.iniziato || t.scambioUsato) rifiuta("Lo scambio si fa solo a inizio turno");
     const i = g.posti.findIndex((c) => c.id === m.carta);
     if (i < 0) rifiuta("Personaggio non nei tuoi posti");
     const dalTavolo = s.tavolo.personaggi[m.posizione];
@@ -270,7 +270,17 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     s.tavolo.personaggi[m.posizione] = g.posti[i]!;
     registra(s, id, { tipo: "scambiaConTavolo", dato: g.posti[i]!.personaggio, preso: dalTavolo!.personaggio });
     g.posti[i] = dalTavolo!;
-    t.iniziato = true;
+    t.scambioUsato = true; // a inizio turno resta possibile anche la Bacchetta magica
+    return;
+  }
+
+  if (m.tipo === "bruciaGratis") {
+    if (!ha(g, "bruciaGratis")) rifiuta("Serve la Bacchetta magica");
+    if (t.iniziato) rifiuta("La Bacchetta magica si usa solo a inizio turno");
+    if (t.bruciaGratisUsata) rifiuta("La Bacchetta magica si usa una volta per turno");
+    brucia(s);
+    t.bruciaGratisUsata = true;
+    registra(s, id, { tipo: "brucia", gratis: true });
     return;
   }
   t.iniziato = true;
@@ -294,13 +304,6 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       registra(s, id, { tipo: "dueInDiamante" });
       return;
     }
-    case "bruciaGratis":
-      if (!ha(g, "bruciaGratis")) rifiuta("Serve la Bacchetta magica");
-      if (t.bruciaGratisUsata) rifiuta("La Bacchetta magica si usa una volta per turno");
-      brucia(s);
-      t.bruciaGratisUsata = true;
-      registra(s, id, { tipo: "brucia", gratis: true });
-      return;
     case "fineTurno":
       fineTurno(s, g, m.scarta, m.cambiaMano);
       return;
@@ -529,7 +532,7 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
   }
 
   // Azioni gratuite
-  if (!t.iniziato && ha(g, "scambiaConTavolo")) {
+  if (!t.iniziato && !t.scambioUsato && ha(g, "scambiaConTavolo")) {
     for (const c of g.posti)
       s.tavolo.personaggi.forEach((p, posizione) => p && mosse.push({ tipo: "scambiaConTavolo", carta: c.id, posizione }));
   }
@@ -538,7 +541,7 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
   const due = g.mano.find((c) => c.valore === 2);
   if (due && ha(g, "dueInDiamante") && puoPescare(s, "diamanti")) mosse.push({ tipo: "dueInDiamante", carta: due.id });
   const tavoloNumeriPieno = s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri");
-  if (ha(g, "bruciaGratis") && !t.bruciaGratisUsata && tavoloNumeriPieno) mosse.push({ tipo: "bruciaGratis" });
+  if (ha(g, "bruciaGratis") && !t.iniziato && !t.bruciaGratisUsata && tavoloNumeriPieno) mosse.push({ tipo: "bruciaGratis" });
 
   // Mosse che costano
   if (t.mosseRimaste > 0) {
@@ -612,8 +615,8 @@ function sottoinsiemi<T>(lista: T[], k: number, limite: number): T[][] {
 }
 
 /**
- * Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite,
- * tranne se c'è un fulmine da giocare, carte da scartare o lo Scheletro (si usa a fine turno).
+ * Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite, tranne se c'è
+ * un fulmine da giocare, carte da scartare, lo Scheletro o Biancaneve con un 2 in mano.
  */
 export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; mossa: Mossa } | null {
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
@@ -622,6 +625,8 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (g.diamanti.some((d) => d.tipo === "fulmine")) return null; // può ancora giocare il fulmine
   if (g.mano.length > limiteMano(s, g)) return null; // deve scegliere cosa scartare
   if (ha(g, "cambiaMano")) return null; // Scheletro: può cambiare la mano a fine turno
+  // Biancaneve con un 2 in mano: il giocatore sceglie se scambiarlo con un diamante
+  if (ha(g, "dueInDiamante") && g.mano.some((c) => c.valore === 2) && puoPescare(s, "diamanti")) return null;
   return { giocatore, mossa: { tipo: "fineTurno", scarta: [], cambiaMano: false } };
 }
 

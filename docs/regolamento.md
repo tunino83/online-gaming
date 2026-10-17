@@ -113,9 +113,9 @@ Mazzo completo: 42 personaggi diversi, 55 carte. Per aggiungere un personaggio b
 | Quercia umana | Poker | 3 | Nessuno | — | 1 |
 | Regina | 7777 | 4 | Nessuno | — | 2 |
 | Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
-| Mago | Scala da 3 | 1 | Puoi vedere la prima carta coperta del mazzo personaggi | Blu | 1 |
+| Mago | Scala da 3 | 1 | A inizio turno vedi la prima carta coperta del mazzo personaggi | Blu | 1 |
 | Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
-| Bacchetta magica (superpotere) | 4 | 0 | Una volta per turno puoi bruciare senza consumare una mossa | Blu | 1 |
+| Bacchetta magica (superpotere) | 4 | 0 | A inizio turno puoi bruciare senza consumare una mossa | Blu | 1 |
 | Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano | Blu | 1 |
 | Hobbit pari | 3 carte pari | 1 | Ricevi 1 diamante | Rosso | 1 |
 | Hobbit dispari | 3 carte dispari | 1 | Ricevi 1 diamante | Rosso | 1 |
@@ -184,6 +184,8 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 **Decisioni prese (prove nel browser, 2026-10-17)**
 
 - Mago: vede la prima carta coperta del mazzo personaggi solo all'inizio del proprio turno; se la pesca, non vede la successiva. Se il Mago viene attivato a metà turno, il potere si usa dal turno successivo.
-- Fine turno automatico: finite le mosse, il turno si chiude da solo, tranne se il giocatore ha un fulmine da giocare, deve scartare carte in eccesso o ha lo Scheletro (che si usa a fine turno).
+- Fine turno automatico: finite le mosse, il turno si chiude da solo, tranne se il giocatore ha un fulmine da giocare, deve scartare carte in eccesso, ha lo Scheletro (che si usa a fine turno) o ha Biancaneve e almeno un 2 in mano.
+- Biancaneve a fine turno: se si ha un 2 in mano, l'app chiede con un messaggio se scambiarlo con un diamante; rispondendo no il turno si chiude.
+- Bacchetta magica: si brucia gratis solo a inizio turno, prima di qualsiasi altra azione. A inizio turno si possono usare sia la Bacchetta sia il Cappellaio matto, nell'ordine che si vuole.
 
 Nessuna domanda aperta al momento.

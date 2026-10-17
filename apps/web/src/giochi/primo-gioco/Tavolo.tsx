@@ -48,6 +48,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Personaggio (id carta) di cui è aperto il pannello di attivazione
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
   const [registroAperto, setRegistroAperto] = useState(false);
+  // Turno in cui si è risposto "No" al popup di Biancaneve (per non riproporlo)
+  const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
 
@@ -167,6 +169,18 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const brucia = seValida((m) => m.tipo === "brucia");
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
   const toccaPostoAltrui = (c: CartaPersonaggio) => apriAttivazione(c); // Lucciola di un vicino
+
+  // Biancaneve a fine turno: finite le mosse, se c'è un 2 in mano si chiede se scambiarlo
+  const scambioDue = mosse.find((m) => m.tipo === "dueInDiamante");
+  const haFulmine = (v.giocatori[io]?.diamanti ?? []).some((d) => d.tipo === "fulmine");
+  const popupBiancaneve =
+    !!scambioDue && mioTurno && v.turno.mosseRimaste === 0 && !attesa && biancaneveNo !== v.numeroTurno;
+  const quantiDue = v.mano.filter((c) => c.valore === 2).length;
+  const rispondiNoBiancaneve = () => {
+    setBiancaneveNo(v.numeroTurno);
+    // Se non resta nient'altro da decidere, il turno si chiude
+    if (puoChiudere && eccesso === 0 && !conScheletro && !haFulmine) chiudiTurno(false);
+  };
 
   // Ultime mosse: chiuse = le ultime 3; aperte = le ultime 3 di ogni giocatore
   const eventi = v.registro.filter(significativo);
@@ -422,6 +436,35 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           }}
           onChiudi={() => setDaAttivare(null)}
         />
+      )}
+
+      {popupBiancaneve && !cartaDaAttivare && !primoPiano && (
+        <div className="velo" role="dialog" aria-modal="true" aria-label="Biancaneve">
+          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl">
+            <p className="font-titolo text-xl font-bold">🍎 Biancaneve</p>
+            <p className="mt-2 text-sm">
+              {quantiDue === 1
+                ? "Hai un 2 in mano: vuoi scambiarlo con un diamante pescato dal mazzo?"
+                : `Hai ${quantiDue} carte 2 in mano: vuoi scambiarne una con un diamante pescato dal mazzo?`}
+            </p>
+            <div className="my-3 flex justify-center">
+              <CartaNumeroGrafica valore={2} larghezza={70} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" disabled={bloccato} onClick={rispondiNoBiancaneve} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40">
+                No
+              </button>
+              <button
+                type="button"
+                disabled={bloccato}
+                onClick={() => scambioDue && gioca(scambioDue)}
+                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
+              >
+                Sì, scambia
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
