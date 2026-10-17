@@ -9,3 +9,4 @@ export * from "./vista";
 export * from "./gioco";
 export * from "./bot";
 export * from "./simulazione";
+export * from "./valida-mossa";

@@ -33,6 +33,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm web` – avvia il sito in locale (sviluppo). Build: `pnpm --filter @og/web build` → `apps/web/dist`.
 - `pnpm test:supabase` – test delle regole di accesso sul progetto Supabase di prova (serve `apps/web/.env`).
 - `pnpm exec supabase db push` – pubblica le nuove migrazioni (`supabase/migrations`) sul progetto collegato.
+- `pnpm deploy:arbitro` – impacchetta `packages/server` in `supabase/functions/arbitro/nucleo.js` e pubblica l'arbitro.
+  Da rifare a ogni modifica delle regole o dell'arbitro, poi `pnpm test:supabase`.
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 
 ## Architettura
@@ -41,6 +43,9 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
   `setup(giocatori, opzioni, seed)`, `mosseValide(stato, giocatore)`, `applicaMossa(stato, mossa)`,
   `finePartita(stato)`, `vistaGiocatore(stato, giocatore)`.
   Stato serializzabile in JSON; casualità solo tramite un generatore con seed (partite riproducibili).
+- `packages/server` – arbitro: `arbitro.ts` (azioni crea/unisciti/avvia/mossa, indipendente dal database),
+  `archivio-supabase.ts` (funzioni SQL `arbitro_*`), `archivio-memoria.ts` (per i test).
+  Ogni vista salvata contiene anche `mosse_valide` del giocatore: il browser non conosce le regole.
 - `games/<nome-gioco>` – un modulo per gioco: regole + dati delle carte.
   I personaggi stanno in un file di dati (JSON/TS) separato dalla logica: aggiungere una carta = aggiungere una riga.
 - Il server è l'arbitro: il client invia mosse, mai stato. `vistaGiocatore` non deve mai esporre
@@ -49,7 +54,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 ## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
-In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–2 fatti: `apps/web` su Render; database in `supabase/migrations`).
+In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–3 fatti: `apps/web` su Render; database in `supabase/migrations`;
+arbitro in `packages/server` + `supabase/functions/arbitro`).
 Supabase di prova: progetto `vxkcinfkbsextubabibe` (eu-west-1), collegato con la CLI. Accesso anonimo attivo.
 I browser non scrivono mai nel database: scrive solo l'arbitro (Edge Function). `stati_partita` e `mosse` non sono leggibili dai browser.
 

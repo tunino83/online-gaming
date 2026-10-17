@@ -11,12 +11,15 @@
     "simula": "tsx games/primo-gioco/scripts/simula.ts",
     "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts",
     "web": "pnpm --filter @og/web dev",
-    "test:supabase": "vitest run -c vitest.supabase.config.ts"
+    "test:supabase": "vitest run -c vitest.supabase.config.ts",
+    "build:arbitro": "esbuild packages/server/src/index.ts --bundle --format=esm --platform=neutral --main-fields=module,main --target=es2022 --external:@supabase/supabase-js --outfile=supabase/functions/arbitro/nucleo.js",
+    "deploy:arbitro": "pnpm build:arbitro && supabase functions deploy arbitro --use-api"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.45.0",
     "@types/node": "^20",
     "@types/ws": "^8.5.13",
+    "esbuild": "^0.24.0",
     "supabase": "^2",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",

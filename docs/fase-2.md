@@ -50,6 +50,11 @@ Ogni passo: test verdi, commit su GitHub, e ti spiego come provarlo.
 - Chiavi: solo nel file `.env` (escluso da git) e nelle impostazioni di Render. La chiave "service_role" e la
   password del database **non** vanno mai nel codice, nei commit o in chat.
 
+## Note emerse durante il lavoro
+
+- Tempo reale: appena collegato, un canale può perdere i primissimi messaggi. L'app quindi rilegge sempre
+  la propria vista quando si (ri)collega e ignora i messaggi con versione più vecchia di quella che ha.
+
 ## Cosa serve dal proprietario
 
 **Supabase**

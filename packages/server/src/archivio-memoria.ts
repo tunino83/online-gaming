@@ -1,0 +1,75 @@
+/**
+ * Archivio in memoria: si comporta come il database (stesse regole ed errori)
+ * ma vive nel programma. Serve per i test dell'arbitro.
+ */
+import { type Archivio, ErroreArchivio, type InfoPartita } from "./arbitro";
+
+export interface DatiMemoria {
+  partite: Map<string, InfoPartita & { esito: unknown }>;
+  stati: Map<string, { stato: unknown; versione: number }>;
+  viste: Map<string, { vista: unknown; mosse_valide: unknown[]; versione: number }>;
+  mosse: { partitaId: string; numero: number; utente: string; mossa: unknown }[];
+}
+
+export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
+  const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [] };
+  let contatore = 0;
+  const copia = <T>(x: T): T => structuredClone(x);
+
+  return {
+    dati,
+    async creaPartita(p) {
+      if ([...dati.partite.values()].some((x) => x.codice === p.codice)) throw new ErroreArchivio("CODICE_DUPLICATO");
+      const id = `00000000-0000-4000-8000-${String(++contatore).padStart(12, "0")}`;
+      dati.partite.set(id, {
+        id,
+        codice: p.codice,
+        gioco: p.gioco,
+        stato: "attesa",
+        creatore: p.creatore,
+        opzioni: copia(p.opzioni),
+        maxGiocatori: p.maxGiocatori,
+        giocatori: [{ utenteId: p.creatore, nickname: p.nickname }],
+        esito: null,
+      });
+      return id;
+    },
+    async unisciti(p) {
+      const partita = [...dati.partite.values()].find((x) => x.codice === p.codice);
+      if (!partita) throw new ErroreArchivio("CODICE_NON_VALIDO");
+      if (partita.giocatori.some((g) => g.utenteId === p.utente)) return partita.id;
+      if (partita.stato !== "attesa") throw new ErroreArchivio("PARTITA_INIZIATA");
+      if (partita.giocatori.length >= partita.maxGiocatori) throw new ErroreArchivio("PARTITA_PIENA");
+      partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname });
+      return partita.id;
+    },
+    async leggiPartita(id) {
+      const p = dati.partite.get(id);
+      return p ? copia(p) : null;
+    },
+    async leggiStato(id) {
+      const s = dati.stati.get(id);
+      return s ? copia(s) : null;
+    },
+    async salva(p) {
+      const partita = dati.partite.get(p.partitaId)!;
+      let versione: number;
+      if (p.versioneAttesa === null) {
+        if (partita.stato !== "attesa" || dati.stati.has(p.partitaId)) throw new ErroreArchivio("PARTITA_GIA_AVVIATA");
+        versione = 0;
+      } else {
+        const attuale = dati.stati.get(p.partitaId);
+        if (!attuale || attuale.versione !== p.versioneAttesa) throw new ErroreArchivio("CONFLITTO");
+        versione = attuale.versione + 1;
+        partita.esito = copia(p.esito);
+        if (p.mossa !== null) dati.mosse.push({ partitaId: p.partitaId, numero: versione, utente: p.utente, mossa: copia(p.mossa) });
+      }
+      partita.stato = p.statoPartita;
+      dati.stati.set(p.partitaId, { stato: copia(p.stato), versione });
+      for (const v of p.viste) {
+        dati.viste.set(`${p.partitaId}/${v.utente_id}`, { vista: copia(v.vista), mosse_valide: copia(v.mosse_valide), versione });
+      }
+      return versione;
+    },
+  };
+}

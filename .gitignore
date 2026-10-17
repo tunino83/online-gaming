@@ -6,3 +6,6 @@ coverage/
 !.env.example
 *.log
 .DS_Store
+
+# Generato da pnpm build:arbitro
+supabase/functions/arbitro/nucleo.js

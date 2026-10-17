@@ -15,6 +15,7 @@ import {
 } from "./parametri";
 import { personaggio } from "./personaggi";
 import type { Mazzi, Mossa, StatoGiocatore, StatoPartita } from "./stato";
+import { validaMossa } from "./valida-mossa";
 import type { CartaPersonaggio, Effetto } from "./tipi-carte";
 
 /** Errore di una mossa non permessa: il messaggio è per il giocatore. */
@@ -190,6 +191,8 @@ function haMossePossibili(s: StatoPartita): boolean {
 /* ------------------------------------------------------------------ */
 
 export function applicaMossa(stato: StatoPartita, id: IdGiocatore, mossa: Mossa): RisultatoMossa<StatoPartita> {
+  // La mossa può arrivare da un browser: prima si controlla che abbia la forma giusta.
+  if (!validaMossa(mossa)) return { ok: false, errore: "Mossa non valida" };
   const s = structuredClone(stato);
   try {
     applica(s, id, mossa);
@@ -203,7 +206,7 @@ export function applicaMossa(stato: StatoPartita, id: IdGiocatore, mossa: Mossa)
 
 function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
   if (s.finita) rifiuta("La partita è finita");
-  if (!s.giocatori[id]) rifiuta("Giocatore non in partita");
+  if (!s.ordine.includes(id)) rifiuta("Giocatore non in partita");
   if (s.turno.giocatore !== id) rifiuta("Non è il tuo turno");
   const g = s.giocatori[id]!;
   const t = s.turno;
@@ -395,7 +398,7 @@ function applicaPotere(s: StatoPartita, id: IdGiocatore, e: Effetto, m: Extract<
       }
       if (!m.bersaglio) rifiuta("Scegli il personaggio da scartare a un avversario");
       const { giocatore, carta } = m.bersaglio!;
-      if (giocatore === id || !s.giocatori[giocatore]) rifiuta("Il bersaglio deve essere un avversario");
+      if (giocatore === id || !s.ordine.includes(giocatore)) rifiuta("Il bersaglio deve essere un avversario");
       const posti = s.giocatori[giocatore]!.posti;
       const i = posti.findIndex((c) => c.id === carta);
       if (i < 0) rifiuta("Quel personaggio non è nei posti dell'avversario");
@@ -404,7 +407,7 @@ function applicaPotere(s: StatoPartita, id: IdGiocatore, e: Effetto, m: Extract<
     }
     case "rubaCarta": {
       const avv = m.avversario;
-      if (!avv || avv === id || !s.giocatori[avv]) rifiuta("Scegli l'avversario di cui guardare la mano");
+      if (!avv || avv === id || !s.ordine.includes(avv)) rifiuta("Scegli l'avversario di cui guardare la mano");
       if (s.giocatori[avv!]!.mano.length > 0) s.turno.attesa = { tipo: "fatina", avversario: avv! };
       return;
     }
