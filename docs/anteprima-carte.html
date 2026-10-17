@@ -227,20 +227,61 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 .carta.dorso .etichetta-mazzo { font-size: 1.25em; }
 .carta .testo-potere.lungo { font-size: 0.66em; -webkit-line-clamp: 6; }
 
+/* Carta scelta per essere scartata */
+.carta.selezionata,
+.carta.toccabile.selezionata { box-shadow: 0 0 0 0.4em #b3261e, 0 0.3em 0.8em rgb(0 0 0 / 0.3); transform: translateY(-0.4em); }
+.carta.selezionata .cornice { opacity: 0.45; }
+.carta.selezionata::after {
+  content: "✕";
+  position: absolute;
+  top: -0.6em;
+  right: -0.6em;
+  width: 3.2em;
+  height: 3.2em;
+  border-radius: 50%;
+  background: #b3261e;
+  color: #fff;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  font-size: 1.3em;
+  z-index: 3;
+}
+
+/* Carta scelta per un codice */
+.carta.scelta,
+.carta.toccabile.scelta { box-shadow: 0 0 0 0.4em #1a8f4a, 0 0.3em 0.8em rgb(0 0 0 / 0.3); transform: translateY(-0.4em); }
+.carta.scelta::after {
+  content: "✓";
+  position: absolute;
+  top: -0.6em;
+  right: -0.6em;
+  width: 3.2em;
+  height: 3.2em;
+  border-radius: 50%;
+  background: #1a8f4a;
+  color: #fff;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  font-size: 1.3em;
+  z-index: 3;
+}
+
 </style>
 </head>
 <body>
   <div class="intro">
     <h1>Carte personaggio</h1>
     <p>42 personaggi, 55 carte. Generata dai dati del gioco con <code>pnpm carte</code>, con lo stesso stile dell'app.</p>
-    <p>Illustrazioni caricate: 1 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
+    <p>Illustrazioni caricate: 9 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
   </div>
   <main class="griglia">
     <figure>
       <div class="carta blu" style="--larghezza: 220px" title="Nano dell'1">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano dell'1</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-1.png" alt="Nano dell'1"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno</p>
@@ -252,7 +293,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Nano del 2">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 2</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-2.png" alt="Nano del 2"></div>
           <div class="codice "><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 2 a disposizione, una volta per turno</p>
@@ -264,7 +305,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Nano del 3">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 3</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-3.png" alt="Nano del 3"></div>
           <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 3 a disposizione, una volta per turno</p>
@@ -276,7 +317,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Nano del 4">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 4</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-4.png" alt="Nano del 4"></div>
           <div class="codice "><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 4 a disposizione, una volta per turno</p>
@@ -300,7 +341,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Nano del 6">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 6</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-6.png" alt="Nano del 6"></div>
           <div class="codice "><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 6 a disposizione, una volta per turno</p>
@@ -312,7 +353,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Nano del 7">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⛏️</span><span class="nome">Nano del 7</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/nano-7.png" alt="Nano del 7"></div>
           <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 7 a disposizione, una volta per turno</p>
@@ -324,7 +365,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Fenice">
         <span class="punti"><span>0</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🔥</span><span class="nome">Fenice</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/fenice.png" alt="Fenice"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>2</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Hai un 8 a disposizione, una volta per turno</p>
@@ -336,7 +377,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Drago">
         <span class="punti"><span>0</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐉</span><span class="nome">Drago</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/drago.png" alt="Drago"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Come un nano, ma a ogni turno scegli tu il valore della carta</p>
