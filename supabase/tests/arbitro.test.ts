@@ -12,7 +12,7 @@ const chiave = process.env.VITE_SUPABASE_ANON_KEY!;
 interface Giocatore {
   client: SupabaseClient;
   id: string;
-  chiedi(corpo: unknown): Promise<{ ok: boolean; errore?: string; [k: string]: unknown }>;
+  chiedi(corpo: Record<string, unknown>): Promise<{ ok: boolean; errore?: string; [k: string]: unknown }>;
 }
 
 async function nuovoGiocatore(): Promise<Giocatore> {
