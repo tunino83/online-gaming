@@ -780,3 +780,22 @@ describe("partite casuali (prova automatica)", () => {
     }
   });
 });
+
+describe("risorse viste dal browser", () => {
+  it("coincidono con quelle che usa il server, lungo partite intere", async () => {
+    const { risorseDaVista } = await import("./vista");
+    const { risorseDi } = await import("./regole");
+    const rng = creaCasuale(5);
+    for (let p = 0; p < 5; p++) {
+      let s = primoGioco.setup(["A", "B", "C"], {}, p);
+      for (let passo = 0; passo < 400 && !s.finita; passo++) {
+        const chi = s.turno.giocatore;
+        expect(risorseDaVista(vistaGiocatore(s, chi))).toEqual(risorseDi(s, chi));
+        const mosse = mosseValide(s, chi);
+        const attiva = mosse.filter((m) => m.tipo === "attiva");
+        const scelta = attiva.length > 0 ? attiva[0]! : mosse[interoTra(rng, 0, mosse.length - 1)]!;
+        s = gioca(s, chi, scelta);
+      }
+    }
+  });
+});

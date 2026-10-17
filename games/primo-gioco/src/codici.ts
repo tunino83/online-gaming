@@ -401,3 +401,37 @@ export function trovaCombinazioni(risorse: Risorse, codice: Codice, limite = Inf
 export function puoAttivare(risorse: Risorse, codice: Codice): boolean {
   return trovaCombinazioni(risorse, codice, 1).length > 0;
 }
+
+/* ------------------------------------------------------------------ */
+/* Attivazione "a tocchi": dalle carte scelte alla combinazione        */
+/* ------------------------------------------------------------------ */
+
+/** Cosa consuma una combinazione: id di carte e diamanti (anche quelli usati per ±1) e fonti delle carte virtuali. */
+export function risorseUsate(c: Combinazione): string[] {
+  return c.flatMap((el) =>
+    el.tipo === "virtuale" ? [el.fonte] : [el.id, ...(el.modifica ? [el.modifica.diamante] : [])],
+  );
+}
+
+/**
+ * La combinazione che usa esattamente le carte scelte dal giocatore (id di carte e diamanti,
+ * o id del personaggio che dà la carta virtuale), oppure null se quelle carte non formano il codice.
+ * Il modo di usarle (diamante come carta o come +1, valore del Folletto...) lo trova da sola:
+ * tutte le combinazioni che usano le stesse carte hanno lo stesso effetto.
+ */
+export function combinazioneConCarte(r: Risorse, codice: Codice, scelte: readonly string[]): Combinazione | null {
+  const insieme = new Set(scelte);
+  if (insieme.size === 0) return null;
+  const ristrette: Risorse = {
+    ...r,
+    mano: r.mano.filter((c) => insieme.has(c.id)),
+    diamanti: r.diamanti.filter((d) => insieme.has(d.id)),
+    virtuali: r.virtuali.filter((v) => insieme.has(v.fonte)),
+  };
+  if (ristrette.mano.length + ristrette.diamanti.length + ristrette.virtuali.length !== insieme.size) return null;
+  for (const comb of trovaCombinazioni(ristrette, codice, 5000)) {
+    const usate = risorseUsate(comb);
+    if (usate.length === insieme.size && usate.every((k) => insieme.has(k))) return comb;
+  }
+  return null;
+}

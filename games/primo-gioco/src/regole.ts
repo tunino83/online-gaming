@@ -90,7 +90,7 @@ function riempiTavolo(s: StatoPartita): void {
 /* ------------------------------------------------------------------ */
 
 /** Effetti dei poteri blu dei personaggi attivati, con la carta che li dà. */
-function effettiBlu(g: StatoGiocatore): { carta: string; effetto: Effetto }[] {
+function effettiBlu(g: Pick<StatoGiocatore, "attivati">): { carta: string; effetto: Effetto }[] {
   return g.attivati.flatMap((c) =>
     personaggio(c.personaggio)
       .poteri.filter((p) => p.colore === "blu")
@@ -98,7 +98,7 @@ function effettiBlu(g: StatoGiocatore): { carta: string; effetto: Effetto }[] {
   );
 }
 
-const ha = (g: StatoGiocatore, tipo: Effetto["tipo"]) => effettiBlu(g).some((e) => e.effetto.tipo === tipo);
+const ha = (g: Pick<StatoGiocatore, "attivati">, tipo: Effetto["tipo"]) => effettiBlu(g).some((e) => e.effetto.tipo === tipo);
 
 export function limiteMano(s: StatoPartita, g: StatoGiocatore): number {
   return effettiBlu(g).reduce(
@@ -116,8 +116,17 @@ function mosseDelTurno(s: StatoPartita, g: StatoGiocatore): number {
 
 /** Cosa può usare il giocatore per un codice in questo momento. */
 export function risorseDi(s: StatoPartita, id: IdGiocatore): Risorse {
-  const g = s.giocatori[id]!;
-  const usate = s.turno.giocatore === id ? s.turno.virtualiUsate : [];
+  return risorseGiocatore(s.giocatori[id]!, s.turno.giocatore === id ? s.turno.virtualiUsate : []);
+}
+
+/**
+ * Risorse a partire dai soli dati che il giocatore vede di sé (mano, diamanti, attivati):
+ * le usa anche il browser, per proporre le combinazioni quando si attiva toccando.
+ */
+export function risorseGiocatore(
+  g: Pick<StatoGiocatore, "mano" | "diamanti" | "attivati">,
+  usate: readonly string[],
+): Risorse {
   const virtuali: CartaVirtuale[] = effettiBlu(g).flatMap(({ carta, effetto }) =>
     effetto.tipo === "cartaVirtuale" && !usate.includes(carta) ? [{ fonte: carta, valore: effetto.valore }] : [],
   );

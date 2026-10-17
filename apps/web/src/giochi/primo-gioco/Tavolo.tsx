@@ -10,14 +10,12 @@ import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
+import { PannelloAttivazione } from "./Attivazione";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
 
 const TITOLI_GRUPPI = {
-  scelta: "Devi scegliere",
-  attiva: "Attiva un personaggio (costa 1)",
   gratis: "Azioni gratuite",
-  fine: "Chiudi il turno",
 } as const;
 type GruppoElenco = keyof typeof TITOLI_GRUPPI;
 
@@ -31,6 +29,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [ingrandita, setIngrandita] = useState<string | null>(null);
   // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
   const [daScartare, setDaScartare] = useState<string[]>([]);
+  // Personaggio (id carta) di cui è aperto il pannello di attivazione
+  const [daAttivare, setDaAttivare] = useState<string | null>(null);
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
   const nick = useMemo(() => {
@@ -72,8 +72,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const gruppi = new Map<GruppoElenco, Mossa[]>();
   for (const m of mosse) {
     const g = gruppoMossa(m);
-    // Si fanno toccando le carte: tavolo, scarto del personaggio in più, Fatina, fine turno
-    if (g === "tavolo" || g === "scelta" || g === "fine") continue;
+    // Si fanno toccando le carte: tavolo, attivazioni, scarto del personaggio in più, Fatina, fine turno
+    if (g !== "gratis") continue;
     gruppi.set(g, [...(gruppi.get(g) ?? []), m]);
   }
 
@@ -87,6 +87,17 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     setDaScartare((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < eccesso ? [...s, id] : s));
   const chiudiTurno = (cambiaMano: boolean) => gioca({ tipo: "fineTurno", scarta: daScartare, cambiaMano });
 
+  const proposteAttivazione = (idCarta: string) =>
+    mosse.filter((m): m is Extract<Mossa, { tipo: "attiva" }> => m.tipo === "attiva" && m.carta === idCarta);
+  const apriAttivazione = (c: CartaPersonaggio) =>
+    proposteAttivazione(c.id).length > 0 ? () => setDaAttivare(c.id) : undefined;
+  const puoiAttivare = mosse.some((m) => m.tipo === "attiva");
+  const cartaDaAttivare = daAttivare
+    ? Object.values(v.giocatori)
+        .flatMap((g) => g.posti)
+        .find((c) => c.id === daAttivare)
+    : undefined;
+
   const attesa = mioTurno ? v.turno.attesa : null;
   const suggerimento =
     attesa?.tipo === "scartaPersonaggio"
@@ -96,7 +107,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         : scegliScarti
           ? `Hai troppe carte: tocca nella tua mano le ${eccesso} da scartare, poi chiudi il turno`
           : v.turno.mosseRimaste > 0
-            ? "Tocca una carta evidenziata per prenderla, o un mazzo per pescare"
+            ? puoiAttivare
+              ? "Puoi attivare: tocca un tuo personaggio evidenziato. Oppure prendi una carta o pesca"
+              : "Tocca una carta evidenziata per prenderla, o un mazzo per pescare"
             : null;
   const brucia = seValida((m) => m.tipo === "brucia");
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
@@ -289,14 +302,32 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           g={v.giocatori[id]!}
           postiMax={2}
           ingrandisci={ingrandisci}
-          toccaPosto={
-            id === io
-              ? (c) => seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
-              : () => undefined
+          toccaPosto={(c) =>
+            attesa?.tipo === "scartaPersonaggio"
+              ? id === io
+                ? seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
+                : undefined
+              : apriAttivazione(c)
           }
           disabilitata={bloccato}
         />
       ))}
+
+      {cartaDaAttivare && mioTurno && (
+        <PannelloAttivazione
+          key={cartaDaAttivare.id}
+          v={v}
+          carta={cartaDaAttivare}
+          proposte={proposteAttivazione(cartaDaAttivare.id)}
+          nick={nick}
+          bloccato={bloccato}
+          onAttiva={(m) => {
+            setDaAttivare(null);
+            gioca(m);
+          }}
+          onChiudi={() => setDaAttivare(null)}
+        />
+      )}
 
       {ingrandita && (
         <div className="velo" onClick={() => setIngrandita(null)} role="dialog" aria-label="Carta ingrandita">

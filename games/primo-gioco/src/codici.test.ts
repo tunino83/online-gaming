@@ -5,6 +5,8 @@ import {
   type Combinazione,
   type Elemento,
   type Risorse,
+  combinazioneConCarte,
+  risorseUsate,
   puoAttivare,
   trovaCombinazioni,
   verificaCombinazione,
@@ -551,5 +553,62 @@ describe("ricerca delle combinazioni possibili", () => {
     const inizio = Date.now();
     for (const p of PERSONAGGI) expect(puoAttivare(r, p.codice), p.nome).toBeTypeOf("boolean");
     expect(Date.now() - inizio).toBeLessThan(2000);
+  });
+});
+
+describe("attivazione a tocchi: dalle carte scelte alla combinazione", () => {
+  it("due 5 scelti formano la coppia del Goblin", () => {
+    const r = risorse({ mano: mano(5, 5, 6) });
+    const comb = combinazioneConCarte(r, codice("goblin"), ["n0", "n1"]);
+    expect(comb).not.toBeNull();
+    expect(ok(r, codice("goblin"), comb!)).toBe(true);
+  });
+
+  it("carte che non formano il codice, o una carta in più: nessuna combinazione", () => {
+    const r = risorse({ mano: mano(5, 6, 5) });
+    expect(combinazioneConCarte(r, codice("goblin"), ["n0", "n1"])).toBeNull();
+    expect(combinazioneConCarte(r, codice("goblin"), ["n0", "n1", "n2"])).toBeNull();
+    expect(combinazioneConCarte(r, codice("goblin"), [])).toBeNull();
+    expect(combinazioneConCarte(r, codice("goblin"), ["n0", "inesistente"])).toBeNull();
+  });
+
+  it("7, 8 e un diamante: il diamante viene usato da solo come +1 per fare 88", () => {
+    const r = risorse({ mano: mano(7, 8), diamanti: diam(3) });
+    const comb = combinazioneConCarte(r, codice("hansel-e-gretel"), ["n0", "n1", "d0"]);
+    expect(comb).not.toBeNull();
+    expect(risorseUsate(comb!).sort()).toEqual(["d0", "n0", "n1"]);
+    expect(ok(r, codice("hansel-e-gretel"), comb!)).toBe(true);
+  });
+
+  it("carta del nano e fulmine per Capitan Uncino", () => {
+    const nano = risorse({ mano: mano(5), virtuali: [{ fonte: "nano-5-1", valore: 5 }] });
+    expect(combinazioneConCarte(nano, codice("nano-5"), ["n0", "nano-5-1"])).not.toBeNull();
+    const uncino = risorse({ mano: mano(2, 2, 2), diamanti: diam("f") });
+    const comb = combinazioneConCarte(uncino, codice("capitan-uncino"), ["n0", "n1", "n2", "d0"]);
+    expect(comb && ok(uncino, codice("capitan-uncino"), comb)).toBe(true);
+  });
+
+  it("con il Folletto un 3 diventa il numero che serve", () => {
+    const r = risorse({ mano: mano(3, 8), poteri: { treJolly: true } });
+    expect(combinazioneConCarte(r, codice("hansel-e-gretel"), ["n0", "n1"])).not.toBeNull();
+  });
+
+  it("prova automatica: ogni combinazione trovata dal server si ritrova scegliendo le sue carte", () => {
+    const rng = creaCasuale(77);
+    for (let prova = 0; prova < 100; prova++) {
+      const r: Risorse = {
+        mano: mescola(rng, creaMazzoNumeri()).slice(0, interoTra(rng, 1, 7)),
+        diamanti: mescola(rng, creaMazzoDiamanti()).slice(0, interoTra(rng, 0, 2)),
+        virtuali: [],
+        poteri: { unoValeOtto: false, treJolly: interoTra(rng, 0, 3) === 0, diamanteMenoUno: false },
+      };
+      for (const p of PERSONAGGI) {
+        for (const comb of trovaCombinazioni(r, p.codice, 5)) {
+          const trovata = combinazioneConCarte(r, p.codice, risorseUsate(comb));
+          expect(trovata, p.nome).not.toBeNull();
+          expect(ok(r, p.codice, trovata!)).toBe(true);
+        }
+      }
+    }
   });
 });

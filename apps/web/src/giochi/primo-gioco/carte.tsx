@@ -105,9 +105,14 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
   );
 }
 
-export function CartaNumeroGrafica({ valore, selezionata, ...comune }: Comune & { valore: number; selezionata?: boolean }) {
+export function CartaNumeroGrafica({
+  valore,
+  selezionata,
+  scelta,
+  ...comune
+}: Comune & { valore: number; /** da scartare */ selezionata?: boolean; /** da usare in un codice */ scelta?: boolean }) {
   return (
-    <Contenitore classe={`numero ${selezionata ? "selezionata" : ""}`} titolo={comune.titolo ?? `Carta ${valore}`} {...comune}>
+    <Contenitore classe={`numero ${selezionata ? "selezionata" : ""} ${scelta ? "scelta" : ""}`} titolo={comune.titolo ?? `Carta ${valore}`} {...comune}>
       <div className="cornice">
         <span className="angolo alto">{valore}</span>
         <span className="valore">{valore}</span>

@@ -5,7 +5,8 @@
  * - Fatina: mentre si sceglie, si vede la mano dell'avversario scelto.
  */
 import type { IdGiocatore } from "@og/engine";
-import { limiteMano } from "./regole";
+import type { Risorse } from "./codici";
+import { limiteMano, risorseGiocatore } from "./regole";
 import { personaggio } from "./personaggi";
 import type { Attesa, StatoPartita } from "./stato";
 import type { CartaDiamante, CartaNumero, CartaPersonaggio } from "./tipi-carte";
@@ -93,4 +94,10 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     vista.manoAvversario = structuredClone(s.giocatori[s.turno.attesa.avversario]!.mano);
   }
   return vista;
+}
+
+/** Le proprie risorse per i codici, ricavate dalla propria vista (le usa il browser). */
+export function risorseDaVista(v: VistaGiocatore): Risorse {
+  const io = v.giocatori[v.io]!;
+  return risorseGiocatore({ mano: v.mano, diamanti: io.diamanti, attivati: io.attivati }, v.turno.virtualiUsate);
 }
