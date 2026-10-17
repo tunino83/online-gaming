@@ -1,0 +1,172 @@
+# Regolamento del primo gioco
+
+## Materiale
+
+Il gioco usa tre mazzi: carte numero per formare i codici, personaggi da attivare per fare punti, diamanti come risorsa extra.
+
+| Mazzo | Composizione | A cosa serve |
+| --- | --- | --- |
+| Carte numero | 56 carte, valori 1–8, 7 copie per valore | Formare i codici di attivazione |
+| Personaggi | 55 carte (42 personaggi diversi, alcuni in più copie); facili da aggiungere | Si attivano per fare punti e ottenere poteri |
+| Diamanti | 20 carte: 2 per ogni valore 1–8 + 4 fulmini | Valori extra per i codici; il fulmine dà una mossa in più |
+
+Ogni personaggio ha:
+
+- un **codice di attivazione** (vedi sotto);
+- un **valore in punti**;
+- un **potere** facoltativo: **blu** (permanente) o **rosso** (una volta sola).
+
+## Preparazione e parametri
+
+Si gioca da 2 a 5 giocatori e si parte con la mano vuota.
+
+1. Mescolare separatamente i tre mazzi.
+2. Scoprire al centro del tavolo 4 carte numero e 2 personaggi.
+3. Ogni giocatore parte con 0 carte in mano, 0 personaggi e 0 diamanti.
+4. Il server sorteggia l'ordine di gioco.
+
+| Parametro della partita | Default | Note |
+| --- | --- | --- |
+| Numero di giocatori | — | Da 2 a 5 |
+| Punti per vincere | 15 | Scelto da chi crea la partita |
+| Limite carte in mano | 5 | Modificabile dai poteri |
+| Posti personaggio per giocatore | 2 |  |
+| Mosse per turno | 3 | Più eventuali fulmini |
+
+## Il turno
+
+Ogni turno il giocatore fa 3 mosse, anche ripetendo la stessa, scegliendo tra queste:
+
+| Mossa | Cosa fa |
+| --- | --- |
+| Prendere dal tavolo | Prende una carta numero o un personaggio scoperto; la carta viene subito rimpiazzata dal mazzo |
+| Pescare da un mazzo | Pesca la prima carta coperta del mazzo numeri o del mazzo personaggi (i diamanti non si pescano: arrivano solo dai poteri) |
+| Attivare un personaggio | Gioca dalla mano (e dai diamanti) le carte che formano il codice di un personaggio nei propri posti |
+| Bruciare | Scarta le 4 carte numero scoperte sul tavolo e ne scopre 4 nuove; i personaggi scoperti restano |
+
+**Limiti**
+
+- Carte numero in mano: massimo 5, salvo poteri. Si può pescare anche oltre il limite; a fine turno si scarta fino a tornare al limite.
+- Personaggi nei posti: massimo 2. Chi ne prende un terzo deve scartarne uno.
+- I diamanti non contano nel limite della mano e sono visibili a tutti.
+- Un fulmine si gioca in qualsiasi momento del proprio turno e dà una mossa in più; poi si scarta.
+- Ogni mazzo ha la sua pila degli scarti: carte numero, diamanti e personaggi usati o scartati finiscono lì. Quando un mazzo finisce, i suoi scarti si rimescolano.
+
+## Codici di attivazione
+
+Un codice è un insieme di 1–5 carte, in qualsiasi ordine; vale ogni carta numero in mano e ogni diamante con valore.
+
+| Tipo di codice | Esempio | Si soddisfa con |
+| --- | --- | --- |
+| Esatto | 12, 55, 8888, 45678 | Esattamente quei valori |
+| Coppia | Coppia | 2 carte dello stesso valore |
+| Tris | Tris | 3 carte dello stesso valore |
+| Poker | Poker | 4 carte dello stesso valore |
+| Somma | 3 carte con somma 15 | Il numero di carte indicato, la cui somma è il valore indicato |
+| Scala da 3 | 3 consecutive | 3 valori consecutivi (es. 3-4-5) |
+| Scala da 5 | 5 consecutive | 5 valori consecutivi (es. 2-3-4-5-6) |
+| Doppia coppia | Doppia coppia | 2 coppie di carte, anche dello stesso valore (es. 33 + 77, oppure 5555) |
+| Combinato | 66 + una coppia | Una parte esatta più una parte generica |
+| Pari / dispari | 3 carte pari | Il numero di carte indicato, tutte pari o tutte dispari |
+
+Le carte usate vanno negli scarti. Il personaggio attivato lascia il posto libero e passa nella zona "attivati" del giocatore, dove conta i suoi punti.
+
+## Personaggi, poteri e diamanti
+
+I poteri si applicano appena il personaggio viene attivato: quelli blu restano attivi per il resto della partita, quelli rossi agiscono una volta sola.
+
+- **Potere blu**: vale dal turno in cui si attiva e in tutti i turni successivi (es. limite mano +1).
+- **Potere rosso**: si applica una sola volta, al momento dell'attivazione.
+- **Diamanti**: alcuni personaggi danno diritto a pescare diamanti. Non c'è limite ai diamanti posseduti. I diamanti sono sempre visibili agli altri giocatori.
+- **Diamante con valore**: si usa nei codici come una carta numero, oppure per fare +1 al valore di una carta in mano (es. con 7 e 8 in mano e un diamante si attiva 88). Il +1 (o −1 con Xena) si usa solo su carte numero in mano o su diamanti con valore, non sulle carte virtuali di nani, fenice e drago. Massimo 1 diamante per carta, e il valore resta sempre tra 1 e 8 (con Xena un 8 può diventare 7).
+- **Fulmine**: dà una mossa in più nel turno in cui si gioca.
+
+L'elenco dei personaggi (codice, punti, potere) sarà una tabella di dati separata, così aggiungerne di nuovi non richiede di toccare le regole.
+
+## Elenco personaggi
+
+Mazzo completo: 42 personaggi diversi, 55 carte. Per aggiungere un personaggio basta una nuova riga.
+
+| Personaggio | Codice | Punti | Potere | Tipo | Copie |
+| --- | --- | --- | --- | --- | --- |
+| Nano dell'1 | 11 | 1 | Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno | Blu | 1 |
+| Nano del 2 | 22 | 1 | Hai un 2 a disposizione, una volta per turno | Blu | 1 |
+| Nano del 3 | 33 | 1 | Hai un 3 a disposizione, una volta per turno | Blu | 1 |
+| Nano del 4 | 44 | 1 | Hai un 4 a disposizione, una volta per turno | Blu | 1 |
+| Nano del 5 | 55 | 1 | Hai un 5 a disposizione, una volta per turno | Blu | 1 |
+| Nano del 6 | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
+| Nano del 7 | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
+| Fenice | 12 | 0 | Hai un 8 a disposizione, una volta per turno | Blu | 2 |
+| Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
+| Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
+| Scimmia | Carte con somma 10 (quante si vuole) | 1 | Limite della mano +1 | Blu | 3 |
+| Strega | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
+| Gatto con gli stivali | 345 | 1 | Una delle carte del codice, a tua scelta, non si scarta e resta in mano | Rosso | 1 |
+| Unicorno | 1234 | 1 | Ricevi 2 diamanti | Rosso | 1 |
+| Pinco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
+| Panco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
+| Leone | 8888 | 5 | Nessuno | — | 1 |
+| Giganti | 6688 | 3 | Nessuno | — | 3 |
+| Hansel e Gretel | 88 | 2 | Nessuno | — | 2 |
+| Goblin | Coppia | 1 | Nessuno | — | 3 |
+| Cerbero | Tris | 2 | Nessuno | — | 2 |
+| Quercia umana | Poker | 3 | Nessuno | — | 1 |
+| Regina | 7777 | 4 | Nessuno | — | 2 |
+| Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
+| Mago | Scala da 3 | 1 | Puoi vedere la prima carta coperta del mazzo personaggi | Blu | 1 |
+| Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
+| Bacchetta magica (superpotere) | 4 | 0 | Una volta per turno puoi bruciare senza consumare una mossa | Blu | 1 |
+| Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano | Blu | 1 |
+| Hobbit pari | 3 carte pari | 1 | Ricevi 1 diamante | Rosso | 1 |
+| Hobbit dispari | 3 carte dispari | 1 | Ricevi 1 diamante | Rosso | 1 |
+| Golem pari | 2468 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
+| Golem dispari | 1357 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
+| Ercole | 3 carte con somma 20 | 2 | Nessuno | — | 1 |
+| Fatina | 567 | 1 | Guardi tutte le carte in mano a un avversario e ne prendi una a scelta | Rosso | 2 |
+| Scheletro (la Morte) | 18 | 1 | A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo | Blu | 1 |
+| Cappellaio matto | Scala da 5 | 2 | A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa | Blu | 1 |
+| Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
+| Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
+| Folletto | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
+| Biancaneve | 2 | 0 | Ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Blu | 1 |
+| Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
+| Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
+
+## Fine partita
+
+Quando un giocatore raggiunge i punti per vincere (default 15), si completa il giro: tutti giocano lo stesso numero di turni.
+
+- Vince chi ha più punti.
+- A parità di punti la partita finisce in pareggio tra i giocatori in testa.
+
+## Domande aperte
+
+Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da confermare.
+
+**Codici e diamanti**
+
+1. Il diamante usato per fare +1 a una carta viene scartato insieme al codice? (Proposta: sì.)
+2. Scimmia "carte con somma 10, quante si vuole": servono almeno 2 carte? Il massimo è 5 come per tutti i codici? (Proposta: da 2 a 5.)
+3. Il fulmine si può usare in un codice? (Proposta: no, ha senso solo per Capitan Uncino, dove vale come "diamante qualsiasi" e viene scartato senza dare la mossa in più.)
+4. Folletto e Robin Hood ("ogni 3 / ogni 1 in mano"): valgono anche per i diamanti con valore 3 / 1? (Robin Hood dice "carta o diamante"; per Folletto proposta: sì, uguale.)
+5. Si possono combinare due modifiche sulla stessa carta? Es. un 3 che col Folletto diventa 8 e poi riceve un diamante −1 con Xena. (Proposta: no, una sola modifica per carta.)
+6. Una carta virtuale (nano, fenice, drago) si può usare più volte nello stesso codice? (Proposta: no, ogni nano dà una sola carta per turno.)
+
+**Turno**
+
+7. Quando si prende/pesca un personaggio con i posti pieni, si può scartare quello appena preso? (Proposta: sì, si sceglie uno qualsiasi dei 3.)
+8. I personaggi scartati (Strega, posti pieni) vanno negli scarti personaggi? (Proposta: sì.)
+9. A fine turno si scartano carte numero oltre il limite: chi sceglie quali? (Proposta: il giocatore.)
+10. Se un mazzo e i suoi scarti sono entrambi vuoti (es. tutti i personaggi in gioco), la mossa di pesca non è disponibile? (Proposta: sì; e il posto vuoto sul tavolo resta vuoto.)
+11. Fine partita: si completa il giro fino al giocatore prima di chi ha iniziato la partita, giusto? Anche se a raggiungere 15 è proprio l'ultimo del giro, la partita finisce subito?
+12. Mosse extra: Cappuccetto Rosso (4 mosse), Golem (+3), Fantasma (+1 al successivo) e fulmini si sommano tutti? (Proposta: sì.) Il fulmine si può giocare anche quando le mosse sono finite, per farne una in più? (Proposta: sì, prima di chiudere il turno.)
+
+**Poteri**
+
+13. Gatto con gli stivali: se la carta scelta è un diamante, il diamante resta? (Proposta: sì, qualsiasi carta del codice escluse le virtuali.)
+14. Lucciola: "il giocatore prima o dopo" = i due vicini di posto nell'ordine di turno? Chi la attiva dal posto altrui libera il posto del proprietario? (Proposta: sì e sì.)
+15. Fatina con un avversario a mano vuota: si può attivare lo stesso (senza effetto)? (Proposta: sì.) Si prende anche un diamante o solo carte numero? (Proposta: solo carte numero; i diamanti non sono "in mano".)
+16. Scheletro: "a fine turno puoi cambiare tutte le carte" — tutte obbligatoriamente o anche solo alcune? (Proposta: tutte o nessuna.)
+17. Biancaneve: il 2 scambiato va negli scarti numeri? Si può fare anche durante il turno di un altro? (Proposta: sì; no, solo nel proprio turno.)
+18. Mago: vede la prima carta del mazzo personaggi sempre (anche nei turni altrui) oppure solo nel proprio turno? (Proposta: sempre.)
+19. Cappellaio matto: lo scambio a inizio turno è facoltativo e può prendere un personaggio scoperto anche con posti pieni? (Proposta: sì, è uno scambio 1 a 1.)
