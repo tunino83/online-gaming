@@ -6,10 +6,11 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && pnpm --filter @og/web typecheck",
     "check": "pnpm typecheck && pnpm test",
     "simula": "tsx games/primo-gioco/scripts/simula.ts",
-    "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts"
+    "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts",
+    "web": "pnpm --filter @og/web dev"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -30,6 +30,7 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm typecheck` – controllo dei tipi TypeScript.
 - `pnpm check` – entrambi: da lanciare prima di ogni commit.
 - `pnpm simula [n]` – simula n partite tra bot (default 1000) e scrive `docs/statistiche-simulazione.md`.
+- `pnpm web` – avvia il sito in locale (sviluppo). Build: `pnpm --filter @og/web build` → `apps/web/dist`.
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 
 ## Architettura
@@ -46,7 +47,10 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 ## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
 1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
-Prossimo: Fase 2 – Prototipo web.
+In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passo 1 fatto: `apps/web` su Render).
+
+Render (sito statico): build `npm install -g pnpm@9.15.0 && pnpm install --frozen-lockfile && pnpm --filter @og/web build`,
+publish `apps/web/dist`, rewrite `/*` → `/index.html`, variabili `NODE_VERSION=20`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 
 File principali del primo gioco (`games/primo-gioco/src`):
 - `personaggi.ts` dati dei personaggi; `mazzi.ts` composizione dei mazzi
