@@ -184,6 +184,8 @@ function iniziaTurno(s: StatoPartita): void {
     bruciaGratisUsata: false,
     iniziato: false,
     attesa: null,
+    // Il Mago guarda la prima carta del mazzo personaggi solo a inizio turno
+    cartaMago: ha(g, "vediMazzoPersonaggi") ? (s.mazzi.personaggi.at(-1)?.id ?? null) : null,
   };
   g.mosseExtraProssimoTurno = 0;
 }
@@ -610,15 +612,17 @@ function sottoinsiemi<T>(lista: T[], k: number, limite: number): T[][] {
 }
 
 /**
- * Mossa che il server fa da solo: chiudere il turno quando è l'unica cosa possibile
- * (mosse finite, nessun fulmine, nessuna carta da scartare, nessun potere da usare a fine turno).
+ * Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite,
+ * tranne se c'è un fulmine da giocare, carte da scartare o lo Scheletro (si usa a fine turno).
  */
 export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; mossa: Mossa } | null {
-  if (s.finita || s.turno.attesa) return null;
+  if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
   const giocatore = s.turno.giocatore;
-  const mosse = mosseValide(s, giocatore);
-  if (mosse.length !== 1 || mosse[0]!.tipo !== "fineTurno") return null;
-  return { giocatore, mossa: mosse[0]! };
+  const g = s.giocatori[giocatore]!;
+  if (g.diamanti.some((d) => d.tipo === "fulmine")) return null; // può ancora giocare il fulmine
+  if (g.mano.length > limiteMano(s, g)) return null; // deve scegliere cosa scartare
+  if (ha(g, "cambiaMano")) return null; // Scheletro: può cambiare la mano a fine turno
+  return { giocatore, mossa: { tipo: "fineTurno", scarta: [], cambiaMano: false } };
 }
 
 /* ------------------------------------------------------------------ */

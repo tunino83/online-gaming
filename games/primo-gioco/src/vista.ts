@@ -7,7 +7,6 @@
 import type { IdGiocatore } from "@og/engine";
 import type { Risorse } from "./codici";
 import { limiteMano, risorseGiocatore } from "./regole";
-import { personaggio } from "./personaggi";
 import type { Attesa, Evento, StatoPartita } from "./stato";
 import type { CartaDiamante, CartaNumero, CartaPersonaggio } from "./tipi-carte";
 
@@ -89,9 +88,9 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     ),
   };
 
-  const haMago = g.attivati.some((c) => personaggio(c.personaggio).poteri.some((p) => p.effetto.tipo === "vediMazzoPersonaggi"));
+  // Mago: la carta vista a inizio turno, finché è ancora in cima al mazzo (se la pesca, non vede la successiva)
   const primo = s.mazzi.personaggi[s.mazzi.personaggi.length - 1];
-  if (mioTurno && haMago && primo) vista.primoPersonaggio = { ...primo };
+  if (mioTurno && primo && s.turno.cartaMago && primo.id === s.turno.cartaMago) vista.primoPersonaggio = { ...primo };
 
   if (mioTurno && s.turno.attesa?.tipo === "fatina") {
     vista.manoAvversario = structuredClone(s.giocatori[s.turno.attesa.avversario]!.mano);

@@ -1,25 +1,39 @@
 /**
  * Schermata di gioco del primo gioco.
- * Sul tavolo si tocca una carta per prenderla e un mazzo coperto per pescare;
- * le altre mosse (attivare, azioni gratuite, scelte, fine turno) sono pulsanti.
+ * - In alto (fisso): di chi è il turno, suoni e, in 2 giocatori, le carte dell'avversario.
+ * - Al centro: il tavolo (mazzi coperti accanto alle carte scoperte), azioni gratuite, ultime mosse.
+ * - In basso (fisso): i propri posti, la propria mano, i diamanti e la chiusura del turno.
+ * Si tocca una carta per prenderla, un mazzo per pescare, un proprio personaggio per attivarlo.
  * Le mosse possibili le calcola sempre il server.
  */
-import type { CartaDiamante, CartaPersonaggio, Mossa, VistaGiocatore } from "@og/primo-gioco";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { CartaDiamante, CartaPersonaggio, Evento, Mossa, VistaGiocatore } from "@og/primo-gioco";
+import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
 import { PannelloAttivazione } from "./Attivazione";
-import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
+import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 
-const TITOLI_GRUPPI = {
-  gratis: "Azioni gratuite",
-} as const;
-type GruppoElenco = keyof typeof TITOLI_GRUPPI;
+/** Altezza (in pixel) di un elemento, aggiornata quando cambia: serve a non far finire il tavolo sotto le barre fisse. */
+function useAltezza(ref: RefObject<HTMLElement>): number {
+  const [altezza, setAltezza] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const osserva = new ResizeObserver(() => setAltezza(el.offsetHeight));
+    osserva.observe(el);
+    setAltezza(el.offsetHeight);
+    return () => osserva.disconnect();
+  });
+  return altezza;
+}
+
+/** Eventi da mostrare in "Ultime mosse": si salta il semplice "ha chiuso il turno". */
+const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 0 && !e.cambiaMano);
 
 export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
   const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
@@ -29,27 +43,30 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
   const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string } | null>(null);
+  // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
+  const [daScartare, setDaScartare] = useState<string[]>([]);
+  // Personaggio (id carta) di cui è aperto il pannello di attivazione
+  const [daAttivare, setDaAttivare] = useState<string | null>(null);
+  const [registroAperto, setRegistroAperto] = useState(false);
+  const versione = riga?.versione;
+  useEffect(() => setDaScartare([]), [versione]);
+
   // Pesca in corso: quali carte avevo prima, per mostrare quella nuova appena arriva la vista aggiornata
   const pescaInCorso = useRef<{ tipo: "numero" | "personaggio"; versione: number; prima: Set<string> } | null>(null);
   useEffect(() => {
     const pesca = pescaInCorso.current;
     if (!riga || !pesca || riga.versione <= pesca.versione) return;
     pescaInCorso.current = null;
-    const io_ = riga.vista.giocatori[io];
     if (pesca.tipo === "numero") {
       const nuova = riga.vista.mano.find((c) => !pesca.prima.has(c.id));
       if (nuova) setPrimoPiano({ carta: { tipo: "numero", valore: nuova.valore }, titolo: "Hai pescato" });
     } else {
-      const nuova = io_?.posti.find((c) => !pesca.prima.has(c.id));
+      const nuova = riga.vista.giocatori[io]?.posti.find((c) => !pesca.prima.has(c.id));
       if (nuova) setPrimoPiano({ carta: { tipo: "personaggio", id: nuova.personaggio }, titolo: "Hai pescato" });
     }
   }, [riga, io]);
-  // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
-  const [daScartare, setDaScartare] = useState<string[]>([]);
-  // Personaggio (id carta) di cui è aperto il pannello di attivazione
-  const [daAttivare, setDaAttivare] = useState<string | null>(null);
-  const versione = riga?.versione;
-  useEffect(() => setDaScartare([]), [versione]);
+
+  // Suoni: "tic" a ogni mossa, melodia quando diventa il mio turno
   const suoni = useSuoniAttivi();
   const precedente = useRef<{ versione: number; turnoDi: string } | null>(null);
   useEffect(() => {
@@ -61,7 +78,12 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     if (ora.turnoDi === io && prima.turnoDi !== io && !riga.vista.finita) suonoTuoTurno();
     else suonoMossa();
   }, [riga, io]);
-  const [registroCompleto, setRegistroCompleto] = useState(false);
+
+  const barraAlta = useRef<HTMLDivElement>(null);
+  const barraBassa = useRef<HTMLDivElement>(null);
+  const altezzaAlta = useAltezza(barraAlta);
+  const altezzaBassa = useAltezza(barraBassa);
+
   const nick = useMemo(() => {
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
     return (id: string) => m.get(id) ?? "?";
@@ -76,6 +98,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const mioTurno = v.turno.giocatore === io && !v.finita;
   const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
   const mosse = mioTurno ? riga.mosse_valide : [];
+  const avversari = v.ordine.filter((id) => id !== io);
+  const inDue = avversari.length === 1;
 
   async function gioca(mossa: Mossa) {
     if (bloccato) return;
@@ -98,20 +122,15 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     }
   }
 
-  /** Funzione da chiamare toccando qualcosa sul tavolo, se quella mossa è possibile ora. */
+  /** Funzione da chiamare toccando qualcosa, se quella mossa è possibile ora. */
   const seValida = (cerca: (m: Mossa) => boolean) => {
     const m = mosse.find(cerca);
     return m ? () => gioca(m) : undefined;
   };
   const ingrandisci = (c: CartaPersonaggio) => () => setPrimoPiano({ carta: { tipo: "personaggio", id: c.personaggio } });
 
-  const gruppi = new Map<GruppoElenco, Mossa[]>();
-  for (const m of mosse) {
-    const g = gruppoMossa(m);
-    // Si fanno toccando le carte: tavolo, attivazioni, scarto del personaggio in più, Fatina, fine turno
-    if (g !== "gratis") continue;
-    gruppi.set(g, [...(gruppi.get(g) ?? []), m]);
-  }
+  // Azioni gratuite (fulmine, Biancaneve, Cappellaio): l'unico elenco di pulsanti rimasto
+  const gratuite = mosse.filter((m) => gruppoMossa(m) === "gratis");
 
   // Fine turno: si toccano le carte da scartare (se troppe), poi "Chiudi il turno"
   const puoChiudere = mosse.some((m) => m.tipo === "fineTurno");
@@ -127,7 +146,6 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     mosse.filter((m): m is Extract<Mossa, { tipo: "attiva" }> => m.tipo === "attiva" && m.carta === idCarta);
   const apriAttivazione = (c: CartaPersonaggio) =>
     proposteAttivazione(c.id).length > 0 ? () => setDaAttivare(c.id) : undefined;
-  const puoiAttivare = mosse.some((m) => m.tipo === "attiva");
   const cartaDaAttivare = daAttivare
     ? Object.values(v.giocatori)
         .flatMap((g) => g.posti)
@@ -135,212 +153,242 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     : undefined;
 
   const attesa = mioTurno ? v.turno.attesa : null;
+  // Solo i suggerimenti davvero utili (niente testo fisso che occupa spazio)
   const suggerimento =
     attesa?.tipo === "scartaPersonaggio"
-      ? "Hai 3 personaggi: tocca nei tuoi posti quello da scartare (non il nuovo)"
+      ? "Hai 3 personaggi: tocca in basso quello da scartare (non il nuovo)"
       : attesa?.tipo === "fatina"
         ? "Tocca la carta che vuoi prendere"
         : scegliScarti
-          ? `Hai troppe carte: tocca nella tua mano le ${eccesso} da scartare, poi chiudi il turno`
-          : v.turno.mosseRimaste > 0
-            ? puoiAttivare
-              ? "Puoi attivare: tocca un tuo personaggio evidenziato. Oppure prendi una carta o pesca"
-              : "Tocca una carta evidenziata per prenderla, o un mazzo per pescare"
-            : puoChiudere
-              ? "Mosse finite: puoi ancora usare le azioni qui sotto (es. il fulmine), oppure chiudere il turno"
-              : null;
+          ? `Troppe carte: tocca in basso le ${eccesso} da scartare`
+          : mioTurno && v.turno.mosseRimaste === 0 && puoChiudere
+            ? "Mosse finite: usa le azioni rimaste o chiudi il turno"
+            : null;
   const brucia = seValida((m) => m.tipo === "brucia");
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
+  const toccaPostoAltrui = (c: CartaPersonaggio) => apriAttivazione(c); // Lucciola di un vicino
+
+  // Ultime mosse: chiuse = le ultime 3; aperte = le ultime 3 di ogni giocatore
+  const eventi = v.registro.filter(significativo);
+  const ultime = [...eventi].reverse().slice(0, 3);
 
   return (
-    <div className="space-y-4 pb-60">
-      <div className="-mt-3 flex justify-end">
-        <button
-          type="button"
-          onClick={() => impostaSuoni(!suoni)}
-          className="rounded-full bg-carta px-3 py-1 text-sm font-semibold"
-          aria-label={suoni ? "Spegni i suoni" : "Accendi i suoni"}
-        >
-          {suoni ? "🔊 Suoni" : "🔇 Suoni spenti"}
-        </button>
+    <>
+      {/* ---------------- barra in alto ---------------- */}
+      <div ref={barraAlta} className="fixed inset-x-0 top-0 z-30 border-b-4 border-blu bg-carta/95 shadow-[0_4px_14px_rgba(0,0,0,0.15)] backdrop-blur">
+        <div className="mx-auto max-w-md px-3 pt-2 pb-2">
+          <div className="flex items-center gap-2">
+            <div
+              className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 text-sm font-bold ${
+                v.finita ? "bg-oro text-white" : mioTurno ? "bg-blu text-white" : "bg-white"
+              }`}
+            >
+              {v.finita
+                ? "Partita finita"
+                : mioTurno
+                  ? `Tocca a te · ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}`
+                  : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
+            </div>
+            {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-xs font-bold text-white">Ultimo giro</span>}
+            <button
+              type="button"
+              onClick={() => impostaSuoni(!suoni)}
+              className="rounded-full bg-white px-2.5 py-1 text-sm"
+              aria-label={suoni ? "Spegni i suoni" : "Accendi i suoni"}
+            >
+              {suoni ? "🔊" : "🔇"}
+            </button>
+          </div>
+          {suggerimento && <p className="mt-1 text-xs font-semibold text-blu">{suggerimento}</p>}
+          {inDue && (
+            <Avversario
+              nome={nick(avversari[0]!)}
+              g={v.giocatori[avversari[0]!]!}
+              diTurno={v.turno.giocatore === avversari[0] && !v.finita}
+              toccaPosto={toccaPostoAltrui}
+              ingrandisci={ingrandisci}
+              bloccato={bloccato}
+            />
+          )}
+        </div>
       </div>
-      {v.finita ? (
-        <Esito partita={partita} v={v} nick={nick} io={io} />
-      ) : (
-        <div className={`rounded-xl px-4 py-3 text-center font-semibold ${mioTurno ? "bg-blu text-white" : "bg-carta"}`}>
-          {mioTurno ? `Tocca a te! Mosse rimaste: ${v.turno.mosseRimaste}` : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
-          {mioTurno && suggerimento && <div className="text-xs font-normal">{suggerimento}</div>}
-          {v.ultimoTurno !== null && <div className="text-xs font-normal">Ultimo giro: qualcuno ha raggiunto i punti per vincere</div>}
-        </div>
-      )}
-      <Errore testo={errore} />
 
-      <Riquadro titolo="Tavolo">
-        <div className="flex items-start justify-center gap-3">
-          <DorsoMazzo
-            nome="Numeri"
-            quante={v.mazzi.numeri}
-            larghezza={80}
-            onTocca={seValida((m) => m.tipo === "pescaNumero")}
-            disabilitata={bloccato}
-          />
-          <DorsoMazzo
-            nome="Personaggi"
-            quante={v.mazzi.personaggi}
-            larghezza={80}
-            onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
-            disabilitata={bloccato}
-          />
-          <div className="text-center text-xs text-tenue">
-            <DorsoMazzo nome="Diamanti" quante={v.mazzi.diamanti} larghezza={64} />
-            <div className="mt-1">solo dai poteri</div>
+      {/* ---------------- centro ---------------- */}
+      <div className="space-y-3" style={{ paddingTop: altezzaAlta + 12, paddingBottom: altezzaBassa + 16 }}>
+        <Errore testo={errore} />
+        {v.finita && <Esito partita={partita} v={v} nick={nick} io={io} />}
+
+        <section className="rounded-2xl border-4 border-blu bg-carta p-3 shadow-sm">
+          {/* mazzo numeri + 4 carte numero */}
+          <div className="flex items-end justify-center gap-1.5">
+            <DorsoMazzo
+              nome="Numeri"
+              quante={v.mazzi.numeri}
+              larghezza={54}
+              onTocca={seValida((m) => m.tipo === "pescaNumero")}
+              disabilitata={bloccato}
+            />
+            <span className="mx-0.5 self-stretch border-l-2 border-dashed border-inchiostro/15" />
+            {v.tavolo.numeri.map((c, i) =>
+              c ? (
+                <CartaNumeroGrafica
+                  key={c.id}
+                  valore={c.valore}
+                  larghezza={52}
+                  onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
+                  disabilitata={bloccato}
+                />
+              ) : (
+                <PostoVuoto key={`n${i}`} larghezza={52} />
+              ),
+            )}
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {v.tavolo.numeri.map((c, i) =>
-            c ? (
-              <CartaNumeroGrafica
-                key={c.id}
-                valore={c.valore}
-                larghezza={64}
-                onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
-                disabilitata={bloccato}
-              />
-            ) : (
-              <PostoVuoto key={`n${i}`} larghezza={64} />
-            ),
+          {(brucia || bruciaGratis) && (
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {brucia && (
+                <button type="button" disabled={bloccato} onClick={brucia} className="rounded-full border-2 border-rosso px-3 py-1 text-xs font-semibold text-rosso disabled:opacity-40">
+                  🔥 Brucia le 4 carte (costa 1)
+                </button>
+              )}
+              {bruciaGratis && (
+                <button type="button" disabled={bloccato} onClick={bruciaGratis} className="rounded-full border-2 border-blu px-3 py-1 text-xs font-semibold text-blu disabled:opacity-40">
+                  🪄 Brucia gratis
+                </button>
+              )}
+            </div>
           )}
-        </div>
-        {(brucia || bruciaGratis) && (
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {brucia && (
-              <button type="button" disabled={bloccato} onClick={brucia} className="rounded-full border-2 border-rosso px-4 py-1.5 text-sm font-semibold text-rosso disabled:opacity-40">
-                🔥 Brucia le 4 carte (costa 1)
-              </button>
-            )}
-            {bruciaGratis && (
-              <button type="button" disabled={bloccato} onClick={bruciaGratis} className="rounded-full border-2 border-blu px-4 py-1.5 text-sm font-semibold text-blu disabled:opacity-40">
-                🪄 Brucia gratis
-              </button>
+
+          {/* mazzo personaggi + 2 personaggi scoperti */}
+          <div className="mt-3 flex items-center justify-center gap-1.5">
+            <DorsoMazzo
+              nome="Personaggi"
+              quante={v.mazzi.personaggi}
+              larghezza={54}
+              onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
+              disabilitata={bloccato}
+            />
+            <span className="mx-0.5 self-stretch border-l-2 border-dashed border-inchiostro/15" />
+            {v.tavolo.personaggi.map((c, i) =>
+              c ? (
+                <CartaPersonaggioGrafica
+                  key={c.id}
+                  id={c.personaggio}
+                  larghezza={112}
+                  onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
+                  onIngrandisci={ingrandisci(c)}
+                  disabilitata={bloccato}
+                />
+              ) : (
+                <PostoVuoto key={`p${i}`} larghezza={112} />
+              ),
             )}
           </div>
+          <p className="mt-2 text-center text-[11px] text-tenue">Diamanti nel mazzo: {v.mazzi.diamanti} (arrivano solo dai poteri)</p>
+
+          {v.primoPersonaggio && (
+            <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white p-2">
+              <span className="text-xs font-bold text-tenue">🔮 Il Mago vede in cima al mazzo:</span>
+              <CartaPersonaggioGrafica id={v.primoPersonaggio.personaggio} larghezza={64} compatta onIngrandisci={ingrandisci(v.primoPersonaggio)} />
+            </div>
+          )}
+        </section>
+
+        {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
+          <Riquadro titolo={`Mano di ${nick(v.turno.attesa.avversario)} (Fatina)`}>
+            <div className="flex flex-wrap justify-center gap-2">
+              {v.manoAvversario.map((c) => (
+                <CartaNumeroGrafica
+                  key={c.id}
+                  valore={c.valore}
+                  larghezza={60}
+                  onTocca={seValida((m) => m.tipo === "prendiDaFatina" && m.carta === c.id)}
+                  disabilitata={bloccato}
+                />
+              ))}
+            </div>
+          </Riquadro>
         )}
 
-        <div className="mt-4 flex flex-wrap justify-center gap-3">
-          {v.tavolo.personaggi.map((c, i) =>
-            c ? (
-              <CartaPersonaggioGrafica
-                key={c.id}
-                id={c.personaggio}
-                larghezza={138}
-                onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
-                onIngrandisci={ingrandisci(c)}
-                disabilitata={bloccato}
-              />
-            ) : (
-              <PostoVuoto key={`p${i}`} larghezza={138} />
-            ),
-          )}
-        </div>
-
-        {v.primoPersonaggio && (
-          <div className="mt-4 flex flex-col items-center">
-            <p className="mb-1 text-xs font-bold text-tenue">Prima carta del mazzo personaggi (Mago):</p>
-            <CartaPersonaggioGrafica id={v.primoPersonaggio.personaggio} larghezza={120} compatta onIngrandisci={ingrandisci(v.primoPersonaggio)} />
-          </div>
-        )}
-      </Riquadro>
-
-      {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
-        <Riquadro titolo={`Mano di ${nick(v.turno.attesa.avversario)} (Fatina)`}>
-          <div className="flex flex-wrap justify-center gap-2">
-            {v.manoAvversario.map((c) => (
-              <CartaNumeroGrafica
-                key={c.id}
-                valore={c.valore}
-                larghezza={64}
-                onTocca={seValida((m) => m.tipo === "prendiDaFatina" && m.carta === c.id)}
-                disabilitata={bloccato}
-              />
-            ))}
-          </div>
-        </Riquadro>
-      )}
-
-      {gruppi.size > 0 && (
-        <Riquadro titolo="Cosa vuoi fare?">
-          <div className="space-y-4">
-            {(Object.keys(TITOLI_GRUPPI) as GruppoElenco[]).map((g) =>
-              gruppi.has(g) ? (
-                <div key={g}>
-                  <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">{TITOLI_GRUPPI[g]}</h3>
-                  <div className="space-y-1.5">
-                    {gruppi.get(g)!.map((m) => (
-                      <button
-                        key={JSON.stringify(m)}
-                        type="button"
-                        disabled={bloccato}
-                        onClick={() => gioca(m)}
-                        className="w-full rounded-lg border-2 border-inchiostro/20 bg-white px-3 py-2 text-left text-sm hover:border-blu disabled:opacity-40"
-                      >
-                        {descriviMossa(m, v, carte, nick)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null,
-            )}
-          </div>
-        </Riquadro>
-      )}
-
-      <Riquadro titolo="Ultime mosse">
-        {v.registro.length === 0 ? (
-          <p className="text-sm text-tenue">Ancora nessuna mossa.</p>
-        ) : (
-          <ol className="space-y-1 text-sm">
-            {[...v.registro]
-              .reverse()
-              .slice(0, registroCompleto ? undefined : 8)
-              .map((e, i) => (
-                <li
-                  key={e.n}
-                  className={`rounded-lg px-2 py-1 ${i === 0 ? "bg-white font-semibold" : ""} ${e.tipo === "fineTurno" ? "text-tenue" : ""}`}
+        {gratuite.length > 0 && (
+          <section className="rounded-2xl border-2 border-blu bg-carta p-3">
+            <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Azioni gratuite</h3>
+            <div className="space-y-1.5">
+              {gratuite.map((m) => (
+                <button
+                  key={JSON.stringify(m)}
+                  type="button"
+                  disabled={bloccato}
+                  onClick={() => gioca(m)}
+                  className="w-full rounded-lg border-2 border-inchiostro/20 bg-white px-3 py-2 text-left text-sm hover:border-blu disabled:opacity-40"
                 >
+                  {descriviMossa(m, v, carte, nick)}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="rounded-2xl border-2 border-inchiostro/15 bg-carta p-3">
+          <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Ultime mosse</h3>
+          {eventi.length === 0 && <p className="text-sm text-tenue">Ancora nessuna mossa.</p>}
+          {!registroAperto ? (
+            <ol className="space-y-0.5 text-sm">
+              {ultime.map((e, i) => (
+                <li key={e.n} className={i === 0 ? "font-semibold" : "text-tenue"}>
                   {descriviEvento(e, nick, io)}
                 </li>
               ))}
-          </ol>
-        )}
-        {v.registro.length > 8 && (
-          <button type="button" onClick={() => setRegistroCompleto((x) => !x)} className="mt-2 text-sm font-semibold text-blu underline">
-            {registroCompleto ? "Mostra meno" : `Mostra tutte (${v.registro.length})`}
-          </button>
-        )}
-      </Riquadro>
+            </ol>
+          ) : (
+            <div className="space-y-2">
+              {v.ordine.map((id) => {
+                const suoi = [...eventi].reverse().filter((e) => e.giocatore === id).slice(0, 3);
+                return (
+                  <div key={id}>
+                    <p className="text-xs font-bold">{id === io ? "Tu" : nick(id)}</p>
+                    {suoi.length === 0 ? (
+                      <p className="text-sm text-tenue">Nessuna mossa recente</p>
+                    ) : (
+                      <ol className="space-y-0.5 text-sm">
+                        {suoi.map((e) => (
+                          <li key={e.n}>{descriviEvento(e, nick, io)}</li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {eventi.length > 3 && (
+            <button type="button" onClick={() => setRegistroAperto((x) => !x)} className="mt-1 text-sm font-semibold text-blu underline">
+              {registroAperto ? "Mostra meno" : "Le ultime 3 di ogni giocatore"}
+            </button>
+          )}
+        </section>
 
-      {v.ordine.map((id) => (
-        <SchedaGiocatore
-          key={id}
-          nome={nick(id)}
-          tu={id === io}
-          diTurno={id === v.turno.giocatore && !v.finita}
-          g={v.giocatori[id]!}
-          postiMax={2}
-          ingrandisci={ingrandisci}
-          toccaPosto={(c) =>
-            attesa?.tipo === "scartaPersonaggio"
-              ? id === io
-                ? seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
-                : undefined
-              : apriAttivazione(c)
-          }
-          disabilitata={bloccato}
-        />
-      ))}
+        {/* con più di 2 giocatori gli avversari stanno qui */}
+        {!inDue &&
+          avversari.map((id) => (
+            <section key={id} className={`rounded-2xl border-2 bg-carta p-3 ${id === v.turno.giocatore && !v.finita ? "border-blu" : "border-inchiostro/15"}`}>
+              <Avversario
+                nome={nick(id)}
+                g={v.giocatori[id]!}
+                diTurno={false}
+                toccaPosto={toccaPostoAltrui}
+                ingrandisci={ingrandisci}
+                bloccato={bloccato}
+                largo
+              />
+            </section>
+          ))}
 
+        <Attivati v={v} io={io} nick={nick} ingrandisci={ingrandisci} />
+      </div>
+
+      {/* ---------------- barra in basso ---------------- */}
       <BarraMieCarte
+        rif={barraBassa}
         v={v}
         io={io}
         daScartare={daScartare}
@@ -377,68 +425,100 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       )}
 
       {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
+    </>
+  );
+}
+
+/** Un avversario: nome, punti, carte in mano (coperte), diamanti e personaggi nei posti. */
+function Avversario({
+  nome,
+  g,
+  diTurno,
+  toccaPosto,
+  ingrandisci,
+  bloccato,
+  largo,
+}: {
+  nome: string;
+  g: VistaGiocatore["giocatori"][string];
+  diTurno: boolean;
+  toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
+  ingrandisci: (c: CartaPersonaggio) => () => void;
+  bloccato: boolean;
+  largo?: boolean;
+}) {
+  const larghezza = largo ? 80 : 46;
+  return (
+    <div className={`${largo ? "" : "mt-2 rounded-xl bg-white/70 p-2"} ${diTurno ? "ring-2 ring-blu" : ""}`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate font-titolo font-bold">{nome}</span>
+        <span className="shrink-0 rounded-full bg-inchiostro px-2 py-0.5 text-xs font-bold text-carta">{g.punti} punti</span>
+      </div>
+      <div className="mt-1 flex items-end gap-3">
+        <div className="flex gap-1">
+          {g.posti.map((c) => (
+            <CartaPersonaggioGrafica
+              key={c.id}
+              id={c.personaggio}
+              larghezza={larghezza}
+              compatta
+              onTocca={toccaPosto(c)}
+              onIngrandisci={ingrandisci(c)}
+              disabilitata={bloccato}
+            />
+          ))}
+          {Array.from({ length: Math.max(0, 2 - g.posti.length) }, (_, i) => (
+            <PostoVuoto key={i} larghezza={larghezza} />
+          ))}
+        </div>
+        <div className="min-w-0 flex-1 space-y-1 text-xs">
+          <div className="flex items-center gap-1">
+            <span className="inline-flex">
+              {Array.from({ length: Math.min(g.carteInMano, 8) }, (_, i) => (
+                <span key={i} className="-ml-2 first:ml-0 inline-block h-7 w-5 rounded-sm border border-[#b8892b] bg-gradient-to-br from-[#1f4f8f] to-[#14213d] shadow-sm" />
+              ))}
+            </span>
+            <span className="font-semibold">{g.carteInMano} in mano</span>
+          </div>
+          {g.diamanti.length > 0 && <Diamanti diamanti={g.diamanti} />}
+          {g.attivati.length > 0 && <span className="text-tenue">{g.attivati.length} attivati (sotto)</span>}
+        </div>
+      </div>
     </div>
   );
 }
 
-function SchedaGiocatore({
-  nome,
-  tu,
-  diTurno,
-  g,
-  postiMax,
+/** Personaggi attivati di tutti: servono a ricordare i poteri in gioco. */
+function Attivati({
+  v,
+  io,
+  nick,
   ingrandisci,
-  toccaPosto,
-  disabilitata,
 }: {
-  nome: string;
-  tu: boolean;
-  diTurno: boolean;
-  g: VistaGiocatore["giocatori"][string];
-  postiMax: number;
+  v: VistaGiocatore;
+  io: string;
+  nick: (id: string) => string;
   ingrandisci: (c: CartaPersonaggio) => () => void;
-  toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
-  disabilitata: boolean;
 }) {
-  const larghezza = tu ? 138 : 112;
+  const conAttivati = v.ordine.filter((id) => v.giocatori[id]!.attivati.length > 0);
+  if (conAttivati.length === 0) return null;
   return (
-    <section className={`rounded-2xl border-2 bg-carta p-4 ${diTurno ? "border-blu" : "border-inchiostro/15"}`}>
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="font-titolo text-lg font-bold">
-          {tu ? "I tuoi personaggi" : nome}
-        </h3>
-        <span className="rounded-full bg-inchiostro px-3 py-1 text-sm font-bold text-carta">{g.punti} punti</span>
-      </div>
-      {tu && <p className="text-xs text-tenue">I tuoi posti e la tua mano sono nella barra in basso.</p>}
-      {!tu && <p className="text-xs text-tenue">Carte in mano: {g.carteInMano}</p>}
-      {!tu && <Diamanti diamanti={g.diamanti} />}
-      {!tu && <p className="mt-2 mb-1 text-xs font-bold text-tenue">Nei posti</p>}
-      <div className={`flex flex-wrap gap-3 ${tu ? "hidden" : ""}`}>
-        {g.posti.map((c) => (
-          <CartaPersonaggioGrafica
-            key={c.id}
-            id={c.personaggio}
-            larghezza={larghezza}
-            compatta={!tu}
-            onTocca={toccaPosto(c)}
-            onIngrandisci={ingrandisci(c)}
-            disabilitata={disabilitata}
-          />
-        ))}
-        {Array.from({ length: Math.max(0, postiMax - g.posti.length) }, (_, i) => (
-          <PostoVuoto key={i} larghezza={larghezza} />
-        ))}
-      </div>
-      {g.attivati.length > 0 && (
-        <>
-          <p className="mt-3 mb-1 text-xs font-bold text-tenue">Attivati ({g.attivati.length})</p>
-          <div className="flex flex-wrap gap-1.5">
-            {g.attivati.map((c) => (
-              <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={64} compatta onIngrandisci={ingrandisci(c)} />
-            ))}
+    <section className="rounded-2xl border-2 border-inchiostro/15 bg-carta p-3">
+      <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Personaggi attivati</h3>
+      <div className="space-y-2">
+        {conAttivati.map((id) => (
+          <div key={id}>
+            <p className="text-xs font-bold">
+              {id === io ? "I tuoi" : nick(id)} · {v.giocatori[id]!.punti} punti
+            </p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {v.giocatori[id]!.attivati.map((c) => (
+                <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={56} compatta onIngrandisci={ingrandisci(c)} />
+              ))}
+            </div>
           </div>
-        </>
-      )}
+        ))}
+      </div>
     </section>
   );
 }
@@ -446,8 +526,7 @@ function SchedaGiocatore({
 function Diamanti({ diamanti }: { diamanti: CartaDiamante[] }) {
   if (diamanti.length === 0) return null;
   return (
-    <div className="mt-2 flex flex-wrap items-center text-sm">
-      <span className="mr-1">Diamanti:</span>
+    <div className="flex flex-wrap items-center">
       {diamanti.map((d) => (
         <Diamante key={d.id} d={d} />
       ))}
@@ -485,6 +564,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
 
 /** Barra fissa in basso: i miei personaggi nei posti, la mia mano, i diamanti e la fine del turno. */
 function BarraMieCarte({
+  rif,
   v,
   io,
   daScartare,
@@ -499,6 +579,7 @@ function BarraMieCarte({
   toccaPosto,
   ingrandisci,
 }: {
+  rif: RefObject<HTMLDivElement>;
   v: VistaGiocatore;
   io: string;
   daScartare: string[];
@@ -513,31 +594,31 @@ function BarraMieCarte({
   toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
   ingrandisci: (c: CartaPersonaggio) => () => void;
 }) {
-  const io_ = v.giocatori[io]!;
+  const mio = v.giocatori[io]!;
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
+    <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
       <div className="mx-auto max-w-md px-3 pt-1 pb-[max(8px,env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-between text-xs font-semibold text-tenue">
           <span>
-            I tuoi posti · Mano {v.mano.length}/{v.limiteMano}
+            Tu · Mano {v.mano.length}/{v.limiteMano}
           </span>
-          <span className="rounded-full bg-inchiostro px-2 py-0.5 text-carta">{io_.punti} punti</span>
+          <span className="rounded-full bg-inchiostro px-2 py-0.5 text-carta">{mio.punti} punti</span>
         </div>
         <div className="flex items-end gap-3">
           <div className="flex shrink-0 gap-1.5 pt-2">
-            {io_.posti.map((c) => (
+            {mio.posti.map((c) => (
               <CartaPersonaggioGrafica
                 key={c.id}
                 id={c.personaggio}
-                larghezza={62}
+                larghezza={56}
                 compatta
                 onTocca={toccaPosto(c)}
                 onIngrandisci={ingrandisci(c)}
                 disabilitata={bloccato}
               />
             ))}
-            {Array.from({ length: Math.max(0, 2 - io_.posti.length) }, (_, i) => (
-              <PostoVuoto key={i} larghezza={62} />
+            {Array.from({ length: Math.max(0, 2 - mio.posti.length) }, (_, i) => (
+              <PostoVuoto key={i} larghezza={56} />
             ))}
           </div>
           <div className="min-w-0 flex-1 overflow-x-auto">
@@ -549,7 +630,7 @@ function BarraMieCarte({
                   <CartaNumeroGrafica
                     key={c.id}
                     valore={c.valore}
-                    larghezza={42}
+                    larghezza={50}
                     selezionata={daScartare.includes(c.id)}
                     onTocca={scegliScarti ? alternaScarto(c.id) : undefined}
                     disabilitata={bloccato}
@@ -558,11 +639,9 @@ function BarraMieCarte({
             </div>
           </div>
         </div>
-        {io_.diamanti.length > 0 && (
-          <div className="flex flex-wrap items-center text-xs">
-            {io_.diamanti.map((d) => (
-              <Diamante key={d.id} d={d} />
-            ))}
+        {mio.diamanti.length > 0 && (
+          <div className="text-xs">
+            <Diamanti diamanti={mio.diamanti} />
           </div>
         )}
         {puoChiudere && (

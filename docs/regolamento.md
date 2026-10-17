@@ -181,4 +181,9 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Strega: se almeno un avversario ha personaggi nei posti, scartarne uno è obbligatorio; altrimenti si attiva senza effetto.
 - Cappellaio matto: lo scambio "a inizio turno" va fatto prima di qualsiasi altra azione del turno (compresi fulmine e Biancaneve).
 
+**Decisioni prese (prove nel browser, 2026-10-17)**
+
+- Mago: vede la prima carta coperta del mazzo personaggi solo all'inizio del proprio turno; se la pesca, non vede la successiva. Se il Mago viene attivato a metà turno, il potere si usa dal turno successivo.
+- Fine turno automatico: finite le mosse, il turno si chiude da solo, tranne se il giocatore ha un fulmine da giocare, deve scartare carte in eccesso o ha lo Scheletro (che si usa a fine turno).
+
 Nessuna domanda aperta al momento.

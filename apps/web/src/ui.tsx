@@ -2,7 +2,8 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-export function Pagina({ children }: { children: ReactNode }) {
+export function Pagina({ children, inGioco }: { children: ReactNode; /** durante la partita: niente titolo, poco margine */ inGioco?: boolean }) {
+  if (inGioco) return <div className="mx-auto min-h-dvh max-w-md px-3">{children}</div>;
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">
       <Link to="/" className="font-titolo text-2xl font-bold">

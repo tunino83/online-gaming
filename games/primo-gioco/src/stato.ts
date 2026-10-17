@@ -37,6 +37,11 @@ export interface StatoTurno {
   /** È già stata fatta un'azione in questo turno (per il Cappellaio matto). */
   iniziato: boolean;
   attesa: Attesa | null;
+  /**
+   * Mago: id della prima carta del mazzo personaggi vista a inizio turno (null se niente Mago).
+   * Resta visibile solo finché è ancora in cima al mazzo. Può mancare nelle partite vecchie.
+   */
+  cartaMago?: string | null;
 }
 
 export interface Mazzi {

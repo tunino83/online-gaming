@@ -28,7 +28,7 @@ export function Partita() {
   const { partita, giocatori, io } = stato;
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
-    <Pagina>
+    <Pagina inGioco>
       {partita.gioco === "primo-gioco" ? (
         <TavoloPrimoGioco partita={partita} giocatori={giocatori} io={io} />
       ) : (

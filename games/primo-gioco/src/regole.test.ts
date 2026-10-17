@@ -581,13 +581,34 @@ describe("poteri blu", () => {
     expect(errore(senza, "A", { tipo: "dueInDiamante", carta: due.id })).toBe("Serve Biancaneve");
   });
 
-  it("Mago: si vede la prima carta del mazzo personaggi, solo nel proprio turno", () => {
-    const s = partita();
+  it("Mago: a inizio turno si vede la prima carta del mazzo personaggi, solo nel proprio turno", () => {
+    let s = partita();
     s.giocatori.A!.attivati = [pers("mago")];
-    expect(vistaGiocatore(s, "A").primoPersonaggio).toEqual(s.mazzi.personaggi.at(-1));
+    expect(vistaGiocatore(s, "A").primoPersonaggio).toBeUndefined(); // il turno era già iniziato senza Mago
+    s = passaTurno(s); // turno di B
+    expect(vistaGiocatore(s, "A").primoPersonaggio).toBeUndefined();
+    s = passaTurno(s); // di nuovo A: a inizio turno guarda il mazzo
+    const primo = s.mazzi.personaggi.at(-1);
+    expect(vistaGiocatore(s, "A").primoPersonaggio).toEqual(primo);
     expect(vistaGiocatore(s, "B").primoPersonaggio).toBeUndefined();
-    const turnoDiB = passaTurno(s);
-    expect(vistaGiocatore(turnoDiB, "A").primoPersonaggio).toBeUndefined();
+  });
+
+  it("Mago: se pesca la carta vista non vede la successiva", () => {
+    let s = partita();
+    s.giocatori.A!.attivati = [pers("mago")];
+    s = passaTurno(passaTurno(s));
+    expect(vistaGiocatore(s, "A").primoPersonaggio).toBeDefined();
+    s = gioca(s, "A", { tipo: "pescaPersonaggio" });
+    expect(vistaGiocatore(s, "A").primoPersonaggio).toBeUndefined();
+  });
+
+  it("Mago attivato a metà turno: vede il mazzo solo dall'inizio del turno successivo", () => {
+    const mano = [num(3), num(4), num(5)];
+    const { s, carta } = conPersonaggio("mago", mano);
+    let dopo = gioca(s, "A", { tipo: "attiva", carta: carta.id, combinazione: usa(...mano) });
+    expect(vistaGiocatore(dopo, "A").primoPersonaggio).toBeUndefined();
+    dopo = passaTurno(passaTurno(dopo));
+    expect(vistaGiocatore(dopo, "A").primoPersonaggio).toBeDefined();
   });
 
   it("Cappellaio matto: a inizio turno scambia un personaggio con uno del tavolo, anche con posti pieni", () => {
@@ -825,15 +846,29 @@ describe("chiusura automatica del turno", () => {
     expect(mossaAutomatica(s)).toBeNull();
   });
 
-  it("non si chiude da solo con Scheletro, Biancaneve (con un 2) o Bacchetta non usata", async () => {
+  it("non si chiude da solo con lo Scheletro (si usa a fine turno)", async () => {
     const { mossaAutomatica } = await import("./regole");
-    for (const [personaggio, mano] of [["scheletro", [num(5)]], ["biancaneve", [num(2)]], ["bacchetta-magica", []]] as const) {
+    const s = partita();
+    s.giocatori.A!.attivati = [pers("scheletro")];
+    s.giocatori.A!.mano = [num(5)];
+    s.turno.mosseRimaste = 0;
+    expect(mossaAutomatica(s)).toBeNull();
+  });
+
+  it("si chiude da solo anche con Biancaneve o Bacchetta (si usano durante il turno)", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    for (const [personaggio, mano] of [["biancaneve", [num(2)]], ["bacchetta-magica", []]] as const) {
       const s = partita();
       s.giocatori.A!.attivati = [pers(personaggio)];
       s.giocatori.A!.mano = [...mano];
       s.turno.mosseRimaste = 0;
-      expect(mossaAutomatica(s), personaggio).toBeNull();
+      expect(mossaAutomatica(s), personaggio).toEqual({ giocatore: "A", mossa: fine() });
     }
+  });
+
+  it("con mosse ancora disponibili non si chiude da solo", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    expect(mossaAutomatica(partita())).toBeNull();
   });
 
   it("non agisce durante una scelta in sospeso o a partita finita", async () => {

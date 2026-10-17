@@ -1,6 +1,7 @@
 /** Carte disegnate del primo gioco (stile in carte.css). */
 import { type CartaDiamante, type PezzoCodice, personaggio, pezziCodice, simboloProvvisorio, tipoCarta } from "@og/primo-gioco";
 import type { CSSProperties, ReactNode } from "react";
+import "@fontsource/cinzel/700.css";
 import "./carte.css";
 
 /** Illustrazioni: games/primo-gioco/immagini/<id personaggio>.png|jpg|jpeg|webp */
