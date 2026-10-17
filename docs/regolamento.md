@@ -143,14 +143,15 @@ Quando un giocatore raggiunge i punti per vincere (default 15), si completa il g
 
 Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da confermare.
 
-**Codici e diamanti**
+**Decisioni prese (codici e diamanti, 2026-10-17)**
 
-1. Il diamante usato per fare +1 a una carta viene scartato insieme al codice? (Proposta: sì.)
-2. Scimmia "carte con somma 10, quante si vuole": servono almeno 2 carte? Il massimo è 5 come per tutti i codici? (Proposta: da 2 a 5.)
-3. Il fulmine si può usare in un codice? (Proposta: no, ha senso solo per Capitan Uncino, dove vale come "diamante qualsiasi" e viene scartato senza dare la mossa in più.)
-4. Folletto e Robin Hood ("ogni 3 / ogni 1 in mano"): valgono anche per i diamanti con valore 3 / 1? (Robin Hood dice "carta o diamante"; per Folletto proposta: sì, uguale.)
-5. Si possono combinare due modifiche sulla stessa carta? Es. un 3 che col Folletto diventa 8 e poi riceve un diamante −1 con Xena. (Proposta: no, una sola modifica per carta.)
-6. Una carta virtuale (nano, fenice, drago) si può usare più volte nello stesso codice? (Proposta: no, ogni nano dà una sola carta per turno.)
+- Il diamante usato per fare +1 (o −1) a una carta va negli scarti insieme alle carte del codice.
+- Scimmia: la somma 10 si può fare con quante carte si vuole, anche più di 5 (è l'unica eccezione al limite di 5 carte per codice).
+- Folletto: ogni 3 in mano, carta o diamante con valore 3, può valere qualsiasi numero da 1 a 8.
+- Una sola modifica per carta: un diamante +1/−1 oppure un potere (Folletto, Robin Hood), non entrambi.
+- Una carta virtuale (nano, fenice, drago) si usa una sola volta per turno, quindi al massimo una volta nello stesso codice.
+- Il fulmine non ha un numero, quindi non può fare da carta in un codice. L'unico caso in cui entra in un codice è Capitan Uncino ("un diamante qualsiasi, anche un fulmine").
+- Capitan Uncino pagato con un fulmine: il fulmine si consuma come pagamento e non dà la mossa in più. Un diamante con valore usato come "diamante qualsiasi" conta solo come diamante, non col suo numero.
 
 **Turno**
 
