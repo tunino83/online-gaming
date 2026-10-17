@@ -62,7 +62,7 @@ export const PERSONAGGI: Personaggio[] = [
     codice: esatto(4, 5, 6, 7, 8),
     punti: 1,
     potereTesto: "Fai 4 mosse per turno invece di 3",
-    poteri: [blu({ tipo: "mossePerTurno", mosse: 4 })],
+    poteri: [blu({ tipo: "mosseInPiuOgniTurno", mosse: 1 })],
     copie: 1,
   },
   {

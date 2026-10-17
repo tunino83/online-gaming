@@ -2,3 +2,8 @@ export * from "./parametri";
 export * from "./tipi-carte";
 export * from "./personaggi";
 export * from "./mazzi";
+export * from "./codici";
+export * from "./stato";
+export * from "./regole";
+export * from "./vista";
+export * from "./gioco";

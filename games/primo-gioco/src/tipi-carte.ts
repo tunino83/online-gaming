@@ -31,8 +31,8 @@ export type Codice =
 export type Effetto =
   /** Nani, Fenice, Drago: una carta virtuale per i codici, una volta per turno. */
   | { tipo: "cartaVirtuale"; valore: Valore | "aScelta" }
-  /** Cappuccetto Rosso: mosse per turno. */
-  | { tipo: "mossePerTurno"; mosse: number }
+  /** Cappuccetto Rosso: mosse in più in ogni turno (4 invece di 3). */
+  | { tipo: "mosseInPiuOgniTurno"; mosse: number }
   /** Scimmia: limite della mano aumentato. */
   | { tipo: "limiteMano"; aumento: number }
   /** Strega: scarta un personaggio dai posti di un avversario. */
