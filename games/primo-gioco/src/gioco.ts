@@ -1,7 +1,7 @@
 /** Il primo gioco, nella forma comune a tutti i giochi della piattaforma. */
 import type { Gioco } from "@og/engine";
 import { MAX_GIOCATORI, MIN_GIOCATORI, type OpzioniPartita } from "./parametri";
-import { applicaMossa, finePartita, mosseValide, setup } from "./regole";
+import { applicaMossa, finePartita, mossaAutomatica, mosseValide, setup } from "./regole";
 import type { Mossa, StatoPartita } from "./stato";
 import { type VistaGiocatore, vistaGiocatore } from "./vista";
 
@@ -14,4 +14,5 @@ export const primoGioco: Gioco<StatoPartita, Mossa, OpzioniPartita, VistaGiocato
   applicaMossa,
   finePartita,
   vistaGiocatore,
+  mossaAutomatica,
 };

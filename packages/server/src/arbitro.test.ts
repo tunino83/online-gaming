@@ -179,3 +179,19 @@ describe("mosse", () => {
     });
   });
 });
+
+describe("chiusura automatica del turno", () => {
+  it("dopo la terza mossa, senza altre scelte, tocca subito all'altro giocatore", async () => {
+    const t = await partitaConDue(3);
+    await t.chiedi(A, { azione: "avvia", partitaId: t.partitaId });
+    const stato = () => t.archivio.dati.stati.get(t.partitaId)!.stato as StatoPartita;
+    const chi = stato().turno.giocatore;
+    const altro = chi === A ? B : A;
+    for (let i = 0; i < 3; i++) {
+      expect(await t.chiedi(chi, { azione: "mossa", partitaId: t.partitaId, mossa: { tipo: "pescaNumero" } })).toEqual({ ok: true });
+    }
+    expect(stato().turno.giocatore).toBe(altro);
+    expect(stato().turno.mosseRimaste).toBe(3);
+    expect(t.archivio.dati.viste.get(`${t.partitaId}/${altro}`)!.mosse_valide.length).toBeGreaterThan(0);
+  });
+});

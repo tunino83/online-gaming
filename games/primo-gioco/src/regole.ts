@@ -565,6 +565,18 @@ function sottoinsiemi<T>(lista: T[], k: number, limite: number): T[][] {
   return res;
 }
 
+/**
+ * Mossa che il server fa da solo: chiudere il turno quando è l'unica cosa possibile
+ * (mosse finite, nessun fulmine, nessuna carta da scartare, nessun potere da usare a fine turno).
+ */
+export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; mossa: Mossa } | null {
+  if (s.finita || s.turno.attesa) return null;
+  const giocatore = s.turno.giocatore;
+  const mosse = mosseValide(s, giocatore);
+  if (mosse.length !== 1 || mosse[0]!.tipo !== "fineTurno") return null;
+  return { giocatore, mossa: mosse[0]! };
+}
+
 /* ------------------------------------------------------------------ */
 /* Fine partita                                                        */
 /* ------------------------------------------------------------------ */

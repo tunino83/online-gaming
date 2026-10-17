@@ -110,7 +110,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             ? puoiAttivare
               ? "Puoi attivare: tocca un tuo personaggio evidenziato. Oppure prendi una carta o pesca"
               : "Tocca una carta evidenziata per prenderla, o un mazzo per pescare"
-            : null;
+            : puoChiudere
+              ? "Mosse finite: puoi ancora usare le azioni qui sotto (es. il fulmine), oppure chiudere il turno"
+              : null;
   const brucia = seValida((m) => m.tipo === "brucia");
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
 

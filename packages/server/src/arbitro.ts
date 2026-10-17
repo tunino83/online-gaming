@@ -225,7 +225,15 @@ async function mossa(r: Record<string, unknown>, utente: string, archivio: Archi
   }
   if (!risultato.ok) return errore(risultato.errore);
 
-  const nuovo = risultato.stato;
+  // Mosse senza scelta (es. chiudere il turno quando non resta altro da fare): le fa il server.
+  let nuovo = risultato.stato;
+  for (let i = 0; i < 10; i++) {
+    const automatica = g.mossaAutomatica?.(nuovo);
+    if (!automatica) break;
+    const r = g.applicaMossa(nuovo, automatica.giocatore, automatica.mossa);
+    if (!r.ok) break;
+    nuovo = r.stato;
+  }
   const esito = g.finePartita(nuovo);
   const ids = p.giocatori.map((x) => x.utenteId);
   await archivio.salva({

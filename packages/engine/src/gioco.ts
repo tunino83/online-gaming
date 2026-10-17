@@ -42,4 +42,10 @@ export interface Gioco<Stato, Mossa, Opzioni, Vista> {
 
   /** Ciò che un giocatore può vedere: mai mani altrui, mazzi coperti o loro ordine. */
   vistaGiocatore(stato: Stato, giocatore: IdGiocatore): Vista;
+
+  /**
+   * Facoltativa: una mossa che il server può fare da solo perché non c'è nessuna scelta
+   * (es. chiudere il turno quando non resta altro da fare). L'arbitro la applica subito.
+   */
+  mossaAutomatica?(stato: Stato): { giocatore: IdGiocatore; mossa: Mossa } | null;
 }

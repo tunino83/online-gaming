@@ -799,3 +799,51 @@ describe("risorse viste dal browser", () => {
     }
   });
 });
+
+describe("chiusura automatica del turno", () => {
+  it("finite le mosse, senza altre scelte, il turno si chiude da solo", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    let s = partita();
+    expect(mossaAutomatica(s)).toBeNull(); // ci sono ancora mosse
+    for (let i = 0; i < 3; i++) s = gioca(s, "A", { tipo: "pescaNumero" });
+    expect(mossaAutomatica(s)).toEqual({ giocatore: "A", mossa: fine() });
+  });
+
+  it("non si chiude da solo se c'è un fulmine da giocare", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    const s = partita();
+    s.giocatori.A!.diamanti = [fulmine()];
+    s.turno.mosseRimaste = 0;
+    expect(mossaAutomatica(s)).toBeNull();
+  });
+
+  it("non si chiude da solo se bisogna scegliere cosa scartare", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    const s = partita();
+    s.giocatori.A!.mano = Array.from({ length: 7 }, (_, i) => num((i % 8) + 1));
+    s.turno.mosseRimaste = 0;
+    expect(mossaAutomatica(s)).toBeNull();
+  });
+
+  it("non si chiude da solo con Scheletro, Biancaneve (con un 2) o Bacchetta non usata", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    for (const [personaggio, mano] of [["scheletro", [num(5)]], ["biancaneve", [num(2)]], ["bacchetta-magica", []]] as const) {
+      const s = partita();
+      s.giocatori.A!.attivati = [pers(personaggio)];
+      s.giocatori.A!.mano = [...mano];
+      s.turno.mosseRimaste = 0;
+      expect(mossaAutomatica(s), personaggio).toBeNull();
+    }
+  });
+
+  it("non agisce durante una scelta in sospeso o a partita finita", async () => {
+    const { mossaAutomatica } = await import("./regole");
+    const s = partita();
+    s.turno.mosseRimaste = 0;
+    s.turno.attesa = { tipo: "scartaPersonaggio", nuovo: "x" };
+    expect(mossaAutomatica(s)).toBeNull();
+    s.turno.attesa = null;
+    s.finita = true;
+    expect(mossaAutomatica(s)).toBeNull();
+  });
+});
