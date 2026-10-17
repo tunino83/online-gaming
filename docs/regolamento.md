@@ -134,7 +134,9 @@ Mazzo completo: 42 personaggi diversi, 55 carte. Per aggiungere un personaggio b
 
 ## Fine partita
 
-Quando un giocatore raggiunge i punti per vincere (default 15), si completa il giro: tutti giocano lo stesso numero di turni.
+Quando un giocatore raggiunge i punti per vincere (default 15), si completa il giro in corso e poi si gioca **un ultimo giro completo**: tutti giocano lo stesso numero di turni.
+
+Esempio con 4 giocatori A, B, C, D (A ha iniziato): C arriva a 15, poi giocano D (fine del giro) e A, B, C, D (ultimo giro). Poi la partita finisce.
 
 - Vince chi ha più punti.
 - A parità di punti la partita finisce in pareggio tra i giocatori in testa.
@@ -153,21 +155,22 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Il fulmine non ha un numero, quindi non può fare da carta in un codice. L'unico caso in cui entra in un codice è Capitan Uncino ("un diamante qualsiasi, anche un fulmine").
 - Capitan Uncino pagato con un fulmine: il fulmine si consuma come pagamento e non dà la mossa in più. Un diamante con valore usato come "diamante qualsiasi" conta solo come diamante, non col suo numero.
 
-**Turno**
+**Decisioni prese (turno e poteri, 2026-10-17)**
 
-7. Quando si prende/pesca un personaggio con i posti pieni, si può scartare quello appena preso? (Proposta: sì, si sceglie uno qualsiasi dei 3.)
-8. I personaggi scartati (Strega, posti pieni) vanno negli scarti personaggi? (Proposta: sì.)
-9. A fine turno si scartano carte numero oltre il limite: chi sceglie quali? (Proposta: il giocatore.)
-10. Se un mazzo e i suoi scarti sono entrambi vuoti (es. tutti i personaggi in gioco), la mossa di pesca non è disponibile? (Proposta: sì; e il posto vuoto sul tavolo resta vuoto.)
-11. Fine partita: si completa il giro fino al giocatore prima di chi ha iniziato la partita, giusto? Anche se a raggiungere 15 è proprio l'ultimo del giro, la partita finisce subito?
-12. Mosse extra: Cappuccetto Rosso (4 mosse), Golem (+3), Fantasma (+1 al successivo) e fulmini si sommano tutti? (Proposta: sì.) Il fulmine si può giocare anche quando le mosse sono finite, per farne una in più? (Proposta: sì, prima di chiudere il turno.)
+- Posti pieni: chi prende o pesca un terzo personaggio deve scartare uno dei due che aveva già, non quello appena preso.
+- I personaggi scartati (posti pieni, Strega) vanno negli scarti personaggi.
+- A fine turno, se si hanno troppe carte numero, il giocatore sceglie quali scartare.
+- Se un mazzo e i suoi scarti sono entrambi vuoti, non si può pescare da quel mazzo e il posto vuoto sul tavolo resta vuoto finché non torna una carta.
+- Fine partita: si completa il giro e poi si gioca un ultimo giro completo (vedi "Fine partita").
+- Le mosse extra si sommano tutte (Cappuccetto Rosso, Golem, Fantasma, fulmini). Un fulmine si può giocare anche a mosse finite, prima di chiudere il turno.
+- Gatto con gli stivali: si può tenere qualsiasi carta del codice, anche un diamante, ma non una carta virtuale.
+- Lucciola: possono attivarla i due giocatori subito prima e subito dopo il proprietario nell'ordine di turno; il posto del proprietario si libera.
+- Fatina: si può attivare anche se l'avversario ha la mano vuota (nessun effetto); si prendono solo carte numero, non diamanti.
+- Scheletro: si cambiano tutte le carte in mano o nessuna.
+- Biancaneve: il 2 scambiato va negli scarti numeri; lo scambio si fa solo nel proprio turno.
+- Mago: la prima carta del mazzo personaggi si vede solo durante il proprio turno.
+- Cappellaio matto: lo scambio è facoltativo e si può fare anche con i posti pieni (è uno scambio 1 contro 1).
 
-**Poteri**
+**Ancora aperta**
 
-13. Gatto con gli stivali: se la carta scelta è un diamante, il diamante resta? (Proposta: sì, qualsiasi carta del codice escluse le virtuali.)
-14. Lucciola: "il giocatore prima o dopo" = i due vicini di posto nell'ordine di turno? Chi la attiva dal posto altrui libera il posto del proprietario? (Proposta: sì e sì.)
-15. Fatina con un avversario a mano vuota: si può attivare lo stesso (senza effetto)? (Proposta: sì.) Si prende anche un diamante o solo carte numero? (Proposta: solo carte numero; i diamanti non sono "in mano".)
-16. Scheletro: "a fine turno puoi cambiare tutte le carte" — tutte obbligatoriamente o anche solo alcune? (Proposta: tutte o nessuna.)
-17. Biancaneve: il 2 scambiato va negli scarti numeri? Si può fare anche durante il turno di un altro? (Proposta: sì; no, solo nel proprio turno.)
-18. Mago: vede la prima carta del mazzo personaggi sempre (anche nei turni altrui) oppure solo nel proprio turno? (Proposta: sempre.)
-19. Cappellaio matto: lo scambio a inizio turno è facoltativo e può prendere un personaggio scoperto anche con posti pieni? (Proposta: sì, è uno scambio 1 a 1.)
+20. Ultimo giro: se durante l'ultimo giro un altro giocatore arriva a 15, la partita finisce lo stesso alla fine di quel giro? (Proposta: sì, l'ultimo giro non si allunga.)
