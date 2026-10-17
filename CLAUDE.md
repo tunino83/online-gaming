@@ -29,6 +29,7 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `pnpm test` – esegue tutti i test (Vitest).
 - `pnpm typecheck` – controllo dei tipi TypeScript.
 - `pnpm check` – entrambi: da lanciare prima di ogni commit.
+- `pnpm simula [n]` – simula n partite tra bot (default 1000) e scrive `docs/statistiche-simulazione.md`.
 
 ## Architettura
 
@@ -41,8 +42,12 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - Il server è l'arbitro: il client invia mosse, mai stato. `vistaGiocatore` non deve mai esporre
   mani altrui, mazzi coperti o ordine dei mazzi.
 
-## Fase attuale: Fase 1 – Motore di gioco
+## Fase attuale: Fase 1 – Motore di gioco (completata il 2026-10-17)
 
-Obiettivo: il primo gioco funziona interamente in codice, senza interfaccia e senza Supabase.
-Chiusa quando: 1.000 partite simulate tra bot casuali terminano senza errori e con statistiche sensate
-(durata media, punti medi, frequenza di attivazione di ogni personaggio).
+1.000 partite tra bot finite senza errori (vedi `docs/statistiche-simulazione.md`).
+Prossimo: Fase 2 – Prototipo web.
+
+File principali del primo gioco (`games/primo-gioco/src`):
+- `personaggi.ts` dati dei personaggi; `mazzi.ts` composizione dei mazzi
+- `codici.ts` verifica dei codici di attivazione; `regole.ts` turno, poteri, fine partita
+- `stato.ts` stato e mosse; `vista.ts` cosa vede ogni giocatore; `bot.ts` e `simulazione.ts`

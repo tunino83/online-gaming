@@ -173,10 +173,12 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 
 - Ultimo giro: se durante l'ultimo giro un altro giocatore arriva ai punti per vincere, la partita finisce comunque alla fine di quel giro.
 
-**Ancora aperte (punto 4, con la proposta già usata nel codice)**
+**Decisioni prese (punto 4, 2026-10-17)**
 
-21. Si può chiudere il turno prima di aver fatto tutte le mosse? (Proposta: no, le mosse vanno fatte tutte finché ce n'è almeno una possibile.)
-22. Più Scimmie attivate: il limite della mano sale di +1 per ognuna? (Proposta: sì, si sommano.)
-23. Cappuccetto Rosso attivato a metà turno: "vale dal turno in cui si attiva", quindi dà subito 1 mossa in più in quel turno. (Proposta: sì.)
-24. Strega: se un avversario ha personaggi nei posti, scartarne uno è obbligatorio? (Proposta: sì; se nessun avversario ne ha, la Strega si attiva senza effetto.)
-25. Cappellaio matto "a inizio turno": vuol dire prima di qualsiasi altra azione del turno, compresi fulmine e Biancaneve? (Proposta: sì.)
+- Il turno non si può chiudere prima di aver fatto tutte le mosse, finché ce n'è almeno una possibile (prendere, pescare o bruciare).
+- Più Scimmie attivate: il limite della mano sale di +1 per ognuna.
+- Cappuccetto Rosso attivato a metà turno dà subito 1 mossa in più in quel turno; dal turno dopo si fanno 4 mosse.
+- Strega: se almeno un avversario ha personaggi nei posti, scartarne uno è obbligatorio; altrimenti si attiva senza effetto.
+- Cappellaio matto: lo scambio "a inizio turno" va fatto prima di qualsiasi altra azione del turno (compresi fulmine e Biancaneve).
+
+Nessuna domanda aperta al momento.
