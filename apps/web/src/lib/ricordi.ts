@@ -1,6 +1,23 @@
 /** Piccole preferenze salvate nel browser (es. l'ultimo nickname usato). Mai dati importanti. */
 
 const CHIAVE_NICKNAME = "og.nickname";
+const CHIAVE_AVATAR = "og.avatar";
+
+export function avatarSalvato(): string {
+  try {
+    return localStorage.getItem(CHIAVE_AVATAR) ?? "mago";
+  } catch {
+    return "mago";
+  }
+}
+
+export function salvaAvatar(id: string): void {
+  try {
+    localStorage.setItem(CHIAVE_AVATAR, id);
+  } catch {
+    // memoria del browser non disponibile: si richiederà la prossima volta
+  }
+}
 
 export function nicknameSalvato(): string {
   try {

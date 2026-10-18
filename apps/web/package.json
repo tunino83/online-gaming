@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fontsource/cinzel": "^5.1.0",
+    "@og/engine": "workspace:^",
     "@og/primo-gioco": "workspace:*",
     "@supabase/supabase-js": "^2.45.0",
     "react": "^18.3.1",

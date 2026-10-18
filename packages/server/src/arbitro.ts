@@ -3,7 +3,7 @@
  * Non sa nulla di Supabase: legge e scrive tramite un `Archivio` (vedi archivio-*.ts),
  * così si può provare con un archivio in memoria.
  */
-import type { Gioco, IdGiocatore } from "@og/engine";
+import { AVATAR_PREDEFINITO, type Gioco, type IdGiocatore, avatarValido } from "@og/engine";
 import { primoGioco } from "@og/primo-gioco";
 
 // biome-ignore lint: ogni gioco ha i suoi tipi di stato, mossa, opzioni e vista
@@ -39,7 +39,7 @@ export interface InfoPartita {
   opzioni: Record<string, unknown>;
   maxGiocatori: number;
   /** In ordine di arrivo. */
-  giocatori: { utenteId: string; nickname: string }[];
+  giocatori: { utenteId: string; nickname: string; avatar: string }[];
 }
 
 export interface VistaDaSalvare {
@@ -57,9 +57,10 @@ export interface Archivio {
     gioco: string;
     opzioni: Record<string, unknown>;
     maxGiocatori: number;
+    avatar: string;
   }): Promise<string>;
   /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
-  unisciti(p: { codice: string; utente: string; nickname: string }): Promise<string>;
+  unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
   leggiPartita(id: string): Promise<InfoPartita | null>;
   leggiStato(id: string): Promise<{ stato: unknown; versione: number } | null>;
   /**
@@ -112,6 +113,12 @@ function nicknameValido(x: unknown): string | null {
 
 const idValido = (x: unknown): x is string => typeof x === "string" && /^[0-9a-f-]{36}$/i.test(x);
 
+/** Avatar scelto (facoltativo: senza, si usa quello predefinito). null se non valido. */
+function avatarScelto(x: unknown): string | null {
+  if (x === undefined) return AVATAR_PREDEFINITO;
+  return avatarValido(x) ? x : null;
+}
+
 /** Gestisce una richiesta di un utente già autenticato. */
 export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
   if (!isOggetto(richiesta)) return errore("Richiesta non valida");
@@ -137,6 +144,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
 async function crea(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
   const nickname = nicknameValido(r.nickname);
   if (!nickname) return errore("Scegli un nickname da 1 a 24 caratteri");
+  const avatar = avatarScelto(r.avatar);
+  if (!avatar) return errore("Avatar non valido");
   const gioco = r.gioco ?? "primo-gioco";
   if (typeof gioco !== "string" || !GIOCHI[gioco]) return errore("Gioco sconosciuto");
   const g = GIOCHI[gioco]!;
@@ -157,7 +166,7 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
   for (let tentativo = 0; tentativo < 5; tentativo++) {
     const codice = Array.from({ length: LUNGHEZZA_CODICE }, () => ALFABETO_CODICE[Math.floor(amb.casuale() * ALFABETO_CODICE.length)]).join("");
     try {
-      const partitaId = await archivio.creaPartita({ creatore: utente, nickname, codice, gioco, opzioni, maxGiocatori: max as number });
+      const partitaId = await archivio.creaPartita({ creatore: utente, nickname, codice, gioco, opzioni, maxGiocatori: max as number, avatar });
       return { ok: true, partitaId, codice };
     } catch (e) {
       if (!(e instanceof ErroreArchivio && e.codice === "CODICE_DUPLICATO")) throw e;
@@ -169,10 +178,12 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
 async function unisciti(r: Record<string, unknown>, utente: string, archivio: Archivio): Promise<Risposta> {
   const nickname = nicknameValido(r.nickname);
   if (!nickname) return errore("Scegli un nickname da 1 a 24 caratteri");
+  const avatar = avatarScelto(r.avatar);
+  if (!avatar) return errore("Avatar non valido");
   if (typeof r.codice !== "string") return errore("Codice d'invito non valido");
   const codice = r.codice.trim().toUpperCase();
   if (!/^[A-Z0-9]{4,8}$/.test(codice)) return errore("Codice d'invito non valido");
-  const partitaId = await archivio.unisciti({ codice, utente, nickname });
+  const partitaId = await archivio.unisciti({ codice, utente, nickname, avatar });
   return { ok: true, partitaId };
 }
 

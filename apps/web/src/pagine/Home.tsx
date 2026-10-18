@@ -2,7 +2,8 @@ import { PERSONAGGI } from "@og/primo-gioco";
 import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { chiediArbitro } from "../lib/supabase";
-import { nicknameSalvato, salvaNickname } from "../lib/ricordi";
+import { avatarSalvato, nicknameSalvato, salvaAvatar, salvaNickname } from "../lib/ricordi";
+import { SceltaAvatar } from "../Avatar";
 import { Campo, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 
 const carte = PERSONAGGI.reduce((totale, p) => totale + p.copie, 0);
@@ -10,6 +11,7 @@ const carte = PERSONAGGI.reduce((totale, p) => totale + p.copie, 0);
 export function Home() {
   const vai = useNavigate();
   const [nickname, setNickname] = useState(nicknameSalvato);
+  const [avatarId, setAvatarId] = useState(avatarSalvato);
   const [maxGiocatori, setMaxGiocatori] = useState(5);
   const [punti, setPunti] = useState(15);
   const [inCorso, setInCorso] = useState(false);
@@ -20,7 +22,8 @@ export function Home() {
     setInCorso(true);
     setErrore(null);
     salvaNickname(nickname);
-    const r = await chiediArbitro({ azione: "crea", nickname, maxGiocatori, opzioni: { puntiPerVincere: punti } });
+    salvaAvatar(avatarId);
+    const r = await chiediArbitro({ azione: "crea", nickname, avatar: avatarId, maxGiocatori, opzioni: { puntiPerVincere: punti } });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -43,6 +46,7 @@ export function Home() {
             autoComplete="nickname"
             required
           />
+          <SceltaAvatar valore={avatarId} onScegli={setAvatarId} />
           <div className="grid grid-cols-2 gap-3">
             <label className="block space-y-1">
               <span className="text-sm font-semibold">Giocatori (max)</span>

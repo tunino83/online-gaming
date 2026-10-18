@@ -3,6 +3,7 @@ import { TavoloPrimoGioco } from "../giochi/primo-gioco/Tavolo";
 import { Link, useParams } from "react-router-dom";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
 import { chiediArbitro } from "../lib/supabase";
+import { CerchioAvatar } from "../Avatar";
 import { Caricamento, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 
 /** Pagina di una partita: stanza d'attesa, poi (passo 5) il tavolo di gioco. */
@@ -115,7 +116,8 @@ function ListaGiocatori({ giocatori, io, creatore }: { giocatori: GiocatoreParti
     <ul className="divide-y divide-inchiostro/10">
       {giocatori.map((g) => (
         <li key={g.utente_id} className="flex items-center justify-between py-2">
-          <span className="font-semibold">
+          <span className="flex items-center gap-2 font-semibold">
+            <CerchioAvatar id={g.avatar} dimensione={32} />
             {g.nickname}
             {g.utente_id === io && <span className="ml-1 font-normal text-tenue">(tu)</span>}
           </span>

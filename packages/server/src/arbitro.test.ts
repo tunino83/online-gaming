@@ -32,7 +32,7 @@ describe("creare e unirsi a una partita", () => {
     const r = await chiedi(A, { azione: "crea", nickname: "  Anna  " });
     expect(r).toMatchObject({ ok: true, codice: expect.stringMatching(/^[A-Z2-9]{5}$/) });
     const p = await archivio.leggiPartita((r as unknown as { partitaId: string }).partitaId);
-    expect(p).toMatchObject({ stato: "attesa", creatore: A, giocatori: [{ utenteId: A, nickname: "Anna" }] });
+    expect(p).toMatchObject({ stato: "attesa", creatore: A, giocatori: [{ utenteId: A, nickname: "Anna", avatar: "mago" }] });
   });
 
   it("rifiuta nickname vuoti o troppo lunghi, giochi sconosciuti e opzioni strane", async () => {
@@ -193,5 +193,17 @@ describe("chiusura automatica del turno", () => {
     expect(stato().turno.giocatore).toBe(altro);
     expect(stato().turno.mosseRimaste).toBe(3);
     expect(t.archivio.dati.viste.get(`${t.partitaId}/${altro}`)!.mosse_valide.length).toBeGreaterThan(0);
+  });
+});
+
+describe("avatar", () => {
+  it("si sceglie creando o entrando; senza scelta si usa il mago; uno inventato è rifiutato", async () => {
+    const { chiedi, archivio } = prepara();
+    const r = await chiedi(A, { azione: "crea", nickname: "Anna", avatar: "volpe" });
+    const { partitaId, codice } = r as unknown as { partitaId: string; codice: string };
+    await chiedi(B, { azione: "unisciti", codice, nickname: "Bruno" });
+    expect((await archivio.leggiPartita(partitaId))?.giocatori.map((g) => g.avatar)).toEqual(["volpe", "mago"]);
+    expect(await chiedi(C, { azione: "unisciti", codice, nickname: "Carla", avatar: "<script>" })).toEqual({ ok: false, errore: "Avatar non valido" });
+    expect(await chiedi(C, { azione: "crea", nickname: "Carla", avatar: 5 })).toEqual({ ok: false, errore: "Avatar non valido" });
   });
 });

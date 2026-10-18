@@ -8,6 +8,7 @@
  */
 import type { CartaDiamante, CartaPersonaggio, Evento, Mossa, VistaGiocatore } from "@og/primo-gioco";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { CerchioAvatar } from "../../Avatar";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
@@ -50,6 +51,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [registroAperto, setRegistroAperto] = useState(false);
   // Turno in cui si è risposto "No" al popup di Biancaneve (per non riproporlo)
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
+  // Avversario scelto da guardare nella barra in alto (si azzera quando cambia il turno)
+  const [avversarioScelto, setAvversarioScelto] = useState<string | null>(null);
+  const turnoDi = riga?.vista.turno.giocatore;
+  useEffect(() => setAvversarioScelto(null), [turnoDi]);
+  const inizioSwipe = useRef<number | null>(null);
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
 
@@ -90,6 +96,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
     return (id: string) => m.get(id) ?? "?";
   }, [giocatori]);
+  const avatarDi = useMemo(() => {
+    const m = new Map(giocatori.map((g) => [g.utente_id, g.avatar]));
+    return (id: string) => m.get(id);
+  }, [giocatori]);
 
   if (erroreLettura) return <Errore testo={erroreLettura} />;
   if (!riga) return <Caricamento testo="Preparo il tavolo…" />;
@@ -100,8 +110,17 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const mioTurno = v.turno.giocatore === io && !v.finita;
   const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
   const mosse = mioTurno ? riga.mosse_valide : [];
-  const avversari = v.ordine.filter((id) => id !== io);
-  const inDue = avversari.length === 1;
+  // Avversari nell'ordine di gioco a partire da chi viene dopo di me
+  const mioPosto = v.ordine.indexOf(io);
+  const avversari = [...v.ordine.slice(mioPosto + 1), ...v.ordine.slice(0, mioPosto)];
+  // In alto: l'avversario scelto, altrimenti chi sta giocando, altrimenti il prossimo
+  const mostrato =
+    (avversarioScelto && avversari.includes(avversarioScelto) && avversarioScelto) ||
+    (avversari.includes(v.turno.giocatore) ? v.turno.giocatore : avversari[0]!);
+  const scorri = (passo: number) => {
+    const i = avversari.indexOf(mostrato);
+    setAvversarioScelto(avversari[(i + passo + avversari.length) % avversari.length]!);
+  };
 
   async function gioca(mossa: Mossa) {
     if (bloccato) return;
@@ -214,16 +233,49 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             </button>
           </div>
           {suggerimento && <p className="mt-1 text-xs font-semibold text-blu">{suggerimento}</p>}
-          {inDue && (
+          {avversari.length > 1 && (
+            <div className="mt-2 flex items-center gap-2 overflow-x-auto">
+              {avversari.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setAvversarioScelto(id)}
+                  className={`relative shrink-0 rounded-full p-0.5 ${id === mostrato ? "ring-4 ring-blu" : "opacity-70"}`}
+                  aria-label={`Guarda le carte di ${nick(id)}`}
+                >
+                  <CerchioAvatar id={avatarDi(id)} dimensione={34} titolo={nick(id)} />
+                  {id === v.turno.giocatore && !v.finita && (
+                    <span className="absolute -right-1 -bottom-1 rounded-full bg-blu px-1 text-[9px] font-bold text-white">▶</span>
+                  )}
+                </button>
+              ))}
+              <span className="text-[11px] text-tenue">tocca o scorri per vedere gli altri</span>
+            </div>
+          )}
+          <div
+            onTouchStart={(e) => {
+              inizioSwipe.current = e.touches[0]?.clientX ?? null;
+            }}
+            onTouchEnd={(e) => {
+              const inizio = inizioSwipe.current;
+              const fine = e.changedTouches[0]?.clientX;
+              inizioSwipe.current = null;
+              if (inizio === null || fine === undefined || avversari.length < 2) return;
+              if (fine - inizio < -40) scorri(1);
+              else if (fine - inizio > 40) scorri(-1);
+            }}
+          >
             <Avversario
-              nome={nick(avversari[0]!)}
-              g={v.giocatori[avversari[0]!]!}
-              diTurno={v.turno.giocatore === avversari[0] && !v.finita}
+              key={mostrato}
+              nome={nick(mostrato)}
+              avatarId={avatarDi(mostrato)}
+              g={v.giocatori[mostrato]!}
+              diTurno={v.turno.giocatore === mostrato && !v.finita}
               toccaPosto={toccaPostoAltrui}
               ingrandisci={ingrandisci}
               bloccato={bloccato}
             />
-          )}
+          </div>
         </div>
       </div>
 
@@ -381,28 +433,13 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           )}
         </section>
 
-        {/* con più di 2 giocatori gli avversari stanno qui */}
-        {!inDue &&
-          avversari.map((id) => (
-            <section key={id} className={`rounded-2xl border-2 bg-carta p-3 ${id === v.turno.giocatore && !v.finita ? "border-blu" : "border-inchiostro/15"}`}>
-              <Avversario
-                nome={nick(id)}
-                g={v.giocatori[id]!}
-                diTurno={false}
-                toccaPosto={toccaPostoAltrui}
-                ingrandisci={ingrandisci}
-                bloccato={bloccato}
-                largo
-              />
-            </section>
-          ))}
-
         <Attivati v={v} io={io} nick={nick} ingrandisci={ingrandisci} />
       </div>
 
       {/* ---------------- barra in basso ---------------- */}
       <BarraMieCarte
         rif={barraBassa}
+        avatarId={avatarDi(io)}
         v={v}
         io={io}
         daScartare={daScartare}
@@ -475,6 +512,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 /** Un avversario: nome, punti, carte in mano (coperte), diamanti e personaggi nei posti. */
 function Avversario({
   nome,
+  avatarId,
   g,
   diTurno,
   toccaPosto,
@@ -483,6 +521,7 @@ function Avversario({
   largo,
 }: {
   nome: string;
+  avatarId?: string;
   g: VistaGiocatore["giocatori"][string];
   diTurno: boolean;
   toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
@@ -490,11 +529,15 @@ function Avversario({
   bloccato: boolean;
   largo?: boolean;
 }) {
-  const larghezza = largo ? 80 : 46;
+  const larghezza = largo ? 80 : 66;
   return (
     <div className={`${largo ? "" : "mt-2 rounded-xl bg-white/70 p-2"} ${diTurno ? "ring-2 ring-blu" : ""}`}>
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate font-titolo font-bold">{nome}</span>
+        <span className="flex min-w-0 items-center gap-2">
+          <CerchioAvatar id={avatarId} dimensione={28} />
+          <span className="truncate font-titolo font-bold">{nome}</span>
+          {diTurno && <span className="shrink-0 rounded-full bg-blu px-2 py-0.5 text-[10px] font-bold text-white">sta giocando</span>}
+        </span>
         <span className="shrink-0 rounded-full bg-inchiostro px-2 py-0.5 text-xs font-bold text-carta">{g.punti} punti</span>
       </div>
       <div className="mt-1 flex items-end gap-3">
@@ -608,6 +651,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
 /** Barra fissa in basso: i miei personaggi nei posti, la mia mano, i diamanti e la fine del turno. */
 function BarraMieCarte({
   rif,
+  avatarId,
   v,
   io,
   daScartare,
@@ -623,6 +667,7 @@ function BarraMieCarte({
   ingrandisci,
 }: {
   rif: RefObject<HTMLDivElement>;
+  avatarId?: string;
   v: VistaGiocatore;
   io: string;
   daScartare: string[];
@@ -642,7 +687,8 @@ function BarraMieCarte({
     <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
       <div className="mx-auto max-w-md px-3 pt-1 pb-[max(8px,env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-between text-xs font-semibold text-tenue">
-          <span>
+          <span className="flex items-center gap-1.5">
+            <CerchioAvatar id={avatarId} dimensione={22} />
             Tu · Mano {v.mano.length}/{v.limiteMano}
           </span>
           <span className="rounded-full bg-inchiostro px-2 py-0.5 text-carta">{mio.punti} punti</span>
@@ -653,7 +699,7 @@ function BarraMieCarte({
               <CartaPersonaggioGrafica
                 key={c.id}
                 id={c.personaggio}
-                larghezza={56}
+                larghezza={72}
                 compatta
                 onTocca={toccaPosto(c)}
                 onIngrandisci={ingrandisci(c)}
@@ -661,7 +707,7 @@ function BarraMieCarte({
               />
             ))}
             {Array.from({ length: Math.max(0, 2 - mio.posti.length) }, (_, i) => (
-              <PostoVuoto key={i} larghezza={56} />
+              <PostoVuoto key={i} larghezza={72} />
             ))}
           </div>
           <div className="min-w-0 flex-1 overflow-x-auto">

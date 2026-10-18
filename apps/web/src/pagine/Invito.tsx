@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { nicknameSalvato, salvaNickname } from "../lib/ricordi";
+import { avatarSalvato, nicknameSalvato, salvaAvatar, salvaNickname } from "../lib/ricordi";
+import { SceltaAvatar } from "../Avatar";
 import { chiediArbitro } from "../lib/supabase";
 import { Campo, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 
@@ -9,6 +10,7 @@ export function Invito() {
   const { codice = "" } = useParams();
   const vai = useNavigate();
   const [nickname, setNickname] = useState(nicknameSalvato);
+  const [avatarId, setAvatarId] = useState(avatarSalvato);
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
 
@@ -17,7 +19,8 @@ export function Invito() {
     setInCorso(true);
     setErrore(null);
     salvaNickname(nickname);
-    const r = await chiediArbitro({ azione: "unisciti", codice, nickname });
+    salvaAvatar(avatarId);
+    const r = await chiediArbitro({ azione: "unisciti", codice, nickname, avatar: avatarId });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`, { replace: true });
@@ -40,6 +43,7 @@ export function Invito() {
             required
             autoFocus
           />
+          <SceltaAvatar valore={avatarId} onScegli={setAvatarId} />
           <Errore testo={errore} />
           <Pulsante type="submit" disabled={inCorso || !nickname.trim()}>
             {inCorso ? "Entro…" : "Entra nella partita"}

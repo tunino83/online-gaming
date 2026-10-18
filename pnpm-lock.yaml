@@ -41,6 +41,9 @@ importers:
       '@fontsource/cinzel':
         specifier: ^5.1.0
         version: 5.3.0
+      '@og/engine':
+        specifier: workspace:^
+        version: link:../../packages/engine
       '@og/primo-gioco':
         specifier: workspace:*
         version: link:../../games/primo-gioco
