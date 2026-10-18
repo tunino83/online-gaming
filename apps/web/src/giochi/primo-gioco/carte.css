@@ -18,12 +18,20 @@
   flex: none;
   border-radius: 0.9em;
   padding: 0.3em;
-  background: #eef1f6;
-  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.25);
+  /* bordo esterno dorato, come le carte numero e i mazzi */
+  background: linear-gradient(160deg, #f0d999, #b8892b 45%, #e9cf86 75%, #9a6f20);
+  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.3);
   color: var(--scuro);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-align: center;
   user-select: none;
+}
+.carta {
+  --sfondo-carta:
+    radial-gradient(ellipse at 50% -5%, color-mix(in srgb, var(--c) 20%, transparent), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(110 70 20 / 0.22) 100%),
+    repeating-linear-gradient(45deg, rgb(120 90 40 / 0.04) 0 2px, transparent 2px 6px),
+    linear-gradient(170deg, #fbf3de, #f0e0b6);
 }
 .carta.rosso { --c: #b3261e; }
 .carta.speciale { --c: #c08a12; }
@@ -34,7 +42,8 @@
   height: 100%;
   border: 0.32em solid var(--c);
   border-radius: 0.7em;
-  background: #fff;
+  /* pergamena: luce del colore del potere in alto, bordi bruniti, trama leggera */
+  background: var(--sfondo-carta);
   padding: 0.5em;
   display: flex;
   flex-direction: column;
@@ -43,7 +52,7 @@
 }
 .carta.misto .cornice {
   border-color: transparent;
-  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
+  background: var(--sfondo-carta) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
 }
 
 .carta .punti {
