@@ -86,7 +86,7 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
             </div>
           )}
         </div>
-        <div className={`codice ${pezzi.length >= 5 ? "lungo" : ""}`} aria-label={`Codice: ${p.codiceTesto}`}>
+        <div className={`codice ${pezzi.length >= 7 ? "lungo lunghissimo" : pezzi.length >= 5 ? "lungo" : ""}`} aria-label={`Codice: ${p.codiceTesto}`}>
           {pezzi.map((pz, i) => (
             <Pezzo key={i} p={pz} />
           ))}
