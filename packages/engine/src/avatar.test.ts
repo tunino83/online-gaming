@@ -22,6 +22,12 @@ describe("avatar", () => {
     expect(visti.size).toBeGreaterThan(25);
   });
 
+  it("le faccine non si propongono più, ma chi le ha già le tiene", () => {
+    expect(STILI_AVATAR.map((s) => s.id)).not.toContain("faccina");
+    expect(avatarValido("faccina:abcd1234")).toBe(true);
+    expect(stileAvatar("faccina:abcd1234")).toBe("classici");
+  });
+
   it("il robot resta ai giocatori del computer", () => {
     for (let i = 0; i < 200; i++) expect(avatarCasuale("classici")).not.toBe("robot");
   });

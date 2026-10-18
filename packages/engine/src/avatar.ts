@@ -46,17 +46,20 @@ export const STILI_AVATAR = [
   { id: "ritratto", nome: "Ritratti" },
   { id: "pixel", nome: "Pixel" },
   { id: "robottino", nome: "Robottini" },
-  { id: "faccina", nome: "Faccine" },
 ] as const;
 
 export type StileAvatar = (typeof STILI_AVATAR)[number]["id"];
 
 const DISEGNATO = /^(avventuriero|ritratto|pixel|robottino|faccina):[a-z0-9]{4,12}$/;
 
-/** Stile di un avatar ("classici" per quelli della libreria fissa). */
+/**
+ * Stile di un avatar ("classici" per quelli della libreria fissa e per gli stili non più proposti,
+ * come le "faccine": chi le ha già le tiene, ma non si possono più scegliere).
+ */
 export function stileAvatar(id: string): StileAvatar {
   const i = id.indexOf(":");
-  return i > 0 ? (id.slice(0, i) as StileAvatar) : "classici";
+  const stile = i > 0 ? id.slice(0, i) : "classici";
+  return STILI_AVATAR.some((s) => s.id === stile) ? (stile as StileAvatar) : "classici";
 }
 
 export const avatarValido = (id: unknown): id is string =>
