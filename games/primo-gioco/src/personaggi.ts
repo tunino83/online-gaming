@@ -77,7 +77,7 @@ export const PERSONAGGI: Personaggio[] = [
   },
   {
     id: "strega",
-    nome: "Strega",
+    nome: "Medusa",
     codiceTesto: "3 carte con somma 7",
     codice: { tipo: "somma", totale: 7, carte: 3 },
     punti: 1,
@@ -137,7 +137,7 @@ export const PERSONAGGI: Personaggio[] = [
   },
   {
     id: "giganti",
-    nome: "Giganti",
+    nome: "Orco",
     codiceTesto: "6688",
     codice: esatto(6, 6, 8, 8),
     punti: 3,
@@ -187,7 +187,7 @@ export const PERSONAGGI: Personaggio[] = [
   },
   {
     id: "regina",
-    nome: "Regina",
+    nome: "Fata Smemorina",
     codiceTesto: "7777",
     codice: esatto(7, 7, 7, 7),
     punti: 4,
@@ -348,7 +348,7 @@ export const PERSONAGGI: Personaggio[] = [
   },
   {
     id: "folletto",
-    nome: "Folletto",
+    nome: "Tremotino",
     codiceTesto: "333",
     codice: esatto(3, 3, 3),
     punti: 1,

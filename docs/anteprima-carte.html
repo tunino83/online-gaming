@@ -34,12 +34,20 @@
   flex: none;
   border-radius: 0.9em;
   padding: 0.3em;
-  background: #eef1f6;
-  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.25);
+  /* bordo esterno dorato, come le carte numero e i mazzi */
+  background: linear-gradient(160deg, #f0d999, #b8892b 45%, #e9cf86 75%, #9a6f20);
+  box-shadow: 0 0.15em 0.5em rgb(0 0 0 / 0.3);
   color: var(--scuro);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-align: center;
   user-select: none;
+}
+.carta {
+  --sfondo-carta:
+    radial-gradient(ellipse at 50% -5%, color-mix(in srgb, var(--c) 20%, transparent), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(110 70 20 / 0.22) 100%),
+    repeating-linear-gradient(45deg, rgb(120 90 40 / 0.04) 0 2px, transparent 2px 6px),
+    linear-gradient(170deg, #fbf3de, #f0e0b6);
 }
 .carta.rosso { --c: #b3261e; }
 .carta.speciale { --c: #c08a12; }
@@ -50,7 +58,8 @@
   height: 100%;
   border: 0.32em solid var(--c);
   border-radius: 0.7em;
-  background: #fff;
+  /* pergamena: luce del colore del potere in alto, bordi bruniti, trama leggera */
+  background: var(--sfondo-carta);
   padding: 0.5em;
   display: flex;
   flex-direction: column;
@@ -59,7 +68,7 @@
 }
 .carta.misto .cornice {
   border-color: transparent;
-  background: linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
+  background: var(--sfondo-carta) padding-box, linear-gradient(135deg, #b3261e, #1f4f8f) border-box;
 }
 
 .carta .punti {
@@ -149,11 +158,11 @@
 }
 .carta.misto .tipo { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
 .carta .testo-potere {
-  margin-top: 0.35em;
+  margin-top: 0.6em;
   font-size: 0.8em;
   line-height: 1.2;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -191,6 +200,19 @@
 }
 .carta.numero .cornice::before { top: 0.3em; }
 .carta.numero .cornice::after { bottom: 0.3em; }
+/* Carta con le frecce: una grande freccia per lato (su a sinistra, giù a destra), nel colore del numero */
+.carta.numero.frecce .valore { font-size: 7.2em; }
+.carta.numero.frecce .cornice::before,
+.carta.numero.frecce .cornice::after {
+  content: "";
+  top: 50%;
+  bottom: auto;
+  width: 1.9em;
+  height: 11.5em;
+  background: center / contain no-repeat;
+}
+.carta.numero.frecce .cornice::before { left: 0.7em; transform: translateY(-50%); background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%20100%22%20fill%3D%22none%22%20stroke%3D%22%237a5518%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%2096V5M2.5%2015L10%205l7.5%2010%22/%3E%3C/svg%3E"); }
+.carta.numero.frecce .cornice::after { left: auto; right: 0.7em; transform: translateY(-50%); background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%20100%22%20fill%3D%22none%22%20stroke%3D%22%237a5518%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%204v91M2.5%2085L10%2095l7.5-10%22/%3E%3C/svg%3E"); }
 .carta.numero .valore {
   font-family: "Cinzel", Georgia, serif;
   font-size: 9.5em;
@@ -225,6 +247,16 @@
 .carta.dorso .etichetta-mazzo { font-family: "Cinzel", Georgia, serif; font-size: 1.25em; font-weight: 700; letter-spacing: 0.04em; }
 .carta.dorso .conteggio { font-family: "Cinzel", Georgia, serif; font-size: 2.8em; font-weight: 700; line-height: 1.1; color: #f2d58a; }
 .carta.dorso.vuoto { opacity: 0.35; }
+/* Retro del mazzo personaggi: rosso porpora con un "portale" di cerchi dorati, diverso dal blu a righe dei numeri */
+.carta.dorso.personaggi .cornice {
+  background:
+    radial-gradient(circle at 50% 45%, rgb(242 213 138 / 0.5), transparent 22%),
+    repeating-radial-gradient(circle at 50% 45%, rgb(242 213 138 / 0.16) 0 0.18em, transparent 0.18em 0.9em),
+    linear-gradient(160deg, #7a1f3d, #2a0b1c);
+  box-shadow: inset 0 0 0 0.15em #2a0b1c, inset 0 0 0 0.28em #c9a24a;
+}
+.carta.dorso.personaggi .etichetta-mazzo::before { content: "✦"; display: block; font-size: 1.6em; color: #f2d58a; line-height: 1; }
+.carta.dorso.numeri .etichetta-mazzo::before { content: "1 · 8"; display: block; font-size: 0.8em; color: #f2d58a; opacity: 0.8; }
 
 /* Posto vuoto */
 .carta.vuota { background: transparent; box-shadow: none; border: 0.15em dashed rgb(0 0 0 / 0.2); }
@@ -257,7 +289,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 .velo {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 62;
   background: rgb(0 0 0 / 0.6);
   display: grid;
   place-items: center;
@@ -269,6 +301,11 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 .carta .codice.lungo .tessera { min-width: 1.6em; height: 2.15em; padding: 0; }
 .carta .codice.lungo .tessera span { font-size: 1.3em; }
 .carta .codice.lungo .nota { font-size: 0.45em; padding: 0.15em 0.4em; }
+/* 7 o più pezzi (es. Lucciola "333 o 666"): tessere ancora più strette, per restare dentro la carta */
+.carta .codice.lunghissimo { gap: 0.06em; }
+.carta .codice.lunghissimo .tessera { min-width: 1.25em; height: 1.8em; border-width: 0.1em; border-radius: 0.25em; }
+.carta .codice.lunghissimo .tessera span { font-size: 1.05em; }
+.carta .codice.lunghissimo .segno { font-size: 0.85em; padding: 0 0.2em; line-height: 1.2; }
 .carta .testo-potere.lungo { font-size: 0.66em; -webkit-line-clamp: 6; }
 
 /* Carta scelta per essere scartata */
@@ -319,9 +356,14 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
   to { transform: rotateY(0) scale(1); opacity: 1; }
 }
 .velo { animation: compare 0.2s ease-out both; }
+/* Carosello: la carta nuova entra dal lato verso cui si sfoglia */
+.scivola-destra { animation: scivola-destra 0.22s ease-out both; }
+.scivola-sinistra { animation: scivola-sinistra 0.22s ease-out both; }
+@keyframes scivola-destra { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes scivola-sinistra { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
 @keyframes compare { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .gira, .velo { animation: none; }
+  .gira, .velo, .scivola-destra, .scivola-sinistra { animation: none; }
 }
 
 /* ---------- Animazione di attivazione ---------- */
@@ -398,7 +440,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 
 /* ---------- Mano a ventaglio ---------- */
 .ventaglio-carta {
-  transform-origin: 50% 120%;
+  transform-origin: 50% 100%;
   transform: rotate(var(--r, 0deg)) translateY(var(--y, 0px));
   transition: transform 0.15s ease;
 }
@@ -423,7 +465,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
   <div class="intro">
     <h1>Il Portale · Carte personaggio</h1>
     <p>42 personaggi, 55 carte. Generata dai dati del gioco con <code>pnpm carte</code>, con lo stesso stile dell'app.</p>
-    <p>Illustrazioni caricate: 24 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
+    <p>Illustrazioni caricate: 42 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
   </div>
   <main class="griglia">
     <figure>
@@ -526,7 +568,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Drago">
         <span class="punti"><span>0</span></span>
         <div class="cornice">
-          <div class="arte"><img src="../games/primo-gioco/immagini/classica/drago.png" alt="Drago"></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/drago.jpg" alt="Drago"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span><span class="tessera"><span>1</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Come un nano, ma a ogni turno scegli tu il valore della carta</p>
@@ -550,7 +592,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Scimmia">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐒</span><span class="nome">Scimmia</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/scimmia.jpg" alt="Scimmia"></div>
           <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>…</span></span><span class="nota">somma 10</span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Limite della mano +1</p>
@@ -559,22 +601,22 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <figcaption><strong>Scimmia</strong> · <code>scimmia</code> · 3 copie</figcaption>
     </figure>
     <figure>
-      <div class="carta rosso" style="--larghezza: 220px" title="Strega">
+      <div class="carta rosso" style="--larghezza: 220px" title="Medusa">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🧙</span><span class="nome">Strega</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/strega.jpg" alt="Medusa"></div>
           <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="nota">somma 7</span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Scarta un personaggio non ancora attivato dai posti di un avversario</p>
         </div>
       </div>
-      <figcaption><strong>Strega</strong> · <code>strega</code> · 2 copie</figcaption>
+      <figcaption><strong>Medusa</strong> · <code>strega</code> · 2 copie</figcaption>
     </figure>
     <figure>
       <div class="carta rosso" style="--larghezza: 220px" title="Gatto con gli stivali">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🐈</span><span class="nome">Gatto con gli stivali</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/gatto-con-gli-stivali.jpg" alt="Gatto con gli stivali"></div>
           <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>5</span></span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Una delle carte del codice, a tua scelta, non si scarta e resta in mano</p>
@@ -622,7 +664,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta nessuno" style="--larghezza: 220px" title="Leone">
         <span class="punti"><span>5</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🦁</span><span class="nome">Leone</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/leone.jpg" alt="Leone"></div>
           <div class="codice "><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
           <span class="tipo">Senza potere</span>
           
@@ -631,16 +673,16 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <figcaption><strong>Leone</strong> · <code>leone</code> · 1 copia</figcaption>
     </figure>
     <figure>
-      <div class="carta nessuno" style="--larghezza: 220px" title="Giganti">
+      <div class="carta nessuno" style="--larghezza: 220px" title="Orco">
         <span class="punti"><span>3</span></span>
         <div class="cornice">
-          <div class="arte"><img src="../games/primo-gioco/immagini/classica/giganti.png" alt="Giganti"></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/giganti.jpg" alt="Orco"></div>
           <div class="codice "><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>8</span></span><span class="tessera"><span>8</span></span></div>
           <span class="tipo">Senza potere</span>
           
         </div>
       </div>
-      <figcaption><strong>Giganti</strong> · <code>giganti</code> · 3 copie</figcaption>
+      <figcaption><strong>Orco</strong> · <code>giganti</code> · 3 copie</figcaption>
     </figure>
     <figure>
       <div class="carta nessuno" style="--larghezza: 220px" title="Hansel e Gretel">
@@ -670,7 +712,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta nessuno" style="--larghezza: 220px" title="Cerbero">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><img src="../games/primo-gioco/immagini/classica/cerbero.png" alt="Cerbero"></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/cerbero.jpg" alt="Cerbero"></div>
           <div class="codice "><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">tris</span></div>
           <span class="tipo">Senza potere</span>
           
@@ -691,22 +733,22 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <figcaption><strong>Quercia umana</strong> · <code>quercia-umana</code> · 1 copia</figcaption>
     </figure>
     <figure>
-      <div class="carta nessuno" style="--larghezza: 220px" title="Regina">
+      <div class="carta nessuno" style="--larghezza: 220px" title="Fata Smemorina">
         <span class="punti"><span>4</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">👑</span><span class="nome">Regina</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/regina.jpg" alt="Fata Smemorina"></div>
           <div class="codice "><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span><span class="tessera"><span>7</span></span></div>
           <span class="tipo">Senza potere</span>
           
         </div>
       </div>
-      <figcaption><strong>Regina</strong> · <code>regina</code> · 2 copie</figcaption>
+      <figcaption><strong>Fata Smemorina</strong> · <code>regina</code> · 2 copie</figcaption>
     </figure>
     <figure>
       <div class="carta rosso" style="--larghezza: 220px" title="Gnomo">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍄</span><span class="nome">Gnomo</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/gnomo.jpg" alt="Gnomo"></div>
           <div class="codice lungo"><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="segno">+</span><span class="tessera generica"><span>=</span></span><span class="tessera generica"><span>=</span></span><span class="nota">coppia</span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Ricevi 1 diamante</p>
@@ -718,7 +760,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Mago">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🔮</span><span class="nome">Mago</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/mago.jpg" alt="Mago"></div>
           <div class="codice "><span class="tessera generica"><span>n</span></span><span class="tessera generica"><span>+1</span></span><span class="tessera generica"><span>+2</span></span><span class="nota">scala da 3</span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">A inizio turno vedi la prima carta coperta del mazzo personaggi</p>
@@ -730,7 +772,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta rosso" style="--larghezza: 220px" title="Fantasma">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">👻</span><span class="nome">Fantasma</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/fantasma.jpg" alt="Fantasma"></div>
           <div class="codice "><span class="tessera generica"><span>a</span></span><span class="tessera generica"><span>a</span></span><span class="tessera generica"><span>b</span></span><span class="tessera generica"><span>b</span></span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Il giocatore successivo ha una mossa in più nel suo prossimo turno</p>
@@ -742,7 +784,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Bacchetta magica (superpotere)">
         <span class="punti"><span>0</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪄</span><span class="nome">Bacchetta magica (superpotere)</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/bacchetta-magica.jpg" alt="Bacchetta magica (superpotere)"></div>
           <div class="codice "><span class="tessera"><span>4</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">A inizio turno puoi bruciare senza consumare una mossa</p>
@@ -766,7 +808,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta rosso" style="--larghezza: 220px" title="Hobbit pari">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🥾</span><span class="nome">Hobbit pari</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/hobbit-pari.jpg" alt="Hobbit pari"></div>
           <div class="codice "><span class="tessera generica"><span>P</span></span><span class="tessera generica"><span>P</span></span><span class="tessera generica"><span>P</span></span><span class="nota">pari</span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Ricevi 1 diamante</p>
@@ -778,7 +820,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta rosso" style="--larghezza: 220px" title="Hobbit dispari">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🥾</span><span class="nome">Hobbit dispari</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/hobbit-dispari.jpg" alt="Hobbit dispari"></div>
           <div class="codice "><span class="tessera generica"><span>D</span></span><span class="tessera generica"><span>D</span></span><span class="tessera generica"><span>D</span></span><span class="nota">dispari</span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">Ricevi 1 diamante</p>
@@ -814,7 +856,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta nessuno" style="--larghezza: 220px" title="Ercole">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">💪</span><span class="nome">Ercole</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/ercole.jpg" alt="Ercole"></div>
           <div class="codice "><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="tessera generica"><span>?</span></span><span class="nota">somma 20</span></div>
           <span class="tipo">Senza potere</span>
           
@@ -838,7 +880,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta blu" style="--larghezza: 220px" title="Scheletro (la Morte)">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">💀</span><span class="nome">Scheletro (la Morte)</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/scheletro.jpg" alt="Scheletro (la Morte)"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>8</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo</p>
@@ -862,7 +904,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta misto" style="--larghezza: 220px" title="Xena">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">⚔️</span><span class="nome">Xena</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/xena.jpg" alt="Xena"></div>
           <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>7</span></span></div>
           <span class="tipo">Rosso + Blu</span>
           <p class="testo-potere lungo">Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta</p>
@@ -874,7 +916,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta nessuno" style="--larghezza: 220px" title="Capitan Uncino">
         <span class="punti"><span>3</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🏴‍☠️</span><span class="nome">Capitan Uncino</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/capitan-uncino.jpg" alt="Capitan Uncino"></div>
           <div class="codice lungo"><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span><span class="tessera"><span>2</span></span><span class="segno">+</span><span class="tessera diamante"><span>◆</span></span></div>
           <span class="tipo">Senza potere</span>
           
@@ -883,16 +925,16 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <figcaption><strong>Capitan Uncino</strong> · <code>capitan-uncino</code> · 1 copia</figcaption>
     </figure>
     <figure>
-      <div class="carta blu" style="--larghezza: 220px" title="Folletto">
+      <div class="carta blu" style="--larghezza: 220px" title="Tremotino">
         <span class="punti"><span>1</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🍀</span><span class="nome">Folletto</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/folletto.jpg" alt="Tremotino"></div>
           <div class="codice "><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span></div>
           <span class="tipo">Blu - sempre</span>
           <p class="testo-potere ">Ogni 3 in mano può valere qualsiasi numero da 1 a 8</p>
         </div>
       </div>
-      <figcaption><strong>Folletto</strong> · <code>folletto</code> · 1 copia</figcaption>
+      <figcaption><strong>Tremotino</strong> · <code>folletto</code> · 1 copia</figcaption>
     </figure>
     <figure>
       <div class="carta misto" style="--larghezza: 220px" title="Biancaneve">
@@ -910,7 +952,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta speciale" style="--larghezza: 220px" title="Lucciola 444/555">
         <span class="punti"><span>3</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">✨</span><span class="nome">Lucciola 444/555</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/lucciola-444-555.jpg" alt="Lucciola 444/555"></div>
           <div class="codice lungo"><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>4</span></span><span class="segno">o</span><span class="tessera"><span>5</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>5</span></span></div>
           <span class="tipo">Speciale</span>
           <p class="testo-potere lungo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>
@@ -922,7 +964,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta speciale" style="--larghezza: 220px" title="Lucciola 333/666">
         <span class="punti"><span>3</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">✨</span><span class="nome">Lucciola 333/666</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/lucciola-333-666.jpg" alt="Lucciola 333/666"></div>
           <div class="codice lungo"><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>3</span></span><span class="segno">o</span><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>6</span></span></div>
           <span class="tipo">Speciale</span>
           <p class="testo-potere lungo">Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva</p>

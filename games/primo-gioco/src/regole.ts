@@ -430,7 +430,7 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   g.attivati.push(carta);
   g.punti += p.punti;
 
-  // Nome del personaggio colpito dalla Strega, letto prima che venga scartato (per il registro)
+  // Nome del personaggio colpito dalla Medusa, letto prima che venga scartato (per il registro)
   const colpito = m.bersaglio
     ? s.giocatori[m.bersaglio.giocatore]?.posti.find((c) => c.id === m.bersaglio!.carta)?.personaggio
     : undefined;

@@ -1,7 +1,7 @@
 /**
  * Pannello per attivare un personaggio toccando le carte da usare.
  * Il pannello trova da solo come usare le carte scelte (diamante come carta o come +1, nani,
- * Folletto...); il server ricontrolla comunque la mossa.
+ * Tremotino...); il server ricontrolla comunque la mossa.
  */
 import {
   type CartaPersonaggio,
@@ -179,7 +179,7 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
         )}
 
         {combinazione && effetti.includes("scartaPersonaggioAvversario") && (
-          <Scelta titolo="Strega: quale personaggio scarti a un avversario?">
+          <Scelta titolo="Medusa: quale personaggio scarti a un avversario?">
             {bersagli.length === 0 && <span className="text-sm text-tenue">Nessun avversario ha personaggi nei posti: nessun effetto.</span>}
             {bersagli.map((b) => (
               <Opzione

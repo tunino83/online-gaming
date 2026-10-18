@@ -413,7 +413,7 @@ describe("poteri rossi", () => {
     expect(dopo.turno).toMatchObject({ giocatore: "B", mosseRimaste: 3 });
   });
 
-  it("Strega: scarta un personaggio dai posti di un avversario", () => {
+  it("Medusa: scarta un personaggio dai posti di un avversario", () => {
     const mano = [num(1), num(2), num(4)];
     const { s, carta } = conPersonaggio("strega", mano);
     const vittima = pers("leone");
@@ -431,7 +431,7 @@ describe("poteri rossi", () => {
     expect(dopo.scarti.personaggi).toEqual([vittima]);
   });
 
-  it("Strega: non può colpire i propri posti; senza bersagli si attiva senza effetto", () => {
+  it("Medusa: non può colpire i propri posti; senza bersagli si attiva senza effetto", () => {
     const mano = [num(1), num(2), num(4)];
     const { s, carta } = conPersonaggio("strega", mano);
     const mio = pers("leone");
@@ -951,7 +951,7 @@ describe("registro delle ultime mosse", () => {
     expect(evento).toEqual({ n: 1, giocatore: "A", tipo: "pescaNumero" });
   });
 
-  it("attivazione: personaggio, punti, valori usati e vittima della Strega", () => {
+  it("attivazione: personaggio, punti, valori usati e vittima della Medusa", () => {
     const mano = [num(1), num(2), num(4)];
     const { s, carta } = conPersonaggio("strega", mano);
     const vittima = pers("leone");
@@ -1065,7 +1065,7 @@ describe("carte numero con le frecce", () => {
     expect(s.scarti.personaggi).toHaveLength(0);
   });
 
-  it("in mano vale come una carta normale del suo numero (Folletto 333 attivato con un 3 con le frecce)", () => {
+  it("in mano vale come una carta normale del suo numero (Tremotino 333 attivato con un 3 con le frecce)", () => {
     let s = partita();
     const a = freccia(3);
     const b = num(3);

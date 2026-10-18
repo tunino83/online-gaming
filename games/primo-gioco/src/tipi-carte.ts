@@ -35,7 +35,7 @@ export type Effetto =
   | { tipo: "mosseInPiuOgniTurno"; mosse: number }
   /** Scimmia: limite della mano aumentato. */
   | { tipo: "limiteMano"; aumento: number }
-  /** Strega: scarta un personaggio dai posti di un avversario. */
+  /** Medusa: scarta un personaggio dai posti di un avversario. */
   | { tipo: "scartaPersonaggioAvversario" }
   /** Gatto con gli stivali: una carta del codice resta in mano. */
   | { tipo: "tieniUnaCartaDelCodice" }
@@ -59,7 +59,7 @@ export type Effetto =
   | { tipo: "scambiaConTavolo" }
   /** Xena: i diamanti possono fare anche −1. */
   | { tipo: "diamanteMenoUno" }
-  /** Folletto: ogni 3 in mano può valere qualsiasi numero da 1 a 8. */
+  /** Tremotino: ogni 3 in mano può valere qualsiasi numero da 1 a 8. */
   | { tipo: "treJolly" }
   /** Biancaneve: ogni 2 in mano si può scambiare con un diamante. */
   | { tipo: "dueInDiamante" }

@@ -129,7 +129,7 @@ export type Mossa =
       combinazione: Combinazione;
       /** Gatto con gli stivali: carta del codice che resta in mano. */
       tieni?: string;
-      /** Strega: personaggio da scartare dai posti di un avversario. */
+      /** Medusa: personaggio da scartare dai posti di un avversario. */
       bersaglio?: { giocatore: IdGiocatore; carta: string };
       /** Fatina: avversario di cui guardare la mano. */
       avversario?: IdGiocatore;

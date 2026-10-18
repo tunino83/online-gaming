@@ -4,7 +4,7 @@
  *
  * Il giocatore dichiara una `Combinazione`: le carte che usa e il valore che
  * ognuna assume. Qui si controlla che i valori dichiarati siano permessi
- * (diamanti +1/−1, Robin Hood, Folletto, carte virtuali) e che soddisfino il codice.
+ * (diamanti +1/−1, Robin Hood, Tremotino, carte virtuali) e che soddisfino il codice.
  */
 import type { CartaDiamante, CartaNumero, Codice, Valore } from "./tipi-carte";
 
@@ -24,7 +24,7 @@ export interface Risorse {
   poteri: {
     /** Robin Hood: ogni 1 (carta o diamante) può valere 8. */
     unoValeOtto: boolean;
-    /** Folletto: ogni 3 (carta o diamante) può valere da 1 a 8. */
+    /** Tremotino: ogni 3 (carta o diamante) può valere da 1 a 8. */
     treJolly: boolean;
     /** Xena: i diamanti possono fare anche −1. */
     diamanteMenoUno: boolean;
@@ -416,7 +416,7 @@ export function risorseUsate(c: Combinazione): string[] {
 /**
  * La combinazione che usa esattamente le carte scelte dal giocatore (id di carte e diamanti,
  * o id del personaggio che dà la carta virtuale), oppure null se quelle carte non formano il codice.
- * Il modo di usarle (diamante come carta o come +1, valore del Folletto...) lo trova da sola:
+ * Il modo di usarle (diamante come carta o come +1, valore del Tremotino...) lo trova da sola:
  * tutte le combinazioni che usano le stesse carte hanno lo stesso effetto.
  */
 export function combinazioneConCarte(r: Risorse, codice: Codice, scelte: readonly string[]): Combinazione | null {

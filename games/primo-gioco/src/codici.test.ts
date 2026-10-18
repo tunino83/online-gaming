@@ -113,7 +113,7 @@ describe("doppia coppia (Fantasma)", () => {
 });
 
 describe("somma", () => {
-  it("Strega: 3 carte con somma 7", () => {
+  it("Medusa: 3 carte con somma 7", () => {
     const r = risorse({ mano: mano(1, 2, 4, 3, 4) });
     expect(ok(r, codice("strega"), carte(r, 0, 1, 2))).toBe(true);
     expect(ok(r, codice("strega"), carte(r, 3, 4))).toBe(false); // somma 7 ma 2 carte
@@ -352,7 +352,7 @@ describe("Robin Hood: ogni 1 può valere 8", () => {
   });
 });
 
-describe("Folletto: ogni 3 può valere da 1 a 8", () => {
+describe("Tremotino: ogni 3 può valere da 1 a 8", () => {
   const conFolletto = (r: Partial<Omit<Risorse, "poteri">>) => risorse({ ...r, poteri: { treJolly: true } });
 
   it("un 3 in mano vale qualsiasi numero", () => {
@@ -367,7 +367,7 @@ describe("Folletto: ogni 3 può valere da 1 a 8", () => {
     expect(ok(r, codice("hansel-e-gretel"), comb)).toBe(true);
   });
 
-  it("senza Folletto un 3 resta 3", () => {
+  it("senza Tremotino un 3 resta 3", () => {
     const r = risorse({ mano: mano(3, 8) });
     const comb: Combinazione = [{ tipo: "numero", id: "n0", valore: 8 }, ...carte(r, 1)];
     expect(ok(r, codice("hansel-e-gretel"), comb)).toBe(false);
@@ -589,7 +589,7 @@ describe("attivazione a tocchi: dalle carte scelte alla combinazione", () => {
     expect(comb && ok(uncino, codice("capitan-uncino"), comb)).toBe(true);
   });
 
-  it("con il Folletto un 3 diventa il numero che serve", () => {
+  it("con il Tremotino un 3 diventa il numero che serve", () => {
     const r = risorse({ mano: mano(3, 8), poteri: { treJolly: true } });
     expect(combinazioneConCarte(r, codice("hansel-e-gretel"), ["n0", "n1"])).not.toBeNull();
   });

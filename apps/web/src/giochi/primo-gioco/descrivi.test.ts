@@ -53,7 +53,7 @@ describe("descrizione delle mosse", () => {
     );
   });
 
-  it("Strega e Fatina nominano l'avversario", () => {
+  it("Medusa e Fatina nominano l'avversario", () => {
     const { testo } = situazione((s) => {
       s.giocatori.A!.posti = [{ id: "strega", personaggio: "strega" }];
       s.giocatori.B!.posti = [{ id: "leone", personaggio: "leone" }];
@@ -102,14 +102,14 @@ describe("frasi del registro", () => {
     expect(descriviEvento(e, nick, "B")).toBe("Hai preso l'8 dal tavolo");
   });
 
-  it("attivazioni con Strega e fine turno", () => {
+  it("attivazioni con Medusa e fine turno", () => {
     expect(
       descriviEvento(
         { n: 2, giocatore: "A", tipo: "attiva", personaggio: "strega", punti: 1, valori: [1, 2, 4], bersaglio: { giocatore: "B", personaggio: "leone" } },
         nick,
         "B",
       ),
-    ).toBe("Anna ha attivato Strega con 1, 2, 4 (+1), scartando Leone tuo");
+    ).toBe("Anna ha attivato Medusa con 1, 2, 4 (+1), scartando Leone tuo");
     expect(descriviEvento({ n: 3, giocatore: "A", tipo: "fineTurno", scartate: 2, cambiaMano: false }, nick, "B")).toBe(
       "Anna ha chiuso il turno scartando 2 carte",
     );

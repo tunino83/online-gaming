@@ -109,18 +109,18 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/drago.jpg" width="90" alt="Drago"> | Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/cappuccetto-rosso.png" width="90" alt="Cappuccetto Rosso"> | Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/scimmia.jpg" width="90" alt="Scimmia"> | Scimmia | Carte con somma 10 (quante si vuole) | 1 | Limite della mano +1 | Blu | 3 |
-| <img src="../games/primo-gioco/immagini/classica/strega.jpg" width="90" alt="Strega"> | Strega | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
+| <img src="../games/primo-gioco/immagini/classica/strega.jpg" width="90" alt="Medusa"> | Medusa | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
 | <img src="../games/primo-gioco/immagini/classica/gatto-con-gli-stivali.jpg" width="90" alt="Gatto con gli stivali"> | Gatto con gli stivali | 345 | 1 | Una delle carte del codice, a tua scelta, non si scarta e resta in mano | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/unicorno.png" width="90" alt="Unicorno"> | Unicorno | 1234 | 1 | Ricevi 2 diamanti | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/pinco.jpg" width="90" alt="Pinco"> | Pinco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/panco.jpg" width="90" alt="Panco"> | Panco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/leone.jpg" width="90" alt="Leone"> | Leone | 8888 | 5 | Nessuno | — | 1 |
-| <img src="../games/primo-gioco/immagini/classica/giganti.jpg" width="90" alt="Giganti"> | Giganti | 6688 | 3 | Nessuno | — | 3 |
+| <img src="../games/primo-gioco/immagini/classica/giganti.jpg" width="90" alt="Orco"> | Orco | 6688 | 3 | Nessuno | — | 3 |
 | <img src="../games/primo-gioco/immagini/classica/hansel-e-gretel.jpg" width="90" alt="Hansel e Gretel"> | Hansel e Gretel | 88 | 2 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/goblin.png" width="90" alt="Goblin"> | Goblin | Coppia | 1 | Nessuno | — | 3 |
 | <img src="../games/primo-gioco/immagini/classica/cerbero.jpg" width="90" alt="Cerbero"> | Cerbero | Tris | 2 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/quercia-umana.png" width="90" alt="Quercia umana"> | Quercia umana | Poker | 3 | Nessuno | — | 1 |
-| <img src="../games/primo-gioco/immagini/classica/regina.jpg" width="90" alt="Regina"> | Regina | 7777 | 4 | Nessuno | — | 2 |
+| <img src="../games/primo-gioco/immagini/classica/regina.jpg" width="90" alt="Fata Smemorina"> | Fata Smemorina | 7777 | 4 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/gnomo.jpg" width="90" alt="Gnomo"> | Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
 | <img src="../games/primo-gioco/immagini/classica/mago.jpg" width="90" alt="Mago"> | Mago | Scala da 3 | 1 | A inizio turno vedi la prima carta coperta del mazzo personaggi | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/fantasma.jpg" width="90" alt="Fantasma"> | Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
@@ -136,7 +136,7 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/cappellaio-matto.jpg" width="90" alt="Cappellaio matto"> | Cappellaio matto | Scala da 5 | 2 | A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/xena.jpg" width="90" alt="Xena"> | Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/capitan-uncino.jpg" width="90" alt="Capitan Uncino"> | Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
-| <img src="../games/primo-gioco/immagini/classica/folletto.jpg" width="90" alt="Folletto"> | Folletto | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/folletto.jpg" width="90" alt="Tremotino"> | Tremotino | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/biancaneve.png" width="90" alt="Biancaneve"> | Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/lucciola-444-555.jpg" width="90" alt="Lucciola 444/555"> | Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 | <img src="../games/primo-gioco/immagini/classica/lucciola-333-666.jpg" width="90" alt="Lucciola 333/666"> | Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
@@ -158,8 +158,8 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 
 - Il diamante usato per fare +1 (o −1) a una carta va negli scarti insieme alle carte del codice.
 - Scimmia: la somma 10 si può fare con quante carte si vuole, anche più di 5 (è l'unica eccezione al limite di 5 carte per codice).
-- Folletto: ogni 3 in mano, carta o diamante con valore 3, può valere qualsiasi numero da 1 a 8.
-- Una sola modifica per carta: un diamante +1/−1 oppure un potere (Folletto, Robin Hood), non entrambi.
+- Tremotino: ogni 3 in mano, carta o diamante con valore 3, può valere qualsiasi numero da 1 a 8.
+- Una sola modifica per carta: un diamante +1/−1 oppure un potere (Tremotino, Robin Hood), non entrambi.
 - Una carta virtuale (nano, fenice, drago) si usa una sola volta per turno, quindi al massimo una volta nello stesso codice.
 - Il fulmine non ha un numero, quindi non può fare da carta in un codice. L'unico caso in cui entra in un codice è Capitan Uncino ("un diamante qualsiasi, anche un fulmine").
 - Capitan Uncino pagato con un fulmine: il fulmine si consuma come pagamento e non dà la mossa in più. Un diamante con valore usato come "diamante qualsiasi" conta solo come diamante, non col suo numero.
@@ -167,7 +167,7 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 **Decisioni prese (turno e poteri, 2026-10-17)**
 
 - Posti pieni: chi prende o pesca un terzo personaggio deve scartare uno dei due che aveva già, non quello appena preso.
-- I personaggi scartati (posti pieni, Strega) vanno negli scarti personaggi.
+- I personaggi scartati (posti pieni, Medusa) vanno negli scarti personaggi.
 - A fine turno, se si hanno troppe carte numero, il giocatore sceglie quali scartare.
 - Se un mazzo e i suoi scarti sono entrambi vuoti, non si può pescare da quel mazzo e il posto vuoto sul tavolo resta vuoto finché non torna una carta.
 - Fine partita: si completa il giro e poi si gioca un ultimo giro completo (vedi "Fine partita").
@@ -187,7 +187,7 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Il turno non si può chiudere prima di aver fatto tutte le mosse, finché ce n'è almeno una possibile (prendere, pescare o bruciare).
 - Più Scimmie attivate: il limite della mano sale di +1 per ognuna.
 - Cappuccetto Rosso attivato a metà turno dà subito 1 mossa in più in quel turno; dal turno dopo si fanno 4 mosse.
-- Strega: se almeno un avversario ha personaggi nei posti, scartarne uno è obbligatorio; altrimenti si attiva senza effetto.
+- Medusa: se almeno un avversario ha personaggi nei posti, scartarne uno è obbligatorio; altrimenti si attiva senza effetto.
 - Cappellaio matto: lo scambio "a inizio turno" va fatto prima di qualsiasi altra azione del turno (compresi fulmine e Biancaneve).
 
 **Decisioni prese (prove nel browser, 2026-10-17)**

@@ -29,18 +29,18 @@ Le copie dello stesso personaggio usano la stessa immagine. Usa solo immagini di
 | Drago | `drago` |
 | Cappuccetto Rosso | `cappuccetto-rosso` |
 | Scimmia | `scimmia` |
-| Strega | `strega` |
+| Medusa | `strega` |
 | Gatto con gli stivali | `gatto-con-gli-stivali` |
 | Unicorno | `unicorno` |
 | Pinco | `pinco` |
 | Panco | `panco` |
 | Leone | `leone` |
-| Giganti | `giganti` |
+| Orco | `giganti` |
 | Hansel e Gretel | `hansel-e-gretel` |
 | Goblin | `goblin` |
 | Cerbero | `cerbero` |
 | Quercia umana | `quercia-umana` |
-| Regina | `regina` |
+| Fata Smemorina | `regina` |
 | Gnomo | `gnomo` |
 | Mago | `mago` |
 | Fantasma | `fantasma` |
@@ -56,7 +56,7 @@ Le copie dello stesso personaggio usano la stessa immagine. Usa solo immagini di
 | Cappellaio matto | `cappellaio-matto` |
 | Xena | `xena` |
 | Capitan Uncino | `capitan-uncino` |
-| Folletto | `folletto` |
+| Tremotino | `folletto` |
 | Biancaneve | `biancaneve` |
 | Lucciola 444/555 | `lucciola-444-555` |
 | Lucciola 333/666 | `lucciola-333-666` |
