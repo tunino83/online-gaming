@@ -70,17 +70,22 @@ function useFinestra(): { larghezza: number; altezza: number } {
 const altezzaDi = (larghezza: number) => (larghezza * 88) / 63;
 const limita = (x: number, min: number, max: number) => Math.round(Math.max(min, Math.min(max, x)));
 
-/** Schermo largo (tablet, computer, telefono in orizzontale): carte un po' più grandi. */
-function useSchermoLargo(): boolean {
-  const [largo, setLargo] = useState(() => window.matchMedia("(min-width: 768px)").matches);
+/** Vero se la finestra soddisfa la condizione (es. "(min-width: 768px)"), aggiornato quando cambia. */
+function useMedia(condizione: string): boolean {
+  const [vero, setVero] = useState(() => window.matchMedia(condizione).matches);
   useEffect(() => {
-    const m = window.matchMedia("(min-width: 768px)");
-    const cambia = () => setLargo(m.matches);
+    const m = window.matchMedia(condizione);
+    const cambia = () => setVero(m.matches);
     m.addEventListener("change", cambia);
     return () => m.removeEventListener("change", cambia);
-  }, []);
-  return largo;
+  }, [condizione]);
+  return vero;
 }
+
+/** Schermo largo (tablet, computer, telefono in orizzontale): carte un po' più grandi. */
+const useSchermoLargo = () => useMedia("(min-width: 768px)");
+/** Schermo da computer: barre su una sola riga e carte grandi, per sfruttare lo spazio. */
+const useSchermoGrande = () => useMedia("(min-width: 1280px) and (min-height: 600px)");
 
 /** Eventi da raccontare: si salta il semplice "ha chiuso il turno". */
 const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 0 && !e.cambiaMano);
@@ -106,6 +111,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [codaAttivazioni, setCodaAttivazioni] = useState<Attivazione[]>([]);
   const inizioSwipe = useRef<number | null>(null);
   const largo = useSchermoLargo();
+  const grande = useSchermoGrande();
   const finestra = useFinestra();
   // Telefono basso: barre più compatte, così resta spazio per il tavolo
   const basso = finestra.altezza < 720;
@@ -320,10 +326,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const eventi = v.registro.filter(significativo);
 
   // Carte del panno: grandi quanto lo spazio libero tra le due barre fisse (e la larghezza dello schermo)
-  const larghezzaPosto = largo ? 72 : basso ? 46 : 58;
-  const baseNumero = largo ? 64 : 52;
-  const basePersonaggio = largo ? 140 : 112;
-  const larghezzaPanno = Math.min(finestra.larghezza, largo ? 672 : 448) - 24 - 24;
+  const larghezzaPosto = grande ? 92 : largo ? 72 : basso ? 46 : 58;
+  const baseNumero = grande ? 120 : largo ? 64 : 52;
+  const basePersonaggio = grande ? 250 : largo ? 140 : 112;
+  const larghezzaPanno = Math.min(finestra.larghezza, grande ? 1152 : largo ? 672 : 448) - 24 - 24;
   const spazioPanno = finestra.altezza - altezzaAlta - altezzaBassa - 16;
   const fisso = 24 + 10 + (basso ? 0 : 22) + (gratuite.length > 0 ? 34 : 0) + (v.primoPersonaggio ? 100 : 0);
   const rapporto = basePersonaggio / baseNumero;
@@ -339,7 +345,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     <>
       {/* ---------------- barra in alto ---------------- */}
       <div ref={barraAlta} className="fixed inset-x-0 top-0 z-30 border-b-2 border-oro/60 bg-notte/90 shadow-[0_6px_20px_rgba(0,0,0,0.5)] backdrop-blur">
-        <div className="mx-auto max-w-md px-3 pt-2 pb-2 md:max-w-2xl">
+        <div className={`mx-auto max-w-md px-3 pt-2 pb-2 md:max-w-2xl ${grande ? "flex !max-w-6xl items-center gap-3" : ""}`}>
+          <div className={grande ? "w-[24rem] shrink-0" : ""}>
           <div className="flex items-center gap-1.5">
             <div
               className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 font-titolo text-sm font-bold ${
@@ -372,10 +379,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <BottoneTema />
           </div>
           {suggerimento && <p className="mt-1 text-xs font-semibold text-oro-chiaro">{suggerimento}</p>}
+          </div>
 
           {/* barra dell'avversario mostrato: frecce (o swipe) per vedere gli altri */}
           <div
-            className="mt-1.5 flex items-center gap-1 rounded-xl bg-white/5 p-1"
+            className={`flex items-center gap-1 rounded-xl bg-white/5 p-1 ${grande ? "min-w-0 flex-1" : "mt-1.5"}`}
             onTouchStart={(e) => {
               inizioSwipe.current = e.touches[0]?.clientX ?? null;
             }}
@@ -435,7 +443,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               traguardo={traguardo}
               diTurno={mostrato === v.turno.giocatore && !v.finita}
               carteInMano={v.giocatori[mostrato]!.carteInMano}
-              dimensione={basso ? 42 : 48}
+              dimensione={grande ? 64 : basso ? 42 : 48}
               titolo={nick(mostrato)}
             />
             {avversari.length > 1 && (
@@ -557,6 +565,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       <BarraMieCarte
         rif={barraBassa}
         basso={basso}
+        grande={grande}
         avatarId={avatarDi(io)}
         traguardo={traguardo}
         largo={largo}
@@ -895,6 +904,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
 function BarraMieCarte({
   rif,
   basso,
+  grande,
   avatarId,
   traguardo,
   largo,
@@ -916,6 +926,7 @@ function BarraMieCarte({
 }: {
   rif: RefObject<HTMLDivElement>;
   basso: boolean;
+  grande: boolean;
   avatarId?: string;
   traguardo: number;
   largo: boolean;
@@ -939,12 +950,23 @@ function BarraMieCarte({
   const [dueDaScambiare, setDueDaScambiare] = useState<string | null>(null);
   const biancaneve = mosse.some((m) => m.tipo === "dueInDiamante");
   const mioTurno = v.turno.giocatore === io && !v.finita;
-  const larghezzaPosto = largo ? 84 : basso ? 56 : 70;
+  const larghezzaPosto = grande ? 104 : largo ? 84 : basso ? 56 : 70;
+
+  const avatar = (
+    <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-luce/80">
+      <AvatarPunti id={avatarId} punti={mio.punti} traguardo={traguardo} diTurno={mioTurno} dimensione={grande ? 60 : basso ? 40 : 46} titolo="Tu" />
+      <span className="mt-1">
+        Mano {v.mano.length}/{v.limiteMano}
+      </span>
+    </div>
+  );
 
   return (
     <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-oro/60 bg-notte/92 shadow-[0_-8px_24px_rgba(0,0,0,0.55)] backdrop-blur">
-      <div className="mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] md:max-w-2xl">
-        <div className="flex items-start gap-2">
+      <div
+        className={`mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] md:max-w-2xl ${grande ? "flex !max-w-6xl items-center gap-4" : ""}`}
+      >
+        <div className={grande ? "flex shrink-0 items-center gap-3" : "flex items-start gap-2"}>
           <div className="flex shrink-0 gap-1.5">
             {mio.posti.map((c) => {
               const tocca = toccaPosto(c);
@@ -970,19 +992,18 @@ function BarraMieCarte({
               <PostoVuoto key={i} larghezza={larghezzaPosto} />
             ))}
           </div>
-          <PoteriBlu v={v} io={io} mosse={mosse} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} />
-          <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-luce/80">
-            <AvatarPunti id={avatarId} punti={mio.punti} traguardo={traguardo} diTurno={mioTurno} dimensione={basso ? 40 : 46} titolo="Tu" />
-            <span className="mt-1">
-              Mano {v.mano.length}/{v.limiteMano}
-            </span>
+          <div className={grande ? "w-44" : "contents"}>
+            <PoteriBlu v={v} io={io} mosse={mosse} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} />
           </div>
+          {!grande && avatar}
         </div>
 
+        <div className={grande ? "min-w-0 flex-1" : ""}>
         <Ventaglio
           v={v}
           largo={largo}
           basso={basso}
+          grande={grande}
           daScartare={daScartare}
           bloccato={bloccato}
           tocca={(id, valore) =>
@@ -996,6 +1017,10 @@ function BarraMieCarte({
             <Diamanti diamanti={mio.diamanti} />
           </div>
         )}
+        </div>
+
+        <div className={grande ? "flex w-56 shrink-0 flex-col items-stretch gap-2" : ""}>
+          {grande && <div className="flex justify-center">{avatar}</div>}
         {puoChiudere && (
           <div className="mt-1 flex gap-2">
             <button
@@ -1018,6 +1043,7 @@ function BarraMieCarte({
             )}
           </div>
         )}
+        </div>
       </div>
 
       {dueDaScambiare && (
@@ -1047,6 +1073,7 @@ function Ventaglio({
   v,
   largo,
   basso,
+  grande,
   daScartare,
   bloccato,
   tocca,
@@ -1055,6 +1082,7 @@ function Ventaglio({
   v: VistaGiocatore;
   largo: boolean;
   basso: boolean;
+  grande: boolean;
   daScartare: string[];
   bloccato: boolean;
   tocca: (id: string, valore: number) => (() => void) | undefined;
@@ -1063,7 +1091,7 @@ function Ventaglio({
   const contenitore = useRef<HTMLDivElement>(null);
   const spazio = useLarghezza(contenitore);
   const mano = [...v.mano].sort((a, b) => a.valore - b.valore);
-  const larghezzaCarta = largo ? 74 : basso ? 50 : 58;
+  const larghezzaCarta = grande ? 96 : largo ? 74 : basso ? 50 : 58;
   const altezzaCarta = Math.round((larghezzaCarta * 88) / 63);
   const n = mano.length;
   const passo = n > 1 ? Math.min(larghezzaCarta + 6, (Math.max(spazio, larghezzaCarta) - larghezzaCarta - 8) / (n - 1)) : 0;
