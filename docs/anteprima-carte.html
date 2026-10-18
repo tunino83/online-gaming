@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte personaggio</title>
+<title>Il Portale · Carte personaggio</title>
 <style>
   body { margin: 0; padding: 24px 16px 48px; background: #f3efe6; color: #2b2620;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
@@ -324,13 +324,106 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
   .gira, .velo { animation: none; }
 }
 
+/* ---------- Animazione di attivazione ---------- */
+.magia-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgb(20 16 40 / 0.55), rgb(5 5 15 / 0.85));
+  animation: compare 0.25s ease-out both, svanisce 0.35s ease-in 2.45s both;
+  cursor: pointer;
+}
+@keyframes svanisce { to { opacity: 0; } }
+
+/* Alone che ruota dietro la carta */
+.magia-alone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  height: 420px;
+  margin: -260px 0 0 -210px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--magia) 70%, white) 0%, transparent 55%),
+    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--magia) 55%, transparent) 0deg 10deg, transparent 10deg 30deg);
+  filter: blur(2px);
+  opacity: 0;
+  animation: alone-entra 0.6s ease-out 0.15s forwards, alone-gira 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes alone-entra { from { opacity: 0; transform: scale(0.3); } to { opacity: 0.9; transform: scale(1); } }
+@keyframes alone-gira { to { rotate: 360deg; } }
+
+/* La carta compare girandosi e brilla */
+.magia-carta {
+  position: relative;
+  animation: magia-entra 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) both, magia-brilla 1.2s ease-in-out 0.7s infinite alternate;
+  border-radius: 1em;
+}
+@keyframes magia-entra {
+  from { transform: perspective(800px) rotateY(180deg) scale(0.3); opacity: 0; }
+  to { transform: perspective(800px) rotateY(0) scale(1); opacity: 1; }
+}
+@keyframes magia-brilla {
+  from { filter: drop-shadow(0 0 8px var(--magia)); }
+  to { filter: drop-shadow(0 0 28px var(--magia)) brightness(1.08); }
+}
+
+/* Scintille che salgono */
+.scintilla {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--magia) 60%, transparent 70%);
+  opacity: 0;
+  animation: scintilla 1.6s ease-out both;
+  pointer-events: none;
+}
+@keyframes scintilla {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), -260px) scale(1.2); }
+}
+
+.magia-testo { animation: compare 0.4s ease-out 0.5s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .magia-alone, .magia-carta, .scintilla, .magia-testo { animation: none; opacity: 1; }
+  .scintilla { display: none; }
+}
+
+/* ---------- Mano a ventaglio ---------- */
+.ventaglio-carta {
+  transform-origin: 50% 120%;
+  transform: rotate(var(--r, 0deg)) translateY(var(--y, 0px));
+  transition: transform 0.15s ease;
+}
+.ventaglio-carta:hover,
+.ventaglio-carta:focus-within {
+  transform: rotate(var(--r, 0deg)) translateY(calc(var(--y, 0px) - 12px));
+  z-index: 50 !important;
+}
+
+/* Sul mio turno: ciò che non si può toccare è attenuato, così l'occhio va alle mosse possibili */
+.mio-turno .carta:not(.toccabile):not(.vuota) { filter: saturate(0.65) brightness(0.82); }
+
+/* Il tipo di potere si riconosce anche da un simbolo, non solo dal colore */
+.carta.blu .tipo::before { content: "∞ "; }
+.carta.rosso .tipo::before { content: "① "; }
+.carta.speciale .tipo::before { content: "✦ "; }
+.carta.misto .tipo::before { content: "①∞ "; }
+
 </style>
 </head>
 <body>
   <div class="intro">
-    <h1>Carte personaggio</h1>
+    <h1>Il Portale · Carte personaggio</h1>
     <p>42 personaggi, 55 carte. Generata dai dati del gioco con <code>pnpm carte</code>, con lo stesso stile dell'app.</p>
-    <p>Illustrazioni caricate: 22 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
+    <p>Illustrazioni caricate: 24 su 42. Le altre mostrano un simbolo provvisorio e il nome.</p>
   </div>
   <main class="griglia">
     <figure>
@@ -697,7 +790,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta rosso" style="--larghezza: 220px" title="Golem pari">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪨</span><span class="nome">Golem pari</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/golem-pari.png" alt="Golem pari"></div>
           <div class="codice "><span class="tessera"><span>2</span></span><span class="tessera"><span>4</span></span><span class="tessera"><span>6</span></span><span class="tessera"><span>8</span></span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">3 mosse in più in questo turno</p>
@@ -709,7 +802,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
       <div class="carta rosso" style="--larghezza: 220px" title="Golem dispari">
         <span class="punti"><span>2</span></span>
         <div class="cornice">
-          <div class="arte"><div class="segnaposto"><span class="simbolo" aria-hidden="true">🪨</span><span class="nome">Golem dispari</span></div></div>
+          <div class="arte"><img src="../games/primo-gioco/immagini/classica/golem-dispari.png" alt="Golem dispari"></div>
           <div class="codice "><span class="tessera"><span>1</span></span><span class="tessera"><span>3</span></span><span class="tessera"><span>5</span></span><span class="tessera"><span>7</span></span></div>
           <span class="tipo">Rosso - una volta</span>
           <p class="testo-potere ">3 mosse in più in questo turno</p>

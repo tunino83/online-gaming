@@ -77,7 +77,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Carte personaggio</title>
+<title>Il Portale · Carte personaggio</title>
 <style>
   body { margin: 0; padding: 24px 16px 48px; background: #f3efe6; color: #2b2620;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
@@ -93,7 +93,7 @@ ${STILE_CARTE}
 </head>
 <body>
   <div class="intro">
-    <h1>Carte personaggio</h1>
+    <h1>Il Portale · Carte personaggio</h1>
     <p>${PERSONAGGI.length} personaggi, ${PERSONAGGI.reduce((s, p) => s + p.copie, 0)} carte. Generata dai dati del gioco con <code>pnpm carte</code>, con lo stesso stile dell'app.</p>
     <p>Illustrazioni caricate: ${conImmagine} su ${PERSONAGGI.length}. Le altre mostrano un simbolo provvisorio e il nome.</p>
   </div>

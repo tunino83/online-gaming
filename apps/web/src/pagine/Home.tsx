@@ -52,7 +52,7 @@ export function Home() {
         <div className="relative -mx-5 -mt-5 mb-4 h-40 overflow-hidden rounded-t-2xl border-b-2 border-oro">
           {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="h-full w-full object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-t from-notte/90 via-notte/20 to-transparent" />
-          <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il primo gioco</h2>
+          <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il Portale</h2>
         </div>
         <p className="-mt-2 mb-4 text-sm text-tenue">
           {PERSONAGGI.length} personaggi, {carte} carte, da 2 a 5 giocatori.

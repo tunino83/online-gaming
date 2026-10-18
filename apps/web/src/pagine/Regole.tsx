@@ -76,7 +76,7 @@ export function TestoRegole() {
 export function PaginaRegole() {
   return (
     <Pagina>
-      <Riquadro titolo="📖 Come si gioca">
+      <Riquadro titolo="📖 Il Portale · Come si gioca">
         <TestoRegole />
         <Link to="/" className="mt-5 inline-block font-semibold text-blu underline">
           Torna all'inizio

@@ -27,6 +27,7 @@ export function Partita() {
   }
 
   const { partita, giocatori, io } = stato;
+  if (partita.gioco === "primo-gioco") document.title = "Il Portale · Online Gaming";
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
     <Pagina inGioco>

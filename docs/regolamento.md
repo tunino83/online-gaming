@@ -1,4 +1,4 @@
-# Regolamento del primo gioco
+# Il Portale – regolamento
 
 ## Materiale
 

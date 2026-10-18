@@ -1,7 +1,7 @@
 # Online Gaming – guida per Claude Code
 
 Piattaforma web (poi app mobile) per giocare online tra amici a giochi di carte e da tavolo diversi.
-Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `docs/piano.md`.
+Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed è descritto in `docs/regolamento.md`. Il piano completo è in `docs/piano.md`.
 
 ## Come lavoriamo (importante)
 
