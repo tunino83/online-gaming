@@ -196,6 +196,31 @@ describe("chiusura automatica del turno", () => {
   });
 });
 
+describe("messaggi vocali", () => {
+  const audio = (byte: number) => btoa("A".repeat(byte));
+
+  it("chi gioca manda un vocale: l'arbitro lo salva con chi l'ha mandato", async () => {
+    const t = await partitaConDue(4);
+    const r = await t.chiedi(B, { azione: "vocale", partitaId: t.partitaId, audio: audio(3000), tipo: "audio/webm;codecs=opus", durataMs: 2500 });
+    expect(r).toMatchObject({ ok: true, id: expect.any(String) });
+    expect(t.archivio.dati.vocali).toEqual([
+      { id: expect.any(String), partitaId: t.partitaId, utente: B, byte: 3000, tipo: "audio/webm", durataMs: 2500 },
+    ]);
+  });
+
+  it("rifiuta chi non è nella partita, formati strani, vocali troppo lunghi o troppo grandi", async () => {
+    const t = await partitaConDue(4);
+    const base = { azione: "vocale", partitaId: t.partitaId, audio: audio(100), tipo: "audio/mp4", durataMs: 1000 };
+    expect(await t.chiedi(C, base)).toEqual({ ok: false, errore: "Partita non trovata" });
+    expect(await t.chiedi(A, { ...base, tipo: "text/html" })).toEqual({ ok: false, errore: "Formato audio non supportato" });
+    expect(await t.chiedi(A, { ...base, durataMs: 60000 })).toMatchObject({ ok: false });
+    expect(await t.chiedi(A, { ...base, durataMs: 50 })).toMatchObject({ ok: false });
+    expect(await t.chiedi(A, { ...base, audio: "non è base64!" })).toEqual({ ok: false, errore: "Vocale non valido" });
+    expect(await t.chiedi(A, { ...base, audio: audio(450_000) })).toEqual({ ok: false, errore: "Vocale troppo grande" });
+    expect(t.archivio.dati.vocali).toHaveLength(0);
+  });
+});
+
 describe("avatar", () => {
   it("si sceglie creando o entrando; senza scelta si usa il mago; uno inventato è rifiutato", async () => {
     const { chiedi, archivio } = prepara();

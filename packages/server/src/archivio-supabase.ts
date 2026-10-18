@@ -106,6 +106,21 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
       return data ? { stato: data.stato, versione: data.versione } : null;
     },
 
+    async salvaVocale(p) {
+      const estensione = { "audio/mp4": "m4a", "audio/webm": "webm", "audio/ogg": "ogg", "audio/mpeg": "mp3", "audio/aac": "aac" }[p.tipo];
+      const percorso = `${p.partitaId}/${crypto.randomUUID()}.${estensione}`;
+      const { error: erroreFile } = await db.storage.from("vocali").upload(percorso, p.dati, { contentType: p.tipo });
+      if (erroreFile) throw new Error(`Errore nel salvare il vocale: ${erroreFile.message}`);
+      const { data, error } = await db
+        .from("vocali")
+        .insert({ partita_id: p.partitaId, utente_id: p.utente, percorso, durata_ms: p.durataMs })
+        .select("id")
+        .single();
+      if (error) traduci(error);
+      await pulisciVocaliVecchi(db);
+      return data!.id as string;
+    },
+
     async salva(p) {
       const { data, error } = await db.rpc("arbitro_salva", {
         p_partita: p.partitaId,
@@ -121,4 +136,13 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
       return data as number;
     },
   };
+}
+
+/** I vocali servono solo durante la partita: quelli di più di un giorno si cancellano (file e avvisi). */
+async function pulisciVocaliVecchi(db: SupabaseClient): Promise<void> {
+  const ieri = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await db.from("vocali").select("id, percorso").lt("creato_il", ieri).limit(100);
+  if (!data || data.length === 0) return;
+  await db.storage.from("vocali").remove(data.map((v) => v.percorso as string));
+  await db.from("vocali").delete().in("id", data.map((v) => v.id as string));
 }

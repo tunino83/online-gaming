@@ -143,6 +143,42 @@ describe("arbitro sul server", () => {
     expect(aggiornamentiBruno.length).toBeGreaterThanOrEqual(12);
   }, 120000);
 
+  it("vocali: Anna ne manda uno, Bruno lo riceve in tempo reale e lo scarica; Carla (fuori) non vede niente", async () => {
+    const arrivati: { percorso: string; utente_id: string }[] = [];
+    await new Promise<void>((pronto, fallito) => {
+      bruno.client
+        .channel("vocali-bruno")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "vocali", filter: `partita_id=eq.${partitaId}` }, (e) => {
+          arrivati.push(e.new as { percorso: string; utente_id: string });
+        })
+        .subscribe((stato) => {
+          if (stato === "SUBSCRIBED") setTimeout(pronto, 1000);
+          if (stato === "CHANNEL_ERROR" || stato === "TIMED_OUT") fallito(new Error(stato));
+        });
+    });
+    const audio = Buffer.from("finto audio di prova ".repeat(50)).toString("base64");
+    const r = await anna.chiedi({ azione: "vocale", partitaId, audio, tipo: "audio/webm;codecs=opus", durataMs: 1500 });
+    expect(r).toMatchObject({ ok: true });
+    for (let i = 0; i < 40 && arrivati.length === 0; i++) await new Promise((x) => setTimeout(x, 250));
+    expect(arrivati).toHaveLength(1);
+    expect(arrivati[0]!.utente_id).toBe(anna.id);
+
+    const { data: file, error } = await bruno.client.storage.from("vocali").download(arrivati[0]!.percorso);
+    expect(error).toBeNull();
+    expect(await file!.text()).toBe("finto audio di prova ".repeat(50));
+
+    const { data: righeCarla } = await carla.client.from("vocali").select("*").eq("partita_id", partitaId);
+    expect(righeCarla).toEqual([]);
+    const { data: fileCarla } = await carla.client.storage.from("vocali").download(arrivati[0]!.percorso);
+    expect(fileCarla).toBeNull();
+    expect(await carla.chiedi({ azione: "vocale", partitaId, audio, tipo: "audio/webm", durataMs: 1500 })).toMatchObject({ ok: false });
+    // I browser non possono scrivere direttamente: né la tabella né i file
+    const { error: erroreScrittura } = await anna.client.from("vocali").insert({ partita_id: partitaId, utente_id: anna.id, percorso: "x", durata_ms: 1000 });
+    expect(erroreScrittura).not.toBeNull();
+    const { error: erroreFile } = await anna.client.storage.from("vocali").upload(`${partitaId}/furbo.webm`, new Blob(["x"]), { contentType: "audio/webm" });
+    expect(erroreFile).not.toBeNull();
+  });
+
   it("modalità di prova: le partite contro il computer riusano gli stessi robot", async () => {
     const robotDi = async (g: Giocatore, partitaId: string) => {
       const { data } = await g.client.from("giocatori_partita").select("utente_id, bot").eq("partita_id", partitaId);

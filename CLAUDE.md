@@ -63,6 +63,10 @@ In corso: Fase 2 – Prototipo web, piano in `docs/fase-2.md` (passi 1–5 fatti
 arbitro in `packages/server` + `supabase/functions/arbitro`).
 Supabase di prova: progetto `vxkcinfkbsextubabibe` (eu-west-1), collegato con la CLI. Accesso anonimo attivo.
 I browser non scrivono mai nel database: scrive solo l'arbitro (Edge Function). `stati_partita` e `mosse` non sono leggibili dai browser.
+Vocali in partita (solo tra persone): il browser registra (max 20 s) e manda il file all'arbitro (azione `vocale`), che lo salva
+nello spazio privato `vocali` (cartella = id partita) e nella tabella `vocali`; gli altri giocatori lo ricevono in tempo reale
+e parte da solo (`apps/web/src/lib/vocali.ts`, `giochi/primo-gioco/Vocali.tsx`). I vocali più vecchi di un giorno si cancellano.
+Partite contro il computer: i robot muovono una mossa ogni 3 secondi, su richiesta del browser (azione `turnoComputer`).
 
 Sito online: https://online-gaming.onrender.com/
 

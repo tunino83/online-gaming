@@ -24,6 +24,7 @@ import { PanoramicaTavolo } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, MiniCartaVirtuale, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
 import { TUTTI_I_PERSONAGGI } from "./Catalogo";
+import { AvvisoVocale, PulsanteVocale } from "./Vocali";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 
 /** Altezza (in pixel) di un elemento, aggiornata quando cambia: serve a non far finire il tavolo sotto le barre fisse. */
@@ -219,6 +220,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
   // Partite di prova: quando tocca a un giocatore del computer, gli si chiede una mossa ogni 3 secondi
   const [tentativoBot, setTentativoBot] = useState(0);
+  // Vocali solo se in partita c'è almeno un'altra persona (non contro il computer)
+  const conPersone = giocatori.filter((g) => !g.bot && g.utente_id !== io).length > 0;
   const turnoDelComputer = !!riga && !riga.vista.finita && giocatori.some((g) => g.bot && g.utente_id === riga.vista.turno.giocatore);
   useEffect(() => {
     if (!turnoDelComputer) return;
@@ -385,6 +388,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                   : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
             </div>
             {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-[10px] font-bold text-white">Ultimo giro</span>}
+            {conPersone && <PulsanteVocale partitaId={partita.id} />}
             <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
               <Users size={17} />
             </BottoneIcona>
@@ -479,6 +483,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
       {/* ---------------- centro: il panno ---------------- */}
       <div className="relative space-y-3" style={{ paddingTop: altezzaAlta + 8, paddingBottom: altezzaBassa + 8 }}>
+        {conPersone && <AvvisoVocale partitaId={partita.id} io={io} nick={nick} />}
         {fumetto && (
           <div key={fumetto.chiave} className="fumetto pointer-events-none absolute inset-x-0 z-20 flex justify-center" style={{ top: altezzaAlta + 4 }}>
             <span className="rounded-full border border-oro/60 bg-notte/95 px-3 py-1 text-xs font-semibold text-luce shadow-lg">

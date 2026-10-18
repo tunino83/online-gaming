@@ -82,7 +82,16 @@ export interface Archivio {
     statoPartita: "in_corso" | "finita";
     esito: unknown | null;
   }): Promise<number>;
+  /** Salva un messaggio vocale (file audio + avviso per gli altri giocatori); restituisce il suo id. */
+  salvaVocale(p: { partitaId: string; utente: string; dati: Uint8Array; tipo: TipoAudio; durataMs: number }): Promise<string>;
 }
+
+/** Formati audio accettati per i vocali (quelli che registrano i browser). */
+export const TIPI_AUDIO = ["audio/mp4", "audio/webm", "audio/ogg", "audio/mpeg", "audio/aac"] as const;
+export type TipoAudio = (typeof TIPI_AUDIO)[number];
+/** Limiti dei vocali: durata massima (con un po' di margine sui 20 secondi) e dimensione del file. */
+export const VOCALE_MAX_MS = 21000;
+export const VOCALE_MAX_BYTE = 400_000;
 
 /* ------------------------------------------------------------------ */
 /* Richieste e risposte                                                */
@@ -140,6 +149,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await mossa(richiesta, utente, archivio, amb);
       case "turnoComputer":
         return await turnoComputer(richiesta, utente, archivio, amb);
+      case "vocale":
+        return await vocale(richiesta, utente, archivio);
       default:
         return errore("Azione sconosciuta");
     }
@@ -162,6 +173,39 @@ async function controComputer(r: Record<string, unknown>, utente: string, archiv
   }
   const avviata = await avvia({ partitaId }, utente, archivio, amb);
   return avviata.ok ? { ok: true, partitaId } : avviata;
+}
+
+/** Converte il testo base64 in byte; null se non è base64 valido. */
+function daBase64(testo: string): Uint8Array | null {
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(testo) || testo.length % 4 !== 0) return null;
+  try {
+    return Uint8Array.from(atob(testo), (c) => c.charCodeAt(0));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Messaggio vocale per gli altri giocatori della partita.
+ * Richiesta: { partitaId, audio (base64), tipo (es. "audio/webm;codecs=opus"), durataMs }.
+ */
+async function vocale(r: Record<string, unknown>, utente: string, archivio: Archivio): Promise<Risposta> {
+  if (!idValido(r.partitaId)) return errore("Partita non trovata");
+  const p = await archivio.leggiPartita(r.partitaId);
+  if (!p || !p.giocatori.some((x) => x.utenteId === utente && !x.bot)) return errore("Partita non trovata");
+  if (p.stato === "finita") return errore("La partita è finita");
+  const tipo = typeof r.tipo === "string" ? r.tipo.split(";")[0]!.trim().toLowerCase() : "";
+  if (!(TIPI_AUDIO as readonly string[]).includes(tipo)) return errore("Formato audio non supportato");
+  const durata = r.durataMs;
+  if (typeof durata !== "number" || !Number.isFinite(durata) || durata < 200 || durata > VOCALE_MAX_MS) {
+    return errore("Il vocale deve durare da mezzo secondo a 20 secondi");
+  }
+  if (typeof r.audio !== "string" || r.audio.length > Math.ceil(VOCALE_MAX_BYTE / 3) * 4) return errore("Vocale troppo grande");
+  const dati = daBase64(r.audio);
+  if (!dati || dati.length === 0) return errore("Vocale non valido");
+  if (dati.length > VOCALE_MAX_BYTE) return errore("Vocale troppo grande");
+  const id = await archivio.salvaVocale({ partitaId: p.id, utente, dati, tipo: tipo as TipoAudio, durataMs: Math.round(durata) });
+  return { ok: true, id };
 }
 
 /**

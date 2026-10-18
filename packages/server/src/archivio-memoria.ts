@@ -9,10 +9,11 @@ export interface DatiMemoria {
   stati: Map<string, { stato: unknown; versione: number }>;
   viste: Map<string, { vista: unknown; mosse_valide: unknown[]; versione: number }>;
   mosse: { partitaId: string; numero: number; utente: string; mossa: unknown }[];
+  vocali: { id: string; partitaId: string; utente: string; byte: number; tipo: string; durataMs: number }[];
 }
 
 export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
-  const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [] };
+  const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [], vocali: [] };
   let contatore = 0;
   const copia = <T>(x: T): T => structuredClone(x);
 
@@ -58,6 +59,11 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
     async leggiStato(id) {
       const s = dati.stati.get(id);
       return s ? copia(s) : null;
+    },
+    async salvaVocale(p) {
+      const id = `vocale-${dati.vocali.length + 1}`;
+      dati.vocali.push({ id, partitaId: p.partitaId, utente: p.utente, byte: p.dati.length, tipo: p.tipo, durataMs: p.durataMs });
+      return id;
     },
     async salva(p) {
       const partita = dati.partite.get(p.partitaId)!;

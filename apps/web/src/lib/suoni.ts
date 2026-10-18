@@ -51,6 +51,49 @@ function audio(): AudioContext | null {
   }
 }
 
+// I browser fanno partire l'audio solo dopo un tocco: al primo tocco sulla pagina si "sblocca",
+// così poi i vocali in arrivo possono partire da soli.
+if (typeof document !== "undefined") {
+  const sblocca = () => {
+    audio();
+    document.removeEventListener("pointerdown", sblocca);
+    document.removeEventListener("keydown", sblocca);
+  };
+  document.addEventListener("pointerdown", sblocca);
+  document.addEventListener("keydown", sblocca);
+}
+
+/**
+ * Fa sentire un file audio (es. un vocale). Restituisce false se non è partito
+ * (suoni spenti o audio bloccato dal browser): allora serve un tocco su "ascolta".
+ */
+export async function riproduci(file: Blob, forza = false): Promise<boolean> {
+  if (!attivi && !forza) return false;
+  try {
+    contesto ??= new AudioContext();
+    if (contesto.state === "suspended") await contesto.resume();
+    if (contesto.state === "running") {
+      const suono = await contesto.decodeAudioData(await file.arrayBuffer());
+      const sorgente = contesto.createBufferSource();
+      sorgente.buffer = suono;
+      sorgente.connect(contesto.destination);
+      sorgente.start();
+      return true;
+    }
+  } catch {
+    // formato che il browser non sa decodificare così: si prova con un normale lettore audio
+  }
+  try {
+    const url = URL.createObjectURL(file);
+    const lettore = new Audio(url);
+    lettore.onended = () => URL.revokeObjectURL(url);
+    await lettore.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Una nota breve: frequenza (Hz), inizio e durata (secondi), volume. */
 function nota(ctx: AudioContext, frequenza: number, inizio: number, durata: number, volume: number, forma: OscillatorType = "sine") {
   const osc = ctx.createOscillator();
