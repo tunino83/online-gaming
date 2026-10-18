@@ -234,7 +234,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           </div>
           {suggerimento && <p className="mt-1 text-xs font-semibold text-blu">{suggerimento}</p>}
           {avversari.length > 1 && (
-            <div className="mt-2 flex items-center gap-2 overflow-x-auto">
+            <div className="mt-1 flex items-center gap-2 overflow-x-auto overflow-y-hidden px-1 py-1">
               {avversari.map((id) => (
                 <button
                   key={id}
@@ -532,15 +532,7 @@ function Avversario({
   const larghezza = largo ? 80 : 66;
   return (
     <div className={`${largo ? "" : "mt-2 rounded-xl bg-white/70 p-2"} ${diTurno ? "ring-2 ring-blu" : ""}`}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex min-w-0 items-center gap-2">
-          <CerchioAvatar id={avatarId} dimensione={28} />
-          <span className="truncate font-titolo font-bold">{nome}</span>
-          {diTurno && <span className="shrink-0 rounded-full bg-blu px-2 py-0.5 text-[10px] font-bold text-white">sta giocando</span>}
-        </span>
-        <span className="shrink-0 rounded-full bg-inchiostro px-2 py-0.5 text-xs font-bold text-carta">{g.punti} punti</span>
-      </div>
-      <div className="mt-1 flex items-end gap-3">
+      <div className="flex items-center gap-3">
         <div className="flex gap-1">
           {g.posti.map((c) => (
             <CartaPersonaggioGrafica
@@ -557,17 +549,25 @@ function Avversario({
             <PostoVuoto key={i} larghezza={larghezza} />
           ))}
         </div>
+        {/* a destra: chi è, punti, mano, diamanti */}
         <div className="min-w-0 flex-1 space-y-1 text-xs">
+          <div className="flex items-center gap-1.5">
+            <CerchioAvatar id={avatarId} dimensione={30} />
+            <span className="min-w-0 truncate font-titolo text-sm font-bold">{nome}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            <span className="rounded-full bg-inchiostro px-2 py-0.5 font-bold text-carta">{g.punti} punti</span>
+            {diTurno && <span className="rounded-full bg-blu px-2 py-0.5 text-[10px] font-bold text-white">sta giocando</span>}
+          </div>
           <div className="flex items-center gap-1">
             <span className="inline-flex">
               {Array.from({ length: Math.min(g.carteInMano, 8) }, (_, i) => (
-                <span key={i} className="-ml-2 first:ml-0 inline-block h-7 w-5 rounded-sm border border-[#b8892b] bg-gradient-to-br from-[#1f4f8f] to-[#14213d] shadow-sm" />
+                <span key={i} className="-ml-2 first:ml-0 inline-block h-6 w-4 rounded-sm border border-[#b8892b] bg-gradient-to-br from-[#1f4f8f] to-[#14213d] shadow-sm" />
               ))}
             </span>
             <span className="font-semibold">{g.carteInMano} in mano</span>
           </div>
           {g.diamanti.length > 0 && <Diamanti diamanti={g.diamanti} />}
-          {g.attivati.length > 0 && <span className="text-tenue">{g.attivati.length} attivati (sotto)</span>}
         </div>
       </div>
     </div>
@@ -686,14 +686,7 @@ function BarraMieCarte({
   return (
     <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
       <div className="mx-auto max-w-md px-3 pt-1 pb-[max(8px,env(safe-area-inset-bottom))]">
-        <div className="flex items-center justify-between text-xs font-semibold text-tenue">
-          <span className="flex items-center gap-1.5">
-            <CerchioAvatar id={avatarId} dimensione={22} />
-            Tu · Mano {v.mano.length}/{v.limiteMano}
-          </span>
-          <span className="rounded-full bg-inchiostro px-2 py-0.5 text-carta">{mio.punti} punti</span>
-        </div>
-        <div className="flex items-end gap-3">
+        <div className="flex items-center gap-2">
           <div className="flex shrink-0 gap-1.5 pt-2">
             {mio.posti.map((c) => (
               <CartaPersonaggioGrafica
@@ -726,6 +719,13 @@ function BarraMieCarte({
                   />
                 ))}
             </div>
+          </div>
+          <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[11px] font-semibold text-tenue">
+            <CerchioAvatar id={avatarId} dimensione={34} />
+            <span className="rounded-full bg-inchiostro px-1.5 py-0.5 text-carta">{mio.punti} pt</span>
+            <span>
+              Mano {v.mano.length}/{v.limiteMano}
+            </span>
           </div>
         </div>
         {mio.diamanti.length > 0 && (
