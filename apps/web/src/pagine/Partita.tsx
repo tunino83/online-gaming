@@ -78,7 +78,7 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
     <Pagina>
       <Riquadro titolo="Stanza d'attesa">
         <p className="-mt-2 text-sm text-tenue">Invita gli amici con questo link (vale finché la partita non parte):</p>
-        <div className="my-3 rounded-xl bg-sfondo p-3 text-center">
+        <div className="my-3 rounded-xl border border-oro/50 bg-white/60 p-3 text-center">
           <div className="font-titolo text-3xl font-bold tracking-[0.3em]">{partita.codice}</div>
           <div className="mt-1 break-all text-xs text-tenue select-all">{link}</div>
         </div>
@@ -95,7 +95,7 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
       </Riquadro>
 
       <Riquadro titolo={`Giocatori (${giocatori.length}/${partita.max_giocatori})`}>
-        <ListaGiocatori giocatori={giocatori} io={io} creatore={partita.creatore} />
+        <TavoloAttesa giocatori={giocatori} posti={partita.max_giocatori} io={io} creatore={partita.creatore} />
         <p className="mt-3 text-xs text-tenue">Punti per vincere: {partita.opzioni.puntiPerVincere ?? 15}</p>
       </Riquadro>
 
@@ -105,13 +105,52 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
           {giocatori.length < 2 ? "Aspetta almeno un altro giocatore" : avvio ? "Avvio…" : "Avvia la partita"}
         </Pulsante>
       ) : (
-        <p className="text-center text-sm text-tenue">In attesa che {nomeCreatore} avvii la partita…</p>
+        <p className="text-center text-sm text-luce/80">In attesa che {nomeCreatore} avvii la partita…</p>
       )}
     </Pagina>
   );
 }
 
-function ListaGiocatori({ giocatori, io, creatore }: { giocatori: GiocatorePartita[]; io: string; creatore: string }) {
+/** Stanza d'attesa: i giocatori seduti attorno a un tavolo rotondo; i posti liberi restano vuoti. */
+function TavoloAttesa({ giocatori, posti, io, creatore }: { giocatori: GiocatorePartita[]; posti: number; io: string; creatore: string }) {
+  const raggio = 42; // in percentuale del riquadro
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-72">
+      <div className="panno absolute inset-[22%] grid place-items-center rounded-full">
+        <span className="font-titolo text-sm font-bold text-oro-chiaro/80">Tavolo</span>
+      </div>
+      {Array.from({ length: posti }, (_, i) => {
+        const angolo = -Math.PI / 2 + (i * 2 * Math.PI) / posti;
+        const g = giocatori[i];
+        return (
+          <div
+            key={i}
+            className="absolute flex w-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center"
+            style={{ left: `${50 + raggio * Math.cos(angolo)}%`, top: `${50 + raggio * Math.sin(angolo)}%` }}
+          >
+            {g ? (
+              <>
+                <CerchioAvatar id={g.avatar} dimensione={44} />
+                <span className="mt-0.5 max-w-20 truncate text-xs font-bold">
+                  {g.nickname}
+                  {g.utente_id === io && " (tu)"}
+                </span>
+                {g.utente_id === creatore && <span className="rounded bg-oro px-1.5 text-[10px] font-bold text-notte">crea</span>}
+              </>
+            ) : (
+              <>
+                <span className="grid h-11 w-11 place-items-center rounded-full border-2 border-dashed border-inchiostro/30 text-lg text-tenue">+</span>
+                <span className="mt-0.5 text-[10px] text-tenue">libero</span>
+              </>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ListaGiocatori({ giocatori, io, creatore }: { giocatori: GiocatorePartita[]; io: string; creatore: string }) {
   return (
     <ul className="divide-y divide-inchiostro/10">
       {giocatori.map((g) => (

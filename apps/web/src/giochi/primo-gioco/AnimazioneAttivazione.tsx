@@ -62,7 +62,7 @@ export function AnimazioneAttivazione({
             style={{ "--x": `${s.x}px`, animationDelay: `${0.3 + s.ritardo}s`, width: s.dimensione, height: s.dimensione } as CSSProperties}
           />
         ))}
-        <p className="magia-testo mt-4 rounded-full bg-white px-5 py-2 text-center font-titolo text-lg font-bold shadow-lg">
+        <p className="magia-testo mt-4 rounded-full bg-white text-inchiostro px-5 py-2 text-center font-titolo text-lg font-bold shadow-lg">
           {chi} {p.nome}!{" "}
           <span className="rounded-full px-2 py-0.5 text-base text-white" style={{ background: colore }}>
             +{evento.punti}

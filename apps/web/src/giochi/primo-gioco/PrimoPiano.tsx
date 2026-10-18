@@ -21,7 +21,7 @@ export function PrimoPiano({ carta, titolo, onChiudi }: { carta: CartaDaMostrare
   return (
     <div className="velo" onClick={onChiudi} role="dialog" aria-modal="true" aria-label={titolo ?? p?.nome ?? "Carta"}>
       <div className="flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-        {titolo && <p className="rounded-full bg-white px-5 py-1.5 font-titolo text-xl font-bold shadow">{titolo}</p>}
+        {titolo && <p className="rounded-full border-2 border-oro bg-notte px-5 py-1.5 font-titolo text-xl font-bold text-oro-chiaro shadow">{titolo}</p>}
         <div className="gira">
           {carta.tipo === "personaggio" ? (
             <CartaPersonaggioGrafica id={carta.id} larghezza={larghezza} />
@@ -30,7 +30,7 @@ export function PrimoPiano({ carta, titolo, onChiudi }: { carta: CartaDaMostrare
           )}
         </div>
         {p && <p className="max-w-[320px] text-center font-titolo text-lg font-bold text-white drop-shadow">{p.nome}</p>}
-        <button type="button" onClick={onChiudi} className="rounded-xl bg-white px-8 py-2.5 font-semibold shadow">
+        <button type="button" onClick={onChiudi} className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-8 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518]">
           OK
         </button>
       </div>

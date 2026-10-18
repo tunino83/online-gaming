@@ -1,19 +1,22 @@
 /**
- * Schermata di gioco del primo gioco.
- * - In alto (fisso): di chi è il turno, suoni e, in 2 giocatori, le carte dell'avversario.
- * - Al centro: il tavolo (mazzi coperti accanto alle carte scoperte), azioni gratuite, ultime mosse.
- * - In basso (fisso): i propri posti, la propria mano, i diamanti e la chiusura del turno.
+ * Schermata di gioco del primo gioco, disegnata come un tavolo da gioco.
+ * - In alto (fisso): stato del turno, pulsanti (Tavolo, Storico, Regole, Suoni), avversari ad arco
+ *   con l'anello dei punti e i personaggi dell'avversario scelto (o di chi sta giocando).
+ * - Al centro: il panno con mazzi e carte scoperte; fumetto con l'ultima mossa degli altri.
+ * - In basso (fisso): i miei posti, i miei poteri blu, la mia mano a ventaglio, diamanti e fine turno.
  * Si tocca una carta per prenderla, un mazzo per pescare, un proprio personaggio per attivarlo.
  * Le mosse possibili le calcola sempre il server.
  */
 import { type CartaDiamante, type CartaPersonaggio, type Evento, type Mossa, type VistaGiocatore, personaggio } from "@og/primo-gioco";
-import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { CerchioAvatar } from "../../Avatar";
+import { BookOpen, Flame, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { type CSSProperties, type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { AvatarPunti } from "../../Avatar";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
+import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
 import { PanoramicaTavolo } from "./PanoramicaTavolo";
@@ -35,36 +38,72 @@ function useAltezza(ref: RefObject<HTMLElement>): number {
   return altezza;
 }
 
-/** Eventi da mostrare in "Ultime mosse": si salta il semplice "ha chiuso il turno". */
+/** Larghezza disponibile di un elemento (per la mano a ventaglio). */
+function useLarghezza(ref: RefObject<HTMLElement>): number {
+  const [larghezza, setLarghezza] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const osserva = new ResizeObserver(() => setLarghezza(el.clientWidth));
+    osserva.observe(el);
+    setLarghezza(el.clientWidth);
+    return () => osserva.disconnect();
+  }, [ref]);
+  return larghezza;
+}
+
+/** Schermo largo (tablet, computer, telefono in orizzontale): carte un po' più grandi. */
+function useSchermoLargo(): boolean {
+  const [largo, setLargo] = useState(() => window.matchMedia("(min-width: 768px)").matches);
+  useEffect(() => {
+    const m = window.matchMedia("(min-width: 768px)");
+    const cambia = () => setLargo(m.matches);
+    m.addEventListener("change", cambia);
+    return () => m.removeEventListener("change", cambia);
+  }, []);
+  return largo;
+}
+
+/** Eventi da raccontare: si salta il semplice "ha chiuso il turno". */
 const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 0 && !e.cambiaMano);
+
+type Attivazione = Extract<Evento, { tipo: "attiva" }>;
 
 export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
   const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
   const [invio, setInvio] = useState(false);
   // Dopo una mossa riuscita i comandi restano spenti finché non arriva la situazione aggiornata
-  // (versione più nuova di questa), così non si può toccare una mossa ormai vecchia.
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
   const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string } | null>(null);
-  // Carte della mano scelte per lo scarto di fine turno (si azzerano a ogni aggiornamento)
   const [daScartare, setDaScartare] = useState<string[]>([]);
-  // Personaggio (id carta) di cui è aperto il pannello di attivazione
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
+  const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | null>(null);
   const [registroAperto, setRegistroAperto] = useState(false);
-  const [tavoloAperto, setTavoloAperto] = useState(false);
-  // Turno in cui si è risposto "No" al popup di Biancaneve (per non riproporlo)
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
-  // Turno in cui si è risposto "No" al popup del fulmine
   const [fulmineNo, setFulmineNo] = useState<number | null>(null);
-  // Avversario scelto da guardare nella barra in alto (si azzera quando cambia il turno)
   const [avversarioScelto, setAvversarioScelto] = useState<string | null>(null);
-  const turnoDi = riga?.vista.turno.giocatore;
-  useEffect(() => setAvversarioScelto(null), [turnoDi]);
+  const [banner, setBanner] = useState<number | null>(null);
+  const [fumetto, setFumetto] = useState<{ testo: string; chiave: number } | null>(null);
+  const [codaAttivazioni, setCodaAttivazioni] = useState<Attivazione[]>([]);
   const inizioSwipe = useRef<number | null>(null);
+  const largo = useSchermoLargo();
+
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
+  const turnoDi = riga?.vista.turno.giocatore;
+  useEffect(() => setAvversarioScelto(null), [turnoDi]);
 
-  // Pesca in corso: quali carte avevo prima, per mostrare quella nuova appena arriva la vista aggiornata
+  const nick = useMemo(() => {
+    const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
+    return (id: string) => m.get(id) ?? "?";
+  }, [giocatori]);
+  const avatarDi = useMemo(() => {
+    const m = new Map(giocatori.map((g) => [g.utente_id, g.avatar]));
+    return (id: string) => m.get(id);
+  }, [giocatori]);
+
+  // Carta pescata in primo piano
   const pescaInCorso = useRef<{ tipo: "numero" | "personaggio"; versione: number; prima: Set<string> } | null>(null);
   useEffect(() => {
     const pesca = pescaInCorso.current;
@@ -79,25 +118,53 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     }
   }, [riga, io]);
 
-  // Animazioni di attivazione: le nuove voci "attiva" del registro vanno in coda, una alla volta
-  const [codaAttivazioni, setCodaAttivazioni] = useState<Extract<Evento, { tipo: "attiva" }>[]>([]);
+  // Carta presa dal tavolo: "vola" dal tavolo alla mano (o ai posti)
+  const voloInCorso = useRef<{ versione: number; da: DOMRect; prima: Set<string>; dove: "mano" | "posti" } | null>(null);
+  useLayoutEffect(() => {
+    const volo = voloInCorso.current;
+    if (!riga || !volo || riga.versione <= volo.versione) return;
+    voloInCorso.current = null;
+    const carte = volo.dove === "mano" ? riga.vista.mano : (riga.vista.giocatori[io]?.posti ?? []);
+    const nuova = carte.find((c) => !volo.prima.has(c.id));
+    const el = nuova && document.querySelector<HTMLElement>(`[data-carta-id="${nuova.id}"]`);
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const arrivo = el.getBoundingClientRect();
+    const dx = volo.da.left + volo.da.width / 2 - (arrivo.left + arrivo.width / 2);
+    const dy = volo.da.top + volo.da.height / 2 - (arrivo.top + arrivo.height / 2);
+    const scala = volo.da.width / Math.max(1, arrivo.width);
+    el.animate(
+      [
+        { transform: `translate(${dx}px, ${dy}px) scale(${scala})`, zIndex: 70 },
+        { transform: "translate(0, 0) scale(1)", zIndex: 70 },
+      ],
+      { duration: 520, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
+    );
+  }, [riga, io]);
+
+  // Registro: animazioni di attivazione (tutti) e fumetto con l'ultima mossa degli altri
   const ultimoEvento = useRef<number | null>(null);
   useEffect(() => {
-    const registro = riga?.vista.registro ?? [];
     if (!riga) return;
+    const registro = riga.vista.registro ?? [];
     const ultimo = registro.at(-1)?.n ?? 0;
     if (ultimoEvento.current === null) {
       ultimoEvento.current = ultimo; // primo caricamento: niente animazioni per il passato
       return;
     }
-    const nuove = registro.filter(
-      (e): e is Extract<Evento, { tipo: "attiva" }> => e.n > ultimoEvento.current! && e.tipo === "attiva",
-    );
+    const nuovi = registro.filter((e) => e.n > ultimoEvento.current!);
     ultimoEvento.current = Math.max(ultimoEvento.current, ultimo);
-    if (nuove.length > 0) setCodaAttivazioni((c) => [...c, ...nuove]);
-  }, [riga]);
+    const attivazioni = nuovi.filter((e): e is Attivazione => e.tipo === "attiva");
+    if (attivazioni.length > 0) setCodaAttivazioni((c) => [...c, ...attivazioni]);
+    const ultimoAltrui = [...nuovi].reverse().find((e) => e.giocatore !== io && significativo(e) && e.tipo !== "attiva");
+    if (ultimoAltrui) setFumetto({ testo: descriviEvento(ultimoAltrui, nick, io), chiave: ultimoAltrui.n });
+  }, [riga, io, nick]);
+  useEffect(() => {
+    if (!fumetto) return;
+    const t = setTimeout(() => setFumetto(null), 3600);
+    return () => clearTimeout(t);
+  }, [fumetto]);
 
-  // Suoni: "tic" a ogni mossa, melodia quando diventa il mio turno
+  // Suoni e banner: "tic" a ogni mossa, melodia e "Tocca a te!" quando diventa il mio turno
   const suoni = useSuoniAttivi();
   const precedente = useRef<{ versione: number; turnoDi: string } | null>(null);
   useEffect(() => {
@@ -105,24 +172,22 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     const ora = { versione: riga.versione, turnoDi: riga.vista.turno.giocatore };
     const prima = precedente.current;
     precedente.current = ora;
-    if (!prima || ora.versione <= prima.versione) return; // primo caricamento o nulla di nuovo
-    if (ora.turnoDi === io && prima.turnoDi !== io && !riga.vista.finita) suonoTuoTurno();
-    else suonoMossa();
+    if (!prima || ora.versione <= prima.versione) return;
+    if (ora.turnoDi === io && prima.turnoDi !== io && !riga.vista.finita) {
+      suonoTuoTurno();
+      setBanner(Date.now());
+    } else suonoMossa();
   }, [riga, io]);
+  useEffect(() => {
+    if (!banner) return;
+    const t = setTimeout(() => setBanner(null), 1800);
+    return () => clearTimeout(t);
+  }, [banner]);
 
   const barraAlta = useRef<HTMLDivElement>(null);
   const barraBassa = useRef<HTMLDivElement>(null);
   const altezzaAlta = useAltezza(barraAlta);
   const altezzaBassa = useAltezza(barraBassa);
-
-  const nick = useMemo(() => {
-    const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
-    return (id: string) => m.get(id) ?? "?";
-  }, [giocatori]);
-  const avatarDi = useMemo(() => {
-    const m = new Map(giocatori.map((g) => [g.utente_id, g.avatar]));
-    return (id: string) => m.get(id);
-  }, [giocatori]);
 
   if (erroreLettura) return <Errore testo={erroreLettura} />;
   if (!riga) return <Caricamento testo="Preparo il tavolo…" />;
@@ -130,13 +195,12 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Le viste salvate prima dell'arrivo del registro non lo contengono
   const v: VistaGiocatore = { ...riga.vista, registro: riga.vista.registro ?? [] };
   const carte = raccogliCarte(v);
+  const traguardo = partita.opzioni.puntiPerVincere ?? 15;
   const mioTurno = v.turno.giocatore === io && !v.finita;
   const bloccato = invio || (aspettoOltre !== null && riga.versione <= aspettoOltre);
   const mosse = mioTurno ? riga.mosse_valide : [];
-  // Avversari nell'ordine di gioco a partire da chi viene dopo di me
   const mioPosto = v.ordine.indexOf(io);
   const avversari = [...v.ordine.slice(mioPosto + 1), ...v.ordine.slice(0, mioPosto)];
-  // In alto: l'avversario scelto, altrimenti chi sta giocando, altrimenti il prossimo
   const mostrato =
     (avversarioScelto && avversari.includes(avversarioScelto) && avversarioScelto) ||
     (avversari.includes(v.turno.giocatore) ? v.turno.giocatore : avversari[0]!);
@@ -155,28 +219,34 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       const prima = numero ? riga!.vista.mano : (riga!.vista.giocatori[io]?.posti ?? []);
       pescaInCorso.current = { tipo: numero ? "numero" : "personaggio", versione: riga!.versione, prima: new Set(prima.map((c) => c.id)) };
     }
+    if (mossa.tipo === "prendiNumero" || mossa.tipo === "prendiPersonaggio") {
+      const numero = mossa.tipo === "prendiNumero";
+      const da = document.querySelector(`[data-tavolo="${numero ? "n" : "p"}${mossa.posizione}"]`)?.getBoundingClientRect();
+      const prima = numero ? riga!.vista.mano : (riga!.vista.giocatori[io]?.posti ?? []);
+      if (da) voloInCorso.current = { versione: riga!.versione, da, prima: new Set(prima.map((c) => c.id)), dove: numero ? "mano" : "posti" };
+    }
     const r = await chiediArbitro({ azione: "mossa", partitaId: partita.id, mossa });
     setInvio(false);
     if (r.ok) {
-      ricarica(); // non aspettiamo solo il tempo reale: rileggiamo subito
+      ricarica();
     } else {
       setAspettoOltre(null);
       pescaInCorso.current = null;
+      voloInCorso.current = null;
       setErrore(r.errore);
     }
   }
 
-  /** Funzione da chiamare toccando qualcosa, se quella mossa è possibile ora. */
   const seValida = (cerca: (m: Mossa) => boolean) => {
     const m = mosse.find(cerca);
     return m ? () => gioca(m) : undefined;
   };
   const ingrandisci = (c: CartaPersonaggio) => () => setPrimoPiano({ carta: { tipo: "personaggio", id: c.personaggio } });
 
-  // Azioni gratuite (fulmine, Biancaneve, Cappellaio): l'unico elenco di pulsanti rimasto
+  // Azioni gratuite (fulmine, Biancaneve, Cappellaio): pulsanti dorati sul panno
   const gratuite = mosse.filter((m) => gruppoMossa(m) === "gratis");
 
-  // Fine turno: si toccano le carte da scartare (se troppe), poi "Chiudi il turno"
+  // Fine turno
   const puoChiudere = mosse.some((m) => m.tipo === "fineTurno");
   const conScheletro = mosse.some((m) => m.tipo === "fineTurno" && m.cambiaMano);
   const eccesso = Math.max(0, v.mano.length - v.limiteMano);
@@ -186,10 +256,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     setDaScartare((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < eccesso ? [...s, id] : s));
   const chiudiTurno = (cambiaMano: boolean) => gioca({ tipo: "fineTurno", scarta: daScartare, cambiaMano });
 
+  // Attivazioni
   const proposteAttivazione = (idCarta: string) =>
     mosse.filter((m): m is Extract<Mossa, { tipo: "attiva" }> => m.tipo === "attiva" && m.carta === idCarta);
-  const apriAttivazione = (c: CartaPersonaggio) =>
-    proposteAttivazione(c.id).length > 0 ? () => setDaAttivare(c.id) : undefined;
+  const apriAttivazione = (c: CartaPersonaggio) => (proposteAttivazione(c.id).length > 0 ? () => setDaAttivare(c.id) : undefined);
   const cartaDaAttivare = daAttivare
     ? Object.values(v.giocatori)
         .flatMap((g) => g.posti)
@@ -197,7 +267,6 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     : undefined;
 
   const attesa = mioTurno ? v.turno.attesa : null;
-  // Solo i suggerimenti davvero utili (niente testo fisso che occupa spazio)
   const suggerimento =
     attesa?.tipo === "scartaPersonaggio"
       ? "Hai 3 personaggi: tocca in basso quello da scartare (non il nuovo)"
@@ -210,43 +279,39 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             : null;
   const brucia = seValida((m) => m.tipo === "brucia");
   const bruciaGratis = seValida((m) => m.tipo === "bruciaGratis");
-  const toccaPostoAltrui = (c: CartaPersonaggio) => apriAttivazione(c); // Lucciola di un vicino
 
-  // Biancaneve a fine turno: finite le mosse, se c'è un 2 in mano si chiede se scambiarlo
+  // Popup di fine mosse: prima il fulmine, poi Biancaneve
   const scambioDue = mosse.find((m) => m.tipo === "dueInDiamante");
   const giocaFulmine = mosse.find((m) => m.tipo === "giocaFulmine");
   const mosseFinite = mioTurno && v.turno.mosseRimaste === 0 && !attesa;
-  // Finite le mosse: prima si chiede del fulmine, poi di Biancaneve
   const popupFulmine = !!giocaFulmine && mosseFinite && fulmineNo !== v.numeroTurno;
   const popupBiancaneve = !popupFulmine && !!scambioDue && mosseFinite && biancaneveNo !== v.numeroTurno;
-  /** Dopo un "No": si chiude il turno se non resta nient'altro da decidere. */
+  const quantiDue = v.mano.filter((c) => c.valore === 2).length;
   const chiudiSeNienteAltro = (restaBiancaneve: boolean) => {
     if (puoChiudere && eccesso === 0 && !conScheletro && !restaBiancaneve) chiudiTurno(false);
   };
-  const rispondiNoFulmine = () => {
-    setFulmineNo(v.numeroTurno);
-    chiudiSeNienteAltro(!!scambioDue && biancaneveNo !== v.numeroTurno);
-  };
-  const quantiDue = v.mano.filter((c) => c.valore === 2).length;
-  const rispondiNoBiancaneve = () => {
-    setBiancaneveNo(v.numeroTurno);
-    // Se non resta nient'altro da decidere, il turno si chiude
-    chiudiSeNienteAltro(false);
-  };
+  const nessunPannello = !cartaDaAttivare && !primoPiano && !codaAttivazioni[0] && !foglio;
 
-  // Ultime mosse: chiuse = le ultime 3; aperte = le ultime 3 di ogni giocatore
+  // Registro: ultime 3 o le ultime 3 di ogni giocatore
   const eventi = v.registro.filter(significativo);
-  const ultime = [...eventi].reverse().slice(0, 3);
+
+  const larghezzaPosto = largo ? 72 : 58;
+  const larghezzaNumero = largo ? 64 : 52;
+  const larghezzaPersonaggio = largo ? 140 : 112;
 
   return (
     <>
       {/* ---------------- barra in alto ---------------- */}
-      <div ref={barraAlta} className="fixed inset-x-0 top-0 z-30 border-b-4 border-blu bg-carta/95 shadow-[0_4px_14px_rgba(0,0,0,0.15)] backdrop-blur">
-        <div className="mx-auto max-w-md px-3 pt-2 pb-2">
-          <div className="flex items-center gap-2">
+      <div ref={barraAlta} className="fixed inset-x-0 top-0 z-30 border-b-2 border-oro/60 bg-notte/90 shadow-[0_6px_20px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div className="mx-auto max-w-md px-3 pt-2 pb-2 md:max-w-2xl">
+          <div className="flex items-center gap-1.5">
             <div
-              className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 text-sm font-bold ${
-                v.finita ? "bg-oro text-white" : mioTurno ? "bg-blu text-white" : "bg-white"
+              className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 font-titolo text-sm font-bold ${
+                v.finita
+                  ? "bg-oro text-notte"
+                  : mioTurno
+                    ? "bg-gradient-to-r from-[#e3c06a] to-[#b8892b] text-[#2b1a05]"
+                    : "border border-oro/40 text-luce"
               }`}
             >
               {v.finita
@@ -255,45 +320,55 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                   ? `Tocca a te · ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}`
                   : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
             </div>
-            {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-xs font-bold text-white">Ultimo giro</span>}
-            <button
-              type="button"
-              onClick={() => setTavoloAperto(true)}
-              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold"
-              aria-label="Tavolo: vedi tutti i giocatori"
-            >
-              👥 Tavolo
-            </button>
-            <button
-              type="button"
-              onClick={() => impostaSuoni(!suoni)}
-              className="rounded-full bg-white px-2.5 py-1 text-sm"
-              aria-label={suoni ? "Spegni i suoni" : "Accendi i suoni"}
-            >
-              {suoni ? "🔊" : "🔇"}
-            </button>
+            {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-[10px] font-bold text-white">Ultimo giro</span>}
+            <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
+              <Users size={17} />
+            </BottoneIcona>
+            <BottoneIcona etichetta="Ultime mosse" onClick={() => setFoglio("storico")}>
+              <ScrollText size={17} />
+            </BottoneIcona>
+            <BottoneIcona etichetta="Come si gioca" onClick={() => setFoglio("regole")}>
+              <BookOpen size={17} />
+            </BottoneIcona>
+            <BottoneIcona etichetta={suoni ? "Spegni i suoni" : "Accendi i suoni"} onClick={() => impostaSuoni(!suoni)}>
+              {suoni ? <Volume2 size={17} /> : <VolumeX size={17} />}
+            </BottoneIcona>
           </div>
-          {suggerimento && <p className="mt-1 text-xs font-semibold text-blu">{suggerimento}</p>}
-          {avversari.length > 1 && (
-            <div className="mt-1 flex items-center gap-2 overflow-x-auto overflow-y-hidden px-1 py-1">
-              {avversari.map((id) => (
+          {suggerimento && <p className="mt-1 text-xs font-semibold text-oro-chiaro">{suggerimento}</p>}
+
+          {/* avversari ad arco */}
+          <div className="mt-2 flex items-end justify-center gap-3">
+            {avversari.map((id, i) => {
+              const centro = (avversari.length - 1) / 2;
+              const alto = Math.abs(i - centro) * (avversari.length > 2 ? 6 : 0);
+              const g = v.giocatori[id]!;
+              return (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setAvversarioScelto(id)}
-                  className={`relative shrink-0 rounded-full p-0.5 ${id === mostrato ? "ring-4 ring-blu" : "opacity-70"}`}
+                  className={`flex flex-col items-center rounded-xl px-1 pt-1 transition ${id === mostrato ? "bg-white/10" : "opacity-75"}`}
+                  style={{ marginBottom: -alto } as CSSProperties}
                   aria-label={`Guarda le carte di ${nick(id)}`}
                 >
-                  <CerchioAvatar id={avatarDi(id)} dimensione={34} titolo={nick(id)} />
-                  {id === v.turno.giocatore && !v.finita && (
-                    <span className="absolute -right-1 -bottom-1 rounded-full bg-blu px-1 text-[9px] font-bold text-white">▶</span>
-                  )}
+                  <AvatarPunti
+                    id={avatarDi(id)}
+                    punti={g.punti}
+                    traguardo={traguardo}
+                    diTurno={id === v.turno.giocatore && !v.finita}
+                    carteInMano={g.carteInMano}
+                    dimensione={avversari.length > 3 ? 44 : 50}
+                    titolo={nick(id)}
+                  />
+                  <span className="mt-1 max-w-16 truncate text-[11px] font-semibold text-luce">{nick(id)}</span>
                 </button>
-              ))}
-              <span className="text-[11px] text-tenue">tocca o scorri per vedere gli altri</span>
-            </div>
-          )}
+              );
+            })}
+          </div>
+
+          {/* carte dell'avversario scelto (swipe per cambiare) */}
           <div
+            className="mt-2 flex items-center gap-2 rounded-xl bg-white/5 p-1.5"
             onTouchStart={(e) => {
               inizioSwipe.current = e.touches[0]?.clientX ?? null;
             }}
@@ -306,153 +381,198 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               else if (fine - inizio > 40) scorri(-1);
             }}
           >
-            <Avversario
-              key={mostrato}
-              nome={nick(mostrato)}
-              avatarId={avatarDi(mostrato)}
-              g={v.giocatori[mostrato]!}
-              diTurno={v.turno.giocatore === mostrato && !v.finita}
-              toccaPosto={toccaPostoAltrui}
-              ingrandisci={ingrandisci}
-              bloccato={bloccato}
-            />
+            <div className="flex gap-1">
+              {v.giocatori[mostrato]!.posti.map((c) => (
+                <CartaPersonaggioGrafica
+                  key={c.id}
+                  id={c.personaggio}
+                  larghezza={larghezzaPosto}
+                  compatta
+                  onTocca={apriAttivazione(c)}
+                  onIngrandisci={ingrandisci(c)}
+                  disabilitata={bloccato}
+                />
+              ))}
+              {Array.from({ length: Math.max(0, 2 - v.giocatori[mostrato]!.posti.length) }, (_, i) => (
+                <PostoVuoto key={i} larghezza={larghezzaPosto} />
+              ))}
+            </div>
+            <div className="min-w-0 flex-1 text-xs text-luce">
+              <p className="truncate font-titolo text-sm font-bold text-oro-chiaro">{nick(mostrato)}</p>
+              <p className="text-luce/80">
+                {v.giocatori[mostrato]!.attivati.length} attivati · {v.giocatori[mostrato]!.carteInMano} in mano
+              </p>
+              {mostrato === v.turno.giocatore && !v.finita && <p className="font-bold text-oro-chiaro">sta giocando</p>}
+              <Diamanti diamanti={v.giocatori[mostrato]!.diamanti} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ---------------- centro ---------------- */}
-      <div className="space-y-3" style={{ paddingTop: altezzaAlta + 12, paddingBottom: altezzaBassa + 16 }}>
+      {/* ---------------- centro: il panno ---------------- */}
+      <div className="relative space-y-3" style={{ paddingTop: altezzaAlta + 12, paddingBottom: altezzaBassa + 16 }}>
+        {fumetto && (
+          <div key={fumetto.chiave} className="fumetto pointer-events-none absolute inset-x-0 z-20 flex justify-center" style={{ top: altezzaAlta + 4 }}>
+            <span className="rounded-full border border-oro/60 bg-notte/95 px-3 py-1 text-xs font-semibold text-luce shadow-lg">
+              💬 {fumetto.testo}
+            </span>
+          </div>
+        )}
         <Errore testo={errore} />
         {v.finita && <Esito partita={partita} v={v} nick={nick} io={io} />}
 
-        <section className="rounded-2xl border-4 border-blu bg-carta p-3 shadow-sm">
-          {/* mazzo numeri + 4 carte numero */}
+        <section className={`panno rounded-3xl p-3 ${mioTurno ? "mio-turno" : ""}`}>
           <div className="flex items-end justify-center gap-1.5">
-            <DorsoMazzo
-              nome="Numeri"
-              quante={v.mazzi.numeri}
-              larghezza={54}
-              onTocca={seValida((m) => m.tipo === "pescaNumero")}
-              disabilitata={bloccato}
-            />
-            <span className="mx-0.5 self-stretch border-l-2 border-dashed border-inchiostro/15" />
-            {v.tavolo.numeri.map((c, i) =>
-              c ? (
-                <CartaNumeroGrafica
-                  key={c.id}
-                  valore={c.valore}
-                  larghezza={52}
-                  onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
-                  disabilitata={bloccato}
-                />
-              ) : (
-                <PostoVuoto key={`n${i}`} larghezza={52} />
-              ),
-            )}
+            <div data-tavolo="mazzo-numeri">
+              <DorsoMazzo
+                nome="Numeri"
+                quante={v.mazzi.numeri}
+                larghezza={larghezzaNumero + 2}
+                onTocca={seValida((m) => m.tipo === "pescaNumero")}
+                disabilitata={bloccato}
+              />
+            </div>
+            <span className="mx-1 self-stretch border-l border-dashed border-white/20" />
+            {v.tavolo.numeri.map((c, i) => (
+              <div key={c?.id ?? `n${i}`} data-tavolo={`n${i}`}>
+                {c ? (
+                  <CartaNumeroGrafica
+                    valore={c.valore}
+                    larghezza={larghezzaNumero}
+                    onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
+                    disabilitata={bloccato}
+                  />
+                ) : (
+                  <PostoVuoto larghezza={larghezzaNumero} />
+                )}
+              </div>
+            ))}
           </div>
-          {(brucia || bruciaGratis) && (
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
+          {(brucia || bruciaGratis || gratuite.length > 0) && (
+            <div className="mt-2 flex flex-wrap justify-center gap-1.5">
               {brucia && (
-                <button type="button" disabled={bloccato} onClick={brucia} className="rounded-full border-2 border-rosso px-3 py-1 text-xs font-semibold text-rosso disabled:opacity-40">
-                  🔥 Brucia le 4 carte (costa 1)
-                </button>
+                <ChipAzione onClick={brucia} disabilitata={bloccato}>
+                  <Flame size={14} /> Brucia le 4 carte (costa 1)
+                </ChipAzione>
               )}
               {bruciaGratis && (
-                <button type="button" disabled={bloccato} onClick={bruciaGratis} className="rounded-full border-2 border-blu px-3 py-1 text-xs font-semibold text-blu disabled:opacity-40">
-                  🪄 Brucia gratis
-                </button>
+                <ChipAzione onClick={bruciaGratis} disabilitata={bloccato}>
+                  <Wand2 size={14} /> Brucia gratis
+                </ChipAzione>
               )}
+              {gratuite.map((m) => (
+                <ChipAzione key={JSON.stringify(m)} onClick={() => gioca(m)} disabilitata={bloccato}>
+                  {descriviMossa(m, v, carte, nick)}
+                </ChipAzione>
+              ))}
             </div>
           )}
 
-          {/* mazzo personaggi + 2 personaggi scoperti */}
           <div className="mt-3 flex items-center justify-center gap-1.5">
-            <DorsoMazzo
-              nome="Personaggi"
-              quante={v.mazzi.personaggi}
-              larghezza={54}
-              onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
-              disabilitata={bloccato}
-            />
-            <span className="mx-0.5 self-stretch border-l-2 border-dashed border-inchiostro/15" />
-            {v.tavolo.personaggi.map((c, i) =>
-              c ? (
-                <CartaPersonaggioGrafica
-                  key={c.id}
-                  id={c.personaggio}
-                  larghezza={112}
-                  onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
-                  onIngrandisci={ingrandisci(c)}
-                  disabilitata={bloccato}
-                />
-              ) : (
-                <PostoVuoto key={`p${i}`} larghezza={112} />
-              ),
-            )}
+            <div data-tavolo="mazzo-personaggi">
+              <DorsoMazzo
+                nome="Personaggi"
+                quante={v.mazzi.personaggi}
+                larghezza={larghezzaNumero + 2}
+                onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
+                disabilitata={bloccato}
+              />
+            </div>
+            <span className="mx-1 self-stretch border-l border-dashed border-white/20" />
+            {v.tavolo.personaggi.map((c, i) => (
+              <div key={c?.id ?? `p${i}`} data-tavolo={`p${i}`}>
+                {c ? (
+                  <CartaPersonaggioGrafica
+                    id={c.personaggio}
+                    larghezza={larghezzaPersonaggio}
+                    onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
+                    onIngrandisci={ingrandisci(c)}
+                    disabilitata={bloccato}
+                  />
+                ) : (
+                  <PostoVuoto larghezza={larghezzaPersonaggio} />
+                )}
+              </div>
+            ))}
           </div>
-          <p className="mt-2 text-center text-[11px] text-tenue">Diamanti nel mazzo: {v.mazzi.diamanti} (arrivano solo dai poteri)</p>
+          <p className="mt-2 text-center text-[11px] text-white/60">Diamanti nel mazzo: {v.mazzi.diamanti} · arrivano solo dai poteri</p>
 
           {v.primoPersonaggio && (
-            <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-white p-2">
-              <span className="text-xs font-bold text-tenue">🔮 Il Mago vede in cima al mazzo:</span>
+            <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-black/25 p-2">
+              <span className="text-xs font-bold text-oro-chiaro">🔮 Il Mago vede in cima al mazzo:</span>
               <CartaPersonaggioGrafica id={v.primoPersonaggio.personaggio} larghezza={64} compatta onIngrandisci={ingrandisci(v.primoPersonaggio)} />
             </div>
           )}
+
+          {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
+            <div className="mt-3 rounded-xl bg-black/25 p-2">
+              <p className="mb-1 text-center text-xs font-bold text-oro-chiaro">🧚 Mano di {nick(v.turno.attesa.avversario)}: tocca la carta da prendere</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {v.manoAvversario.map((c) => (
+                  <CartaNumeroGrafica
+                    key={c.id}
+                    valore={c.valore}
+                    larghezza={56}
+                    onTocca={seValida((m) => m.tipo === "prendiDaFatina" && m.carta === c.id)}
+                    disabilitata={bloccato}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </section>
+      </div>
 
-        {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
-          <Riquadro titolo={`Mano di ${nick(v.turno.attesa.avversario)} (Fatina)`}>
-            <div className="flex flex-wrap justify-center gap-2">
-              {v.manoAvversario.map((c) => (
-                <CartaNumeroGrafica
-                  key={c.id}
-                  valore={c.valore}
-                  larghezza={60}
-                  onTocca={seValida((m) => m.tipo === "prendiDaFatina" && m.carta === c.id)}
-                  disabilitata={bloccato}
-                />
-              ))}
-            </div>
-          </Riquadro>
-        )}
+      {/* ---------------- barra in basso ---------------- */}
+      <BarraMieCarte
+        rif={barraBassa}
+        avatarId={avatarDi(io)}
+        traguardo={traguardo}
+        largo={largo}
+        v={v}
+        io={io}
+        mosse={mosse}
+        gioca={gioca}
+        daScartare={daScartare}
+        scegliScarti={scegliScarti}
+        alternaScarto={alternaScarto}
+        eccesso={eccesso}
+        puoChiudere={puoChiudere}
+        conScheletro={conScheletro}
+        scartiPronti={scartiPronti}
+        chiudiTurno={chiudiTurno}
+        bloccato={bloccato}
+        toccaPosto={(c) =>
+          attesa?.tipo === "scartaPersonaggio" ? seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id) : apriAttivazione(c)
+        }
+        ingrandisci={ingrandisci}
+      />
 
-        {gratuite.length > 0 && (
-          <section className="rounded-2xl border-2 border-blu bg-carta p-3">
-            <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Azioni gratuite</h3>
-            <div className="space-y-1.5">
-              {gratuite.map((m) => (
-                <button
-                  key={JSON.stringify(m)}
-                  type="button"
-                  disabled={bloccato}
-                  onClick={() => gioca(m)}
-                  className="w-full rounded-lg border-2 border-inchiostro/20 bg-white px-3 py-2 text-left text-sm hover:border-blu disabled:opacity-40"
-                >
-                  {descriviMossa(m, v, carte, nick)}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className="rounded-2xl border-2 border-inchiostro/15 bg-carta p-3">
-          <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Ultime mosse</h3>
+      {/* ---------------- pannelli ---------------- */}
+      {foglio === "tavolo" && (
+        <PanoramicaTavolo v={v} io={io} nick={nick} avatarDi={avatarDi} ingrandisci={ingrandisci} onChiudi={() => setFoglio(null)} />
+      )}
+      {foglio === "storico" && (
+        <Foglio titolo="📜 Ultime mosse" onChiudi={() => setFoglio(null)}>
           {eventi.length === 0 && <p className="text-sm text-tenue">Ancora nessuna mossa.</p>}
           {!registroAperto ? (
-            <ol className="space-y-0.5 text-sm">
-              {ultime.map((e, i) => (
-                <li key={e.n} className={i === 0 ? "font-semibold" : "text-tenue"}>
-                  {descriviEvento(e, nick, io)}
-                </li>
-              ))}
+            <ol className="space-y-1 text-sm">
+              {[...eventi]
+                .reverse()
+                .slice(0, 3)
+                .map((e, i) => (
+                  <li key={e.n} className={i === 0 ? "font-semibold" : "text-tenue"}>
+                    {descriviEvento(e, nick, io)}
+                  </li>
+                ))}
             </ol>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {v.ordine.map((id) => {
                 const suoi = [...eventi].reverse().filter((e) => e.giocatore === id).slice(0, 3);
                 return (
                   <div key={id}>
-                    <p className="text-xs font-bold">{id === io ? "Tu" : nick(id)}</p>
+                    <p className="font-titolo text-sm font-bold">{id === io ? "Tu" : nick(id)}</p>
                     {suoi.length === 0 ? (
                       <p className="text-sm text-tenue">Nessuna mossa recente</p>
                     ) : (
@@ -468,39 +588,60 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             </div>
           )}
           {eventi.length > 3 && (
-            <button type="button" onClick={() => setRegistroAperto((x) => !x)} className="mt-1 text-sm font-semibold text-blu underline">
+            <button type="button" onClick={() => setRegistroAperto((x) => !x)} className="mt-3 text-sm font-semibold text-blu underline">
               {registroAperto ? "Mostra meno" : "Le ultime 3 di ogni giocatore"}
             </button>
           )}
-        </section>
+        </Foglio>
+      )}
+      {foglio === "regole" && (
+        <Foglio titolo="📖 Come si gioca" onChiudi={() => setFoglio(null)}>
+          <TestoRegole />
+        </Foglio>
+      )}
 
-        <Attivati v={v} io={io} nick={nick} ingrandisci={ingrandisci} />
-      </div>
-
-      {/* ---------------- barra in basso ---------------- */}
-      <BarraMieCarte
-        rif={barraBassa}
-        avatarId={avatarDi(io)}
-        v={v}
-        io={io}
-        mosse={mosse}
-        gioca={gioca}
-        daScartare={daScartare}
-        scegliScarti={scegliScarti}
-        alternaScarto={alternaScarto}
-        eccesso={eccesso}
-        puoChiudere={puoChiudere}
-        conScheletro={conScheletro}
-        scartiPronti={scartiPronti}
-        chiudiTurno={chiudiTurno}
-        bloccato={bloccato}
-        toccaPosto={(c) =>
-          attesa?.tipo === "scartaPersonaggio"
-            ? seValida((m) => m.tipo === "scartaPersonaggio" && m.carta === c.id)
-            : apriAttivazione(c)
-        }
-        ingrandisci={ingrandisci}
-      />
+      {popupFulmine && nessunPannello && (
+        <Foglio titolo="⚡ Hai un fulmine">
+          <p className="text-sm">Hai finito le mosse. Vuoi usare il fulmine per fare una mossa in più?</p>
+          <div className="my-3 flex justify-center">
+            <span className="gettone fulmine" style={{ width: "3.2em", height: "3.2em", fontSize: "1.4rem" }}>
+              ⚡
+            </span>
+          </div>
+          <Scelte
+            no="No, chiudi il turno"
+            si="Sì, usalo"
+            disabilitato={bloccato}
+            onNo={() => {
+              setFulmineNo(v.numeroTurno);
+              chiudiSeNienteAltro(!!scambioDue && biancaneveNo !== v.numeroTurno);
+            }}
+            onSi={() => giocaFulmine && gioca(giocaFulmine)}
+          />
+        </Foglio>
+      )}
+      {popupBiancaneve && nessunPannello && (
+        <Foglio titolo="🍎 Biancaneve">
+          <p className="text-sm">
+            {quantiDue === 1
+              ? "Hai un 2 in mano: vuoi scambiarlo con un diamante pescato dal mazzo?"
+              : `Hai ${quantiDue} carte 2 in mano: vuoi scambiarne una con un diamante pescato dal mazzo?`}
+          </p>
+          <div className="my-3 flex justify-center">
+            <CartaNumeroGrafica valore={2} larghezza={70} />
+          </div>
+          <Scelte
+            no="No"
+            si="Sì, scambia"
+            disabilitato={bloccato}
+            onNo={() => {
+              setBiancaneveNo(v.numeroTurno);
+              chiudiSeNienteAltro(false);
+            }}
+            onSi={() => scambioDue && gioca(scambioDue)}
+          />
+        </Foglio>
+      )}
 
       {cartaDaAttivare && mioTurno && (
         <PannelloAttivazione
@@ -518,62 +659,6 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         />
       )}
 
-      {popupFulmine && !cartaDaAttivare && !primoPiano && !codaAttivazioni[0] && (
-        <div className="velo" role="dialog" aria-modal="true" aria-label="Fulmine">
-          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl">
-            <p className="font-titolo text-xl font-bold">⚡ Hai un fulmine</p>
-            <p className="mt-2 text-sm">Hai finito le mosse. Vuoi usare il fulmine per fare una mossa in più?</p>
-            <div className="my-3 flex justify-center">
-              <span className="gettone fulmine" style={{ width: "3.2em", height: "3.2em", fontSize: "1.4rem" }}>
-                ⚡
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" disabled={bloccato} onClick={rispondiNoFulmine} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40">
-                No, chiudi il turno
-              </button>
-              <button
-                type="button"
-                disabled={bloccato}
-                onClick={() => giocaFulmine && gioca(giocaFulmine)}
-                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
-              >
-                Sì, usalo
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {popupBiancaneve && !cartaDaAttivare && !primoPiano && !codaAttivazioni[0] && (
-        <div className="velo" role="dialog" aria-modal="true" aria-label="Biancaneve">
-          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl">
-            <p className="font-titolo text-xl font-bold">🍎 Biancaneve</p>
-            <p className="mt-2 text-sm">
-              {quantiDue === 1
-                ? "Hai un 2 in mano: vuoi scambiarlo con un diamante pescato dal mazzo?"
-                : `Hai ${quantiDue} carte 2 in mano: vuoi scambiarne una con un diamante pescato dal mazzo?`}
-            </p>
-            <div className="my-3 flex justify-center">
-              <CartaNumeroGrafica valore={2} larghezza={70} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" disabled={bloccato} onClick={rispondiNoBiancaneve} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40">
-                No
-              </button>
-              <button
-                type="button"
-                disabled={bloccato}
-                onClick={() => scambioDue && gioca(scambioDue)}
-                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
-              >
-                Sì, scambia
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {codaAttivazioni[0] && (
         <AnimazioneAttivazione
           key={codaAttivazioni[0].n}
@@ -584,8 +669,13 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         />
       )}
 
-      {tavoloAperto && (
-        <PanoramicaTavolo v={v} io={io} nick={nick} avatarDi={avatarDi} ingrandisci={ingrandisci} onChiudi={() => setTavoloAperto(false)} />
+      {banner && !codaAttivazioni[0] && (
+        <div key={banner} className="banner-turno">
+          <div className="rounded-2xl border-2 border-oro bg-gradient-to-b from-[#1f3f73] to-notte px-8 py-4 text-center shadow-[0_0_40px_rgba(242,213,138,0.5)]">
+            <p className="font-titolo text-3xl font-bold text-oro-chiaro">Tocca a te!</p>
+            <p className="text-sm text-luce">{v.turno.mosseRimaste} mosse</p>
+          </div>
+        </div>
       )}
 
       {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
@@ -593,103 +683,89 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   );
 }
 
-/** Un avversario: nome, punti, carte in mano (coperte), diamanti e personaggi nei posti. */
-function Avversario({
-  nome,
-  avatarId,
-  g,
-  diTurno,
-  toccaPosto,
-  ingrandisci,
-  bloccato,
-  largo,
-}: {
-  nome: string;
-  avatarId?: string;
-  g: VistaGiocatore["giocatori"][string];
-  diTurno: boolean;
-  toccaPosto: (c: CartaPersonaggio) => (() => void) | undefined;
-  ingrandisci: (c: CartaPersonaggio) => () => void;
-  bloccato: boolean;
-  largo?: boolean;
-}) {
-  const larghezza = largo ? 80 : 66;
+/* ------------------------------------------------------------------ */
+/* Pezzi grafici                                                       */
+/* ------------------------------------------------------------------ */
+
+function BottoneIcona({ etichetta, onClick, children }: { etichetta: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <div className={`${largo ? "" : "mt-2 rounded-xl bg-white/70 p-2"} ${diTurno ? "ring-2 ring-blu" : ""}`}>
-      <div className="flex items-center gap-3">
-        <div className="flex gap-1">
-          {g.posti.map((c) => (
-            <CartaPersonaggioGrafica
-              key={c.id}
-              id={c.personaggio}
-              larghezza={larghezza}
-              compatta
-              onTocca={toccaPosto(c)}
-              onIngrandisci={ingrandisci(c)}
-              disabilitata={bloccato}
-            />
-          ))}
-          {Array.from({ length: Math.max(0, 2 - g.posti.length) }, (_, i) => (
-            <PostoVuoto key={i} larghezza={larghezza} />
-          ))}
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={etichetta}
+      title={etichetta}
+      className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-oro/50 text-oro-chiaro transition hover:bg-oro/15"
+    >
+      {children}
+    </button>
+  );
+}
+
+function ChipAzione({ onClick, disabilitata, children }: { onClick: () => void; disabilitata: boolean; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      disabled={disabilitata}
+      onClick={onClick}
+      className="inline-flex items-center gap-1 rounded-full border border-oro bg-notte/80 px-3 py-1 text-xs font-semibold text-oro-chiaro shadow transition hover:bg-notte disabled:opacity-40"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Pannello che sale dal basso. Senza onChiudi non si chiude toccando fuori (serve una risposta). */
+function Foglio({ titolo, onChiudi, children }: { titolo: string; onChiudi?: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    if (!onChiudi) return;
+    const tasto = (e: KeyboardEvent) => e.key === "Escape" && onChiudi();
+    window.addEventListener("keydown", tasto);
+    return () => window.removeEventListener("keydown", tasto);
+  }, [onChiudi]);
+  return (
+    <div className="foglio-velo" role="dialog" aria-modal="true" aria-label={titolo} onClick={onChiudi}>
+      <div className="foglio" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="font-titolo text-lg font-bold">{titolo}</h2>
+          {onChiudi && (
+            <button type="button" onClick={onChiudi} className="rounded-xl bg-inchiostro px-3 py-1.5 text-sm font-semibold text-carta">
+              Chiudi
+            </button>
+          )}
         </div>
-        {/* a destra: chi è, punti, mano, diamanti */}
-        <div className="min-w-0 flex-1 space-y-1 text-xs">
-          <div className="flex items-center gap-1.5">
-            <CerchioAvatar id={avatarId} dimensione={30} />
-            <span className="min-w-0 truncate font-titolo text-sm font-bold">{nome}</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-1">
-            <span className="rounded-full bg-inchiostro px-2 py-0.5 font-bold text-carta">{g.punti} {g.punti === 1 ? "punto" : "punti"}</span>
-            {diTurno && <span className="rounded-full bg-blu px-2 py-0.5 text-[10px] font-bold text-white">sta giocando</span>}
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="inline-flex">
-              {Array.from({ length: Math.min(g.carteInMano, 8) }, (_, i) => (
-                <span key={i} className="-ml-2 first:ml-0 inline-block h-6 w-4 rounded-sm border border-[#b8892b] bg-gradient-to-br from-[#1f4f8f] to-[#14213d] shadow-sm" />
-              ))}
-            </span>
-            <span className="font-semibold">{g.carteInMano} in mano</span>
-          </div>
-          {g.diamanti.length > 0 && <Diamanti diamanti={g.diamanti} />}
-        </div>
+        {children}
       </div>
     </div>
   );
 }
 
-/** Personaggi attivati di tutti: servono a ricordare i poteri in gioco. */
-function Attivati({
-  v,
-  io,
-  nick,
-  ingrandisci,
+function Scelte({
+  no,
+  si,
+  onNo,
+  onSi,
+  disabilitato,
 }: {
-  v: VistaGiocatore;
-  io: string;
-  nick: (id: string) => string;
-  ingrandisci: (c: CartaPersonaggio) => () => void;
+  no: string;
+  si: string;
+  onNo: () => void;
+  onSi: () => void;
+  disabilitato: boolean;
 }) {
-  const conAttivati = v.ordine.filter((id) => v.giocatori[id]!.attivati.length > 0);
-  if (conAttivati.length === 0) return null;
   return (
-    <section className="rounded-2xl border-2 border-inchiostro/15 bg-carta p-3">
-      <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">Personaggi attivati</h3>
-      <div className="space-y-2">
-        {conAttivati.map((id) => (
-          <div key={id}>
-            <p className="text-xs font-bold">
-              {id === io ? "I tuoi" : nick(id)} · {v.giocatori[id]!.punti} {v.giocatori[id]!.punti === 1 ? "punto" : "punti"}
-            </p>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {v.giocatori[id]!.attivati.map((c) => (
-                <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={56} compatta onIngrandisci={ingrandisci(c)} />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="grid grid-cols-2 gap-2">
+      <button type="button" disabled={disabilitato} onClick={onNo} className="rounded-xl border-2 border-inchiostro/70 px-4 py-3 font-semibold disabled:opacity-40">
+        {no}
+      </button>
+      <button
+        type="button"
+        disabled={disabilitato}
+        onClick={onSi}
+        className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-4 py-3 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] disabled:opacity-40"
+      >
+        {si}
+      </button>
+    </div>
   );
 }
 
@@ -712,11 +788,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
   return (
     <Riquadro titolo="Partita finita!">
       <p className="mb-3 font-semibold">
-        {vincitori.length > 1
-          ? `Pareggio tra ${vincitori.map(nick).join(" e ")}`
-          : hoVinto
-            ? "Hai vinto! 🎉"
-            : `Ha vinto ${nick(vincitori[0] ?? "")}`}
+        {vincitori.length > 1 ? `Pareggio tra ${vincitori.map(nick).join(" e ")}` : hoVinto ? "Hai vinto! 🎉" : `Ha vinto ${nick(vincitori[0] ?? "")}`}
       </p>
       <ol className="space-y-1">
         {classifica.map((id, i) => (
@@ -724,7 +796,9 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
             <span>
               {i + 1}. {nick(id)} {id === io && <span className="text-tenue">(tu)</span>}
             </span>
-            <strong>{punti[id] ?? 0} {punti[id] === 1 ? "punto" : "punti"}</strong>
+            <strong>
+              {punti[id] ?? 0} {punti[id] === 1 ? "punto" : "punti"}
+            </strong>
           </li>
         ))}
       </ol>
@@ -732,29 +806,17 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
   );
 }
 
-/** Larghezza disponibile di un elemento (per far stare tutta la mano senza scorrere). */
-function useLarghezza(ref: RefObject<HTMLElement>): number {
-  const [larghezza, setLarghezza] = useState(0);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const osserva = new ResizeObserver(() => setLarghezza(el.clientWidth));
-    osserva.observe(el);
-    setLarghezza(el.clientWidth);
-    return () => osserva.disconnect();
-  }, [ref]);
-  return larghezza;
-}
-
 /**
  * Barra fissa in basso:
- * 1) i miei personaggi da attivare, i miei poteri blu, avatar e punti;
- * 2) la mia mano, sempre tutta visibile (le carte si stringono, mai scorrere);
+ * 1) i miei personaggi da attivare, i miei poteri blu, il mio avatar con i punti;
+ * 2) la mia mano a ventaglio, sempre tutta visibile;
  * 3) diamanti e chiusura del turno.
  */
 function BarraMieCarte({
   rif,
   avatarId,
+  traguardo,
+  largo,
   v,
   io,
   mosse,
@@ -773,6 +835,8 @@ function BarraMieCarte({
 }: {
   rif: RefObject<HTMLDivElement>;
   avatarId?: string;
+  traguardo: number;
+  largo: boolean;
   v: VistaGiocatore;
   io: string;
   mosse: Mossa[];
@@ -790,78 +854,62 @@ function BarraMieCarte({
   ingrandisci: (c: CartaPersonaggio) => () => void;
 }) {
   const mio = v.giocatori[io]!;
-  const rigaMano = useRef<HTMLDivElement>(null);
-  const spazio = useLarghezza(rigaMano);
   const [dueDaScambiare, setDueDaScambiare] = useState<string | null>(null);
-
-  // Mano: carte larghe al massimo 56px, strette quanto serve per stare tutte (minimo 34px, poi si va a capo)
-  const mano = [...v.mano].sort((a, b) => a.valore - b.valore);
-  const spazioTra = 4;
-  const larghezzaCarta = mano.length
-    ? Math.max(34, Math.min(56, Math.floor((spazio - spazioTra * (mano.length - 1)) / mano.length)))
-    : 56;
-
-  // Biancaneve: ogni 2 si può scambiare con un diamante in qualsiasi momento del proprio turno
   const biancaneve = mosse.some((m) => m.tipo === "dueInDiamante");
+  const mioTurno = v.turno.giocatore === io && !v.finita;
+  const larghezzaPosto = largo ? 84 : 70;
 
   return (
-    <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
-      <div className="mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
-        {/* 1) personaggi da attivare, poteri, chi sono */}
+    <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-oro/60 bg-notte/92 shadow-[0_-8px_24px_rgba(0,0,0,0.55)] backdrop-blur">
+      <div className="mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] md:max-w-2xl">
         <div className="flex items-start gap-2">
           <div className="flex shrink-0 gap-1.5">
-            {mio.posti.map((c) => (
-              <CartaPersonaggioGrafica
-                key={c.id}
-                id={c.personaggio}
-                larghezza={72}
-                compatta
-                onTocca={toccaPosto(c)}
-                onIngrandisci={ingrandisci(c)}
-                disabilitata={bloccato}
-              />
-            ))}
+            {mio.posti.map((c) => {
+              const tocca = toccaPosto(c);
+              return (
+                <div key={c.id} data-carta-id={c.id} className="relative">
+                  <CartaPersonaggioGrafica
+                    id={c.personaggio}
+                    larghezza={larghezzaPosto}
+                    compatta
+                    onTocca={tocca}
+                    onIngrandisci={ingrandisci(c)}
+                    disabilitata={bloccato}
+                  />
+                  {tocca && (
+                    <span className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-oro px-1.5 text-[10px] font-bold text-notte shadow">
+                      ✓ attiva
+                    </span>
+                  )}
+                </div>
+              );
+            })}
             {Array.from({ length: Math.max(0, 2 - mio.posti.length) }, (_, i) => (
-              <PostoVuoto key={i} larghezza={72} />
+              <PostoVuoto key={i} larghezza={larghezzaPosto} />
             ))}
           </div>
           <PoteriBlu v={v} io={io} mosse={mosse} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} />
-          <div className="flex w-12 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-tenue">
-            <CerchioAvatar id={avatarId} dimensione={32} />
-            <span className="rounded-full bg-inchiostro px-1.5 py-0.5 text-carta">{mio.punti} pt</span>
-            <span>
+          <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-luce/80">
+            <AvatarPunti id={avatarId} punti={mio.punti} traguardo={traguardo} diTurno={mioTurno} dimensione={46} titolo="Tu" />
+            <span className="mt-1">
               Mano {v.mano.length}/{v.limiteMano}
             </span>
           </div>
         </div>
 
-        {/* 2) la mano, sempre tutta visibile */}
-        <div ref={rigaMano} className="mt-2 flex flex-wrap justify-center pt-3" style={{ gap: spazioTra }}>
-          {mano.length === 0 && <span className="py-3 text-xs text-tenue">Nessuna carta in mano</span>}
-          {mano.map((c) => {
-            const scambiabile = biancaneve && c.valore === 2 && !scegliScarti;
-            return (
-              <div key={c.id} className="relative">
-                <CartaNumeroGrafica
-                  valore={c.valore}
-                  larghezza={larghezzaCarta}
-                  selezionata={daScartare.includes(c.id)}
-                  onTocca={scegliScarti ? alternaScarto(c.id) : scambiabile ? () => setDueDaScambiare(c.id) : undefined}
-                  disabilitata={bloccato}
-                />
-                {scambiabile && (
-                  <span className="pointer-events-none absolute -top-2 -right-1 text-base" aria-hidden="true">
-                    🍎
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <Ventaglio
+          v={v}
+          largo={largo}
+          daScartare={daScartare}
+          bloccato={bloccato}
+          tocca={(id, valore) =>
+            scegliScarti ? alternaScarto(id) : biancaneve && valore === 2 ? () => setDueDaScambiare(id) : undefined
+          }
+          mela={(valore) => biancaneve && valore === 2 && !scegliScarti}
+        />
 
-        {/* 3) diamanti e fine turno */}
         {mio.diamanti.length > 0 && (
-          <div className="mt-1 flex items-center justify-center text-xs">
+          <div className="flex items-center justify-center text-xs">
             <Diamanti diamanti={mio.diamanti} />
           </div>
         )}
@@ -871,7 +919,7 @@ function BarraMieCarte({
               type="button"
               disabled={bloccato || !scartiPronti}
               onClick={() => chiudiTurno(false)}
-              className="flex-1 rounded-xl bg-inchiostro px-3 py-2.5 text-sm font-semibold text-carta disabled:opacity-40"
+              className="flex-1 rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-3 py-2.5 text-sm font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] disabled:opacity-40"
             >
               {eccesso > 0 ? `Scarta ${eccesso} (${daScartare.length}/${eccesso}) e chiudi` : "Chiudi il turno"}
             </button>
@@ -880,7 +928,7 @@ function BarraMieCarte({
                 type="button"
                 disabled={bloccato || !scartiPronti}
                 onClick={() => chiudiTurno(true)}
-                className="rounded-xl border-2 border-inchiostro px-3 py-2.5 text-sm font-semibold disabled:opacity-40"
+                className="rounded-xl border-2 border-oro px-3 py-2.5 text-sm font-semibold text-oro-chiaro disabled:opacity-40"
               >
                 💀 Chiudi e cambia mano
               </button>
@@ -890,32 +938,90 @@ function BarraMieCarte({
       </div>
 
       {dueDaScambiare && (
-        <div className="velo" role="dialog" aria-modal="true" aria-label="Biancaneve" onClick={() => setDueDaScambiare(null)}>
-          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <p className="font-titolo text-xl font-bold">🍎 Biancaneve</p>
-            <p className="mt-2 text-sm">Scambiare questo 2 con un diamante pescato dal mazzo? Non costa mosse.</p>
-            <div className="my-3 flex justify-center">
-              <CartaNumeroGrafica valore={2} larghezza={70} />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => setDueDaScambiare(null)} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold">
-                No
-              </button>
-              <button
-                type="button"
-                disabled={bloccato}
-                onClick={() => {
-                  gioca({ tipo: "dueInDiamante", carta: dueDaScambiare });
-                  setDueDaScambiare(null);
-                }}
-                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
-              >
-                Sì, scambia
-              </button>
-            </div>
+        <Foglio titolo="🍎 Biancaneve" onChiudi={() => setDueDaScambiare(null)}>
+          <p className="text-sm">Scambiare questo 2 con un diamante pescato dal mazzo? Non costa mosse.</p>
+          <div className="my-3 flex justify-center">
+            <CartaNumeroGrafica valore={2} larghezza={70} />
           </div>
-        </div>
+          <Scelte
+            no="No"
+            si="Sì, scambia"
+            disabilitato={bloccato}
+            onNo={() => setDueDaScambiare(null)}
+            onSi={() => {
+              gioca({ tipo: "dueInDiamante", carta: dueDaScambiare });
+              setDueDaScambiare(null);
+            }}
+          />
+        </Foglio>
       )}
+    </div>
+  );
+}
+
+/** La mano a ventaglio: carte sovrapposte e inclinate, sempre tutte visibili nella larghezza disponibile. */
+function Ventaglio({
+  v,
+  largo,
+  daScartare,
+  bloccato,
+  tocca,
+  mela,
+}: {
+  v: VistaGiocatore;
+  largo: boolean;
+  daScartare: string[];
+  bloccato: boolean;
+  tocca: (id: string, valore: number) => (() => void) | undefined;
+  mela: (valore: number) => boolean;
+}) {
+  const contenitore = useRef<HTMLDivElement>(null);
+  const spazio = useLarghezza(contenitore);
+  const mano = [...v.mano].sort((a, b) => a.valore - b.valore);
+  const larghezzaCarta = largo ? 74 : 58;
+  const altezzaCarta = Math.round((larghezzaCarta * 88) / 63);
+  const n = mano.length;
+  const passo = n > 1 ? Math.min(larghezzaCarta + 6, (Math.max(spazio, larghezzaCarta) - larghezzaCarta - 8) / (n - 1)) : 0;
+  const totale = larghezzaCarta + passo * Math.max(0, n - 1);
+  const inizio = (spazio - totale) / 2;
+  const angolo = n > 1 ? Math.min(5, 28 / n) : 0;
+  const centro = (n - 1) / 2;
+
+  return (
+    <div ref={contenitore} className="ventaglio relative mt-2" style={{ height: altezzaCarta + 22 }}>
+      {n === 0 && <p className="pt-6 text-center text-xs text-luce/70">Nessuna carta in mano</p>}
+      {mano.map((c, i) => {
+        const scelta = daScartare.includes(c.id);
+        return (
+          <div
+            key={c.id}
+            className="ventaglio-carta absolute bottom-1"
+            style={
+              {
+                left: inizio + i * passo,
+                zIndex: i + 1,
+                "--r": `${(i - centro) * angolo}deg`,
+                "--y": `${Math.abs(i - centro) ** 2 * 1.4 - (scelta ? 14 : 0)}px`,
+              } as CSSProperties
+            }
+          >
+            <div data-carta-id={c.id}>
+              <CartaNumeroGrafica
+                valore={c.valore}
+                larghezza={larghezzaCarta}
+                selezionata={scelta}
+                onTocca={tocca(c.id, c.valore)}
+                disabilitata={bloccato}
+              />
+            </div>
+            {mela(c.valore) && (
+              <span className="pointer-events-none absolute -top-2 -right-1 text-base" aria-hidden="true">
+                🍎
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -942,15 +1048,14 @@ function PoteriBlu({
       .map((x) => ({ carta: c, effetto: x.effetto })),
   );
   if (poteri.length === 0) {
-    return <p className="min-w-0 flex-1 self-center text-[11px] leading-tight text-tenue">Qui compariranno i poteri blu dei personaggi che attivi.</p>;
+    return <p className="min-w-0 flex-1 self-center text-[11px] leading-tight text-luce/60">Qui compariranno i poteri blu dei personaggi che attivi.</p>;
   }
   return (
     <div className="min-w-0 flex-1">
-      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-tenue">Poteri</p>
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-oro">Poteri</p>
       <div className="flex flex-wrap gap-1">
         {poteri.map(({ carta, effetto }, i) => {
           const { icona, testo } = etichettaPotere(effetto);
-          // Carta di nano/fenice/drago già usata in questo turno: barrata
           const usata = effetto.tipo === "cartaVirtuale" && v.turno.virtualiUsate.includes(carta.id);
           const azione =
             effetto.tipo === "bruciaGratis"
@@ -967,10 +1072,10 @@ function PoteriBlu({
               title={personaggio(carta.personaggio).nome}
               className={`rounded-full border px-1.5 py-0.5 text-[11px] font-semibold leading-tight ${
                 azione
-                  ? "border-blu bg-blu text-white shadow"
+                  ? "border-oro bg-gradient-to-b from-[#e3c06a] to-[#b8892b] text-[#2b1a05] shadow"
                   : usata
-                    ? "border-inchiostro/10 bg-white/60 text-tenue line-through"
-                    : "border-blu/40 bg-white text-inchiostro"
+                    ? "border-white/10 bg-white/5 text-luce/40 line-through"
+                    : "border-oro/40 bg-white/10 text-luce"
               }`}
             >
               {icona} {testo}

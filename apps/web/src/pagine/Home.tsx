@@ -1,6 +1,7 @@
 import { PERSONAGGI } from "@og/primo-gioco";
 import { type FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { immaginePersonaggio } from "../giochi/primo-gioco/skin";
 import { chiediArbitro } from "../lib/supabase";
 import { avatarSalvato, nicknameSalvato, salvaAvatar, salvaNickname } from "../lib/ricordi";
 import { SceltaAvatar } from "../Avatar";
@@ -45,8 +46,14 @@ export function Home() {
 
   return (
     <Pagina>
-      <p className="-mt-4 text-tenue">Giochi di carte e da tavolo da fare online con gli amici.</p>
-      <Riquadro titolo="Il primo gioco">
+      <p className="-mt-4 text-luce/80">Giochi di carte e da tavolo da fare online con gli amici.</p>
+      <Riquadro>
+        {/* copertina della "scatola" del gioco */}
+        <div className="relative -mx-5 -mt-5 mb-4 h-40 overflow-hidden rounded-t-2xl border-b-2 border-oro">
+          {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="h-full w-full object-cover" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-notte/90 via-notte/20 to-transparent" />
+          <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il primo gioco</h2>
+        </div>
         <p className="-mt-2 mb-4 text-sm text-tenue">
           {PERSONAGGI.length} personaggi, {carte} carte, da 2 a 5 giocatori.
         </p>
@@ -112,7 +119,10 @@ export function Home() {
           </div>
         </div>
       </Riquadro>
-      <p className="text-center text-xs text-tenue">Prototipo · Fase 2</p>
+      <Link to="/regole" className="text-center font-semibold text-oro-chiaro underline">
+        📖 Come si gioca
+      </Link>
+      <p className="text-center text-xs text-luce/50">Prototipo · Fase 2</p>
     </Pagina>
   );
 }

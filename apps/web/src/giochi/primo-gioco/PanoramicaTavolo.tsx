@@ -32,11 +32,11 @@ export function PanoramicaTavolo({
   const massimo = Math.max(...v.ordine.map((id) => v.giocatori[id]!.punti));
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-sfondo" role="dialog" aria-modal="true" aria-label="Tavolo: tutti i giocatori">
-      <div className="mx-auto max-w-md px-3 pb-8">
-        <div className="sticky top-0 z-10 -mx-3 mb-3 flex items-center justify-between border-b-4 border-blu bg-carta/95 px-3 py-2 backdrop-blur">
+    <div className="foglio-velo" role="dialog" aria-modal="true" aria-label="Tavolo: tutti i giocatori" onClick={onChiudi}>
+      <div className="foglio" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky -top-3 z-10 -mx-4 mb-3 flex items-center justify-between bg-[#f8eed6]/95 px-4 py-2 backdrop-blur">
           <h2 className="font-titolo text-xl font-bold">👥 Tavolo</h2>
-          <button type="button" onClick={onChiudi} className="rounded-xl bg-inchiostro px-4 py-2 text-sm font-semibold text-carta">
+          <button type="button" onClick={onChiudi} className="rounded-xl bg-inchiostro px-3 py-1.5 text-sm font-semibold text-carta">
             Chiudi
           </button>
         </div>
@@ -57,7 +57,7 @@ export function PanoramicaTavolo({
             return (
               <section
                 key={id}
-                className={`rounded-2xl border-2 bg-carta p-3 ${diTurno ? "border-blu shadow-md" : "border-inchiostro/15"}`}
+                className={`rounded-2xl border-2 bg-white/60 p-3 ${diTurno ? "border-oro shadow-md" : "border-inchiostro/15"}`}
               >
                 <div className="flex items-center gap-2">
                   <span className="w-5 text-center text-xs font-bold text-tenue">{posizione + 1}°</span>

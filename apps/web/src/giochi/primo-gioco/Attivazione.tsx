@@ -74,8 +74,8 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
   const diamanteScelto = (id: string) => v.giocatori[v.io]!.diamanti.find((d) => d.id === id);
 
   return (
-    <div className="velo" role="dialog" aria-label={`Attiva ${p.nome}`}>
-      <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-2xl bg-carta p-4 shadow-xl">
+    <div className="foglio-velo" role="dialog" aria-modal="true" aria-label={`Attiva ${p.nome}`} onClick={onChiudi}>
+      <div className="foglio" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start gap-3">
           <CartaPersonaggioGrafica id={p.id} larghezza={120} compatta />
           <div className="flex-1">
