@@ -52,6 +52,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [registroAperto, setRegistroAperto] = useState(false);
   // Turno in cui si è risposto "No" al popup di Biancaneve (per non riproporlo)
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
+  // Turno in cui si è risposto "No" al popup del fulmine
+  const [fulmineNo, setFulmineNo] = useState<number | null>(null);
   // Avversario scelto da guardare nella barra in alto (si azzera quando cambia il turno)
   const [avversarioScelto, setAvversarioScelto] = useState<string | null>(null);
   const turnoDi = riga?.vista.turno.giocatore;
@@ -210,14 +212,24 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
   // Biancaneve a fine turno: finite le mosse, se c'è un 2 in mano si chiede se scambiarlo
   const scambioDue = mosse.find((m) => m.tipo === "dueInDiamante");
-  const haFulmine = (v.giocatori[io]?.diamanti ?? []).some((d) => d.tipo === "fulmine");
-  const popupBiancaneve =
-    !!scambioDue && mioTurno && v.turno.mosseRimaste === 0 && !attesa && biancaneveNo !== v.numeroTurno;
+  const giocaFulmine = mosse.find((m) => m.tipo === "giocaFulmine");
+  const mosseFinite = mioTurno && v.turno.mosseRimaste === 0 && !attesa;
+  // Finite le mosse: prima si chiede del fulmine, poi di Biancaneve
+  const popupFulmine = !!giocaFulmine && mosseFinite && fulmineNo !== v.numeroTurno;
+  const popupBiancaneve = !popupFulmine && !!scambioDue && mosseFinite && biancaneveNo !== v.numeroTurno;
+  /** Dopo un "No": si chiude il turno se non resta nient'altro da decidere. */
+  const chiudiSeNienteAltro = (restaBiancaneve: boolean) => {
+    if (puoChiudere && eccesso === 0 && !conScheletro && !restaBiancaneve) chiudiTurno(false);
+  };
+  const rispondiNoFulmine = () => {
+    setFulmineNo(v.numeroTurno);
+    chiudiSeNienteAltro(!!scambioDue && biancaneveNo !== v.numeroTurno);
+  };
   const quantiDue = v.mano.filter((c) => c.valore === 2).length;
   const rispondiNoBiancaneve = () => {
     setBiancaneveNo(v.numeroTurno);
     // Se non resta nient'altro da decidere, il turno si chiude
-    if (puoChiudere && eccesso === 0 && !conScheletro && !haFulmine) chiudiTurno(false);
+    chiudiSeNienteAltro(false);
   };
 
   // Ultime mosse: chiuse = le ultime 3; aperte = le ultime 3 di ogni giocatore
@@ -494,7 +506,34 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         />
       )}
 
-      {popupBiancaneve && !cartaDaAttivare && !primoPiano && (
+      {popupFulmine && !cartaDaAttivare && !primoPiano && !codaAttivazioni[0] && (
+        <div className="velo" role="dialog" aria-modal="true" aria-label="Fulmine">
+          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl">
+            <p className="font-titolo text-xl font-bold">⚡ Hai un fulmine</p>
+            <p className="mt-2 text-sm">Hai finito le mosse. Vuoi usare il fulmine per fare una mossa in più?</p>
+            <div className="my-3 flex justify-center">
+              <span className="gettone fulmine" style={{ width: "3.2em", height: "3.2em", fontSize: "1.4rem" }}>
+                ⚡
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" disabled={bloccato} onClick={rispondiNoFulmine} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold disabled:opacity-40">
+                No, chiudi il turno
+              </button>
+              <button
+                type="button"
+                disabled={bloccato}
+                onClick={() => giocaFulmine && gioca(giocaFulmine)}
+                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
+              >
+                Sì, usalo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {popupBiancaneve && !cartaDaAttivare && !primoPiano && !codaAttivazioni[0] && (
         <div className="velo" role="dialog" aria-modal="true" aria-label="Biancaneve">
           <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl">
             <p className="font-titolo text-xl font-bold">🍎 Biancaneve</p>
