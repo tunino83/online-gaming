@@ -5,7 +5,7 @@
 import { type CartaPersonaggio, type VistaGiocatore, personaggio } from "@og/primo-gioco";
 import { useEffect } from "react";
 import { CerchioAvatar } from "../../Avatar";
-import { CartaPersonaggioGrafica, Diamante, PostoVuoto } from "./carte";
+import { CartaPersonaggioGrafica, Diamante, MiniCartaVirtuale, PostoVuoto } from "./carte";
 import { etichettaPotere } from "./descrivi";
 
 export function PanoramicaTavolo({
@@ -52,7 +52,7 @@ export function PanoramicaTavolo({
             const poteri = g.attivati.flatMap((c) =>
               personaggio(c.personaggio)
                 .poteri.filter((x) => x.colore === "blu")
-                .map((x, i) => ({ chiave: `${c.id}-${i}`, carta: c, ...etichettaPotere(x.effetto) })),
+                .map((x, i) => ({ chiave: `${c.id}-${i}`, carta: c, effetto: x.effetto, ...etichettaPotere(x.effetto) })),
             );
             return (
               <section
@@ -111,8 +111,16 @@ export function PanoramicaTavolo({
                 {poteri.length > 0 && (
                   <>
                     <p className="mt-2 mb-1 text-[11px] font-bold uppercase tracking-wide text-tenue">Poteri blu</p>
-                    <div className="flex flex-wrap gap-1">
-                      {poteri.map((p) => (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {poteri.map((p) =>
+                        p.effetto.tipo === "cartaVirtuale" ? (
+                          <MiniCartaVirtuale
+                            key={p.chiave}
+                            valore={p.effetto.valore}
+                            titolo={personaggio(p.carta.personaggio).nome}
+                            onTocca={ingrandisci(p.carta)}
+                          />
+                        ) : (
                         <button
                           key={p.chiave}
                           type="button"
@@ -122,7 +130,8 @@ export function PanoramicaTavolo({
                         >
                           {p.icona} {p.testo}
                         </button>
-                      ))}
+                        ),
+                      )}
                     </div>
                   </>
                 )}

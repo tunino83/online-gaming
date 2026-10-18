@@ -137,3 +137,23 @@ export function Diamante({ d }: { d: CartaDiamante }) {
     <span className="gettone" title={`Diamante ${d.valore}`}>{d.valore}</span>
   );
 }
+
+/**
+ * Mini carta blu: la carta "virtuale" che danno Nani (il loro numero), Fenice (8) e Drago (? = a scelta).
+ * Spenta quando è già stata usata in questo turno.
+ */
+export function MiniCartaVirtuale({ valore, usata, titolo, onTocca }: { valore: number | "aScelta"; usata?: boolean; titolo: string; onTocca?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onTocca}
+      title={usata ? `${titolo} (già usata in questo turno)` : titolo}
+      aria-label={`${titolo}: carta ${valore === "aScelta" ? "a scelta" : valore}${usata ? ", già usata" : ""}`}
+      className={`grid h-[34px] w-[25px] shrink-0 place-items-center rounded-[4px] border-2 border-[#9cc3f0] bg-gradient-to-b from-[#3b7fd0] to-[#1f4f8f] font-titolo text-base leading-none font-bold text-white shadow-[0_2px_4px_rgba(0,0,0,0.4)] ${
+        usata ? "opacity-35 grayscale" : ""
+      }`}
+    >
+      {valore === "aScelta" ? "?" : valore}
+    </button>
+  );
+}

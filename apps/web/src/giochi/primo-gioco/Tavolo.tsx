@@ -21,7 +21,7 @@ import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
 import { PanoramicaTavolo } from "./PanoramicaTavolo";
-import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
+import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, MiniCartaVirtuale, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
 import { TUTTI_I_PERSONAGGI } from "./Catalogo";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
@@ -1135,10 +1135,22 @@ function PoteriBlu({
   return (
     <div className="min-w-0 flex-1">
       <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-oro">Poteri</p>
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap items-center gap-1">
+        {/* prima le mini carte blu di Nani, Fenice e Drago, poi gli altri poteri */}
+        {poteri.map(({ carta, effetto }, i) =>
+          effetto.tipo === "cartaVirtuale" ? (
+            <MiniCartaVirtuale
+              key={`${carta.id}-${i}`}
+              valore={effetto.valore}
+              usata={v.turno.virtualiUsate.includes(carta.id)}
+              titolo={personaggio(carta.personaggio).nome}
+              onTocca={ingrandisci(carta)}
+            />
+          ) : null,
+        )}
         {poteri.map(({ carta, effetto }, i) => {
+          if (effetto.tipo === "cartaVirtuale") return null;
           const { icona, testo } = etichettaPotere(effetto);
-          const usata = effetto.tipo === "cartaVirtuale" && v.turno.virtualiUsate.includes(carta.id);
           const azione =
             effetto.tipo === "bruciaGratis"
               ? mosse.find((m) => m.tipo === "bruciaGratis")
@@ -1155,9 +1167,7 @@ function PoteriBlu({
               className={`rounded-full border px-1.5 py-0.5 text-[11px] font-semibold leading-tight ${
                 azione
                   ? "border-oro bg-gradient-to-b from-[#e3c06a] to-[#b8892b] text-[#2b1a05] shadow"
-                  : usata
-                    ? "border-white/10 bg-white/5 text-luce/40 line-through"
-                    : "border-oro/40 bg-white/10 text-luce"
+                  : "border-oro/40 bg-white/10 text-luce"
               }`}
             >
               {icona} {testo}
