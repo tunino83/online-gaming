@@ -994,3 +994,14 @@ describe("registro delle ultime mosse", () => {
     expect(dopo.registro).toHaveLength(1);
   });
 });
+
+describe("Biancaneve", () => {
+  it("attivandola si riceve 1 diamante e poi si possono scambiare i 2", () => {
+    const due = num(2);
+    const { s, carta } = conPersonaggio("biancaneve", [due, num(2)]);
+    const dopo = gioca(s, "A", { tipo: "attiva", carta: carta.id, combinazione: usa(due) });
+    expect(dopo.giocatori.A!.diamanti).toHaveLength(1);
+    expect(dopo.registro.at(-1)).toMatchObject({ tipo: "attiva", personaggio: "biancaneve" });
+    expect(mosseValide(dopo, "A")).toContainEqual({ tipo: "dueInDiamante", carta: dopo.giocatori.A!.mano[0]!.id });
+  });
+});

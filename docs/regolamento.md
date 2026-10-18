@@ -128,7 +128,7 @@ Mazzo completo: 42 personaggi diversi, 55 carte. Per aggiungere un personaggio b
 | Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
 | Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
 | Folletto | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
-| Biancaneve | 2 | 0 | Ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Blu | 1 |
+| Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
 | Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 | Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 
@@ -185,6 +185,7 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 
 - Mago: vede la prima carta coperta del mazzo personaggi solo all'inizio del proprio turno; se la pesca, non vede la successiva. Se il Mago viene attivato a metà turno, il potere si usa dal turno successivo.
 - Fine turno automatico: finite le mosse, il turno si chiude da solo, tranne se il giocatore ha un fulmine da giocare, deve scartare carte in eccesso, ha lo Scheletro (che si usa a fine turno) o ha Biancaneve e almeno un 2 in mano.
+- Biancaneve: attivandola si riceve anche 1 diamante (deciso il 2026-10-18), poi vale il potere blu di scambiare i 2.
 - Biancaneve a fine turno: se si ha un 2 in mano, l'app chiede con un messaggio se scambiarlo con un diamante; rispondendo no il turno si chiude.
 - Bacchetta magica: si brucia gratis solo a inizio turno, prima di qualsiasi altra azione. A inizio turno si possono usare sia la Bacchetta sia il Cappellaio matto, nell'ordine che si vuole.
 
