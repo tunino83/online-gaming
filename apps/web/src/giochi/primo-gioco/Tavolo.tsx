@@ -349,6 +349,12 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Registro: ultime 3 o le ultime 3 di ogni giocatore
   const eventi = v.registro.filter(significativo);
 
+  // Ordine del giro: chi inizia (primo dell'ordine) e, quando qualcuno ha raggiunto i punti, quanti turni mancano e chi chiude
+  const fineVicina =
+    v.ultimoTurno !== null && !v.finita
+      ? { turni: v.ultimoTurno - v.numeroTurno + 1, chi: v.ordine[v.ultimoTurno % v.ordine.length]! }
+      : null;
+
   // Carte del panno: grandi quanto lo spazio libero tra le due barre fisse (e la larghezza dello schermo)
   const larghezzaPosto = grande ? 92 : largo ? 72 : basso ? 46 : 58;
   const baseNumero = grande ? 120 : largo ? 64 : 52;
@@ -387,7 +393,6 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                   ? `Tocca a te · ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}`
                   : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
             </div>
-            {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-[10px] font-bold text-white">Ultimo giro</span>}
             {conPersone && <PulsanteVocale partitaId={partita.id} />}
             <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
               <Users size={17} />
@@ -403,6 +408,12 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             </BottoneIcona>
             <BottoneTema />
           </div>
+          {fineVicina && (
+            <p className="mt-1 inline-block rounded-full bg-rosso px-2.5 py-0.5 text-xs font-bold text-white">
+              ⏳ {fineVicina.turni === 1 ? "Ultimo turno della partita" : `Ultimi ${fineVicina.turni} turni`} · chiude{" "}
+              {fineVicina.chi === io ? "tu" : nick(fineVicina.chi)}
+            </p>
+          )}
           {suggerimento && <p className="mt-1 text-xs font-semibold text-oro-chiaro">{suggerimento}</p>}
           </div>
 
@@ -443,7 +454,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               ))}
             </div>
             <div className="min-w-0 flex-1 pl-1 text-xs text-luce">
-              <p className="truncate font-titolo text-sm font-bold text-oro-chiaro">{nick(mostrato)}</p>
+              <p className="flex min-w-0 items-center gap-1">
+                <span className="truncate font-titolo text-sm font-bold text-oro-chiaro">{nick(mostrato)}</span>
+                {mostrato === v.ordine[0] && <BadgeInizia />}
+              </p>
               <p className="text-luce/80">
                 {v.giocatori[mostrato]!.attivati.length} attivati · {v.giocatori[mostrato]!.carteInMano} in mano
               </p>
@@ -783,6 +797,18 @@ function BottoneIcona({ etichetta, onClick, children }: { etichetta: string; onC
   );
 }
 
+/** Segno di chi gioca per primo in ogni giro (serve a capire quando finisce il giro). */
+function BadgeInizia() {
+  return (
+    <span
+      className="shrink-0 rounded-full border border-oro/60 bg-oro/20 px-1.5 text-[9px] leading-4 font-bold whitespace-nowrap text-oro-chiaro uppercase"
+      title="Gioca per primo in ogni giro"
+    >
+      ① inizia
+    </span>
+  );
+}
+
 /** Freccia per passare a un altro avversario. */
 function Freccia({ etichetta, onClick, children }: { etichetta: string; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -992,6 +1018,7 @@ function BarraMieCarte({
       <span className="mt-1">
         Mano {v.mano.length}/{v.limiteMano}
       </span>
+      {io === v.ordine[0] && <BadgeInizia />}
     </div>
   );
 
