@@ -115,10 +115,10 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/pinco.jpg" width="90" alt="Pinco"> | Pinco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/panco.jpg" width="90" alt="Panco"> | Panco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/leone.jpg" width="90" alt="Leone"> | Leone | 8888 | 5 | Nessuno | — | 1 |
-| <img src="../games/primo-gioco/immagini/classica/giganti.png" width="90" alt="Giganti"> | Giganti | 6688 | 3 | Nessuno | — | 3 |
+| <img src="../games/primo-gioco/immagini/classica/giganti.jpg" width="90" alt="Giganti"> | Giganti | 6688 | 3 | Nessuno | — | 3 |
 | <img src="../games/primo-gioco/immagini/classica/hansel-e-gretel.jpg" width="90" alt="Hansel e Gretel"> | Hansel e Gretel | 88 | 2 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/goblin.png" width="90" alt="Goblin"> | Goblin | Coppia | 1 | Nessuno | — | 3 |
-| <img src="../games/primo-gioco/immagini/classica/cerbero.png" width="90" alt="Cerbero"> | Cerbero | Tris | 2 | Nessuno | — | 2 |
+| <img src="../games/primo-gioco/immagini/classica/cerbero.jpg" width="90" alt="Cerbero"> | Cerbero | Tris | 2 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/quercia-umana.png" width="90" alt="Quercia umana"> | Quercia umana | Poker | 3 | Nessuno | — | 1 |
 | <img src="../games/primo-gioco/immagini/classica/regina.jpg" width="90" alt="Regina"> | Regina | 7777 | 4 | Nessuno | — | 2 |
 | <img src="../games/primo-gioco/immagini/classica/gnomo.jpg" width="90" alt="Gnomo"> | Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
