@@ -445,6 +445,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               </p>
               {mostrato === v.turno.giocatore && !v.finita && <p className="font-bold text-oro-chiaro">sta giocando</p>}
               <Diamanti diamanti={v.giocatori[mostrato]!.diamanti} />
+              <PoteriBlu v={v} io={mostrato} mosse={[]} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} avversario />
               {avversari.length > 1 && (
                 <div className="mt-0.5 flex gap-1" aria-hidden="true">
                   {avversari.map((id) => (
@@ -1163,6 +1164,7 @@ function Ventaglio({
 }
 
 /** I miei poteri blu attivi: chi si può usare adesso è evidenziato e si tocca; gli altri mostrano la carta. */
+/** Poteri blu di un giocatore: i miei (con le azioni che posso usare) o quelli di un avversario (solo da guardare). */
 function PoteriBlu({
   v,
   io,
@@ -1170,6 +1172,7 @@ function PoteriBlu({
   gioca,
   bloccato,
   ingrandisci,
+  avversario,
 }: {
   v: VistaGiocatore;
   io: string;
@@ -1177,6 +1180,8 @@ function PoteriBlu({
   gioca: (m: Mossa) => void;
   bloccato: boolean;
   ingrandisci: (c: CartaPersonaggio) => () => void;
+  /** poteri di un avversario: niente titolo, niente segnaposto, niente azioni */
+  avversario?: boolean;
 }) {
   const poteri = v.giocatori[io]!.attivati.flatMap((c) =>
     personaggio(c.personaggio)
@@ -1184,11 +1189,12 @@ function PoteriBlu({
       .map((x) => ({ carta: c, effetto: x.effetto })),
   );
   if (poteri.length === 0) {
+    if (avversario) return null;
     return <p className="min-w-0 flex-1 self-center text-[11px] leading-tight text-luce/60">Qui compariranno i poteri blu dei personaggi che attivi.</p>;
   }
   return (
-    <div className="min-w-0 flex-1">
-      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-oro">Poteri</p>
+    <div className={avversario ? "mt-0.5" : "min-w-0 flex-1"}>
+      {!avversario && <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-oro">Poteri</p>}
       <div className="flex flex-wrap items-center gap-1">
         {/* prima le mini carte blu di Nani, Fenice e Drago, poi gli altri poteri */}
         {poteri.map(({ carta, effetto }, i) =>
@@ -1196,7 +1202,7 @@ function PoteriBlu({
             <MiniCartaVirtuale
               key={`${carta.id}-${i}`}
               valore={effetto.valore}
-              usata={v.turno.virtualiUsate.includes(carta.id)}
+              usata={!avversario && v.turno.virtualiUsate.includes(carta.id)}
               titolo={personaggio(carta.personaggio).nome}
               onTocca={ingrandisci(carta)}
             />
