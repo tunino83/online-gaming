@@ -16,6 +16,7 @@ export function Home() {
   const [punti, setPunti] = useState(15);
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
+  const [bot, setBot] = useState(1);
 
   async function crea(e: FormEvent) {
     e.preventDefault();
@@ -24,6 +25,19 @@ export function Home() {
     salvaNickname(nickname);
     salvaAvatar(avatarId);
     const r = await chiediArbitro({ azione: "crea", nickname, avatar: avatarId, maxGiocatori, opzioni: { puntiPerVincere: punti } });
+    setInCorso(false);
+    if (!r.ok) return setErrore(r.errore);
+    vai(`/partita/${r.partitaId}`);
+  }
+
+  /** Modalità di prova: si gioca subito contro giocatori del computer (che muovono a caso). */
+  async function controComputer() {
+    if (!nickname.trim()) return setErrore("Scegli prima un nickname");
+    setInCorso(true);
+    setErrore(null);
+    salvaNickname(nickname);
+    salvaAvatar(avatarId);
+    const r = await chiediArbitro({ azione: "controComputer", nickname, avatar: avatarId, bot, opzioni: { puntiPerVincere: punti } });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -76,6 +90,27 @@ export function Home() {
             {inCorso ? "Creo la partita…" : "Crea una partita"}
           </Pulsante>
         </form>
+        <div className="mt-5 border-t-2 border-dashed border-inchiostro/15 pt-4">
+          <p className="text-sm font-semibold">Modalità di prova</p>
+          <p className="mb-2 text-xs text-tenue">Giochi subito contro il computer, che sceglie mosse a caso. Utile per provare il gioco.</p>
+          <div className="flex items-center gap-2">
+            <select
+              className="rounded-xl border-2 border-inchiostro/30 bg-white px-3 py-2.5"
+              value={bot}
+              onChange={(e) => setBot(Number(e.target.value))}
+              aria-label="Quanti avversari del computer"
+            >
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {n} {n === 1 ? "avversario" : "avversari"}
+                </option>
+              ))}
+            </select>
+            <Pulsante variante="vuoto" onClick={controComputer} disabled={inCorso || !nickname.trim()}>
+              🤖 Prova contro il computer
+            </Pulsante>
+          </div>
+        </div>
       </Riquadro>
       <p className="text-center text-xs text-tenue">Prototipo · Fase 2</p>
     </Pagina>

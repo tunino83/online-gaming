@@ -29,7 +29,7 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
         creatore: p.creatore,
         opzioni: copia(p.opzioni),
         maxGiocatori: p.maxGiocatori,
-        giocatori: [{ utenteId: p.creatore, nickname: p.nickname, avatar: p.avatar }],
+        giocatori: [{ utenteId: p.creatore, nickname: p.nickname, avatar: p.avatar, bot: false }],
         esito: null,
       });
       return id;
@@ -40,8 +40,16 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       if (partita.giocatori.some((g) => g.utenteId === p.utente)) return partita.id;
       if (partita.stato !== "attesa") throw new ErroreArchivio("PARTITA_INIZIATA");
       if (partita.giocatori.length >= partita.maxGiocatori) throw new ErroreArchivio("PARTITA_PIENA");
-      partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar });
+      partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: false });
       return partita.id;
+    },
+    async creaUtenteBot() {
+      return `bot-${++contatore}`;
+    },
+    async aggiungiBot(p) {
+      const partita = dati.partite.get(p.partitaId);
+      if (!partita || partita.stato !== "attesa") throw new ErroreArchivio("PARTITA_INIZIATA");
+      partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: true });
     },
     async leggiPartita(id) {
       const p = dati.partite.get(id);

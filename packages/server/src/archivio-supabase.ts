@@ -44,14 +44,16 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
     async leggiPartita(id) {
       const { data, error } = await db
         .from("partite")
-        .select("id, codice, gioco, stato, creatore, opzioni, max_giocatori, giocatori_partita (utente_id, nickname, avatar, entrato_il)")
+        .select("id, codice, gioco, stato, creatore, opzioni, max_giocatori, giocatori_partita (utente_id, nickname, avatar, bot, entrato_il)")
         .eq("id", id)
         .maybeSingle();
       if (error) traduci(error);
       if (!data) return null;
-      const giocatori = [...(data.giocatori_partita as { utente_id: string; nickname: string; avatar: string; entrato_il: string }[])]
+      const giocatori = [
+        ...(data.giocatori_partita as { utente_id: string; nickname: string; avatar: string; bot: boolean; entrato_il: string }[]),
+      ]
         .sort((a, b) => a.entrato_il.localeCompare(b.entrato_il))
-        .map((g) => ({ utenteId: g.utente_id, nickname: g.nickname, avatar: g.avatar }));
+        .map((g) => ({ utenteId: g.utente_id, nickname: g.nickname, avatar: g.avatar, bot: g.bot }));
       return {
         id: data.id,
         codice: data.codice,
@@ -62,6 +64,27 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
         maxGiocatori: data.max_giocatori,
         giocatori,
       } as InfoPartita;
+    },
+
+    async creaUtenteBot() {
+      // Utente di servizio senza password: non può accedere, serve solo a dare un'identità al bot
+      const { data, error } = await db.auth.admin.createUser({
+        email: `bot-${crypto.randomUUID()}@bot.invalid`,
+        email_confirm: true,
+        user_metadata: { bot: true },
+      });
+      if (error || !data.user) throw new Error(`Non riesco a creare il giocatore del computer: ${error?.message}`);
+      return data.user.id;
+    },
+
+    async aggiungiBot(p) {
+      const { error } = await db.rpc("arbitro_aggiungi_bot", {
+        p_partita: p.partitaId,
+        p_utente: p.utente,
+        p_nickname: p.nickname,
+        p_avatar: p.avatar,
+      });
+      if (error) traduci(error);
     },
 
     async leggiStato(id) {

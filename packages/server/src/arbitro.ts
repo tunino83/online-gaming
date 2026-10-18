@@ -39,7 +39,7 @@ export interface InfoPartita {
   opzioni: Record<string, unknown>;
   maxGiocatori: number;
   /** In ordine di arrivo. */
-  giocatori: { utenteId: string; nickname: string; avatar: string }[];
+  giocatori: { utenteId: string; nickname: string; avatar: string; bot: boolean }[];
 }
 
 export interface VistaDaSalvare {
@@ -62,6 +62,10 @@ export interface Archivio {
   /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
   unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
   leggiPartita(id: string): Promise<InfoPartita | null>;
+  /** Crea un utente "di servizio" per un giocatore del computer e ne restituisce l'id. */
+  creaUtenteBot(): Promise<string>;
+  /** Aggiunge un giocatore del computer a una partita in attesa. */
+  aggiungiBot(p: { partitaId: string; utente: string; nickname: string; avatar: string }): Promise<void>;
   leggiStato(id: string): Promise<{ stato: unknown; versione: number } | null>;
   /**
    * Salva tutto insieme (stato, viste, mossa, stato della partita).
@@ -130,8 +134,10 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await unisciti(richiesta, utente, archivio);
       case "avvia":
         return await avvia(richiesta, utente, archivio, amb);
+      case "controComputer":
+        return await controComputer(richiesta, utente, archivio, amb);
       case "mossa":
-        return await mossa(richiesta, utente, archivio);
+        return await mossa(richiesta, utente, archivio, amb);
       default:
         return errore("Azione sconosciuta");
     }
@@ -139,6 +145,51 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
     if (e instanceof ErroreArchivio) return errore(MESSAGGI[e.codice]);
     throw e;
   }
+}
+
+/** Partita di prova contro il computer: si crea, si aggiungono i bot e parte subito. */
+async function controComputer(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
+  const quanti = r.bot ?? 1;
+  if (!Number.isInteger(quanti) || (quanti as number) < 1 || (quanti as number) > 4) return errore("Si gioca contro 1-4 giocatori del computer");
+  const creata = await crea({ ...r, maxGiocatori: (quanti as number) + 1 }, utente, archivio, amb);
+  if (!creata.ok) return creata;
+  const partitaId = creata.partitaId as string;
+  for (let i = 1; i <= (quanti as number); i++) {
+    const bot = await archivio.creaUtenteBot();
+    await archivio.aggiungiBot({ partitaId, utente: bot, nickname: `Computer ${i}`, avatar: "robot" });
+  }
+  const avviata = await avvia({ partitaId }, utente, archivio, amb);
+  return avviata.ok ? { ok: true, partitaId } : avviata;
+}
+
+/**
+ * Fa muovere i giocatori del computer finché non tocca a una persona (o la partita finisce),
+ * applicando anche le mosse automatiche. Restituisce il nuovo stato.
+ */
+function muoviBot(g: QualsiasiGioco, stato: unknown, bot: Set<string>, amb: Ambiente): unknown {
+  let s = stato;
+  for (let passo = 0; passo < 2000; passo++) {
+    s = applicaAutomatiche(g, s);
+    const chi = g.diTurno?.(s);
+    if (!chi || !bot.has(chi) || !g.mossaBot) break;
+    const r = g.applicaMossa(s, chi, g.mossaBot(s, chi, amb.casuale));
+    if (!r.ok) break;
+    s = r.stato;
+  }
+  return s;
+}
+
+/** Mosse senza scelta (es. chiudere il turno quando non resta altro da fare): le fa il server. */
+function applicaAutomatiche(g: QualsiasiGioco, stato: unknown): unknown {
+  let s = stato;
+  for (let i = 0; i < 10; i++) {
+    const automatica = g.mossaAutomatica?.(s);
+    if (!automatica) break;
+    const r = g.applicaMossa(s, automatica.giocatore, automatica.mossa);
+    if (!r.ok) break;
+    s = r.stato;
+  }
+  return s;
 }
 
 async function crea(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
@@ -204,7 +255,8 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
 
   const ids = p.giocatori.map((x) => x.utenteId);
   const seed = Math.floor(amb.casuale() * 2 ** 32);
-  const stato = g.setup(ids, p.opzioni, seed);
+  // Se tocca prima a un giocatore del computer, muove subito
+  const stato = muoviBot(g, g.setup(ids, p.opzioni, seed), new Set(p.giocatori.filter((x) => x.bot).map((x) => x.utenteId)), amb);
   await archivio.salva({
     partitaId: p.id,
     versioneAttesa: null,
@@ -218,7 +270,7 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
   return { ok: true };
 }
 
-async function mossa(r: Record<string, unknown>, utente: string, archivio: Archivio): Promise<Risposta> {
+async function mossa(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
   if (!idValido(r.partitaId)) return errore("Partita non trovata");
   const p = await archivio.leggiPartita(r.partitaId);
   if (!p || !p.giocatori.some((x) => x.utenteId === utente)) return errore("Partita non trovata");
@@ -236,15 +288,9 @@ async function mossa(r: Record<string, unknown>, utente: string, archivio: Archi
   }
   if (!risultato.ok) return errore(risultato.errore);
 
-  // Mosse senza scelta (es. chiudere il turno quando non resta altro da fare): le fa il server.
-  let nuovo = risultato.stato;
-  for (let i = 0; i < 10; i++) {
-    const automatica = g.mossaAutomatica?.(nuovo);
-    if (!automatica) break;
-    const r = g.applicaMossa(nuovo, automatica.giocatore, automatica.mossa);
-    if (!r.ok) break;
-    nuovo = r.stato;
-  }
+  // Mosse automatiche e, nelle partite di prova, i turni dei giocatori del computer
+  const bot = new Set(p.giocatori.filter((x) => x.bot).map((x) => x.utenteId));
+  const nuovo = muoviBot(g, risultato.stato, bot, amb);
   const esito = g.finePartita(nuovo);
   const ids = p.giocatori.map((x) => x.utenteId);
   await archivio.salva({

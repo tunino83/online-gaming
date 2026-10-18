@@ -48,4 +48,13 @@ export interface Gioco<Stato, Mossa, Opzioni, Vista> {
    * (es. chiudere il turno quando non resta altro da fare). L'arbitro la applica subito.
    */
   mossaAutomatica?(stato: Stato): { giocatore: IdGiocatore; mossa: Mossa } | null;
+
+  /**
+   * Facoltativa: chi deve muovere adesso e una mossa valida scelta da un giocatore del computer
+   * (per la modalità di prova). `casuale` dà numeri in [0, 1).
+   */
+  mossaBot?(stato: Stato, giocatore: IdGiocatore, casuale: () => number): Mossa;
+
+  /** Facoltativa: a chi tocca adesso (per far muovere i bot); null a partita finita. */
+  diTurno?(stato: Stato): IdGiocatore | null;
 }

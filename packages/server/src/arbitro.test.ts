@@ -32,7 +32,7 @@ describe("creare e unirsi a una partita", () => {
     const r = await chiedi(A, { azione: "crea", nickname: "  Anna  " });
     expect(r).toMatchObject({ ok: true, codice: expect.stringMatching(/^[A-Z2-9]{5}$/) });
     const p = await archivio.leggiPartita((r as unknown as { partitaId: string }).partitaId);
-    expect(p).toMatchObject({ stato: "attesa", creatore: A, giocatori: [{ utenteId: A, nickname: "Anna", avatar: "mago" }] });
+    expect(p).toMatchObject({ stato: "attesa", creatore: A, giocatori: [{ utenteId: A, nickname: "Anna", avatar: "mago", bot: false }] });
   });
 
   it("rifiuta nickname vuoti o troppo lunghi, giochi sconosciuti e opzioni strane", async () => {
@@ -205,5 +205,52 @@ describe("avatar", () => {
     expect((await archivio.leggiPartita(partitaId))?.giocatori.map((g) => g.avatar)).toEqual(["volpe", "mago"]);
     expect(await chiedi(C, { azione: "unisciti", codice, nickname: "Carla", avatar: "<script>" })).toEqual({ ok: false, errore: "Avatar non valido" });
     expect(await chiedi(C, { azione: "crea", nickname: "Carla", avatar: 5 })).toEqual({ ok: false, errore: "Avatar non valido" });
+  });
+});
+
+describe("partita di prova contro il computer", () => {
+  it("parte subito con i bot; dopo il mio turno muovono loro e torna a me", async () => {
+    const { chiedi, archivio } = prepara(11);
+    const r = await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 2 });
+    expect(r).toMatchObject({ ok: true });
+    const partitaId = (r as unknown as { partitaId: string }).partitaId;
+    const p = (await archivio.leggiPartita(partitaId))!;
+    expect(p.stato).toBe("in_corso");
+    expect(p.giocatori.map((g) => [g.nickname, g.avatar, g.bot])).toEqual([
+      ["Anna", "mago", false],
+      ["Computer 1", "robot", true],
+      ["Computer 2", "robot", true],
+    ]);
+    const stato = () => archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
+    // Anche se il sorteggio fa partire un bot, quando si legge tocca già a una persona
+    expect(stato().turno.giocatore).toBe(A);
+    for (let i = 0; i < 3; i++) {
+      expect(await chiedi(A, { azione: "mossa", partitaId, mossa: { tipo: "pescaNumero" } })).toEqual({ ok: true });
+    }
+    expect(stato().turno.giocatore).toBe(A);
+    expect(stato().numeroTurno).toBe(stato().ordine.indexOf(A) + 3);
+    expect(stato().registro.some((e) => e.giocatore !== A)).toBe(true);
+  });
+
+  it("una partita intera contro 3 bot arriva alla fine", async () => {
+    const { chiedi, archivio } = prepara(5);
+    const r = await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 3 });
+    const partitaId = (r as unknown as { partitaId: string }).partitaId;
+    const rng = creaCasuale(9);
+    let passi = 0;
+    while ((await archivio.leggiPartita(partitaId))!.stato === "in_corso") {
+      const s = archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
+      expect(s.turno.giocatore).toBe(A);
+      const r2 = await chiedi(A, { azione: "mossa", partitaId, mossa: mossaDelBot(s, A, rng) });
+      expect(r2.ok, JSON.stringify(r2)).toBe(true);
+      expect(++passi).toBeLessThan(3000);
+    }
+    expect(archivio.dati.partite.get(partitaId)!.esito).toMatchObject({ vincitori: expect.any(Array) });
+  });
+
+  it("numero di bot non valido", async () => {
+    const { chiedi } = prepara();
+    expect(await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 0 })).toMatchObject({ ok: false });
+    expect(await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 5 })).toMatchObject({ ok: false });
   });
 });
