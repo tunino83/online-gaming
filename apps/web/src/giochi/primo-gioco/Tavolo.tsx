@@ -1,14 +1,15 @@
 /**
  * Schermata di gioco del primo gioco, disegnata come un tavolo da gioco.
- * - In alto (fisso): stato del turno, pulsanti (Tavolo, Storico, Regole, Suoni), avversari ad arco
- *   con l'anello dei punti e i personaggi dell'avversario scelto (o di chi sta giocando).
- * - Al centro: il panno con mazzi e carte scoperte; fumetto con l'ultima mossa degli altri.
+ * - In alto (fisso): stato del turno, pulsanti (Tavolo, Storico, Regole, Suoni, Tema) e la barra
+ *   dell'avversario mostrato (personaggi, avatar con i punti; frecce per vedere gli altri avversari).
+ * - Al centro: il panno con mazzi e carte scoperte (le carte si rimpiccioliscono per stare tra le due barre
+ *   anche sui telefoni piccoli); fumetto con l'ultima mossa degli altri.
  * - In basso (fisso): i miei posti, i miei poteri blu, la mia mano a ventaglio, diamanti e fine turno.
  * Si tocca una carta per prenderla, un mazzo per pescare, un proprio personaggio per attivarlo.
  * Le mosse possibili le calcola sempre il server.
  */
 import { type CartaDiamante, type CartaPersonaggio, type Evento, type Mossa, type VistaGiocatore, personaggio } from "@og/primo-gioco";
-import { BookOpen, Flame, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Flame, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
 import { type CSSProperties, type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AvatarPunti } from "../../Avatar";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
@@ -52,6 +53,22 @@ function useLarghezza(ref: RefObject<HTMLElement>): number {
   return larghezza;
 }
 
+/** Dimensioni della finestra, aggiornate quando cambiano (rotazione, barra del browser che sparisce…). */
+function useFinestra(): { larghezza: number; altezza: number } {
+  const leggi = () => ({ larghezza: window.innerWidth, altezza: window.innerHeight });
+  const [finestra, setFinestra] = useState(leggi);
+  useEffect(() => {
+    const cambia = () => setFinestra(leggi());
+    window.addEventListener("resize", cambia);
+    return () => window.removeEventListener("resize", cambia);
+  }, []);
+  return finestra;
+}
+
+/** Altezza di una carta (tutte le carte sono 63 × 88). */
+const altezzaDi = (larghezza: number) => (larghezza * 88) / 63;
+const limita = (x: number, min: number, max: number) => Math.round(Math.max(min, Math.min(max, x)));
+
 /** Schermo largo (tablet, computer, telefono in orizzontale): carte un po' più grandi. */
 function useSchermoLargo(): boolean {
   const [largo, setLargo] = useState(() => window.matchMedia("(min-width: 768px)").matches);
@@ -88,6 +105,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [codaAttivazioni, setCodaAttivazioni] = useState<Attivazione[]>([]);
   const inizioSwipe = useRef<number | null>(null);
   const largo = useSchermoLargo();
+  const finestra = useFinestra();
+  // Telefono basso: barre più compatte, così resta spazio per il tavolo
+  const basso = finestra.altezza < 720;
 
   const versione = riga?.versione;
   useEffect(() => setDaScartare([]), [versione]);
@@ -295,9 +315,21 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Registro: ultime 3 o le ultime 3 di ogni giocatore
   const eventi = v.registro.filter(significativo);
 
-  const larghezzaPosto = largo ? 72 : 58;
-  const larghezzaNumero = largo ? 64 : 52;
-  const larghezzaPersonaggio = largo ? 140 : 112;
+  // Carte del panno: grandi quanto lo spazio libero tra le due barre fisse (e la larghezza dello schermo)
+  const larghezzaPosto = largo ? 72 : basso ? 46 : 58;
+  const baseNumero = largo ? 64 : 52;
+  const basePersonaggio = largo ? 140 : 112;
+  const larghezzaPanno = Math.min(finestra.larghezza, largo ? 672 : 448) - 24 - 24;
+  const spazioPanno = finestra.altezza - altezzaAlta - altezzaBassa - 16;
+  const fisso = 24 + 10 + (basso ? 0 : 22) + (gratuite.length > 0 ? 34 : 0) + (v.primoPersonaggio ? 100 : 0);
+  const rapporto = basePersonaggio / baseNumero;
+  const larghezzaNumero = limita(Math.min((spazioPanno - fisso) / altezzaDi(1 + rapporto), (larghezzaPanno - 80) / 5), 34, baseNumero);
+  const larghezzaPersonaggio = limita(
+    Math.min((spazioPanno - fisso - altezzaDi(larghezzaNumero)) / altezzaDi(1), (larghezzaPanno - larghezzaNumero - 34) / 2),
+    56,
+    basePersonaggio,
+  );
+  const bruciaOra = bruciaGratis ?? brucia;
 
   return (
     <>
@@ -337,39 +369,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           </div>
           {suggerimento && <p className="mt-1 text-xs font-semibold text-oro-chiaro">{suggerimento}</p>}
 
-          {/* avversari ad arco */}
-          <div className="mt-2 flex items-end justify-center gap-3">
-            {avversari.map((id, i) => {
-              const centro = (avversari.length - 1) / 2;
-              const alto = Math.abs(i - centro) * (avversari.length > 2 ? 6 : 0);
-              const g = v.giocatori[id]!;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setAvversarioScelto(id)}
-                  className={`flex flex-col items-center rounded-xl px-1 pt-1 transition ${id === mostrato ? "bg-white/10" : "opacity-75"}`}
-                  style={{ marginBottom: -alto } as CSSProperties}
-                  aria-label={`Guarda le carte di ${nick(id)}`}
-                >
-                  <AvatarPunti
-                    id={avatarDi(id)}
-                    punti={g.punti}
-                    traguardo={traguardo}
-                    diTurno={id === v.turno.giocatore && !v.finita}
-                    carteInMano={g.carteInMano}
-                    dimensione={avversari.length > 3 ? 44 : 50}
-                    titolo={nick(id)}
-                  />
-                  <span className="mt-1 max-w-16 truncate text-[11px] font-semibold text-luce">{nick(id)}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* carte dell'avversario scelto (swipe per cambiare) */}
+          {/* barra dell'avversario mostrato: frecce (o swipe) per vedere gli altri */}
           <div
-            className="mt-2 flex items-center gap-2 rounded-xl bg-white/5 p-1.5"
+            className="mt-1.5 flex items-center gap-1 rounded-xl bg-white/5 p-1"
             onTouchStart={(e) => {
               inizioSwipe.current = e.touches[0]?.clientX ?? null;
             }}
@@ -382,7 +384,12 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               else if (fine - inizio > 40) scorri(-1);
             }}
           >
-            <div className="flex gap-1">
+            {avversari.length > 1 && (
+              <Freccia etichetta="Avversario precedente" onClick={() => scorri(-1)}>
+                <ChevronLeft size={18} />
+              </Freccia>
+            )}
+            <div className="flex shrink-0 gap-1">
               {v.giocatori[mostrato]!.posti.map((c) => (
                 <CartaPersonaggioGrafica
                   key={c.id}
@@ -398,20 +405,46 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                 <PostoVuoto key={i} larghezza={larghezzaPosto} />
               ))}
             </div>
-            <div className="min-w-0 flex-1 text-xs text-luce">
+            <div className="min-w-0 flex-1 pl-1 text-xs text-luce">
               <p className="truncate font-titolo text-sm font-bold text-oro-chiaro">{nick(mostrato)}</p>
               <p className="text-luce/80">
                 {v.giocatori[mostrato]!.attivati.length} attivati · {v.giocatori[mostrato]!.carteInMano} in mano
               </p>
               {mostrato === v.turno.giocatore && !v.finita && <p className="font-bold text-oro-chiaro">sta giocando</p>}
               <Diamanti diamanti={v.giocatori[mostrato]!.diamanti} />
+              {avversari.length > 1 && (
+                <div className="mt-0.5 flex gap-1" aria-hidden="true">
+                  {avversari.map((id) => (
+                    <span
+                      key={id}
+                      className={`h-1.5 rounded-full transition-all ${
+                        id === mostrato ? "w-4 bg-oro-chiaro" : id === v.turno.giocatore && !v.finita ? "w-1.5 bg-oro" : "w-1.5 bg-luce/40"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
+            <AvatarPunti
+              id={avatarDi(mostrato)}
+              punti={v.giocatori[mostrato]!.punti}
+              traguardo={traguardo}
+              diTurno={mostrato === v.turno.giocatore && !v.finita}
+              carteInMano={v.giocatori[mostrato]!.carteInMano}
+              dimensione={basso ? 42 : 48}
+              titolo={nick(mostrato)}
+            />
+            {avversari.length > 1 && (
+              <Freccia etichetta="Avversario successivo" onClick={() => scorri(1)}>
+                <ChevronRight size={18} />
+              </Freccia>
+            )}
           </div>
         </div>
       </div>
 
       {/* ---------------- centro: il panno ---------------- */}
-      <div className="relative space-y-3" style={{ paddingTop: altezzaAlta + 12, paddingBottom: altezzaBassa + 16 }}>
+      <div className="relative space-y-3" style={{ paddingTop: altezzaAlta + 8, paddingBottom: altezzaBassa + 8 }}>
         {fumetto && (
           <div key={fumetto.chiave} className="fumetto pointer-events-none absolute inset-x-0 z-20 flex justify-center" style={{ top: altezzaAlta + 4 }}>
             <span className="rounded-full border border-oro/60 bg-notte/95 px-3 py-1 text-xs font-semibold text-luce shadow-lg">
@@ -448,19 +481,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                 )}
               </div>
             ))}
+            <BottoneBrucia onClick={bruciaOra} gratis={!!bruciaGratis} disabilitata={bloccato} />
           </div>
-          {(brucia || bruciaGratis || gratuite.length > 0) && (
+          {gratuite.length > 0 && (
             <div className="mt-2 flex flex-wrap justify-center gap-1.5">
-              {brucia && (
-                <ChipAzione onClick={brucia} disabilitata={bloccato}>
-                  <Flame size={14} /> Brucia le 4 carte (costa 1)
-                </ChipAzione>
-              )}
-              {bruciaGratis && (
-                <ChipAzione onClick={bruciaGratis} disabilitata={bloccato}>
-                  <Wand2 size={14} /> Brucia gratis
-                </ChipAzione>
-              )}
               {gratuite.map((m) => (
                 <ChipAzione key={JSON.stringify(m)} onClick={() => gioca(m)} disabilitata={bloccato}>
                   {descriviMossa(m, v, carte, nick)}
@@ -469,7 +493,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             </div>
           )}
 
-          <div className="mt-3 flex items-center justify-center gap-1.5">
+          <div className="mt-2.5 flex items-center justify-center gap-1.5">
             <div data-tavolo="mazzo-personaggi">
               <DorsoMazzo
                 nome="Personaggi"
@@ -496,7 +520,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               </div>
             ))}
           </div>
-          <p className="mt-2 text-center text-[11px] text-white/60">Diamanti nel mazzo: {v.mazzi.diamanti} · arrivano solo dai poteri</p>
+          <p className={`mt-2 text-center text-[11px] text-white/60 ${basso ? "hidden" : ""}`}>Diamanti nel mazzo: {v.mazzi.diamanti} · arrivano solo dai poteri</p>
 
           {v.primoPersonaggio && (
             <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-black/25 p-2">
@@ -527,6 +551,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       {/* ---------------- barra in basso ---------------- */}
       <BarraMieCarte
         rif={barraBassa}
+        basso={basso}
         avatarId={avatarDi(io)}
         traguardo={traguardo}
         largo={largo}
@@ -702,6 +727,47 @@ function BottoneIcona({ etichetta, onClick, children }: { etichetta: string; onC
   );
 }
 
+/** Freccia per passare a un altro avversario. */
+function Freccia({ etichetta, onClick, children }: { etichetta: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={etichetta}
+      title={etichetta}
+      className="grid h-10 w-6 shrink-0 place-items-center rounded-lg text-oro-chiaro transition hover:bg-white/10"
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Fuoco accanto alle carte numero: brucia le 4 carte (con la Bacchetta, gratis). Spento quando non si può. */
+function BottoneBrucia({ onClick, gratis, disabilitata }: { onClick?: () => void; gratis: boolean; disabilitata: boolean }) {
+  const etichetta = gratis ? "Brucia le 4 carte gratis (Bacchetta magica)" : "Brucia le 4 carte (costa 1 mossa)";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick || disabilitata}
+      aria-label={etichetta}
+      title={etichetta}
+      className={`relative ml-0.5 grid h-9 w-9 shrink-0 place-items-center self-center rounded-full border-2 transition ${
+        onClick
+          ? "border-[#ffd27a] bg-gradient-to-b from-[#ff9a3c] to-[#c2410c] text-white shadow-[0_0_12px_rgba(255,140,40,0.7)] hover:brightness-110 disabled:opacity-50"
+          : "border-white/20 bg-black/20 text-white/30"
+      }`}
+    >
+      <Flame size={18} />
+      {gratis && (
+        <span className="absolute -top-1.5 -right-1.5 grid h-[18px] w-[18px] place-items-center rounded-full bg-oro text-[#2b1a05]">
+          <Wand2 size={11} />
+        </span>
+      )}
+    </button>
+  );
+}
+
 function ChipAzione({ onClick, disabilitata, children }: { onClick: () => void; disabilitata: boolean; children: React.ReactNode }) {
   return (
     <button
@@ -815,6 +881,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
  */
 function BarraMieCarte({
   rif,
+  basso,
   avatarId,
   traguardo,
   largo,
@@ -835,6 +902,7 @@ function BarraMieCarte({
   ingrandisci,
 }: {
   rif: RefObject<HTMLDivElement>;
+  basso: boolean;
   avatarId?: string;
   traguardo: number;
   largo: boolean;
@@ -858,7 +926,7 @@ function BarraMieCarte({
   const [dueDaScambiare, setDueDaScambiare] = useState<string | null>(null);
   const biancaneve = mosse.some((m) => m.tipo === "dueInDiamante");
   const mioTurno = v.turno.giocatore === io && !v.finita;
-  const larghezzaPosto = largo ? 84 : 70;
+  const larghezzaPosto = largo ? 84 : basso ? 56 : 70;
 
   return (
     <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-oro/60 bg-notte/92 shadow-[0_-8px_24px_rgba(0,0,0,0.55)] backdrop-blur">
@@ -891,7 +959,7 @@ function BarraMieCarte({
           </div>
           <PoteriBlu v={v} io={io} mosse={mosse} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} />
           <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-luce/80">
-            <AvatarPunti id={avatarId} punti={mio.punti} traguardo={traguardo} diTurno={mioTurno} dimensione={46} titolo="Tu" />
+            <AvatarPunti id={avatarId} punti={mio.punti} traguardo={traguardo} diTurno={mioTurno} dimensione={basso ? 40 : 46} titolo="Tu" />
             <span className="mt-1">
               Mano {v.mano.length}/{v.limiteMano}
             </span>
@@ -901,6 +969,7 @@ function BarraMieCarte({
         <Ventaglio
           v={v}
           largo={largo}
+          basso={basso}
           daScartare={daScartare}
           bloccato={bloccato}
           tocca={(id, valore) =>
@@ -920,7 +989,7 @@ function BarraMieCarte({
               type="button"
               disabled={bloccato || !scartiPronti}
               onClick={() => chiudiTurno(false)}
-              className="flex-1 rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-3 py-2.5 text-sm font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] disabled:opacity-40"
+              className={`flex-1 rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-3 ${basso ? "py-1.5" : "py-2.5"} text-sm font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] disabled:opacity-40`}
             >
               {eccesso > 0 ? `Scarta ${eccesso} (${daScartare.length}/${eccesso}) e chiudi` : "Chiudi il turno"}
             </button>
@@ -964,6 +1033,7 @@ function BarraMieCarte({
 function Ventaglio({
   v,
   largo,
+  basso,
   daScartare,
   bloccato,
   tocca,
@@ -971,6 +1041,7 @@ function Ventaglio({
 }: {
   v: VistaGiocatore;
   largo: boolean;
+  basso: boolean;
   daScartare: string[];
   bloccato: boolean;
   tocca: (id: string, valore: number) => (() => void) | undefined;
@@ -979,7 +1050,7 @@ function Ventaglio({
   const contenitore = useRef<HTMLDivElement>(null);
   const spazio = useLarghezza(contenitore);
   const mano = [...v.mano].sort((a, b) => a.valore - b.valore);
-  const larghezzaCarta = largo ? 74 : 58;
+  const larghezzaCarta = largo ? 74 : basso ? 50 : 58;
   const altezzaCarta = Math.round((larghezzaCarta * 88) / 63);
   const n = mano.length;
   const passo = n > 1 ? Math.min(larghezzaCarta + 6, (Math.max(spazio, larghezzaCarta) - larghezzaCarta - 8) / (n - 1)) : 0;
@@ -990,7 +1061,7 @@ function Ventaglio({
   const centro = (n - 1) / 2;
 
   return (
-    <div ref={contenitore} className="ventaglio relative mt-2" style={{ height: altezzaCarta + 22 }}>
+    <div ref={contenitore} className="ventaglio relative mt-2" style={{ height: altezzaCarta + (basso ? 14 : 22) }}>
       {n === 0 && <p className="pt-6 text-center text-xs text-luce/70">Nessuna carta in mano</p>}
       {mano.map((c, i) => {
         const scelta = daScartare.includes(c.id);

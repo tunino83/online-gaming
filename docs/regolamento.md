@@ -189,4 +189,15 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Biancaneve a fine turno: se si ha un 2 in mano, l'app chiede con un messaggio se scambiarlo con un diamante; rispondendo no il turno si chiude.
 - Bacchetta magica: si brucia gratis solo a inizio turno, prima di qualsiasi altra azione. A inizio turno si possono usare sia la Bacchetta sia il Cappellaio matto, nell'ordine che si vuole.
 
-Nessuna domanda aperta al momento.
+**Da chiarire: carte numero con le frecce (nuova regola, 2026-10-18)**
+
+Regola annunciata: esistono 3 carte numero con le frecce (un 3, un 4 e un 5); quando escono sul tavolo
+si cambiano i 2 personaggi scoperti. Dubbi:
+
+1. Le 3 carte con le frecce si aggiungono alle 56 (diventano 59) o sostituiscono un 3, un 4 e un 5 normali (restano 56)?
+2. "Si cambiano i 2 personaggi": i due personaggi scoperti vanno negli scarti personaggi e se ne scoprono 2 nuovi dal mazzo?
+3. Vale ogni volta che la carta compare sul tavolo: a inizio partita, quando rimpiazza una carta presa e quando si brucia?
+4. Se la carta con le frecce viene pescata coperta dal mazzo (va in mano), non succede niente?
+5. Se escono due carte con le frecce insieme (es. bruciando), i personaggi si cambiano una volta o due?
+6. In mano e nei codici vale come una carta normale del suo numero?
+
