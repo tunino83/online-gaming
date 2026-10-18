@@ -12,7 +12,8 @@ function righeRegolamento() {
     .filter((r) => r.startsWith("|"))
     .slice(2) // intestazione e riga di separazione
     .map((r) => {
-      const [nome, codice, punti, potere, tipo, copie] = r
+      // la prima colonna è l'immagine
+      const [, nome, codice, punti, potere, tipo, copie] = r
         .split("|")
         .slice(1, -1)
         .map((c) => c.trim());
