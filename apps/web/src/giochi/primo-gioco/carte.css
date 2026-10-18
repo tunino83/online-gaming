@@ -231,6 +231,16 @@
 .carta.dorso .etichetta-mazzo { font-family: "Cinzel", Georgia, serif; font-size: 1.25em; font-weight: 700; letter-spacing: 0.04em; }
 .carta.dorso .conteggio { font-family: "Cinzel", Georgia, serif; font-size: 2.8em; font-weight: 700; line-height: 1.1; color: #f2d58a; }
 .carta.dorso.vuoto { opacity: 0.35; }
+/* Retro del mazzo personaggi: rosso porpora con un "portale" di cerchi dorati, diverso dal blu a righe dei numeri */
+.carta.dorso.personaggi .cornice {
+  background:
+    radial-gradient(circle at 50% 45%, rgb(242 213 138 / 0.5), transparent 22%),
+    repeating-radial-gradient(circle at 50% 45%, rgb(242 213 138 / 0.16) 0 0.18em, transparent 0.18em 0.9em),
+    linear-gradient(160deg, #7a1f3d, #2a0b1c);
+  box-shadow: inset 0 0 0 0.15em #2a0b1c, inset 0 0 0 0.28em #c9a24a;
+}
+.carta.dorso.personaggi .etichetta-mazzo::before { content: "✦"; display: block; font-size: 1.6em; color: #f2d58a; line-height: 1; }
+.carta.dorso.numeri .etichetta-mazzo::before { content: "1 · 8"; display: block; font-size: 0.8em; color: #f2d58a; opacity: 0.8; }
 
 /* Posto vuoto */
 .carta.vuota { background: transparent; box-shadow: none; border: 0.15em dashed rgb(0 0 0 / 0.2); }

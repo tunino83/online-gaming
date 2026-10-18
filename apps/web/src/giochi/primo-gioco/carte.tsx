@@ -125,9 +125,14 @@ export function CartaNumeroGrafica({
   );
 }
 
-export function DorsoMazzo({ nome, quante, ...comune }: Comune & { nome: string; quante: number }) {
+export function DorsoMazzo({
+  nome,
+  quante,
+  mazzo,
+  ...comune
+}: Comune & { nome: string; quante: number; /** retro diverso per ogni mazzo */ mazzo: "numeri" | "personaggi" }) {
   return (
-    <Contenitore classe={`dorso ${quante === 0 ? "vuoto" : ""}`} titolo={comune.titolo ?? `Mazzo ${nome}: ${quante} carte`} {...comune}>
+    <Contenitore classe={`dorso ${mazzo} ${quante === 0 ? "vuoto" : ""}`} titolo={comune.titolo ?? `Mazzo ${nome}: ${quante} carte`} {...comune}>
       <div className="cornice">
         <span className="etichetta-mazzo">{nome}</span>
         <span className="conteggio">{quante}</span>

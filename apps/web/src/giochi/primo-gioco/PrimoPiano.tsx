@@ -14,12 +14,15 @@ export function PrimoPiano({
   carta,
   titolo,
   elenco,
+  azione,
   onChiudi,
 }: {
   carta: CartaDaMostrare;
   titolo?: string;
   /** id dei personaggi da sfogliare (carosello) */
   elenco?: readonly string[];
+  /** pulsante per confermare una mossa con questa carta (es. "Prendi questa carta"); c'è anche "Chiudi" */
+  azione?: { testo: string; onClick: () => void; disabilitata?: boolean };
   onChiudi: () => void;
 }) {
   const iniziale = carta.tipo === "personaggio" && elenco ? Math.max(0, elenco.indexOf(carta.id)) : -1;
@@ -87,9 +90,28 @@ export function PrimoPiano({
             )}
           </div>
         )}
-        <button type="button" onClick={onChiudi} className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-8 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518]">
-          OK
-        </button>
+        {azione ? (
+          <div className="flex gap-2">
+            <button type="button" onClick={onChiudi} className="rounded-xl border-2 border-white/70 bg-black/30 px-6 py-2.5 font-semibold text-white">
+              Chiudi
+            </button>
+            <button
+              type="button"
+              disabled={azione.disabilitata}
+              onClick={() => {
+                azione.onClick();
+                onChiudi();
+              }}
+              className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-6 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] disabled:opacity-40"
+            >
+              {azione.testo}
+            </button>
+          </div>
+        ) : (
+          <button type="button" onClick={onChiudi} className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-8 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518]">
+            OK
+          </button>
+        )}
       </div>
     </div>
   );

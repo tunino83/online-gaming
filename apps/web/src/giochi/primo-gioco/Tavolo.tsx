@@ -101,7 +101,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Dopo una mossa riuscita i comandi restano spenti finché non arriva la situazione aggiornata
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
-  const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string } | null>(null);
+  const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string; azione?: () => void } | null>(null);
   const [daScartare, setDaScartare] = useState<string[]>([]);
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
   const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | null>(null);
@@ -494,6 +494,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <div data-tavolo="mazzo-numeri">
               <DorsoMazzo
                 nome="Numeri"
+                mazzo="numeri"
                 quante={v.mazzi.numeri}
                 larghezza={larghezzaNumero + 2}
                 onTocca={seValida((m) => m.tipo === "pescaNumero")}
@@ -532,6 +533,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <div data-tavolo="mazzo-personaggi">
               <DorsoMazzo
                 nome="Personaggi"
+                mazzo="personaggi"
                 quante={v.mazzi.personaggi}
                 larghezza={larghezzaNumero + 2}
                 onTocca={seValida((m) => m.tipo === "pescaPersonaggio")}
@@ -545,7 +547,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                   <CartaPersonaggioGrafica
                     id={c.personaggio}
                     larghezza={larghezzaPersonaggio}
-                    onTocca={seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i)}
+                    onTocca={(() => {
+                      // Prima si vede la carta in grande, poi si conferma: un tocco per sbaglio non la prende
+                      const prendi = seValida((m) => m.tipo === "prendiPersonaggio" && m.posizione === i);
+                      return prendi ? () => setPrimoPiano({ carta: { tipo: "personaggio", id: c.personaggio }, azione: prendi }) : undefined;
+                    })()}
                     onIngrandisci={ingrandisci(c)}
                     disabilitata={bloccato}
                   />
@@ -744,8 +750,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         <PrimoPiano
           carta={primoPiano.carta}
           titolo={primoPiano.titolo}
-          // carta toccata: si possono sfogliare tutti i personaggi; carta appena pescata: solo quella
-          elenco={primoPiano.titolo ? undefined : TUTTI_I_PERSONAGGI}
+          // carta toccata: si possono sfogliare tutti i personaggi; carta appena pescata o da prendere: solo quella
+          elenco={primoPiano.titolo || primoPiano.azione ? undefined : TUTTI_I_PERSONAGGI}
+          azione={primoPiano.azione && { testo: "Prendi questa carta", onClick: primoPiano.azione, disabilitata: bloccato }}
           onChiudi={() => setPrimoPiano(null)}
         />
       )}
