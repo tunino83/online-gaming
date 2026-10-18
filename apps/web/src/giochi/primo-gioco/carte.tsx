@@ -66,7 +66,7 @@ function Pezzo({ p }: { p: PezzoCodice }) {
 
 export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { id: string; compatta?: boolean }) {
   const p = personaggio(id);
-  const { colore, etichetta } = tipoCarta(p);
+  const { colore } = tipoCarta(p);
   const skin = useSkin();
   const img = immaginePersonaggio(p.id, skin);
   const pezzi = pezziCodice(p.codice);
@@ -91,7 +91,6 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
             <Pezzo key={i} p={pz} />
           ))}
         </div>
-        <span className="tipo">{etichetta}</span>
         {p.poteri.length > 0 && <p className={`testo-potere ${p.potereTesto.length > 90 ? "lungo" : ""}`}>{p.potereTesto}</p>}
       </div>
     </Contenitore>

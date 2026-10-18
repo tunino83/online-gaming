@@ -133,11 +133,11 @@
 }
 .carta.misto .tipo { background: linear-gradient(135deg, #b3261e, #1f4f8f); }
 .carta .testo-potere {
-  margin-top: 0.35em;
+  margin-top: 0.6em;
   font-size: 0.8em;
   line-height: 1.2;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
