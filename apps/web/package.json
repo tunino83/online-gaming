@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@dicebear/collection": "9.2.2",
+    "@dicebear/core": "9.2.2",
     "@fontsource/cinzel": "^5.1.0",
     "@og/engine": "workspace:^",
     "@og/primo-gioco": "workspace:*",

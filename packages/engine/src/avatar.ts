@@ -1,6 +1,8 @@
 /**
- * Libreria degli avatar che un giocatore può scegliere entrando in una partita.
- * Per ora sono disegni-emoji su un cerchio colorato; più avanti si potranno sostituire con illustrazioni.
+ * Avatar dei giocatori. Ci sono più stili:
+ * - "classici": 18 disegni-emoji su un cerchio colorato (id semplice, es. "mago");
+ * - stili disegnati dal browser a partire da un "seme" casuale (id "stile:seme", es. "pixel:k3x9q2"):
+ *   lo stesso id dà sempre lo stesso avatar, su tutti i dispositivi.
  */
 export interface Avatar {
   id: string;
@@ -37,4 +39,36 @@ export function avatar(id: string | null | undefined): Avatar {
   return AVATAR.find((a) => a.id === id) ?? AVATAR[0]!;
 }
 
-export const avatarValido = (id: unknown): id is string => typeof id === "string" && AVATAR.some((a) => a.id === id);
+/** Stili di avatar: il primo sono i classici, gli altri sono disegnati a partire da un seme. */
+export const STILI_AVATAR = [
+  { id: "classici", nome: "Classici" },
+  { id: "avventuriero", nome: "Avventurieri" },
+  { id: "ritratto", nome: "Ritratti" },
+  { id: "pixel", nome: "Pixel" },
+  { id: "robottino", nome: "Robottini" },
+  { id: "faccina", nome: "Faccine" },
+] as const;
+
+export type StileAvatar = (typeof STILI_AVATAR)[number]["id"];
+
+const DISEGNATO = /^(avventuriero|ritratto|pixel|robottino|faccina):[a-z0-9]{4,12}$/;
+
+/** Stile di un avatar ("classici" per quelli della libreria fissa). */
+export function stileAvatar(id: string): StileAvatar {
+  const i = id.indexOf(":");
+  return i > 0 ? (id.slice(0, i) as StileAvatar) : "classici";
+}
+
+export const avatarValido = (id: unknown): id is string =>
+  typeof id === "string" && (AVATAR.some((a) => a.id === id) || DISEGNATO.test(id));
+
+/** Un avatar a caso dello stile scelto; `casuale` restituisce un numero in [0, 1). */
+export function avatarCasuale(stile: StileAvatar, casuale: () => number = Math.random): string {
+  if (stile === "classici") {
+    const scelti = AVATAR.filter((a) => a.id !== "robot"); // il robot è dei giocatori del computer
+    return scelti[Math.floor(casuale() * scelti.length)]!.id;
+  }
+  const lettere = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const seme = Array.from({ length: 8 }, () => lettere[Math.floor(casuale() * lettere.length)]).join("");
+  return `${stile}:${seme}`;
+}

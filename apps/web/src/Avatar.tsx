@@ -1,8 +1,23 @@
-/** Avatar dei giocatori: il cerchio con il personaggio e la griglia per sceglierlo. */
-import { AVATAR, avatar } from "@og/engine";
+/** Avatar dei giocatori: il cerchio con il personaggio e la scelta (a caso, per stile). */
+import { AVATAR, STILI_AVATAR, type StileAvatar, avatar, avatarCasuale, stileAvatar } from "@og/engine";
+import { Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { immagineAvatar } from "./lib/disegnaAvatar";
 
 export function CerchioAvatar({ id, dimensione = 36, titolo }: { id: string | null | undefined; dimensione?: number; titolo?: string }) {
+  const disegno = id ? immagineAvatar(id) : null;
+  if (disegno) {
+    return (
+      <img
+        src={disegno}
+        alt={titolo ?? "Avatar"}
+        title={titolo}
+        draggable={false}
+        className="inline-block shrink-0 rounded-full border-2 border-white bg-white shadow"
+        style={{ width: dimensione, height: dimensione }}
+      />
+    );
+  }
   const a = avatar(id);
   return (
     <span
@@ -16,21 +31,44 @@ export function CerchioAvatar({ id, dimensione = 36, titolo }: { id: string | nu
   );
 }
 
+/** Scelta dell'avatar: si sceglie lo stile e si preme "A caso" finché non piace. */
 export function SceltaAvatar({ valore, onScegli }: { valore: string; onScegli: (id: string) => void }) {
+  const stile = stileAvatar(valore);
+  const [gira, setGira] = useState(0);
+  const nuovo = (s: StileAvatar) => {
+    let id = avatarCasuale(s);
+    for (let i = 0; i < 5 && id === valore; i++) id = avatarCasuale(s); // sempre uno diverso
+    onScegli(id);
+    setGira((n) => n + 1);
+  };
+  const nome = AVATAR.find((a) => a.id === valore)?.nome;
   return (
     <div>
       <span className="text-sm font-semibold">Il tuo avatar</span>
-      <div className="mt-1 grid grid-cols-6 gap-2">
-        {AVATAR.map((a) => (
+      <div className="mt-1 flex items-center gap-3">
+        <span key={gira} className="avatar-nuovo">
+          <CerchioAvatar id={valore} dimensione={64} titolo={nome ?? "Il tuo avatar"} />
+        </span>
+        <button
+          type="button"
+          onClick={() => nuovo(stile)}
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-4 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518] active:translate-y-px"
+        >
+          <Dices size={18} /> A caso
+        </button>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Stile dell'avatar">
+        {STILI_AVATAR.map((s) => (
           <button
-            key={a.id}
+            key={s.id}
             type="button"
-            onClick={() => onScegli(a.id)}
-            className={`grid place-items-center rounded-full p-0.5 ${valore === a.id ? "ring-4 ring-oro" : ""}`}
-            aria-pressed={valore === a.id}
-            aria-label={a.nome}
+            onClick={() => s.id !== stile && nuovo(s.id)}
+            aria-pressed={s.id === stile}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+              s.id === stile ? "border-oro bg-oro text-[#2b1a05]" : "border-inchiostro/25 bg-white/60 text-inchiostro hover:bg-white"
+            }`}
           >
-            <CerchioAvatar id={a.id} dimensione={40} />
+            {s.nome}
           </button>
         ))}
       </div>

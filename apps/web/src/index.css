@@ -143,10 +143,14 @@ html[data-tema="scuro"] {
   100% { opacity: 0; transform: translateY(-0.25rem); }
 }
 
+/* Avatar appena estratto con "A caso" */
+.avatar-nuovo { display: inline-block; animation: avatar-nuovo 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+@keyframes avatar-nuovo { from { transform: rotate(-25deg) scale(0.6); opacity: 0.3; } to { transform: none; opacity: 1; } }
+
 /* Anello di chi sta giocando */
 .anello-turno { animation: anello 1.6s ease-in-out infinite alternate; }
 @keyframes anello { from { filter: drop-shadow(0 0 2px var(--color-oro-chiaro)); } to { filter: drop-shadow(0 0 9px var(--color-oro-chiaro)); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .foglio, .foglio-velo, .banner-turno, .punti-vola, .fumetto, .anello-turno { animation: none; }
+  .foglio, .foglio-velo, .banner-turno, .punti-vola, .fumetto, .anello-turno, .avatar-nuovo { animation: none; }
 }
