@@ -6,6 +6,7 @@ con estensione `.png`, `.jpg`, `.jpeg` o `.webp`. Esempio: `leone.png`.
 Formato consigliato: **solo l'illustrazione** (niente cornice, numeri o testi: li disegna l'app),
 un po' più larga che alta, circa **5:4** (es. 1000 × 800 pixel); viene ritagliata per riempire lo spazio.
 L'app la usa da sola; per l'anteprima lancia `pnpm carte`. Per vederla online va salvata su GitHub.
+Le immagini più larghe di 1000 pixel vengono ridotte; gli originali restano in `originali/` (non pubblicata).
 
 Le copie dello stesso personaggio usano la stessa immagine. Usa solo immagini di cui hai i diritti.
 

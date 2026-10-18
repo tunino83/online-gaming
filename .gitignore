@@ -9,3 +9,6 @@ coverage/
 
 # Generato da pnpm build:arbitro
 supabase/functions/arbitro/nucleo.js
+
+# Originali delle illustrazioni (online vanno le versioni ridotte)
+games/primo-gioco/immagini/originali/
