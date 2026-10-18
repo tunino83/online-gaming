@@ -184,17 +184,19 @@
 }
 .carta.numero .cornice::before { top: 0.3em; }
 .carta.numero .cornice::after { bottom: 0.3em; }
-/* Carta con le frecce: frecce blu al posto degli ornamenti e bordo interno blu */
-.carta.numero.frecce .cornice { box-shadow: inset 0 0 0 0.15em #f7ebcf, inset 0 0 0 0.3em #1f4f8f; }
+/* Carta con le frecce: una grande freccia per lato (su a sinistra, giù a destra), nel colore del numero */
+.carta.numero.frecce .valore { font-size: 7.2em; }
 .carta.numero.frecce .cornice::before,
 .carta.numero.frecce .cornice::after {
-  content: "⇄";
-  color: #1f4f8f;
-  font-size: 1.5em;
-  font-weight: 700;
+  content: "";
+  top: 50%;
+  bottom: auto;
+  width: 1.9em;
+  height: 11.5em;
+  background: center / contain no-repeat;
 }
-.carta.numero.frecce .cornice::before { top: 0.15em; }
-.carta.numero.frecce .cornice::after { bottom: 0.15em; }
+.carta.numero.frecce .cornice::before { left: 0.7em; transform: translateY(-50%); background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%20100%22%20fill%3D%22none%22%20stroke%3D%22%237a5518%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%2096V5M2.5%2015L10%205l7.5%2010%22/%3E%3C/svg%3E"); }
+.carta.numero.frecce .cornice::after { left: auto; right: 0.7em; transform: translateY(-50%); background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2020%20100%22%20fill%3D%22none%22%20stroke%3D%22%237a5518%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M10%204v91M2.5%2085L10%2095l7.5-10%22/%3E%3C/svg%3E"); }
 .carta.numero .valore {
   font-family: "Cinzel", Georgia, serif;
   font-size: 9.5em;
