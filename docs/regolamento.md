@@ -86,51 +86,52 @@ L'elenco dei personaggi (codice, punti, potere) sarà una tabella di dati separa
 ## Elenco personaggi
 
 Mazzo completo: 42 personaggi diversi, 55 carte. Per aggiungere un personaggio basta una nuova riga.
+Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tutte le carte".
 
-| Personaggio | Codice | Punti | Potere | Tipo | Copie |
-| --- | --- | --- | --- | --- | --- |
-| Nano dell'1 | 11 | 1 | Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno | Blu | 1 |
-| Nano del 2 | 22 | 1 | Hai un 2 a disposizione, una volta per turno | Blu | 1 |
-| Nano del 3 | 33 | 1 | Hai un 3 a disposizione, una volta per turno | Blu | 1 |
-| Nano del 4 | 44 | 1 | Hai un 4 a disposizione, una volta per turno | Blu | 1 |
-| Nano del 5 | 55 | 1 | Hai un 5 a disposizione, una volta per turno | Blu | 1 |
-| Nano del 6 | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
-| Nano del 7 | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
-| Fenice | 12 | 0 | Hai un 8 a disposizione, una volta per turno | Blu | 2 |
-| Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
-| Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
-| Scimmia | Carte con somma 10 (quante si vuole) | 1 | Limite della mano +1 | Blu | 3 |
-| Strega | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
-| Gatto con gli stivali | 345 | 1 | Una delle carte del codice, a tua scelta, non si scarta e resta in mano | Rosso | 1 |
-| Unicorno | 1234 | 1 | Ricevi 2 diamanti | Rosso | 1 |
-| Pinco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
-| Panco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
-| Leone | 8888 | 5 | Nessuno | — | 1 |
-| Giganti | 6688 | 3 | Nessuno | — | 3 |
-| Hansel e Gretel | 88 | 2 | Nessuno | — | 2 |
-| Goblin | Coppia | 1 | Nessuno | — | 3 |
-| Cerbero | Tris | 2 | Nessuno | — | 2 |
-| Quercia umana | Poker | 3 | Nessuno | — | 1 |
-| Regina | 7777 | 4 | Nessuno | — | 2 |
-| Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
-| Mago | Scala da 3 | 1 | A inizio turno vedi la prima carta coperta del mazzo personaggi | Blu | 1 |
-| Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
-| Bacchetta magica (superpotere) | 4 | 0 | A inizio turno puoi bruciare senza consumare una mossa | Blu | 1 |
-| Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano | Blu | 1 |
-| Hobbit pari | 3 carte pari | 1 | Ricevi 1 diamante | Rosso | 1 |
-| Hobbit dispari | 3 carte dispari | 1 | Ricevi 1 diamante | Rosso | 1 |
-| Golem pari | 2468 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
-| Golem dispari | 1357 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
-| Ercole | 3 carte con somma 20 | 2 | Nessuno | — | 1 |
-| Fatina | 567 | 1 | Guardi tutte le carte in mano a un avversario e ne prendi una a scelta | Rosso | 2 |
-| Scheletro (la Morte) | 18 | 1 | A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo | Blu | 1 |
-| Cappellaio matto | Scala da 5 | 2 | A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa | Blu | 1 |
-| Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
-| Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
-| Folletto | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
-| Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
-| Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
-| Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
+| Immagine | Personaggio | Codice per attivarlo | Punti | Potere | Tipo | Copie |
+| --- | --- | --- | --- | --- | --- | --- |
+| <img src="../games/primo-gioco/immagini/classica/nano-1.png" width="90" alt="Nano 1"> | Nano dell'1 | 11 | 1 | Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-2.png" width="90" alt="Nano 2"> | Nano del 2 | 22 | 1 | Hai un 2 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-3.png" width="90" alt="Nano 3"> | Nano del 3 | 33 | 1 | Hai un 3 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-4.png" width="90" alt="Nano 4"> | Nano del 4 | 44 | 1 | Hai un 4 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-5.png" width="90" alt="Nano 5"> | Nano del 5 | 55 | 1 | Hai un 5 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-6.png" width="90" alt="Nano 6"> | Nano del 6 | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-7.png" width="90" alt="Nano 7"> | Nano del 7 | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/fenice.png" width="90" alt="Fenice"> | Fenice | 12 | 0 | Hai un 8 a disposizione, una volta per turno | Blu | 2 |
+| <img src="../games/primo-gioco/immagini/classica/drago.png" width="90" alt="Drago"> | Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/cappuccetto-rosso.png" width="90" alt="Cappuccetto Rosso"> | Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/scimmia.jpg" width="90" alt="Scimmia"> | Scimmia | Carte con somma 10 (quante si vuole) | 1 | Limite della mano +1 | Blu | 3 |
+| <img src="../games/primo-gioco/immagini/classica/strega.jpg" width="90" alt="Strega"> | Strega | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
+| <img src="../games/primo-gioco/immagini/classica/gatto-con-gli-stivali.jpg" width="90" alt="Gatto con gli stivali"> | Gatto con gli stivali | 345 | 1 | Una delle carte del codice, a tua scelta, non si scarta e resta in mano | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/unicorno.png" width="90" alt="Unicorno"> | Unicorno | 1234 | 1 | Ricevi 2 diamanti | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/pinco.jpg" width="90" alt="Pinco"> | Pinco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/panco.jpg" width="90" alt="Panco"> | Panco | 7788 | 3 | Ricevi 1 diamante | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/leone.jpg" width="90" alt="Leone"> | Leone | 8888 | 5 | Nessuno | — | 1 |
+| <img src="../games/primo-gioco/immagini/classica/giganti.png" width="90" alt="Giganti"> | Giganti | 6688 | 3 | Nessuno | — | 3 |
+| <img src="../games/primo-gioco/immagini/classica/hansel-e-gretel.jpg" width="90" alt="Hansel e Gretel"> | Hansel e Gretel | 88 | 2 | Nessuno | — | 2 |
+| <img src="../games/primo-gioco/immagini/classica/goblin.png" width="90" alt="Goblin"> | Goblin | Coppia | 1 | Nessuno | — | 3 |
+| <img src="../games/primo-gioco/immagini/classica/cerbero.png" width="90" alt="Cerbero"> | Cerbero | Tris | 2 | Nessuno | — | 2 |
+| <img src="../games/primo-gioco/immagini/classica/quercia-umana.png" width="90" alt="Quercia umana"> | Quercia umana | Poker | 3 | Nessuno | — | 1 |
+| <img src="../games/primo-gioco/immagini/classica/regina.jpg" width="90" alt="Regina"> | Regina | 7777 | 4 | Nessuno | — | 2 |
+| <img src="../games/primo-gioco/immagini/classica/gnomo.jpg" width="90" alt="Gnomo"> | Gnomo | 66 + una coppia qualsiasi (anche 66) | 2 | Ricevi 1 diamante | Rosso | 2 |
+| <img src="../games/primo-gioco/immagini/classica/mago.jpg" width="90" alt="Mago"> | Mago | Scala da 3 | 1 | A inizio turno vedi la prima carta coperta del mazzo personaggi | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/fantasma.jpg" width="90" alt="Fantasma"> | Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/bacchetta-magica.jpg" width="90" alt="Bacchetta magica (superpotere)"> | Bacchetta magica (superpotere) | 4 | 0 | A inizio turno puoi bruciare senza consumare una mossa | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/robin-hood.png" width="90" alt="Robin Hood"> | Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/hobbit-pari.jpg" width="90" alt="Hobbit pari"> | Hobbit pari | 3 carte pari | 1 | Ricevi 1 diamante | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/hobbit-dispari.jpg" width="90" alt="Hobbit dispari"> | Hobbit dispari | 3 carte dispari | 1 | Ricevi 1 diamante | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/golem-pari.png" width="90" alt="Golem pari"> | Golem pari | 2468 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/golem-dispari.png" width="90" alt="Golem dispari"> | Golem dispari | 1357 | 2 | 3 mosse in più in questo turno | Rosso | 1 |
+| <img src="../games/primo-gioco/immagini/classica/ercole.jpg" width="90" alt="Ercole"> | Ercole | 3 carte con somma 20 | 2 | Nessuno | — | 1 |
+| <img src="../games/primo-gioco/immagini/classica/fatina.png" width="90" alt="Fatina"> | Fatina | 567 | 1 | Guardi tutte le carte in mano a un avversario e ne prendi una a scelta | Rosso | 2 |
+| <img src="../games/primo-gioco/immagini/classica/scheletro.jpg" width="90" alt="Scheletro (la Morte)"> | Scheletro (la Morte) | 18 | 1 | A fine turno puoi cambiare tutte le carte in mano con altrettante pescate dal mazzo | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/cappellaio-matto.jpg" width="90" alt="Cappellaio matto"> | Cappellaio matto | Scala da 5 | 2 | A inizio turno puoi scambiare un tuo personaggio nei posti con uno scoperto sul tavolo (il tuo va sul tavolo al suo posto), senza usare una mossa | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/xena.jpg" width="90" alt="Xena"> | Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/capitan-uncino.jpg" width="90" alt="Capitan Uncino"> | Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
+| <img src="../games/primo-gioco/immagini/classica/folletto.jpg" width="90" alt="Folletto"> | Folletto | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/biancaneve.png" width="90" alt="Biancaneve"> | Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/lucciola-444-555.jpg" width="90" alt="Lucciola 444/555"> | Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
+| <img src="../games/primo-gioco/immagini/classica/lucciola-333-666.jpg" width="90" alt="Lucciola 333/666"> | Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 
 ## Fine partita
 

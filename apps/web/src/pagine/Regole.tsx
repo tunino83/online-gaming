@@ -1,6 +1,7 @@
 /** "Come si gioca": le regole del primo gioco in breve (riassunto di docs/regolamento.md). */
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { CatalogoCarte } from "../giochi/primo-gioco/Catalogo";
 import { Pagina, Riquadro } from "../ui";
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
@@ -68,6 +69,9 @@ export function TestoRegole() {
           <li>Tocca una carta qualsiasi per vederla in grande.</li>
           <li>In alto: 👥 tutti i giocatori, 📜 ultime mosse, 📖 queste regole.</li>
         </ul>
+      </Voce>
+      <Voce titolo="🃏 Tutte le carte">
+        <CatalogoCarte />
       </Voce>
     </div>
   );

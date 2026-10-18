@@ -23,6 +23,7 @@ import { PannelloAttivazione } from "./Attivazione";
 import { PanoramicaTavolo } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
+import { TUTTI_I_PERSONAGGI } from "./Catalogo";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 
 /** Altezza (in pixel) di un elemento, aggiornata quando cambia: serve a non far finire il tavolo sotto le barre fisse. */
@@ -704,7 +705,15 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         </div>
       )}
 
-      {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
+      {primoPiano && (
+        <PrimoPiano
+          carta={primoPiano.carta}
+          titolo={primoPiano.titolo}
+          // carta toccata: si possono sfogliare tutti i personaggi; carta appena pescata: solo quella
+          elenco={primoPiano.titolo ? undefined : TUTTI_I_PERSONAGGI}
+          onChiudi={() => setPrimoPiano(null)}
+        />
+      )}
     </>
   );
 }
