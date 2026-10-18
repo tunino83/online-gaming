@@ -8,7 +8,7 @@ import {
   type CartaVirtuale,
   type Mossa,
   type VistaGiocatore,
-  combinazioneConCarte,
+  combinazioneConDiamanti,
   personaggio,
   risorseDaVista,
   risorseUsate,
@@ -36,7 +36,10 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
   const [bersaglio, setBersaglio] = useState<{ giocatore: string; carta: string } | undefined>(undefined);
   const [avversario, setAvversario] = useState<string | undefined>(undefined);
 
-  const combinazione = useMemo(() => combinazioneConCarte(risorse, p.codice, scelte), [risorse, p.codice, scelte]);
+  // Se le carte scelte non bastano, il pannello aggiunge da solo i diamanti necessari (es. per fare +1)
+  const esito = useMemo(() => combinazioneConDiamanti(risorse, p.codice, scelte), [risorse, p.codice, scelte]);
+  const combinazione = esito?.combinazione ?? null;
+  const aggiunti = esito?.aggiunti ?? [];
   const effetti = p.poteri.map((x) => x.effetto.tipo);
   const avversari = v.ordine.filter((id) => id !== v.io);
   const bersagli = avversari.flatMap((g) => v.giocatori[g]!.posti.map((c) => ({ giocatore: g, carta: c })));
@@ -80,7 +83,10 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
             <p className="mt-1 text-sm">
               Codice: <strong>{p.codiceTesto}</strong>
             </p>
-            <p className="mt-2 text-sm text-tenue">Tocca le carte che vuoi usare.</p>
+            <p className="mt-2 text-sm text-tenue">
+              Tocca le carte che vuoi usare. I diamanti servono come carta o per fare +1 a una carta: se ne servono, li
+              aggiungo io.
+            </p>
             {proposte.length > 0 && scelte.length === 0 && (
               <button type="button" onClick={suggerisci} className="mt-2 text-sm font-semibold text-blu underline">
                 Suggeriscimi le carte
@@ -108,7 +114,13 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
                   key={d.id}
                   type="button"
                   onClick={() => alterna(d.id)}
-                  className={`rounded-lg p-0.5 ${scelte.includes(d.id) ? "ring-4 ring-[#1a8f4a]" : "ring-2 ring-inchiostro/10"}`}
+                  className={`rounded-lg p-0.5 ${
+                    scelte.includes(d.id)
+                      ? "ring-4 ring-[#1a8f4a]"
+                      : aggiunti.includes(d.id)
+                        ? "ring-4 ring-dashed ring-[#1a8f4a]/60 bg-[#1a8f4a]/10"
+                        : "ring-2 ring-inchiostro/10"
+                  }`}
                 >
                   <Diamante d={d} />
                 </button>
@@ -139,7 +151,16 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
           {scelte.length === 0 ? (
             <span className="text-tenue">Nessuna carta scelta.</span>
           ) : combinazione ? (
-            <span className="font-semibold text-[#1a8f4a]">✓ Queste carte formano il codice</span>
+            <span className="font-semibold text-[#1a8f4a]">
+              ✓ Queste carte formano il codice
+              {aggiunti.length > 0 &&
+                ` usando anche ${aggiunti.length === 1 ? "un tuo diamante" : `${aggiunti.length} tuoi diamanti`} (${aggiunti
+                  .map((id) => {
+                    const d = risorse.diamanti.find((x) => x.id === id);
+                    return d?.tipo === "valore" ? `◆${d.valore}` : "⚡";
+                  })
+                  .join(", ")})`}
+            </span>
           ) : (
             <span className="font-semibold text-rosso">Queste carte non formano il codice</span>
           )}

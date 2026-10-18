@@ -435,3 +435,35 @@ export function combinazioneConCarte(r: Risorse, codice: Codice, scelte: readonl
   }
   return null;
 }
+
+/**
+ * Come combinazioneConCarte, ma se le carte scelte non bastano prova ad aggiungere
+ * da sola i diamanti del giocatore (il meno possibile), per esempio per fare +1.
+ * Restituisce la combinazione e i diamanti aggiunti, oppure null.
+ */
+export function combinazioneConDiamanti(
+  r: Risorse,
+  codice: Codice,
+  scelte: readonly string[],
+): { combinazione: Combinazione; aggiunti: string[] } | null {
+  const diretta = combinazioneConCarte(r, codice, scelte);
+  if (diretta) return { combinazione: diretta, aggiunti: [] };
+  const insieme = new Set(scelte);
+  if (insieme.size === 0) return null;
+  const altriDiamanti = r.diamanti.filter((d) => !insieme.has(d.id));
+  if (altriDiamanti.length === 0) return null;
+  const ristrette: Risorse = {
+    ...r,
+    mano: r.mano.filter((c) => insieme.has(c.id)),
+    diamanti: r.diamanti,
+    virtuali: r.virtuali.filter((v) => insieme.has(v.fonte)),
+  };
+  let migliore: { combinazione: Combinazione; aggiunti: string[] } | null = null;
+  for (const comb of trovaCombinazioni(ristrette, codice, 5000)) {
+    const usate = risorseUsate(comb);
+    if (![...insieme].every((k) => usate.includes(k))) continue;
+    const aggiunti = usate.filter((k) => !insieme.has(k));
+    if (!migliore || aggiunti.length < migliore.aggiunti.length) migliore = { combinazione: comb, aggiunti };
+  }
+  return migliore;
+}

@@ -6,6 +6,7 @@ import {
   type Elemento,
   type Risorse,
   combinazioneConCarte,
+  combinazioneConDiamanti,
   risorseUsate,
   puoAttivare,
   trovaCombinazioni,
@@ -610,5 +611,31 @@ describe("attivazione a tocchi: dalle carte scelte alla combinazione", () => {
         }
       }
     }
+  });
+});
+
+describe("attivazione a tocchi: diamanti aggiunti in automatico", () => {
+  it("666 con 6, 5, 5: usa da solo due diamanti per fare +1", () => {
+    const r = risorse({ mano: mano(6, 5, 5), diamanti: diam(2, 7, "f") });
+    const esito = combinazioneConDiamanti(r, codice("lucciola-333-666"), ["n0", "n1", "n2"]);
+    expect(esito?.aggiunti.sort()).toEqual(["d0", "d1"]);
+    expect(ok(r, codice("lucciola-333-666"), esito!.combinazione)).toBe(true);
+  });
+
+  it("se le carte bastano non aggiunge nulla; se non c'è modo restituisce null", () => {
+    const r = risorse({ mano: mano(6, 6, 6, 5), diamanti: diam(3) });
+    expect(combinazioneConDiamanti(r, codice("lucciola-333-666"), ["n0", "n1", "n2"])?.aggiunti).toEqual([]);
+    expect(combinazioneConDiamanti(r, codice("lucciola-333-666"), ["n3"])).toBeNull();
+  });
+
+  it("usa il minor numero di diamanti possibile", () => {
+    const r = risorse({ mano: mano(8, 7), diamanti: diam(8, 4) });
+    // 88: basta un diamante (+1 sul 7), non serve aggiungerne due
+    expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])?.aggiunti).toHaveLength(1);
+  });
+
+  it("il fulmine non fa +1", () => {
+    const r = risorse({ mano: mano(8, 7), diamanti: diam("f") });
+    expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])).toBeNull();
   });
 });
