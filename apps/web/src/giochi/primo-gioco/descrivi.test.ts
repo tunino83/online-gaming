@@ -1,6 +1,6 @@
-import { type Mossa, type StatoPartita, applicaMossa, mosseValide, setup, vistaGiocatore } from "@og/primo-gioco";
+import { type Mossa, type StatoPartita, applicaMossa, mosseValide, personaggio, setup, vistaGiocatore } from "@og/primo-gioco";
 import { describe, expect, it } from "vitest";
-import { aPersona, descriviEvento, descriviMossa, gruppoMossa, ilNumero, raccogliCarte } from "./descrivi";
+import { aPersona, descriviEvento, descriviMossa, gruppoMossa, ilNumero, ordinePotere, raccogliCarte } from "./descrivi";
 
 /** Partita a 2 con una situazione preparata per A. */
 function situazione(prepara: (s: StatoPartita) => void) {
@@ -145,3 +145,12 @@ describe("etichette dei poteri blu", () => {
     }
   });
 });
+
+describe("ordine dei poteri blu", () => {
+  it("prima i nani dall'1 al 7, poi Fenice e Drago, poi gli altri", () => {
+    const ids = ["robin-hood", "fenice", "nano-7", "drago", "nano-2", "bacchetta-magica", "nano-5"];
+    const ordinati = [...ids].sort((a, b) => ordinePotere(personaggio(a).poteri[0]!.effetto) - ordinePotere(personaggio(b).poteri[0]!.effetto));
+    expect(ordinati).toEqual(["nano-2", "nano-5", "nano-7", "fenice", "drago", "robin-hood", "bacchetta-magica"]);
+  });
+});
+

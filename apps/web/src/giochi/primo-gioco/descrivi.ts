@@ -184,6 +184,13 @@ export function descriviEvento(e: Evento, nickname: (id: string) => string, io: 
 }
 
 /** Etichetta breve di un potere blu, per la striscia "Poteri" (icona + poche parole). */
+/**
+ * Ordine in cui mostrare i poteri blu: prima le carte dei nani (dall'1 al 7), poi la Fenice (8),
+ * poi il Drago (carta a scelta), infine tutti gli altri poteri.
+ */
+export const ordinePotere = (e: Effetto): number =>
+  e.tipo === "cartaVirtuale" ? (e.valore === "aScelta" ? 9 : e.valore) : 100;
+
 export function etichettaPotere(e: Effetto): { icona: string; testo: string } {
   switch (e.tipo) {
     case "cartaVirtuale":

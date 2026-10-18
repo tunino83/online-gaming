@@ -6,7 +6,7 @@ import { type CartaPersonaggio, type VistaGiocatore, personaggio } from "@og/pri
 import { useEffect } from "react";
 import { CerchioAvatar } from "../../Avatar";
 import { CartaPersonaggioGrafica, Diamante, MiniCartaVirtuale, PostoVuoto } from "./carte";
-import { etichettaPotere } from "./descrivi";
+import { etichettaPotere, ordinePotere } from "./descrivi";
 
 export function PanoramicaTavolo({
   v,
@@ -53,7 +53,7 @@ export function PanoramicaTavolo({
               personaggio(c.personaggio)
                 .poteri.filter((x) => x.colore === "blu")
                 .map((x, i) => ({ chiave: `${c.id}-${i}`, carta: c, effetto: x.effetto, ...etichettaPotere(x.effetto) })),
-            );
+            ).sort((a, b) => ordinePotere(a.effetto) - ordinePotere(b.effetto));
             return (
               <section
                 key={id}

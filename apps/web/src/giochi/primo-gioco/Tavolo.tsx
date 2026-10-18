@@ -22,7 +22,7 @@ import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
 import { PanoramicaTavolo } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, MiniCartaVirtuale, PostoVuoto } from "./carte";
-import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
+import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, ordinePotere, raccogliCarte } from "./descrivi";
 import { TUTTI_I_PERSONAGGI } from "./Catalogo";
 import { AvvisoVocale, PulsanteVocale } from "./Vocali";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
@@ -1226,7 +1226,7 @@ function PoteriBlu({
     personaggio(c.personaggio)
       .poteri.filter((x) => x.colore === "blu")
       .map((x) => ({ carta: c, effetto: x.effetto })),
-  );
+  ).sort((a, b) => ordinePotere(a.effetto) - ordinePotere(b.effetto));
   if (poteri.length === 0) {
     if (avversario) return null;
     return <p className="min-w-0 flex-1 self-center text-[11px] leading-tight text-luce/60">Qui compariranno i poteri blu dei personaggi che attivi.</p>;
