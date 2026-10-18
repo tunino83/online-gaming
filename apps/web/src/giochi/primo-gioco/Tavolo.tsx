@@ -16,6 +16,7 @@ import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
+import { PanoramicaTavolo } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
@@ -50,6 +51,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   // Personaggio (id carta) di cui è aperto il pannello di attivazione
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
   const [registroAperto, setRegistroAperto] = useState(false);
+  const [tavoloAperto, setTavoloAperto] = useState(false);
   // Turno in cui si è risposto "No" al popup di Biancaneve (per non riproporlo)
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
   // Turno in cui si è risposto "No" al popup del fulmine
@@ -254,6 +256,14 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                   : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
             </div>
             {v.ultimoTurno !== null && !v.finita && <span className="rounded-full bg-rosso px-2 py-1 text-xs font-bold text-white">Ultimo giro</span>}
+            <button
+              type="button"
+              onClick={() => setTavoloAperto(true)}
+              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold"
+              aria-label="Tavolo: vedi tutti i giocatori"
+            >
+              👥 Tavolo
+            </button>
             <button
               type="button"
               onClick={() => impostaSuoni(!suoni)}
@@ -574,6 +584,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         />
       )}
 
+      {tavoloAperto && (
+        <PanoramicaTavolo v={v} io={io} nick={nick} avatarDi={avatarDi} ingrandisci={ingrandisci} onChiudi={() => setTavoloAperto(false)} />
+      )}
+
       {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
     </>
   );
@@ -626,7 +640,7 @@ function Avversario({
             <span className="min-w-0 truncate font-titolo text-sm font-bold">{nome}</span>
           </div>
           <div className="flex flex-wrap items-center gap-1">
-            <span className="rounded-full bg-inchiostro px-2 py-0.5 font-bold text-carta">{g.punti} punti</span>
+            <span className="rounded-full bg-inchiostro px-2 py-0.5 font-bold text-carta">{g.punti} {g.punti === 1 ? "punto" : "punti"}</span>
             {diTurno && <span className="rounded-full bg-blu px-2 py-0.5 text-[10px] font-bold text-white">sta giocando</span>}
           </div>
           <div className="flex items-center gap-1">
@@ -665,7 +679,7 @@ function Attivati({
         {conAttivati.map((id) => (
           <div key={id}>
             <p className="text-xs font-bold">
-              {id === io ? "I tuoi" : nick(id)} · {v.giocatori[id]!.punti} punti
+              {id === io ? "I tuoi" : nick(id)} · {v.giocatori[id]!.punti} {v.giocatori[id]!.punti === 1 ? "punto" : "punti"}
             </p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               {v.giocatori[id]!.attivati.map((c) => (
@@ -710,7 +724,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
             <span>
               {i + 1}. {nick(id)} {id === io && <span className="text-tenue">(tu)</span>}
             </span>
-            <strong>{punti[id] ?? 0} punti</strong>
+            <strong>{punti[id] ?? 0} {punti[id] === 1 ? "punto" : "punti"}</strong>
           </li>
         ))}
       </ol>
