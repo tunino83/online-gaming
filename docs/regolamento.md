@@ -106,7 +106,7 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/nano-6.png" width="90" alt="Nano 6"> | Nano del 6 | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/nano-7.png" width="90" alt="Nano 7"> | Nano del 7 | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/fenice.png" width="90" alt="Fenice"> | Fenice | 12 | 0 | Hai un 8 a disposizione, una volta per turno | Blu | 2 |
-| <img src="../games/primo-gioco/immagini/classica/drago.png" width="90" alt="Drago"> | Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/drago.jpg" width="90" alt="Drago"> | Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/cappuccetto-rosso.png" width="90" alt="Cappuccetto Rosso"> | Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/scimmia.jpg" width="90" alt="Scimmia"> | Scimmia | Carte con somma 10 (quante si vuole) | 1 | Limite della mano +1 | Blu | 3 |
 | <img src="../games/primo-gioco/immagini/classica/strega.jpg" width="90" alt="Strega"> | Strega | 3 carte con somma 7 | 1 | Scarta un personaggio non ancora attivato dai posti di un avversario | Rosso | 2 |
