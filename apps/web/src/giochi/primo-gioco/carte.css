@@ -382,7 +382,7 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 
 /* ---------- Mano a ventaglio ---------- */
 .ventaglio-carta {
-  transform-origin: 50% 120%;
+  transform-origin: 50% 100%;
   transform: rotate(var(--r, 0deg)) translateY(var(--y, 0px));
   transition: transform 0.15s ease;
 }

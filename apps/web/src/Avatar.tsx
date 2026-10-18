@@ -97,7 +97,7 @@ export function AvatarPunti({
         </span>
       )}
       {guadagno && (
-        <span key={guadagno.chiave} className="punti-vola rounded-full bg-oro px-2 py-0.5 text-sm font-bold text-notte shadow">
+        <span key={guadagno.chiave} className="punti-vola rounded-full bg-oro px-2 py-0.5 text-sm font-bold text-[#2b1a05] shadow">
           +{guadagno.quanti}
         </span>
       )}

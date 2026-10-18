@@ -15,7 +15,7 @@ import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../l
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
-import { Caricamento, Errore, Riquadro } from "../../ui";
+import { BottoneTema, Caricamento, Errore, Riquadro } from "../../ui";
 import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
@@ -308,7 +308,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <div
               className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 font-titolo text-sm font-bold ${
                 v.finita
-                  ? "bg-oro text-notte"
+                  ? "bg-oro text-[#2b1a05]"
                   : mioTurno
                     ? "bg-gradient-to-r from-[#e3c06a] to-[#b8892b] text-[#2b1a05]"
                     : "border border-oro/40 text-luce"
@@ -333,6 +333,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <BottoneIcona etichetta={suoni ? "Spegni i suoni" : "Accendi i suoni"} onClick={() => impostaSuoni(!suoni)}>
               {suoni ? <Volume2 size={17} /> : <VolumeX size={17} />}
             </BottoneIcona>
+            <BottoneTema />
           </div>
           {suggerimento && <p className="mt-1 text-xs font-semibold text-oro-chiaro">{suggerimento}</p>}
 
@@ -499,14 +500,14 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
           {v.primoPersonaggio && (
             <div className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-black/25 p-2">
-              <span className="text-xs font-bold text-oro-chiaro">🔮 Il Mago vede in cima al mazzo:</span>
+              <span className="text-xs font-bold text-[#f2d58a]">🔮 Il Mago vede in cima al mazzo:</span>
               <CartaPersonaggioGrafica id={v.primoPersonaggio.personaggio} larghezza={64} compatta onIngrandisci={ingrandisci(v.primoPersonaggio)} />
             </div>
           )}
 
           {v.manoAvversario && v.turno.attesa?.tipo === "fatina" && (
             <div className="mt-3 rounded-xl bg-black/25 p-2">
-              <p className="mb-1 text-center text-xs font-bold text-oro-chiaro">🧚 Mano di {nick(v.turno.attesa.avversario)}: tocca la carta da prendere</p>
+              <p className="mb-1 text-center text-xs font-bold text-[#f2d58a]">🧚 Mano di {nick(v.turno.attesa.avversario)}: tocca la carta da prendere</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {v.manoAvversario.map((c) => (
                   <CartaNumeroGrafica
@@ -877,7 +878,7 @@ function BarraMieCarte({
                     disabilitata={bloccato}
                   />
                   {tocca && (
-                    <span className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-oro px-1.5 text-[10px] font-bold text-notte shadow">
+                    <span className="pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-oro px-1.5 text-[10px] font-bold text-[#2b1a05] shadow">
                       ✓ attiva
                     </span>
                   )}
@@ -984,7 +985,8 @@ function Ventaglio({
   const passo = n > 1 ? Math.min(larghezzaCarta + 6, (Math.max(spazio, larghezzaCarta) - larghezzaCarta - 8) / (n - 1)) : 0;
   const totale = larghezzaCarta + passo * Math.max(0, n - 1);
   const inizio = (spazio - totale) / 2;
-  const angolo = n > 1 ? Math.min(5, 28 / n) : 0;
+  // ventaglio delicato: la carta centrale è dritta, le altre si inclinano poco (al massimo 7° le estreme)
+  const angolo = n > 1 ? Math.min(2.5, 14 / (n - 1)) : 0;
   const centro = (n - 1) / 2;
 
   return (
@@ -1001,7 +1003,7 @@ function Ventaglio({
                 left: inizio + i * passo,
                 zIndex: i + 1,
                 "--r": `${(i - centro) * angolo}deg`,
-                "--y": `${Math.abs(i - centro) ** 2 * 1.4 - (scelta ? 14 : 0)}px`,
+                "--y": `${Math.abs(i - centro) ** 2 * 0.6 - (scelta ? 14 : 0)}px`,
               } as CSSProperties
             }
           >

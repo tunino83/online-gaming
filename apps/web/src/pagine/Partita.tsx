@@ -118,7 +118,7 @@ function TavoloAttesa({ giocatori, posti, io, creatore }: { giocatori: Giocatore
   return (
     <div className="relative mx-auto aspect-square w-full max-w-72">
       <div className="panno absolute inset-[22%] grid place-items-center rounded-full">
-        <span className="font-titolo text-sm font-bold text-oro-chiaro/80">Tavolo</span>
+        <span className="font-titolo text-sm font-bold text-[#f2d58a]/80">Tavolo</span>
       </div>
       {Array.from({ length: posti }, (_, i) => {
         const angolo = -Math.PI / 2 + (i * 2 * Math.PI) / posti;
@@ -136,7 +136,7 @@ function TavoloAttesa({ giocatori, posti, io, creatore }: { giocatori: Giocatore
                   {g.nickname}
                   {g.utente_id === io && " (tu)"}
                 </span>
-                {g.utente_id === creatore && <span className="rounded bg-oro px-1.5 text-[10px] font-bold text-notte">crea</span>}
+                {g.utente_id === creatore && <span className="rounded bg-oro px-1.5 text-[10px] font-bold text-[#2b1a05]">crea</span>}
               </>
             ) : (
               <>

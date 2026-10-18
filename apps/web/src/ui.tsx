@@ -1,7 +1,26 @@
 /** Mattoncini grafici comuni a tutte le pagine (stile fantasy: notte, oro, pergamena). */
 import "@fontsource/cinzel/700.css";
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import { Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
+import { cambiaTema, useTema } from "./lib/tema";
+
+/** Pulsante sole/luna per passare dal tema scuro a quello chiaro e viceversa. */
+export function BottoneTema({ className = "" }: { className?: string }) {
+  const tema = useTema();
+  const etichetta = tema === "scuro" ? "Passa al tema chiaro" : "Passa al tema scuro";
+  return (
+    <button
+      type="button"
+      onClick={cambiaTema}
+      aria-label={etichetta}
+      title={etichetta}
+      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border border-oro/50 text-oro-chiaro transition hover:bg-oro/15 ${className}`}
+    >
+      {tema === "scuro" ? <Sun size={17} /> : <Moon size={17} />}
+    </button>
+  );
+}
 
 /** Logo: due carte sovrapposte con una stella dorata. */
 export function Logo({ dimensione = 40 }: { dimensione?: number }) {
@@ -18,10 +37,13 @@ export function Pagina({ children, inGioco }: { children: ReactNode; /** durante
   if (inGioco) return <div className="mx-auto min-h-dvh max-w-md px-3 md:max-w-2xl">{children}</div>;
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-6">
-      <Link to="/" className="flex items-center gap-2 font-titolo text-2xl font-bold text-oro-chiaro">
-        <Logo dimensione={36} />
-        Online Gaming
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 font-titolo text-2xl font-bold text-oro-chiaro">
+          <Logo dimensione={36} />
+          Online Gaming
+        </Link>
+        <BottoneTema />
+      </div>
       {children}
     </div>
   );
