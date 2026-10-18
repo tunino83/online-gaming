@@ -49,8 +49,9 @@ export function Home() {
       <p className="-mt-4 text-luce/80">Giochi di carte e da tavolo da fare online con gli amici.</p>
       <Riquadro>
         {/* copertina della "scatola" del gioco */}
-        <div className="relative -mx-5 -mt-5 mb-4 h-40 overflow-hidden rounded-t-2xl border-b-2 border-oro">
-          {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="h-full w-full object-cover" />}
+        {/* l'altezza segue le proporzioni dell'immagine: si vede intera, senza tagli */}
+        <div className="relative -mx-5 -mt-5 mb-4 overflow-hidden rounded-t-2xl border-b-2 border-oro">
+          {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="block h-auto w-full" />}
           <div className="absolute inset-0 bg-gradient-to-t from-notte/90 via-notte/20 to-transparent" />
           <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il Portale</h2>
         </div>
