@@ -43,8 +43,8 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: false });
       return partita.id;
     },
-    async creaUtenteBot() {
-      return `bot-${++contatore}`;
+    async utenteBot(numero) {
+      return `bot-${numero}`;
     },
     async aggiungiBot(p) {
       const partita = dati.partite.get(p.partitaId);

@@ -62,8 +62,8 @@ export interface Archivio {
   /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
   unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
   leggiPartita(id: string): Promise<InfoPartita | null>;
-  /** Crea un utente "di servizio" per un giocatore del computer e ne restituisce l'id. */
-  creaUtenteBot(): Promise<string>;
+  /** Id dell'utente del robot fisso numero 1-4 (lo crea la prima volta, poi lo riusa sempre). */
+  utenteBot(numero: number): Promise<string>;
   /** Aggiunge un giocatore del computer a una partita in attesa. */
   aggiungiBot(p: { partitaId: string; utente: string; nickname: string; avatar: string }): Promise<void>;
   leggiStato(id: string): Promise<{ stato: unknown; versione: number } | null>;
@@ -155,7 +155,7 @@ async function controComputer(r: Record<string, unknown>, utente: string, archiv
   if (!creata.ok) return creata;
   const partitaId = creata.partitaId as string;
   for (let i = 1; i <= (quanti as number); i++) {
-    const bot = await archivio.creaUtenteBot();
+    const bot = await archivio.utenteBot(i);
     await archivio.aggiungiBot({ partitaId, utente: bot, nickname: `Computer ${i}`, avatar: "robot" });
   }
   const avviata = await avvia({ partitaId }, utente, archivio, amb);

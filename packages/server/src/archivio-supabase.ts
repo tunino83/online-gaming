@@ -66,15 +66,28 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
       } as InfoPartita;
     },
 
-    async creaUtenteBot() {
-      // Utente di servizio senza password: non può accedere, serve solo a dare un'identità al bot
-      const { data, error } = await db.auth.admin.createUser({
-        email: `bot-${crypto.randomUUID()}@bot.invalid`,
-        email_confirm: true,
-        user_metadata: { bot: true },
-      });
-      if (error || !data.user) throw new Error(`Non riesco a creare il giocatore del computer: ${error?.message}`);
-      return data.user.id;
+    async utenteBot(numero) {
+      const { data: esistente, error: erroreLettura } = await db
+        .from("bot_fissi")
+        .select("utente_id")
+        .eq("numero", numero)
+        .maybeSingle();
+      if (erroreLettura) traduci(erroreLettura);
+      if (esistente) return esistente.utente_id as string;
+
+      // Prima volta: utente di servizio senza password (non può accedere), poi lo si ricorda
+      const email = `computer-${numero}@bot.invalid`;
+      const { data, error } = await db.auth.admin.createUser({ email, email_confirm: true, user_metadata: { bot: true } });
+      let id = data.user?.id;
+      if (!id) {
+        // Esiste già (per esempio creato in parallelo): lo si cerca per email
+        const elenco = await db.auth.admin.listUsers({ perPage: 1000 });
+        id = elenco.data.users.find((u) => u.email === email)?.id;
+        if (!id) throw new Error(`Non riesco a preparare il giocatore del computer: ${error?.message}`);
+      }
+      const { error: erroreSalva } = await db.from("bot_fissi").upsert({ numero, utente_id: id }, { onConflict: "numero" });
+      if (erroreSalva) traduci(erroreSalva);
+      return id;
     },
 
     async aggiungiBot(p) {

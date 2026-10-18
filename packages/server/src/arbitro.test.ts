@@ -254,3 +254,14 @@ describe("partita di prova contro il computer", () => {
     expect(await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 5 })).toMatchObject({ ok: false });
   });
 });
+
+describe("robot fissi", () => {
+  it("due partite di prova usano gli stessi giocatori del computer", async () => {
+    const { chiedi, archivio } = prepara(21);
+    const id1 = ((await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 2 })) as unknown as { partitaId: string }).partitaId;
+    const id2 = ((await chiedi(B, { azione: "controComputer", nickname: "Bruno", bot: 3 })) as unknown as { partitaId: string }).partitaId;
+    const robot = async (id: string) => (await archivio.leggiPartita(id))!.giocatori.filter((g) => g.bot).map((g) => g.utenteId);
+    expect(await robot(id1)).toEqual(["bot-1", "bot-2"]);
+    expect(await robot(id2)).toEqual(["bot-1", "bot-2", "bot-3"]);
+  });
+});

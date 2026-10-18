@@ -48,7 +48,8 @@ Il primo gioco è descritto in `docs/regolamento.md`. Il piano completo è in `d
 - `packages/server` – arbitro: `arbitro.ts` (azioni crea/unisciti/avvia/mossa, indipendente dal database),
   `archivio-supabase.ts` (funzioni SQL `arbitro_*`), `archivio-memoria.ts` (per i test).
   Ogni vista salvata contiene anche `mosse_valide` del giocatore: il browser non conosce le regole.
-  Modalità di prova "contro il computer" (azione `controComputer`): i bot sono utenti di servizio
+  Modalità di prova "contro il computer" (azione `controComputer`): i bot sono 4 utenti di servizio fissi
+  (tabella `bot_fissi`, riusati in tutte le partite)
   (`giocatori_partita.bot = true`) e muovono a caso dentro l'arbitro subito dopo la mossa di una persona.
 - `games/<nome-gioco>` – un modulo per gioco: regole + dati delle carte.
   I personaggi stanno in un file di dati (JSON/TS) separato dalla logica: aggiungere una carta = aggiungere una riga.

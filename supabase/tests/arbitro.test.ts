@@ -142,4 +142,19 @@ describe("arbitro sul server", () => {
     while (aggiornamentiBruno.length < 12 && Date.now() < limite) await new Promise((r) => setTimeout(r, 200));
     expect(aggiornamentiBruno.length).toBeGreaterThanOrEqual(12);
   }, 120000);
+
+  it("modalità di prova: le partite contro il computer riusano gli stessi robot", async () => {
+    const robotDi = async (g: Giocatore, partitaId: string) => {
+      const { data } = await g.client.from("giocatori_partita").select("utente_id, bot").eq("partita_id", partitaId);
+      return (data ?? []).filter((x) => x.bot).map((x) => x.utente_id).sort();
+    };
+    const prima = await carla.chiedi({ azione: "controComputer", nickname: "Carla", bot: 2 });
+    const seconda = await carla.chiedi({ azione: "controComputer", nickname: "Carla", bot: 2 });
+    expect(prima).toMatchObject({ ok: true });
+    expect(seconda).toMatchObject({ ok: true });
+    const r1 = await robotDi(carla, prima.partitaId as string);
+    const r2 = await robotDi(carla, seconda.partitaId as string);
+    expect(r1).toHaveLength(2);
+    expect(r2).toEqual(r1);
+  }, 60000);
 });
