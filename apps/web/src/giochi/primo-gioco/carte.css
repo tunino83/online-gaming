@@ -184,6 +184,17 @@
 }
 .carta.numero .cornice::before { top: 0.3em; }
 .carta.numero .cornice::after { bottom: 0.3em; }
+/* Carta con le frecce: frecce blu al posto degli ornamenti e bordo interno blu */
+.carta.numero.frecce .cornice { box-shadow: inset 0 0 0 0.15em #f7ebcf, inset 0 0 0 0.3em #1f4f8f; }
+.carta.numero.frecce .cornice::before,
+.carta.numero.frecce .cornice::after {
+  content: "⇄";
+  color: #1f4f8f;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+.carta.numero.frecce .cornice::before { top: 0.15em; }
+.carta.numero.frecce .cornice::after { bottom: 0.15em; }
 .carta.numero .valore {
   font-family: "Cinzel", Georgia, serif;
   font-size: 9.5em;

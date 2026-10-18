@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica } from "./carte";
 
-export type CartaDaMostrare = { tipo: "personaggio"; id: string } | { tipo: "numero"; valore: number };
+export type CartaDaMostrare = { tipo: "personaggio"; id: string } | { tipo: "numero"; valore: number; frecce?: boolean };
 
 export function PrimoPiano({
   carta,
@@ -72,7 +72,7 @@ export function PrimoPiano({
             {mostrata.tipo === "personaggio" ? (
               <CartaPersonaggioGrafica id={mostrata.id} larghezza={larghezza} />
             ) : (
-              <CartaNumeroGrafica valore={mostrata.valore} larghezza={larghezza} />
+              <CartaNumeroGrafica valore={mostrata.valore} frecce={mostrata.frecce} larghezza={larghezza} />
             )}
           </div>
           {carosello && <FrecciaCarosello etichetta="Carta successiva" onClick={() => scorri(1)} />}

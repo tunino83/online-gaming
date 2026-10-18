@@ -132,7 +132,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     pescaInCorso.current = null;
     if (pesca.tipo === "numero") {
       const nuova = riga.vista.mano.find((c) => !pesca.prima.has(c.id));
-      if (nuova) setPrimoPiano({ carta: { tipo: "numero", valore: nuova.valore }, titolo: "Hai pescato" });
+      if (nuova) setPrimoPiano({ carta: { tipo: "numero", valore: nuova.valore, frecce: nuova.frecce }, titolo: "Hai pescato" });
     } else {
       const nuova = riga.vista.giocatori[io]?.posti.find((c) => !pesca.prima.has(c.id));
       if (nuova) setPrimoPiano({ carta: { tipo: "personaggio", id: nuova.personaggio }, titolo: "Hai pescato" });
@@ -176,7 +176,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     ultimoEvento.current = Math.max(ultimoEvento.current, ultimo);
     const attivazioni = nuovi.filter((e): e is Attivazione => e.tipo === "attiva");
     if (attivazioni.length > 0) setCodaAttivazioni((c) => [...c, ...attivazioni]);
-    const ultimoAltrui = [...nuovi].reverse().find((e) => e.giocatore !== io && significativo(e) && e.tipo !== "attiva");
+    // fumetto: l'ultima mossa degli altri, oppure il cambio dei personaggi per una carta con le frecce (anche se l'ho fatta uscire io)
+    const ultimoAltrui = [...nuovi]
+      .reverse()
+      .find((e) => (e.giocatore !== io || e.tipo === "frecce") && significativo(e) && e.tipo !== "attiva");
     if (ultimoAltrui) setFumetto({ testo: descriviEvento(ultimoAltrui, nick, io), chiave: ultimoAltrui.n });
   }, [riga, io, nick]);
   useEffect(() => {
@@ -473,6 +476,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
                 {c ? (
                   <CartaNumeroGrafica
                     valore={c.valore}
+                    frecce={c.frecce}
                     larghezza={larghezzaNumero}
                     onTocca={seValida((m) => m.tipo === "prendiNumero" && m.posizione === i)}
                     disabilitata={bloccato}
@@ -1090,6 +1094,7 @@ function Ventaglio({
             <div data-carta-id={c.id}>
               <CartaNumeroGrafica
                 valore={c.valore}
+                frecce={c.frecce}
                 larghezza={larghezzaCarta}
                 selezionata={scelta}
                 onTocca={tocca(c.id, c.valore)}

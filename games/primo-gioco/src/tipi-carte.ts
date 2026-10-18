@@ -92,6 +92,8 @@ export interface Personaggio {
 export interface CartaNumero {
   id: string;
   valore: Valore;
+  /** Carta con le frecce: quando compare scoperta sul tavolo si cambiano i 2 personaggi scoperti. */
+  frecce?: true;
 }
 
 /** Carta diamante: con valore oppure fulmine. */

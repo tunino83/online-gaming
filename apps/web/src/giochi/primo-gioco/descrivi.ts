@@ -153,6 +153,8 @@ export function descriviEvento(e: Evento, nickname: (id: string) => string, io: 
       return `${chi} pescato ${nome(e.personaggio)}`;
     case "brucia":
       return `${chi} bruciato le carte numero del tavolo${e.gratis ? " (Bacchetta magica)" : ""}`;
+    case "frecce":
+      return `È uscito un ${e.valore} con le frecce: personaggi cambiati${e.nuovi.length ? ` (ora ${e.nuovi.map(nome).join(" e ")})` : ""}`;
     case "attiva": {
       let t = `${chi} attivato ${nome(e.personaggio)}${e.valori.length ? ` con ${e.valori.join(", ")}` : ""} (+${e.punti})`;
       if (e.da) t += `, la Lucciola ${di(e.da)}`;

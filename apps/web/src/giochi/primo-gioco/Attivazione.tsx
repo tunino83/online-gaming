@@ -101,7 +101,7 @@ export function PannelloAttivazione({ v, carta, proposte, nick, bloccato, onAtti
           {[...v.mano]
             .sort((a, b) => a.valore - b.valore)
             .map((c) => (
-              <CartaNumeroGrafica key={c.id} valore={c.valore} larghezza={52} scelta={scelte.includes(c.id)} onTocca={() => alterna(c.id)} />
+              <CartaNumeroGrafica key={c.id} valore={c.valore} frecce={c.frecce} larghezza={52} scelta={scelte.includes(c.id)} onTocca={() => alterna(c.id)} />
             ))}
         </div>
 

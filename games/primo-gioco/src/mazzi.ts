@@ -9,14 +9,17 @@ export const VALORI: readonly Valore[] = [1, 2, 3, 4, 5, 6, 7, 8];
 export const COPIE_PER_VALORE_NUMERO = 7;
 export const DIAMANTI_PER_VALORE = 2;
 export const FULMINI = 4;
+/** Valori delle carte numero con le frecce: una copia ciascuno (sostituisce una carta normale). */
+export const VALORI_CON_FRECCE: readonly Valore[] = [3, 4, 5];
 
-/** 56 carte numero: valori 1–8, 7 copie per valore. */
+/** 56 carte numero: valori 1–8, 7 copie per valore; la prima copia del 3, del 4 e del 5 ha le frecce. */
 export function creaMazzoNumeri(): CartaNumero[] {
   return VALORI.flatMap((valore) =>
-    Array.from({ length: COPIE_PER_VALORE_NUMERO }, (_, copia) => ({
-      id: `n${valore}-${copia + 1}`,
-      valore,
-    })),
+    Array.from({ length: COPIE_PER_VALORE_NUMERO }, (_, copia): CartaNumero => {
+      const carta: CartaNumero = { id: `n${valore}-${copia + 1}`, valore };
+      if (copia === 0 && VALORI_CON_FRECCE.includes(valore)) carta.frecce = true;
+      return carta;
+    }),
   );
 }
 

@@ -6,7 +6,7 @@ Il gioco usa tre mazzi: carte numero per formare i codici, personaggi da attivar
 
 | Mazzo | Composizione | A cosa serve |
 | --- | --- | --- |
-| Carte numero | 56 carte, valori 1–8, 7 copie per valore | Formare i codici di attivazione |
+| Carte numero | 56 carte, valori 1–8, 7 copie per valore; 3 di queste (un 3, un 4 e un 5) hanno le frecce | Formare i codici di attivazione |
 | Personaggi | 55 carte (42 personaggi diversi, alcuni in più copie); facili da aggiungere | Si attivano per fare punti e ottenere poteri |
 | Diamanti | 20 carte: 2 per ogni valore 1–8 + 4 fulmini | Valori extra per i codici; il fulmine dà una mossa in più |
 
@@ -48,6 +48,14 @@ Ogni turno il giocatore fa 3 mosse, anche ripetendo la stessa, scegliendo tra qu
 
 - Carte numero in mano: massimo 5, salvo poteri. Si può pescare anche oltre il limite; a fine turno si scarta fino a tornare al limite.
 - Personaggi nei posti: massimo 2. Chi ne prende un terzo deve scartarne uno.
+
+**Carte numero con le frecce**
+
+- Nel mazzo numeri ci sono 3 carte con le frecce: un 3, un 4 e un 5 (al posto di 3 carte normali, quindi restano 56 carte).
+- Ogni volta che una carta con le frecce compare scoperta sul tavolo (a inizio partita, quando rimpiazza una carta presa, quando si brucia),
+  i 2 personaggi scoperti vanno negli scarti personaggi e se ne scoprono 2 nuovi dal mazzo.
+- Se ne compaiono due insieme (per esempio bruciando), i personaggi si cambiano due volte.
+- Se una carta con le frecce si pesca coperta dal mazzo non succede niente. In mano vale come una carta normale del suo numero.
 - I diamanti non contano nel limite della mano e sono visibili a tutti.
 - Un fulmine si gioca in qualsiasi momento del proprio turno e dà una mossa in più; poi si scarta.
 - Ogni mazzo ha la sua pila degli scarti: carte numero, diamanti e personaggi usati o scartati finiscono lì. Quando un mazzo finisce, i suoi scarti si rimescolano.
@@ -190,15 +198,11 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Biancaneve a fine turno: se si ha un 2 in mano, l'app chiede con un messaggio se scambiarlo con un diamante; rispondendo no il turno si chiude.
 - Bacchetta magica: si brucia gratis solo a inizio turno, prima di qualsiasi altra azione. A inizio turno si possono usare sia la Bacchetta sia il Cappellaio matto, nell'ordine che si vuole.
 
-**Da chiarire: carte numero con le frecce (nuova regola, 2026-10-18)**
+**Decisioni prese (carte numero con le frecce, 2026-10-18)**
 
-Regola annunciata: esistono 3 carte numero con le frecce (un 3, un 4 e un 5); quando escono sul tavolo
-si cambiano i 2 personaggi scoperti. Dubbi:
+- Le 3 carte con le frecce (un 3, un 4 e un 5) sostituiscono 3 carte normali: il mazzo resta di 56 carte.
+- I personaggi cambiati vanno nella pila degli scarti personaggi.
+- Il cambio avviene ogni volta che una carta con le frecce compare sul tavolo; due carte con le frecce insieme = due cambi.
+- Pescata coperta dal mazzo: non succede niente. In mano è una carta normale.
 
-1. Le 3 carte con le frecce si aggiungono alle 56 (diventano 59) o sostituiscono un 3, un 4 e un 5 normali (restano 56)?
-2. "Si cambiano i 2 personaggi": i due personaggi scoperti vanno negli scarti personaggi e se ne scoprono 2 nuovi dal mazzo?
-3. Vale ogni volta che la carta compare sul tavolo: a inizio partita, quando rimpiazza una carta presa e quando si brucia?
-4. Se la carta con le frecce viene pescata coperta dal mazzo (va in mano), non succede niente?
-5. Se escono due carte con le frecce insieme (es. bruciando), i personaggi si cambiano una volta o due?
-6. In mano e nei codici vale come una carta normale del suo numero?
-
+Nessuna domanda aperta al momento.

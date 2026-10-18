@@ -16,7 +16,7 @@ import {
 import { personaggio } from "./personaggi";
 import { type DatiEvento, LUNGHEZZA_REGISTRO, type Mazzi, type Mossa, type StatoGiocatore, type StatoPartita } from "./stato";
 import { validaMossa } from "./valida-mossa";
-import type { CartaPersonaggio, Effetto } from "./tipi-carte";
+import type { CartaNumero, CartaPersonaggio, Effetto } from "./tipi-carte";
 
 /** Errore di una mossa non permessa: il messaggio è per il giocatore. */
 class MossaNonValida extends Error {}
@@ -91,10 +91,35 @@ function pesca<K extends keyof Mazzi>(s: StatoPartita, mazzo: K): Mazzi[K][numbe
 
 const puoPescare = (s: StatoPartita, mazzo: keyof Mazzi) => s.mazzi[mazzo].length + s.scarti[mazzo].length > 0;
 
-/** Riempie i posti vuoti del tavolo, se ci sono carte disponibili. */
+/**
+ * Riempie i posti vuoti del tavolo, se ci sono carte disponibili.
+ * Ogni carta con le frecce che compare scoperta fa cambiare i personaggi scoperti
+ * (vanno negli scarti e se ne scoprono di nuovi): due carte con le frecce, due cambi.
+ */
 function riempiTavolo(s: StatoPartita): void {
-  s.tavolo.numeri = s.tavolo.numeri.map((c) => c ?? pesca(s, "numeri"));
+  const conFrecce: CartaNumero[] = [];
+  s.tavolo.numeri = s.tavolo.numeri.map((c) => {
+    if (c) return c;
+    const nuova = pesca(s, "numeri");
+    if (nuova?.frecce) conFrecce.push(nuova);
+    return nuova;
+  });
   s.tavolo.personaggi = s.tavolo.personaggi.map((c) => c ?? pesca(s, "personaggi"));
+  for (const carta of conFrecce) {
+    const scartati = s.tavolo.personaggi.filter((c) => c !== null);
+    s.scarti.personaggi.push(...scartati);
+    s.tavolo.personaggi = s.tavolo.personaggi.map(() => null);
+    s.tavolo.personaggi = s.tavolo.personaggi.map(() => pesca(s, "personaggi"));
+    // A inizio partita non c'è ancora nessuno di turno: il cambio non va nel registro
+    if (s.turno.giocatore) {
+      registra(s, s.turno.giocatore, {
+        tipo: "frecce",
+        valore: carta.valore,
+        scartati: scartati.map((c) => c.personaggio),
+        nuovi: s.tavolo.personaggi.filter((c) => c !== null).map((c) => c.personaggio),
+      });
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ */

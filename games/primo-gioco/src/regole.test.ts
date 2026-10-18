@@ -15,9 +15,16 @@ const dia = (valore: number): CartaDiamante => ({ id: `x-d${valore}-${++contator
 const fulmine = (): CartaDiamante => ({ id: `x-f-${++contatore}`, tipo: "fulmine" });
 const pers = (personaggio: string): CartaPersonaggio => ({ id: `x-${personaggio}-${++contatore}`, personaggio });
 
-/** Partita con ordine fisso (A inizia) e 3 mosse per A. */
+/** Toglie le frecce a tutte le carte numero (per provare le altre regole senza cambi di personaggi a sorpresa). */
+function senzaFrecce(s: StatoPartita): void {
+  const tutte = [...s.mazzi.numeri, ...s.scarti.numeri, ...s.tavolo.numeri, ...Object.values(s.giocatori).flatMap((g) => g.mano)];
+  for (const c of tutte) if (c) delete c.frecce;
+}
+
+/** Partita con ordine fisso (A inizia) e 3 mosse per A; carte con le frecce disattivate. */
 function partita(giocatori = ["A", "B"], seed = 1): StatoPartita {
   const s = setup(giocatori, {}, seed);
+  senzaFrecce(s);
   s.ordine = [...giocatori];
   s.turno = { giocatore: giocatori[0]!, mosseRimaste: 3, virtualiUsate: [], bruciaGratisUsata: false, iniziato: false, attesa: null };
   return s;
@@ -61,7 +68,8 @@ describe("preparazione", () => {
     expect(s.tavolo.numeri.filter(Boolean)).toHaveLength(4);
     expect(s.tavolo.personaggi.filter(Boolean)).toHaveLength(2);
     expect(s.mazzi.numeri).toHaveLength(52);
-    expect(s.mazzi.personaggi).toHaveLength(53);
+    // 55 personaggi: 2 sul tavolo, gli altri nel mazzo (o negli scarti se è uscita una carta con le frecce)
+    expect(s.mazzi.personaggi.length + s.scarti.personaggi.length).toBe(53);
     expect(s.mazzi.diamanti).toHaveLength(20);
     for (const g of Object.values(s.giocatori)) {
       expect(g).toMatchObject({ mano: [], diamanti: [], posti: [], attivati: [], punti: 0 });
@@ -1005,3 +1013,84 @@ describe("Biancaneve", () => {
     expect(mosseValide(dopo, "A")).toContainEqual({ tipo: "dueInDiamante", carta: dopo.giocatori.A!.mano[0]!.id });
   });
 });
+
+/* ------------------------------ carte con le frecce ------------------------------ */
+
+describe("carte numero con le frecce", () => {
+  /** Mette in cima al mazzo numeri le carte date (l'ultima della lista è la prima pescata). */
+  function inCima(s: StatoPartita, ...carte: CartaNumero[]): void {
+    s.mazzi.numeri.push(...carte);
+  }
+  const freccia = (valore: number): CartaNumero => ({ ...num(valore), frecce: true });
+
+  it("nel mazzo sono 3 (un 3, un 4 e un 5) al posto di 3 carte normali: restano 56 carte, 7 per valore", () => {
+    const s = setup(["A", "B"], {}, 1);
+    const tutte = [...s.mazzi.numeri, ...s.scarti.numeri, ...s.tavolo.numeri.filter((c) => c !== null)];
+    expect(tutte).toHaveLength(56);
+    expect(tutte.filter((c) => c!.frecce).map((c) => c!.valore).sort()).toEqual([3, 4, 5]);
+  });
+
+  it("presa dal tavolo e rimpiazzata da una carta con le frecce: i 2 personaggi vanno negli scarti e se ne scoprono 2 nuovi", () => {
+    let s = partita();
+    const vecchi = s.tavolo.personaggi.map((c) => c!.id);
+    const nuoviAttesi = s.mazzi.personaggi.slice(-2).map((c) => c.id);
+    inCima(s, freccia(4));
+    s = gioca(s, "A", { tipo: "prendiNumero", posizione: 0 });
+    expect(s.tavolo.numeri[0]).toMatchObject({ valore: 4, frecce: true });
+    expect(s.scarti.personaggi.map((c) => c.id)).toEqual(vecchi);
+    expect(s.tavolo.personaggi.map((c) => c!.id).sort()).toEqual([...nuoviAttesi].sort());
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "frecce", valore: 4, giocatore: "A" });
+  });
+
+  it("bruciando escono 2 carte con le frecce: i personaggi si cambiano 2 volte", () => {
+    let s = partita();
+    inCima(s, num(1), freccia(3), num(2), freccia(5));
+    const primi = s.tavolo.personaggi.map((c) => c!.id);
+    const prossimi4 = s.mazzi.personaggi.slice(-4).map((c) => c.id);
+    s = gioca(s, "A", { tipo: "brucia" });
+    expect(s.scarti.personaggi).toHaveLength(4);
+    expect(s.scarti.personaggi.slice(0, 2).map((c) => c.id)).toEqual(primi);
+    const sulTavolo = s.tavolo.personaggi.map((c) => c!.id);
+    expect(prossimi4).toEqual(expect.arrayContaining(sulTavolo));
+    expect(s.registro.filter((e) => e.tipo === "frecce")).toHaveLength(2);
+  });
+
+  it("pescata coperta dal mazzo va in mano e non succede niente", () => {
+    let s = partita();
+    const personaggiPrima = s.tavolo.personaggi;
+    inCima(s, freccia(3));
+    s = gioca(s, "A", { tipo: "pescaNumero" });
+    expect(s.giocatori.A!.mano.at(-1)).toMatchObject({ valore: 3, frecce: true });
+    expect(s.tavolo.personaggi).toEqual(personaggiPrima);
+    expect(s.scarti.personaggi).toHaveLength(0);
+  });
+
+  it("in mano vale come una carta normale del suo numero (Folletto 333 attivato con un 3 con le frecce)", () => {
+    let s = partita();
+    const a = freccia(3);
+    const b = num(3);
+    const c = num(3);
+    const folletto = pers("folletto");
+    s.giocatori.A!.mano = [a, b, c];
+    s.giocatori.A!.posti = [folletto];
+    s = gioca(s, "A", { tipo: "attiva", carta: folletto.id, combinazione: usa(a, b, c) });
+    expect(s.giocatori.A!.attivati.map((x) => x.id)).toEqual([folletto.id]);
+    expect(s.scarti.numeri).toContainEqual(a);
+  });
+
+  it("a inizio partita: se tra le 4 carte scoperte c'è una carta con le frecce, i personaggi si cambiano subito (senza registro)", () => {
+    // Si cerca un seme in cui esce una carta con le frecce già alla preparazione
+    let trovato = false;
+    for (let seed = 1; seed < 200 && !trovato; seed++) {
+      const s = setup(["A", "B"], {}, seed);
+      const quante = s.tavolo.numeri.filter((c) => c?.frecce).length;
+      if (quante === 0) continue;
+      trovato = true;
+      expect(s.scarti.personaggi).toHaveLength(2 * quante);
+      expect(s.tavolo.personaggi.filter(Boolean)).toHaveLength(2);
+      expect(s.registro.filter((e) => e.tipo === "frecce")).toHaveLength(0);
+    }
+    expect(trovato).toBe(true);
+  });
+});
+

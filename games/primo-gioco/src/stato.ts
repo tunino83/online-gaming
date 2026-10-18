@@ -107,7 +107,9 @@ export type DatiEvento =
   | { tipo: "scambiaConTavolo"; dato: string; preso: string }
   | { tipo: "prendiDaFatina"; da: IdGiocatore }
   | { tipo: "fineTurno"; scartate: number; cambiaMano: boolean }
-  | { tipo: "ultimoGiro"; punti: number };
+  | { tipo: "ultimoGiro"; punti: number }
+  /** È comparsa sul tavolo una carta con le frecce: i personaggi scoperti sono stati cambiati. */
+  | { tipo: "frecce"; valore: number; scartati: string[]; nuovi: string[] };
 
 /** Quanti eventi si tengono nel registro. */
 export const LUNGHEZZA_REGISTRO = 40;

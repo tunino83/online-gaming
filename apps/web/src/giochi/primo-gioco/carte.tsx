@@ -99,12 +99,23 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
 
 export function CartaNumeroGrafica({
   valore,
+  frecce,
   selezionata,
   scelta,
   ...comune
-}: Comune & { valore: number; /** da scartare */ selezionata?: boolean; /** da usare in un codice */ scelta?: boolean }) {
+}: Comune & {
+  valore: number;
+  /** carta con le frecce: uscendo sul tavolo fa cambiare i personaggi */
+  frecce?: boolean;
+  /** da scartare */ selezionata?: boolean;
+  /** da usare in un codice */ scelta?: boolean;
+}) {
   return (
-    <Contenitore classe={`numero ${selezionata ? "selezionata" : ""} ${scelta ? "scelta" : ""}`} titolo={comune.titolo ?? `Carta ${valore}`} {...comune}>
+    <Contenitore
+      classe={`numero ${frecce ? "frecce" : ""} ${selezionata ? "selezionata" : ""} ${scelta ? "scelta" : ""}`}
+      titolo={comune.titolo ?? (frecce ? `Carta ${valore} con le frecce` : `Carta ${valore}`)}
+      {...comune}
+    >
       <div className="cornice">
         <span className="angolo alto">{valore}</span>
         <span className="valore">{valore}</span>
