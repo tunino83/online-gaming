@@ -1,10 +1,10 @@
 /**
  * Genera docs/anteprima-carte.html: tutte le carte personaggio, disegnate dai dati
  * con lo stesso stile dell'app (apps/web/src/giochi/primo-gioco/carte.css).
- * Uso: pnpm carte
+ * Uso: pnpm carte [skin]   (default: classica)
  *
- * Immagini: se esiste games/primo-gioco/immagini/<id>.png (o .jpg, .jpeg, .webp)
- * viene usata come illustrazione; altrimenti si mostra un simbolo provvisorio.
+ * Immagini: games/primo-gioco/immagini/<skin>/<id>.png (o .jpg, .jpeg, .webp); se la skin
+ * non ha quel personaggio si usa la skin "classica", altrimenti un simbolo provvisorio.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { type PezzoCodice, pezziCodice, simboloProvvisorio, tipoCarta } from "../src/aspetto";
@@ -12,12 +12,19 @@ import { PERSONAGGI } from "../src/personaggi";
 import type { Personaggio } from "../src/tipi-carte";
 
 const CARTELLA_IMMAGINI = new URL("../immagini/", import.meta.url);
-const FILE_USCITA = new URL("../../../docs/anteprima-carte.html", import.meta.url);
+const FILE_USCITA = new URL(
+  process.argv[2] && process.argv[2] !== "classica" ? `../../../docs/anteprima-carte-${process.argv[2]}.html` : "../../../docs/anteprima-carte.html",
+  import.meta.url,
+);
 const STILE_CARTE = readFileSync(new URL("../../../apps/web/src/giochi/primo-gioco/carte.css", import.meta.url), "utf8");
 
+const SKIN = process.argv[2] ?? "classica";
+
 function immagine(p: Personaggio): string | null {
-  for (const est of ["png", "jpg", "jpeg", "webp"]) {
-    if (existsSync(new URL(`${p.id}.${est}`, CARTELLA_IMMAGINI))) return `../games/primo-gioco/immagini/${p.id}.${est}`;
+  for (const skin of [SKIN, "classica"]) {
+    for (const est of ["png", "jpg", "jpeg", "webp"]) {
+      if (existsSync(new URL(`${skin}/${p.id}.${est}`, CARTELLA_IMMAGINI))) return `../games/primo-gioco/immagini/${skin}/${p.id}.${est}`;
+    }
   }
   return null;
 }

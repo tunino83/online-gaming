@@ -4,16 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import "@fontsource/cinzel/700.css";
 import "./carte.css";
 
-/** Illustrazioni: games/primo-gioco/immagini/<id personaggio>.png|jpg|jpeg|webp */
-const FILE_IMMAGINI = import.meta.glob("../../../../../games/primo-gioco/immagini/*.{png,jpg,jpeg,webp}", {
-  eager: true,
-  query: "?url",
-  import: "default",
-}) as Record<string, string>;
-const IMMAGINI = new Map(
-  Object.entries(FILE_IMMAGINI).map(([percorso, url]) => [percorso.split("/").pop()!.replace(/\.[a-z]+$/, ""), url]),
-);
-export const immaginePersonaggio = (id: string) => IMMAGINI.get(id);
+import { immaginePersonaggio, useSkin } from "./skin";
 
 interface Comune {
   larghezza?: number;
@@ -76,10 +67,11 @@ function Pezzo({ p }: { p: PezzoCodice }) {
 export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { id: string; compatta?: boolean }) {
   const p = personaggio(id);
   const { colore, etichetta } = tipoCarta(p);
-  const img = immaginePersonaggio(p.id);
+  const skin = useSkin();
+  const img = immaginePersonaggio(p.id, skin);
   const pezzi = pezziCodice(p.codice);
   return (
-    <Contenitore classe={`${colore} ${compatta ? "compatta" : ""}`} titolo={comune.titolo ?? p.nome} {...comune}>
+    <Contenitore classe={`${colore} skin-${skin} ${compatta ? "compatta" : ""}`} titolo={comune.titolo ?? p.nome} {...comune}>
       <span className="punti" aria-label={`${p.punti} punti`}>
         <span>{p.punti}</span>
       </span>

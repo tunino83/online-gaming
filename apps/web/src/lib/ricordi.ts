@@ -2,6 +2,24 @@
 
 const CHIAVE_NICKNAME = "og.nickname";
 const CHIAVE_AVATAR = "og.avatar";
+const CHIAVE_SKIN = "og.skin";
+
+/** Skin delle carte scelta su questo dispositivo. */
+export function skinSalvata(): string {
+  try {
+    return localStorage.getItem(CHIAVE_SKIN) ?? "classica";
+  } catch {
+    return "classica";
+  }
+}
+
+export function salvaSkin(id: string): void {
+  try {
+    localStorage.setItem(CHIAVE_SKIN, id);
+  } catch {
+    // memoria del browser non disponibile
+  }
+}
 
 export function avatarSalvato(): string {
   try {

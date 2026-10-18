@@ -73,5 +73,7 @@ File principali del primo gioco (`games/primo-gioco/src`):
 - `personaggi.ts` dati dei personaggi; `mazzi.ts` composizione dei mazzi
 - `codici.ts` verifica dei codici di attivazione; `regole.ts` turno, poteri, fine partita
 - `stato.ts` stato e mosse; `vista.ts` cosa vede ogni giocatore; `bot.ts` e `simulazione.ts`
-- Immagini dei personaggi: `games/primo-gioco/immagini/<id>.png|jpg|webp` (vedi `LEGGIMI.md` lì dentro);
+- Immagini dei personaggi per skin: `games/primo-gioco/immagini/<skin>/<id>.png|jpg|webp` (vedi `LEGGIMI.md`);
+  skin di base `classica`, elenco skin in `apps/web/src/giochi/primo-gioco/skin.tsx`, scelta per giocatore (salvata nel browser);
+  cartelle che iniziano con `_` (es. `_originali`) escluse dal sito;
   senza immagine la carta mostra un simbolo provvisorio. La grafica della carta in Fase 2 riprende quella di `scripts/anteprima-carte.ts`.

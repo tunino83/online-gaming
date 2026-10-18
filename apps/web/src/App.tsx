@@ -4,6 +4,8 @@ import { Home } from "./pagine/Home";
 import { Invito } from "./pagine/Invito";
 import { Partita } from "./pagine/Partita";
 import { Protezione } from "./Protezione";
+import { FornitoreSkin } from "./giochi/primo-gioco/skin";
+import { skinSalvata } from "./lib/ricordi";
 import { Errore, Pagina } from "./ui";
 
 export function App() {
@@ -16,6 +18,7 @@ export function App() {
   }
   return (
     <Protezione>
+    <FornitoreSkin skin={skinSalvata()}>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -24,6 +27,7 @@ export function App() {
         <Route path="*" element={<Home />} />
       </Routes>
     </BrowserRouter>
+    </FornitoreSkin>
     </Protezione>
   );
 }

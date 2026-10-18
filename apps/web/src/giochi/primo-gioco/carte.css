@@ -307,3 +307,75 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 @media (prefers-reduced-motion: reduce) {
   .gira, .velo { animation: none; }
 }
+
+/* ---------- Animazione di attivazione ---------- */
+.magia-velo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgb(20 16 40 / 0.55), rgb(5 5 15 / 0.85));
+  animation: compare 0.25s ease-out both, svanisce 0.35s ease-in 2.45s both;
+  cursor: pointer;
+}
+@keyframes svanisce { to { opacity: 0; } }
+
+/* Alone che ruota dietro la carta */
+.magia-alone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  height: 420px;
+  margin: -260px 0 0 -210px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--magia) 70%, white) 0%, transparent 55%),
+    repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--magia) 55%, transparent) 0deg 10deg, transparent 10deg 30deg);
+  filter: blur(2px);
+  opacity: 0;
+  animation: alone-entra 0.6s ease-out 0.15s forwards, alone-gira 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes alone-entra { from { opacity: 0; transform: scale(0.3); } to { opacity: 0.9; transform: scale(1); } }
+@keyframes alone-gira { to { rotate: 360deg; } }
+
+/* La carta compare girandosi e brilla */
+.magia-carta {
+  position: relative;
+  animation: magia-entra 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) both, magia-brilla 1.2s ease-in-out 0.7s infinite alternate;
+  border-radius: 1em;
+}
+@keyframes magia-entra {
+  from { transform: perspective(800px) rotateY(180deg) scale(0.3); opacity: 0; }
+  to { transform: perspective(800px) rotateY(0) scale(1); opacity: 1; }
+}
+@keyframes magia-brilla {
+  from { filter: drop-shadow(0 0 8px var(--magia)); }
+  to { filter: drop-shadow(0 0 28px var(--magia)) brightness(1.08); }
+}
+
+/* Scintille che salgono */
+.scintilla {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--magia) 60%, transparent 70%);
+  opacity: 0;
+  animation: scintilla 1.6s ease-out both;
+  pointer-events: none;
+}
+@keyframes scintilla {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), -260px) scale(1.2); }
+}
+
+.magia-testo { animation: compare 0.4s ease-out 0.5s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .magia-alone, .magia-carta, .scintilla, .magia-testo { animation: none; opacity: 1; }
+  .scintilla { display: none; }
+}

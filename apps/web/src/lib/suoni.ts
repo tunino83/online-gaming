@@ -84,3 +84,11 @@ export function suonoTuoTurno(): void {
   }
   if (attivi) navigator.vibrate?.([120, 60, 120]);
 }
+
+/** Scintillio "magico" quando qualcuno attiva un personaggio. */
+export function suonoMagia(): void {
+  const ctx = audio();
+  if (!ctx) return;
+  [784, 988, 1175, 1568, 1976].forEach((f, i) => nota(ctx, f, i * 0.07, 0.5, 0.09, "sine"));
+  nota(ctx, 392, 0, 0.9, 0.06, "triangle");
+}

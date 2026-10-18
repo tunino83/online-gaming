@@ -14,6 +14,7 @@ import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
+import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
@@ -73,6 +74,24 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       if (nuova) setPrimoPiano({ carta: { tipo: "personaggio", id: nuova.personaggio }, titolo: "Hai pescato" });
     }
   }, [riga, io]);
+
+  // Animazioni di attivazione: le nuove voci "attiva" del registro vanno in coda, una alla volta
+  const [codaAttivazioni, setCodaAttivazioni] = useState<Extract<Evento, { tipo: "attiva" }>[]>([]);
+  const ultimoEvento = useRef<number | null>(null);
+  useEffect(() => {
+    const registro = riga?.vista.registro ?? [];
+    if (!riga) return;
+    const ultimo = registro.at(-1)?.n ?? 0;
+    if (ultimoEvento.current === null) {
+      ultimoEvento.current = ultimo; // primo caricamento: niente animazioni per il passato
+      return;
+    }
+    const nuove = registro.filter(
+      (e): e is Extract<Evento, { tipo: "attiva" }> => e.n > ultimoEvento.current! && e.tipo === "attiva",
+    );
+    ultimoEvento.current = Math.max(ultimoEvento.current, ultimo);
+    if (nuove.length > 0) setCodaAttivazioni((c) => [...c, ...nuove]);
+  }, [riga]);
 
   // Suoni: "tic" a ogni mossa, melodia quando diventa il mio turno
   const suoni = useSuoniAttivi();
@@ -502,6 +521,16 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             </div>
           </div>
         </div>
+      )}
+
+      {codaAttivazioni[0] && (
+        <AnimazioneAttivazione
+          key={codaAttivazioni[0].n}
+          evento={codaAttivazioni[0]}
+          nick={nick}
+          io={io}
+          onFine={() => setCodaAttivazioni((c) => c.slice(1))}
+        />
       )}
 
       {primoPiano && <PrimoPiano carta={primoPiano.carta} titolo={primoPiano.titolo} onChiudi={() => setPrimoPiano(null)} />}
