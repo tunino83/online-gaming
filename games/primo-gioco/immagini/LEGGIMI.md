@@ -18,13 +18,13 @@ Le copie dello stesso personaggio usano la stessa immagine. Usa solo immagini di
 
 | Personaggio | Nome del file (senza estensione) |
 | --- | --- |
-| Nano dell'1 | `nano-1` |
-| Nano del 2 | `nano-2` |
-| Nano del 3 | `nano-3` |
-| Nano del 4 | `nano-4` |
-| Nano del 5 | `nano-5` |
-| Nano del 6 | `nano-6` |
-| Nano del 7 | `nano-7` |
+| Eolo (nano dell'1) | `nano-1` |
+| Gongolo (nano del 2) | `nano-2` |
+| Dotto (nano del 3) | `nano-3` |
+| Pisolo (nano del 4) | `nano-4` |
+| Mammolo (nano del 5) | `nano-5` |
+| Cucciolo (nano del 6) | `nano-6` |
+| Brontolo (nano del 7) | `nano-7` |
 | Fenice | `fenice` |
 | Drago | `drago` |
 | Cappuccetto Rosso | `cappuccetto-rosso` |

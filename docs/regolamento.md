@@ -98,13 +98,13 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 
 | Immagine | Personaggio | Codice per attivarlo | Punti | Potere | Tipo | Copie |
 | --- | --- | --- | --- | --- | --- | --- |
-| <img src="../games/primo-gioco/immagini/classica/nano-1.png" width="90" alt="Nano 1"> | Nano dell'1 | 11 | 1 | Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-2.png" width="90" alt="Nano 2"> | Nano del 2 | 22 | 1 | Hai un 2 a disposizione, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-3.png" width="90" alt="Nano 3"> | Nano del 3 | 33 | 1 | Hai un 3 a disposizione, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-4.png" width="90" alt="Nano 4"> | Nano del 4 | 44 | 1 | Hai un 4 a disposizione, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-5.png" width="90" alt="Nano 5"> | Nano del 5 | 55 | 1 | Hai un 5 a disposizione, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-6.png" width="90" alt="Nano 6"> | Nano del 6 | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/nano-7.png" width="90" alt="Nano 7"> | Nano del 7 | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-1.png" width="90" alt="Eolo"> | Eolo | 11 | 1 | Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-2.png" width="90" alt="Gongolo"> | Gongolo | 22 | 1 | Hai un 2 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-3.png" width="90" alt="Dotto"> | Dotto | 33 | 1 | Hai un 3 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-4.png" width="90" alt="Pisolo"> | Pisolo | 44 | 1 | Hai un 4 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-5.png" width="90" alt="Mammolo"> | Mammolo | 55 | 1 | Hai un 5 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-6.png" width="90" alt="Cucciolo"> | Cucciolo | 66 | 1 | Hai un 6 a disposizione, una volta per turno | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/nano-7.png" width="90" alt="Brontolo"> | Brontolo | 77 | 1 | Hai un 7 a disposizione, una volta per turno | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/fenice.png" width="90" alt="Fenice"> | Fenice | 12 | 0 | Hai un 8 a disposizione, una volta per turno | Blu | 2 |
 | <img src="../games/primo-gioco/immagini/classica/drago.jpg" width="90" alt="Drago"> | Drago | 1111 | 0 | Come un nano, ma a ogni turno scegli tu il valore della carta | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/cappuccetto-rosso.png" width="90" alt="Cappuccetto Rosso"> | Cappuccetto Rosso | 45678 | 1 | Fai 4 mosse per turno invece di 3 | Blu | 1 |
@@ -125,7 +125,7 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/mago.jpg" width="90" alt="Mago"> | Mago | Scala da 3 | 1 | A inizio turno vedi la prima carta coperta del mazzo personaggi | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/fantasma.jpg" width="90" alt="Fantasma"> | Fantasma | Doppia coppia | 2 | Il giocatore successivo ha una mossa in più nel suo prossimo turno | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/bacchetta-magica.jpg" width="90" alt="Bacchetta magica (superpotere)"> | Bacchetta magica (superpotere) | 4 | 0 | A inizio turno puoi bruciare senza consumare una mossa | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/robin-hood.png" width="90" alt="Robin Hood"> | Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano | Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/robin-hood.png" width="90" alt="Robin Hood"> | Robin Hood | 3 carte con somma 10 | 1 | Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 di Eolo (il nano) | Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/hobbit-pari.jpg" width="90" alt="Hobbit pari"> | Hobbit pari | 3 carte pari | 1 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/hobbit-dispari.jpg" width="90" alt="Hobbit dispari"> | Hobbit dispari | 3 carte dispari | 1 | Ricevi 1 diamante | Rosso | 1 |
 | <img src="../games/primo-gioco/immagini/classica/golem-pari.png" width="90" alt="Golem pari"> | Golem pari | 2468 | 2 | 3 mosse in più in questo turno | Rosso | 1 |

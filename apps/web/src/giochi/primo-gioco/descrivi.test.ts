@@ -49,7 +49,7 @@ describe("descrizione delle mosse", () => {
       }),
     ).toBe("Attiva Hansel e Gretel con 8 (7+1 con ◆3) + 8");
     expect(testo({ tipo: "attiva", carta: "hg", combinazione: [{ tipo: "virtuale", fonte: "nano5", valore: 5 }] })).toBe(
-      "Attiva Hansel e Gretel con 5 (dal Nano del 5)",
+      "Attiva Hansel e Gretel con 5 (carta di Mammolo)",
     );
   });
 

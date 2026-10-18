@@ -12,9 +12,10 @@ const blu = (effetto: Effetto): Potere => ({ colore: "blu", effetto });
 const rosso = (effetto: Effetto): Potere => ({ colore: "rosso", effetto });
 const diamanti = (quanti: number): Potere => rosso({ tipo: "riceviDiamanti", quanti });
 
-const nano = (valore: Valore, articolo: string, potereTesto: string): Personaggio => ({
+/** I 7 nani di Biancaneve: ognuno dà una carta virtuale col suo numero. */
+const nano = (valore: Valore, nome: string, potereTesto: string): Personaggio => ({
   id: `nano-${valore}`,
-  nome: `Nano ${articolo}${valore}`,
+  nome,
   codiceTesto: `${valore}${valore}`,
   codice: esatto(valore, valore),
   punti: 1,
@@ -28,13 +29,13 @@ const lucciolaTesto =
 const golemTesto = "3 mosse in più in questo turno";
 
 export const PERSONAGGI: Personaggio[] = [
-  nano(1, "dell'", "Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno"),
-  nano(2, "del ", "Hai un 2 a disposizione, una volta per turno"),
-  nano(3, "del ", "Hai un 3 a disposizione, una volta per turno"),
-  nano(4, "del ", "Hai un 4 a disposizione, una volta per turno"),
-  nano(5, "del ", "Hai un 5 a disposizione, una volta per turno"),
-  nano(6, "del ", "Hai un 6 a disposizione, una volta per turno"),
-  nano(7, "del ", "Hai un 7 a disposizione, una volta per turno"),
+  nano(1, "Eolo", "Hai a disposizione un 1 per i codici, come se fosse in mano, una volta per turno"),
+  nano(2, "Gongolo", "Hai un 2 a disposizione, una volta per turno"),
+  nano(3, "Dotto", "Hai un 3 a disposizione, una volta per turno"),
+  nano(4, "Pisolo", "Hai un 4 a disposizione, una volta per turno"),
+  nano(5, "Mammolo", "Hai un 5 a disposizione, una volta per turno"),
+  nano(6, "Cucciolo", "Hai un 6 a disposizione, una volta per turno"),
+  nano(7, "Brontolo", "Hai un 7 a disposizione, una volta per turno"),
   {
     id: "fenice",
     nome: "Fenice",
@@ -241,7 +242,7 @@ export const PERSONAGGI: Personaggio[] = [
     codiceTesto: "3 carte con somma 10",
     codice: { tipo: "somma", totale: 10, carte: 3 },
     punti: 1,
-    potereTesto: "Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 del Nano",
+    potereTesto: "Ogni 1 in mano (carta o diamante) può valere anche 8; non vale per l'1 di Eolo (il nano)",
     poteri: [blu({ tipo: "unoValeOtto" })],
     copie: 1,
   },

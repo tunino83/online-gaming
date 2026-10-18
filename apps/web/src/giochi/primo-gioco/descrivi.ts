@@ -51,7 +51,7 @@ export const testoDiamante = (d: CartaDiamante | undefined) =>
   !d ? "◆" : d.tipo === "fulmine" ? "⚡ fulmine" : `◆${d.valore}`;
 
 function testoElemento(el: Elemento, c: Carte): string {
-  if (el.tipo === "virtuale") return `${el.valore} (dal ${nomePersonaggio(c, el.fonte)})`;
+  if (el.tipo === "virtuale") return `${el.valore} (carta di ${nomePersonaggio(c, el.fonte)})`;
   const base = el.tipo === "numero" ? c.numeri.get(el.id)?.valore : (() => {
     const d = c.diamanti.get(el.id);
     return d?.tipo === "valore" ? d.valore : undefined;
