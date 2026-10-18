@@ -138,6 +138,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await controComputer(richiesta, utente, archivio, amb);
       case "mossa":
         return await mossa(richiesta, utente, archivio, amb);
+      case "turnoComputer":
+        return await turnoComputer(richiesta, utente, archivio, amb);
       default:
         return errore("Azione sconosciuta");
     }
@@ -163,20 +165,50 @@ async function controComputer(r: Record<string, unknown>, utente: string, archiv
 }
 
 /**
- * Fa muovere i giocatori del computer finché non tocca a una persona (o la partita finisce),
- * applicando anche le mosse automatiche. Restituisce il nuovo stato.
+ * Una sola mossa del giocatore del computer di turno (più le mosse automatiche che seguono).
+ * La chiede il browser di una persona della partita, qualche secondo dopo l'ultima mossa:
+ * così i robot giocano una mossa alla volta e chi guarda le vede succedere.
  */
-function muoviBot(g: QualsiasiGioco, stato: unknown, bot: Set<string>, amb: Ambiente): unknown {
-  let s = stato;
-  for (let passo = 0; passo < 2000; passo++) {
-    s = applicaAutomatiche(g, s);
-    const chi = g.diTurno?.(s);
-    if (!chi || !bot.has(chi) || !g.mossaBot) break;
-    const r = g.applicaMossa(s, chi, g.mossaBot(s, chi, amb.casuale));
-    if (!r.ok) break;
-    s = r.stato;
-  }
-  return s;
+async function turnoComputer(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
+  if (!idValido(r.partitaId)) return errore("Partita non trovata");
+  const p = await archivio.leggiPartita(r.partitaId);
+  if (!p || !p.giocatori.some((x) => x.utenteId === utente && !x.bot)) return errore("Partita non trovata");
+  if (p.stato !== "in_corso") return errore("La partita non è in corso");
+  const g = GIOCHI[p.gioco];
+  const salvato = await archivio.leggiStato(p.id);
+  if (!g || !salvato || !g.mossaBot) return errore("Partita non trovata");
+
+  const prima = applicaAutomatiche(g, salvato.stato);
+  const chi = g.diTurno?.(prima);
+  if (!chi || !p.giocatori.some((x) => x.utenteId === chi && x.bot)) return errore("Non tocca al computer");
+  const mossaBot = g.mossaBot(prima, chi, amb.casuale);
+  const risultato = g.applicaMossa(prima, chi, mossaBot);
+  if (!risultato.ok) return errore(risultato.errore);
+  return await salvaDopo(g, p, salvato.versione, applicaAutomatiche(g, risultato.stato), chi, mossaBot, archivio);
+}
+
+/** Salva il nuovo stato con le viste di tutti; chiude la partita se è finita. */
+async function salvaDopo(
+  g: QualsiasiGioco,
+  p: InfoPartita,
+  versione: number,
+  nuovo: unknown,
+  chi: string,
+  mossaFatta: unknown,
+  archivio: Archivio,
+): Promise<Risposta> {
+  const esito = g.finePartita(nuovo);
+  await archivio.salva({
+    partitaId: p.id,
+    versioneAttesa: versione,
+    stato: nuovo,
+    viste: calcolaViste(g, nuovo, p.giocatori.map((x) => x.utenteId)),
+    utente: chi,
+    mossa: mossaFatta,
+    statoPartita: esito ? "finita" : "in_corso",
+    esito,
+  });
+  return { ok: true, ...(esito ? { esito } : {}) };
 }
 
 /** Mosse senza scelta (es. chiudere il turno quando non resta altro da fare): le fa il server. */
@@ -255,8 +287,8 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
 
   const ids = p.giocatori.map((x) => x.utenteId);
   const seed = Math.floor(amb.casuale() * 2 ** 32);
-  // Se tocca prima a un giocatore del computer, muove subito
-  const stato = muoviBot(g, g.setup(ids, p.opzioni, seed), new Set(p.giocatori.filter((x) => x.bot).map((x) => x.utenteId)), amb);
+  // Se tocca prima a un giocatore del computer, sarà il browser a chiedergli di muovere (turnoComputer)
+  const stato = applicaAutomatiche(g, g.setup(ids, p.opzioni, seed));
   await archivio.salva({
     partitaId: p.id,
     versioneAttesa: null,
@@ -288,20 +320,6 @@ async function mossa(r: Record<string, unknown>, utente: string, archivio: Archi
   }
   if (!risultato.ok) return errore(risultato.errore);
 
-  // Mosse automatiche e, nelle partite di prova, i turni dei giocatori del computer
-  const bot = new Set(p.giocatori.filter((x) => x.bot).map((x) => x.utenteId));
-  const nuovo = muoviBot(g, risultato.stato, bot, amb);
-  const esito = g.finePartita(nuovo);
-  const ids = p.giocatori.map((x) => x.utenteId);
-  await archivio.salva({
-    partitaId: p.id,
-    versioneAttesa: salvato.versione,
-    stato: nuovo,
-    viste: calcolaViste(g, nuovo, ids),
-    utente,
-    mossa: r.mossa,
-    statoPartita: esito ? "finita" : "in_corso",
-    esito,
-  });
-  return { ok: true, ...(esito ? { esito } : {}) };
+  // Mosse automatiche; i giocatori del computer muovono dopo, una mossa alla volta (turnoComputer)
+  return await salvaDopo(g, p, salvato.versione, applicaAutomatiche(g, risultato.stato), utente, r.mossa, archivio);
 }

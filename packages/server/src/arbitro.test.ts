@@ -208,8 +208,19 @@ describe("avatar", () => {
   });
 });
 
+/** Fa muovere i giocatori del computer (una mossa per richiesta, come il browser) finché non tocca ad A. */
+async function muovonoIRobot(chiedi: (u: string, r: unknown) => Promise<unknown>, archivio: ReturnType<typeof creaArchivioMemoria>, partitaId: string) {
+  for (let i = 0; i < 500; i++) {
+    const p = (await archivio.leggiPartita(partitaId))!;
+    const s = archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
+    if (p.stato !== "in_corso" || s.turno.giocatore === A) return;
+    expect(await chiedi(A, { azione: "turnoComputer", partitaId })).toMatchObject({ ok: true });
+  }
+  throw new Error("I robot non finiscono mai");
+}
+
 describe("partita di prova contro il computer", () => {
-  it("parte subito con i bot; dopo il mio turno muovono loro e torna a me", async () => {
+  it("parte subito con i bot; ogni richiesta fa fare al computer una sola mossa, poi torna a me", async () => {
     const { chiedi, archivio } = prepara(11);
     const r = await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 2 });
     expect(r).toMatchObject({ ok: true });
@@ -222,11 +233,19 @@ describe("partita di prova contro il computer", () => {
       ["Computer 2", "robot", true],
     ]);
     const stato = () => archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
-    // Anche se il sorteggio fa partire un bot, quando si legge tocca già a una persona
+    // Se il sorteggio fa partire un bot, muove solo quando glielo si chiede
+    await muovonoIRobot(chiedi, archivio, partitaId);
     expect(stato().turno.giocatore).toBe(A);
+    expect(await chiedi(A, { azione: "turnoComputer", partitaId })).toEqual({ ok: false, errore: "Non tocca al computer" });
     for (let i = 0; i < 3; i++) {
       expect(await chiedi(A, { azione: "mossa", partitaId, mossa: { tipo: "pescaNumero" } })).toEqual({ ok: true });
     }
+    // Dopo la mia mossa il computer non ha ancora mosso: tocca a lui
+    expect(stato().turno.giocatore).not.toBe(A);
+    const prima = stato().registro.length;
+    expect(await chiedi(A, { azione: "turnoComputer", partitaId })).toEqual({ ok: true });
+    expect(stato().registro.length).toBe(prima + 1);
+    await muovonoIRobot(chiedi, archivio, partitaId);
     expect(stato().turno.giocatore).toBe(A);
     expect(stato().numeroTurno).toBe(stato().ordine.indexOf(A) + 3);
     expect(stato().registro.some((e) => e.giocatore !== A)).toBe(true);
@@ -239,6 +258,8 @@ describe("partita di prova contro il computer", () => {
     const rng = creaCasuale(9);
     let passi = 0;
     while ((await archivio.leggiPartita(partitaId))!.stato === "in_corso") {
+      await muovonoIRobot(chiedi, archivio, partitaId);
+      if ((await archivio.leggiPartita(partitaId))!.stato !== "in_corso") break;
       const s = archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
       expect(s.turno.giocatore).toBe(A);
       const r2 = await chiedi(A, { azione: "mossa", partitaId, mossa: mossaDelBot(s, A, rng) });
@@ -246,6 +267,13 @@ describe("partita di prova contro il computer", () => {
       expect(++passi).toBeLessThan(3000);
     }
     expect(archivio.dati.partite.get(partitaId)!.esito).toMatchObject({ vincitori: expect.any(Array) });
+  });
+
+  it("chi non è nella partita non può far muovere il computer", async () => {
+    const { chiedi } = prepara(3);
+    const r = await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 1 });
+    const partitaId = (r as unknown as { partitaId: string }).partitaId;
+    expect(await chiedi(B, { azione: "turnoComputer", partitaId })).toEqual({ ok: false, errore: "Partita non trovata" });
   });
 
   it("numero di bot non valido", async () => {

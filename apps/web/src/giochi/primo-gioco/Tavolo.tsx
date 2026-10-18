@@ -92,6 +92,9 @@ const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 
 
 type Attivazione = Extract<Evento, { tipo: "attiva" }>;
 
+/** Pausa tra una mossa e l'altra dei giocatori del computer. */
+const PAUSA_COMPUTER_MS = 3000;
+
 export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
   const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
   const [invio, setInvio] = useState(false);
@@ -213,6 +216,24 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     const t = setTimeout(() => setBanner(null), 1800);
     return () => clearTimeout(t);
   }, [banner]);
+
+  // Partite di prova: quando tocca a un giocatore del computer, gli si chiede una mossa ogni 3 secondi
+  const [tentativoBot, setTentativoBot] = useState(0);
+  const turnoDelComputer = !!riga && !riga.vista.finita && giocatori.some((g) => g.bot && g.utente_id === riga.vista.turno.giocatore);
+  useEffect(() => {
+    if (!turnoDelComputer) return;
+    let annullato = false;
+    const t = setTimeout(async () => {
+      const r = await chiediArbitro({ azione: "turnoComputer", partitaId: partita.id });
+      if (annullato) return;
+      if (r.ok) ricarica();
+      else setTentativoBot((n) => n + 1); // es. qualcun altro l'ha già fatto muovere: si riprova
+    }, PAUSA_COMPUTER_MS);
+    return () => {
+      annullato = true;
+      clearTimeout(t);
+    };
+  }, [turnoDelComputer, versione, tentativoBot, partita.id, ricarica]);
 
   const barraAlta = useRef<HTMLDivElement>(null);
   const barraBassa = useRef<HTMLDivElement>(null);

@@ -22,6 +22,8 @@ export interface GiocatorePartita {
   nickname: string;
   avatar: string;
   entrato_il: string;
+  /** Giocatore del computer (partite di prova). */
+  bot?: boolean;
 }
 
 export type StatoCaricamento =
@@ -38,7 +40,7 @@ export function usePartita(id: string): StatoCaricamento {
       const io = await assicuraAccesso();
       const [p, g] = await Promise.all([
         supabase.from("partite").select("*").eq("id", id).maybeSingle(),
-        supabase.from("giocatori_partita").select("utente_id, nickname, avatar, entrato_il").eq("partita_id", id).order("entrato_il"),
+        supabase.from("giocatori_partita").select("utente_id, nickname, avatar, entrato_il, bot").eq("partita_id", id).order("entrato_il"),
       ]);
       if (p.error || g.error) return setStato({ tipo: "errore", testo: "Non riesco a leggere la partita. Riprova." });
       if (!p.data) return setStato({ tipo: "nonTrovata" });
