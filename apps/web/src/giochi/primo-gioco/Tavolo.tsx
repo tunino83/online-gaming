@@ -6,7 +6,7 @@
  * Si tocca una carta per prenderla, un mazzo per pescare, un proprio personaggio per attivarlo.
  * Le mosse possibili le calcola sempre il server.
  */
-import type { CartaDiamante, CartaPersonaggio, Evento, Mossa, VistaGiocatore } from "@og/primo-gioco";
+import { type CartaDiamante, type CartaPersonaggio, type Evento, type Mossa, type VistaGiocatore, personaggio } from "@og/primo-gioco";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { CerchioAvatar } from "../../Avatar";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
@@ -17,7 +17,7 @@ import { Caricamento, Errore, Riquadro } from "../../ui";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, PostoVuoto } from "./carte";
-import { aPersona, descriviEvento, descriviMossa, gruppoMossa, raccogliCarte } from "./descrivi";
+import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, raccogliCarte } from "./descrivi";
 import { type CartaDaMostrare, PrimoPiano } from "./PrimoPiano";
 
 /** Altezza (in pixel) di un elemento, aggiornata quando cambia: serve a non far finire il tavolo sotto le barre fisse. */
@@ -473,6 +473,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         avatarId={avatarDi(io)}
         v={v}
         io={io}
+        mosse={mosse}
+        gioca={gioca}
         daScartare={daScartare}
         scegliScarti={scegliScarti}
         alternaScarto={alternaScarto}
@@ -716,12 +718,33 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
   );
 }
 
-/** Barra fissa in basso: i miei personaggi nei posti, la mia mano, i diamanti e la fine del turno. */
+/** Larghezza disponibile di un elemento (per far stare tutta la mano senza scorrere). */
+function useLarghezza(ref: RefObject<HTMLElement>): number {
+  const [larghezza, setLarghezza] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const osserva = new ResizeObserver(() => setLarghezza(el.clientWidth));
+    osserva.observe(el);
+    setLarghezza(el.clientWidth);
+    return () => osserva.disconnect();
+  }, [ref]);
+  return larghezza;
+}
+
+/**
+ * Barra fissa in basso:
+ * 1) i miei personaggi da attivare, i miei poteri blu, avatar e punti;
+ * 2) la mia mano, sempre tutta visibile (le carte si stringono, mai scorrere);
+ * 3) diamanti e chiusura del turno.
+ */
 function BarraMieCarte({
   rif,
   avatarId,
   v,
   io,
+  mosse,
+  gioca,
   daScartare,
   scegliScarti,
   alternaScarto,
@@ -738,6 +761,8 @@ function BarraMieCarte({
   avatarId?: string;
   v: VistaGiocatore;
   io: string;
+  mosse: Mossa[];
+  gioca: (m: Mossa) => void;
   daScartare: string[];
   scegliScarti: boolean;
   alternaScarto: (id: string) => () => void;
@@ -751,11 +776,26 @@ function BarraMieCarte({
   ingrandisci: (c: CartaPersonaggio) => () => void;
 }) {
   const mio = v.giocatori[io]!;
+  const rigaMano = useRef<HTMLDivElement>(null);
+  const spazio = useLarghezza(rigaMano);
+  const [dueDaScambiare, setDueDaScambiare] = useState<string | null>(null);
+
+  // Mano: carte larghe al massimo 56px, strette quanto serve per stare tutte (minimo 34px, poi si va a capo)
+  const mano = [...v.mano].sort((a, b) => a.valore - b.valore);
+  const spazioTra = 4;
+  const larghezzaCarta = mano.length
+    ? Math.max(34, Math.min(56, Math.floor((spazio - spazioTra * (mano.length - 1)) / mano.length)))
+    : 56;
+
+  // Biancaneve: ogni 2 si può scambiare con un diamante in qualsiasi momento del proprio turno
+  const biancaneve = mosse.some((m) => m.tipo === "dueInDiamante");
+
   return (
     <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-4 border-blu bg-carta/95 shadow-[0_-6px_18px_rgba(0,0,0,0.18)] backdrop-blur">
-      <div className="mx-auto max-w-md px-3 pt-1 pb-[max(8px,env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-2">
-          <div className="flex shrink-0 gap-1.5 pt-2">
+      <div className="mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+        {/* 1) personaggi da attivare, poteri, chi sono */}
+        <div className="flex items-start gap-2">
+          <div className="flex shrink-0 gap-1.5">
             {mio.posti.map((c) => (
               <CartaPersonaggioGrafica
                 key={c.id}
@@ -771,33 +811,43 @@ function BarraMieCarte({
               <PostoVuoto key={i} larghezza={72} />
             ))}
           </div>
-          <div className="min-w-0 flex-1 overflow-x-auto">
-            <div className="flex gap-1.5 pt-4 pb-1 pr-2">
-              {v.mano.length === 0 && <span className="py-6 text-xs text-tenue">Nessuna carta in mano</span>}
-              {[...v.mano]
-                .sort((a, b) => a.valore - b.valore)
-                .map((c) => (
-                  <CartaNumeroGrafica
-                    key={c.id}
-                    valore={c.valore}
-                    larghezza={50}
-                    selezionata={daScartare.includes(c.id)}
-                    onTocca={scegliScarti ? alternaScarto(c.id) : undefined}
-                    disabilitata={bloccato}
-                  />
-                ))}
-            </div>
-          </div>
-          <div className="flex w-14 shrink-0 flex-col items-center gap-1 text-center text-[11px] font-semibold text-tenue">
-            <CerchioAvatar id={avatarId} dimensione={34} />
+          <PoteriBlu v={v} io={io} mosse={mosse} gioca={gioca} bloccato={bloccato} ingrandisci={ingrandisci} />
+          <div className="flex w-12 shrink-0 flex-col items-center gap-1 text-center text-[10px] font-semibold text-tenue">
+            <CerchioAvatar id={avatarId} dimensione={32} />
             <span className="rounded-full bg-inchiostro px-1.5 py-0.5 text-carta">{mio.punti} pt</span>
             <span>
               Mano {v.mano.length}/{v.limiteMano}
             </span>
           </div>
         </div>
+
+        {/* 2) la mano, sempre tutta visibile */}
+        <div ref={rigaMano} className="mt-2 flex flex-wrap justify-center pt-3" style={{ gap: spazioTra }}>
+          {mano.length === 0 && <span className="py-3 text-xs text-tenue">Nessuna carta in mano</span>}
+          {mano.map((c) => {
+            const scambiabile = biancaneve && c.valore === 2 && !scegliScarti;
+            return (
+              <div key={c.id} className="relative">
+                <CartaNumeroGrafica
+                  valore={c.valore}
+                  larghezza={larghezzaCarta}
+                  selezionata={daScartare.includes(c.id)}
+                  onTocca={scegliScarti ? alternaScarto(c.id) : scambiabile ? () => setDueDaScambiare(c.id) : undefined}
+                  disabilitata={bloccato}
+                />
+                {scambiabile && (
+                  <span className="pointer-events-none absolute -top-2 -right-1 text-base" aria-hidden="true">
+                    🍎
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 3) diamanti e fine turno */}
         {mio.diamanti.length > 0 && (
-          <div className="text-xs">
+          <div className="mt-1 flex items-center justify-center text-xs">
             <Diamanti diamanti={mio.diamanti} />
           </div>
         )}
@@ -823,6 +873,96 @@ function BarraMieCarte({
             )}
           </div>
         )}
+      </div>
+
+      {dueDaScambiare && (
+        <div className="velo" role="dialog" aria-modal="true" aria-label="Biancaneve" onClick={() => setDueDaScambiare(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-carta p-4 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <p className="font-titolo text-xl font-bold">🍎 Biancaneve</p>
+            <p className="mt-2 text-sm">Scambiare questo 2 con un diamante pescato dal mazzo? Non costa mosse.</p>
+            <div className="my-3 flex justify-center">
+              <CartaNumeroGrafica valore={2} larghezza={70} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => setDueDaScambiare(null)} className="rounded-xl border-2 border-inchiostro px-4 py-3 font-semibold">
+                No
+              </button>
+              <button
+                type="button"
+                disabled={bloccato}
+                onClick={() => {
+                  gioca({ tipo: "dueInDiamante", carta: dueDaScambiare });
+                  setDueDaScambiare(null);
+                }}
+                className="rounded-xl bg-inchiostro px-4 py-3 font-semibold text-carta disabled:opacity-40"
+              >
+                Sì, scambia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** I miei poteri blu attivi: chi si può usare adesso è evidenziato e si tocca; gli altri mostrano la carta. */
+function PoteriBlu({
+  v,
+  io,
+  mosse,
+  gioca,
+  bloccato,
+  ingrandisci,
+}: {
+  v: VistaGiocatore;
+  io: string;
+  mosse: Mossa[];
+  gioca: (m: Mossa) => void;
+  bloccato: boolean;
+  ingrandisci: (c: CartaPersonaggio) => () => void;
+}) {
+  const poteri = v.giocatori[io]!.attivati.flatMap((c) =>
+    personaggio(c.personaggio)
+      .poteri.filter((x) => x.colore === "blu")
+      .map((x) => ({ carta: c, effetto: x.effetto })),
+  );
+  if (poteri.length === 0) {
+    return <p className="min-w-0 flex-1 self-center text-[11px] leading-tight text-tenue">Qui compariranno i poteri blu dei personaggi che attivi.</p>;
+  }
+  return (
+    <div className="min-w-0 flex-1">
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-tenue">Poteri</p>
+      <div className="flex flex-wrap gap-1">
+        {poteri.map(({ carta, effetto }, i) => {
+          const { icona, testo } = etichettaPotere(effetto);
+          // Carta di nano/fenice/drago già usata in questo turno: barrata
+          const usata = effetto.tipo === "cartaVirtuale" && v.turno.virtualiUsate.includes(carta.id);
+          const azione =
+            effetto.tipo === "bruciaGratis"
+              ? mosse.find((m) => m.tipo === "bruciaGratis")
+              : effetto.tipo === "dueInDiamante"
+                ? mosse.find((m) => m.tipo === "dueInDiamante")
+                : undefined;
+          return (
+            <button
+              key={`${carta.id}-${i}`}
+              type="button"
+              disabled={bloccato && !!azione}
+              onClick={azione ? () => gioca(azione) : ingrandisci(carta)}
+              title={personaggio(carta.personaggio).nome}
+              className={`rounded-full border px-1.5 py-0.5 text-[11px] font-semibold leading-tight ${
+                azione
+                  ? "border-blu bg-blu text-white shadow"
+                  : usata
+                    ? "border-inchiostro/10 bg-white/60 text-tenue line-through"
+                    : "border-blu/40 bg-white text-inchiostro"
+              }`}
+            >
+              {icona} {testo}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

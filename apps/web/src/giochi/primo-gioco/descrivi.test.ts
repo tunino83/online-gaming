@@ -131,3 +131,17 @@ describe("frasi del registro", () => {
     }
   });
 });
+
+describe("etichette dei poteri blu", () => {
+  it("ogni potere blu dei personaggi ha un'etichetta breve dedicata", async () => {
+    const { PERSONAGGI } = await import("@og/primo-gioco");
+    const { etichettaPotere } = await import("./descrivi");
+    for (const p of PERSONAGGI) {
+      for (const potere of p.poteri.filter((x) => x.colore === "blu")) {
+        const e = etichettaPotere(potere.effetto);
+        expect(e.testo, p.nome).not.toBe("potere");
+        expect(e.testo.length, p.nome).toBeLessThanOrEqual(16);
+      }
+    }
+  });
+});

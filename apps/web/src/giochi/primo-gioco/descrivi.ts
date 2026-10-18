@@ -6,6 +6,7 @@ import {
   type CartaNumero,
   type CartaPersonaggio,
   type Evento,
+  type Effetto,
   type Elemento,
   type Mossa,
   type VistaGiocatore,
@@ -177,5 +178,35 @@ export function descriviEvento(e: Evento, nickname: (id: string) => string, io: 
     }
     case "ultimoGiro":
       return `${e.giocatore === io ? "Hai" : `${nickname(e.giocatore)} ha`} raggiunto ${e.punti} punti: ultimo giro!`;
+  }
+}
+
+/** Etichetta breve di un potere blu, per la striscia "Poteri" (icona + poche parole). */
+export function etichettaPotere(e: Effetto): { icona: string; testo: string } {
+  switch (e.tipo) {
+    case "cartaVirtuale":
+      return { icona: e.valore === 8 ? "🔥" : e.valore === "aScelta" ? "🐉" : "⛏️", testo: e.valore === "aScelta" ? "carta a scelta" : `un ${e.valore}` };
+    case "mosseInPiuOgniTurno":
+      return { icona: "🧺", testo: `+${e.mosse} mossa` };
+    case "limiteMano":
+      return { icona: "🐒", testo: `+${e.aumento} mano` };
+    case "vediMazzoPersonaggi":
+      return { icona: "🔮", testo: "vede il mazzo" };
+    case "bruciaGratis":
+      return { icona: "🪄", testo: "brucia gratis" };
+    case "unoValeOtto":
+      return { icona: "🏹", testo: "1 = 8" };
+    case "cambiaMano":
+      return { icona: "💀", testo: "cambia mano" };
+    case "scambiaConTavolo":
+      return { icona: "🎩", testo: "scambio" };
+    case "diamanteMenoUno":
+      return { icona: "⚔️", testo: "◆ anche −1" };
+    case "treJolly":
+      return { icona: "🍀", testo: "3 = jolly" };
+    case "dueInDiamante":
+      return { icona: "🍎", testo: "2 → ◆" };
+    default:
+      return { icona: "✨", testo: "potere" };
   }
 }
