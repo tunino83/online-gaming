@@ -5,7 +5,7 @@ import { primoGioco } from "./gioco";
 import { applicaMossa, finePartita, mosseValide, setup } from "./regole";
 import type { Mossa, StatoPartita } from "./stato";
 import type { CartaDiamante, CartaNumero, CartaPersonaggio, Valore } from "./tipi-carte";
-import { vistaGiocatore } from "./vista";
+import { vistaGiocatore, vistaPubblica } from "./vista";
 
 /* ------------------------------ aiuti ------------------------------ */
 
@@ -1091,6 +1091,51 @@ describe("carte numero con le frecce", () => {
       expect(s.registro.filter((e) => e.tipo === "frecce")).toHaveLength(0);
     }
     expect(trovato).toBe(true);
+  });
+});
+
+/* ------------------------------ vista pubblica (spettatori, schermo tavolo) ------------------------------ */
+
+describe("vista pubblica", () => {
+  /** Partita a metà, con carte in mano, Mago attivo e una scelta della Fatina in sospeso. */
+  function partitaAMeta(): StatoPartita {
+    let s = partita(["A", "B", "C"], 9);
+    for (let i = 0; i < 4; i++) s = passaTurno(s);
+    s.giocatori.A!.attivati.push(pers("mago"));
+    s.turno = { ...s.turno, giocatore: "A", cartaMago: s.mazzi.personaggi.at(-1)!.id, attesa: { tipo: "fatina", avversario: "B" } };
+    s.giocatori.B!.mano.push(num(7));
+    return s;
+  }
+
+  it("mostra il tavolo, i punti, i posti e quante carte ha ognuno", () => {
+    const s = partitaAMeta();
+    const v = vistaPubblica(s);
+    expect(v.io).toBe("");
+    expect(v.tavolo).toEqual(s.tavolo);
+    for (const id of s.ordine) {
+      expect(v.giocatori[id]!.carteInMano).toBe(s.giocatori[id]!.mano.length);
+      expect(v.giocatori[id]!.posti).toEqual(s.giocatori[id]!.posti);
+      expect(v.giocatori[id]!.punti).toBe(s.giocatori[id]!.punti);
+    }
+    expect(v.turno.giocatore).toBe("A");
+  });
+
+  it("non mostra nessuna carta segreta: mani, mazzi coperti, carta del Mago, mano vista con la Fatina", () => {
+    const s = partitaAMeta();
+    const v = vistaPubblica(s);
+    expect(v.mano).toEqual([]);
+    expect(v.primoPersonaggio).toBeUndefined();
+    expect(v.manoAvversario).toBeUndefined();
+    expect(v.turno.attesa).toBeNull();
+    const testo = JSON.stringify(v);
+    const segreti = [
+      ...Object.values(s.giocatori).flatMap((g) => g.mano.map((c) => c.id)),
+      ...s.mazzi.numeri.map((c) => c.id),
+      ...s.mazzi.personaggi.map((c) => c.id),
+      ...s.mazzi.diamanti.map((c) => c.id),
+    ];
+    expect(segreti.length).toBeGreaterThan(50);
+    for (const id of segreti) expect(testo, id).not.toContain(`"${id}"`);
   });
 });
 

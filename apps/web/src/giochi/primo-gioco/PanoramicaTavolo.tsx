@@ -46,7 +46,45 @@ export function PanoramicaTavolo({
         </p>
 
         <div className="space-y-3">
-          {v.ordine.map((id, posizione) => {
+          {v.ordine.map((id, posizione) => (
+            <SchedaGiocatore
+              key={id}
+              v={v}
+              id={id}
+              posizione={posizione}
+              io={io}
+              nick={nick}
+              avatarDi={avatarDi}
+              ingrandisci={ingrandisci}
+              massimo={massimo}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Scheda di un giocatore con tutto ciò che è visibile (usata qui e nello schermo "tavolo" per gli spettatori). */
+export function SchedaGiocatore({
+  v,
+  id,
+  posizione,
+  io,
+  nick,
+  avatarDi,
+  ingrandisci,
+  massimo,
+}: {
+  v: VistaGiocatore;
+  id: string;
+  posizione: number;
+  io: string;
+  nick: (id: string) => string;
+  avatarDi: (id: string) => string | undefined;
+  ingrandisci: (c: CartaPersonaggio) => () => void;
+  massimo: number;
+}) {
             const g = v.giocatori[id]!;
             const diTurno = id === v.turno.giocatore && !v.finita;
             const poteri = g.attivati.flatMap((c) =>
@@ -56,7 +94,6 @@ export function PanoramicaTavolo({
             ).sort((a, b) => ordinePotere(a.effetto) - ordinePotere(b.effetto));
             return (
               <section
-                key={id}
                 className={`rounded-2xl border-2 bg-white/60 p-3 ${diTurno ? "border-oro shadow-md" : "border-inchiostro/15"}`}
               >
                 <div className="flex items-center gap-2">
@@ -137,9 +174,4 @@ export function PanoramicaTavolo({
                 )}
               </section>
             );
-          })}
-        </div>
-      </div>
-    </div>
-  );
 }

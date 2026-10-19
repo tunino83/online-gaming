@@ -196,6 +196,36 @@ describe("chiusura automatica del turno", () => {
   });
 });
 
+describe("spettatori e schermo tavolo", () => {
+  it("si entra come spettatore col codice, anche a partita iniziata; si vede la vista pubblica, non si gioca", async () => {
+    const t = await partitaConDue(6);
+    await t.chiedi(A, { azione: "avvia", partitaId: t.partitaId });
+    expect(await t.chiedi(C, { azione: "unisciti", codice: t.codice, nickname: "Carla" })).toMatchObject({ ok: false });
+    expect(await t.chiedi(C, { azione: "guarda", codice: t.codice.toLowerCase() })).toEqual({ ok: true, partitaId: t.partitaId });
+    expect([...t.archivio.dati.spettatori.get(t.partitaId)!]).toEqual([C]);
+    // La vista pubblica è salvata e si aggiorna a ogni mossa
+    const prima = t.archivio.dati.vistePubbliche.get(t.partitaId)!;
+    expect(prima.vista).toMatchObject({ io: "", mano: [] });
+    const s = t.archivio.dati.stati.get(t.partitaId)!.stato as StatoPartita;
+    await t.chiedi(s.turno.giocatore, { azione: "mossa", partitaId: t.partitaId, mossa: { tipo: "pescaNumero" } });
+    expect(t.archivio.dati.vistePubbliche.get(t.partitaId)!.versione).toBe(prima.versione + 1);
+    // Lo spettatore non può muovere né mandare vocali
+    expect(await t.chiedi(C, { azione: "mossa", partitaId: t.partitaId, mossa: { tipo: "pescaNumero" } })).toEqual({
+      ok: false,
+      errore: "Partita non trovata",
+    });
+    expect(await t.chiedi(C, { azione: "vocale", partitaId: t.partitaId, audio: "QUFB", tipo: "audio/mp4", durataMs: 1000 })).toMatchObject({ ok: false });
+  });
+
+  it("chi gioca resta giocatore anche se apre il link come spettatore; codice sbagliato rifiutato", async () => {
+    const t = await partitaConDue(6);
+    expect(await t.chiedi(A, { azione: "guarda", codice: t.codice })).toEqual({ ok: true, partitaId: t.partitaId });
+    expect(t.archivio.dati.spettatori.get(t.partitaId)).toBeUndefined();
+    expect(await t.chiedi(C, { azione: "guarda", codice: "ZZZZZ" })).toEqual({ ok: false, errore: "Codice d'invito non valido" });
+    expect(await t.chiedi(C, { azione: "guarda", codice: "<b>" })).toEqual({ ok: false, errore: "Codice d'invito non valido" });
+  });
+});
+
 describe("messaggi vocali", () => {
   const audio = (byte: number) => btoa("A".repeat(byte));
 

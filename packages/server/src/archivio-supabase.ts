@@ -90,6 +90,12 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
       return id;
     },
 
+    async guarda(p) {
+      const { data, error } = await db.rpc("arbitro_guarda", { p_codice: p.codice, p_utente: p.utente });
+      if (error) traduci(error);
+      return data as string;
+    },
+
     async aggiungiBot(p) {
       const { error } = await db.rpc("arbitro_aggiungi_bot", {
         p_partita: p.partitaId,
@@ -133,6 +139,13 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
         p_esito: p.esito,
       });
       if (error) traduci(error);
+      // Vista per spettatori e schermo "tavolo" (stessa versione delle viste dei giocatori)
+      if (p.vistaPubblica !== null) {
+        const { error: errorePubblica } = await db
+          .from("viste_pubbliche")
+          .upsert({ partita_id: p.partitaId, vista: p.vistaPubblica, versione: data as number, aggiornata_il: new Date().toISOString() });
+        if (errorePubblica) console.error("Vista pubblica non salvata:", errorePubblica.message);
+      }
       return data as number;
     },
   };

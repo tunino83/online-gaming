@@ -67,6 +67,9 @@ Vocali in partita (solo tra persone): il browser registra (max 20 s) e manda il 
 nello spazio privato `vocali` (cartella = id partita) e nella tabella `vocali`; gli altri giocatori lo ricevono in tempo reale
 e parte da solo (`apps/web/src/lib/vocali.ts`, `giochi/primo-gioco/Vocali.tsx`). I vocali più vecchi di un giorno si cancellano.
 Partite contro il computer: i robot muovono una mossa ogni 3 secondi, su richiesta del browser (azione `turnoComputer`).
+Spettatori e schermo "tavolo": `/t/CODICE` (QR nella stanza d'attesa e col pulsante 📺 in partita) o "Guarda come spettatore"
+nel link d'invito → azione `guarda` (tabella `spettatori`), pagina `/guarda/ID` (`pagine/Spettatore.tsx`, `giochi/primo-gioco/TavoloSpettatore.tsx`).
+Vedono solo la vista pubblica (`vistaPubblica` nel motore, tabella `viste_pubbliche` salvata dall'arbitro a ogni mossa), chi gioca e i vocali.
 
 Sito online: https://online-gaming.onrender.com/
 

@@ -14,6 +14,15 @@ export function Invito() {
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
 
+  async function guarda() {
+    setInCorso(true);
+    setErrore(null);
+    const r = await chiediArbitro({ azione: "guarda", codice });
+    setInCorso(false);
+    if (!r.ok) return setErrore(r.errore);
+    vai(`/guarda/${r.partitaId}`, { replace: true });
+  }
+
   async function entra(e: FormEvent) {
     e.preventDefault();
     setInCorso(true);
@@ -49,6 +58,14 @@ export function Invito() {
             {inCorso ? "Entro…" : "Entra nella partita"}
           </Pulsante>
         </form>
+        <div className="mt-4 border-t border-inchiostro/15 pt-4">
+          <Pulsante variante="vuoto" onClick={guarda} disabled={inCorso}>
+            👁 Guarda come spettatore
+          </Pulsante>
+          <p className="mt-1 text-center text-xs text-tenue">
+            Non giochi: vedi il tavolo (anche a partita iniziata). Ideale per un tablet o una TV al centro del tavolo.
+          </p>
+        </div>
       </Riquadro>
     </Pagina>
   );

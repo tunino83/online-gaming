@@ -4,7 +4,7 @@ import { mossaDelBot } from "./bot";
 import { MAX_GIOCATORI, MIN_GIOCATORI, type OpzioniPartita } from "./parametri";
 import { applicaMossa, finePartita, mossaAutomatica, mosseValide, setup } from "./regole";
 import type { Mossa, StatoPartita } from "./stato";
-import { type VistaGiocatore, vistaGiocatore } from "./vista";
+import { type VistaGiocatore, vistaGiocatore, vistaPubblica } from "./vista";
 
 export const primoGioco: Gioco<StatoPartita, Mossa, OpzioniPartita, VistaGiocatore> = {
   id: "primo-gioco",
@@ -15,6 +15,7 @@ export const primoGioco: Gioco<StatoPartita, Mossa, OpzioniPartita, VistaGiocato
   applicaMossa,
   finePartita,
   vistaGiocatore,
+  vistaPubblica,
   mossaAutomatica,
   mossaBot: (stato, giocatore, casuale) => mossaDelBot(stato, giocatore, creaCasuale(Math.floor(casuale() * 2 ** 32))),
   diTurno: (stato) => (stato.finita ? null : stato.turno.giocatore),

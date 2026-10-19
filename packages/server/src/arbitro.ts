@@ -61,6 +61,8 @@ export interface Archivio {
   }): Promise<string>;
   /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
   unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
+  /** Entra come spettatore (anche a partita iniziata). Errore CODICE_NON_VALIDO. Chi gioca resta giocatore. */
+  guarda(p: { codice: string; utente: string }): Promise<string>;
   leggiPartita(id: string): Promise<InfoPartita | null>;
   /** Id dell'utente del robot fisso numero 1-4 (lo crea la prima volta, poi lo riusa sempre). */
   utenteBot(numero: number): Promise<string>;
@@ -77,6 +79,8 @@ export interface Archivio {
     versioneAttesa: number | null;
     stato: unknown;
     viste: VistaDaSalvare[];
+    /** Vista per spettatori e schermo "tavolo" (solo informazioni pubbliche); null se il gioco non la prevede. */
+    vistaPubblica: unknown | null;
     utente: string;
     mossa: unknown | null;
     statoPartita: "in_corso" | "finita";
@@ -141,6 +145,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await crea(richiesta, utente, archivio, amb);
       case "unisciti":
         return await unisciti(richiesta, utente, archivio);
+      case "guarda":
+        return await guarda(richiesta, utente, archivio);
       case "avvia":
         return await avvia(richiesta, utente, archivio, amb);
       case "controComputer":
@@ -247,6 +253,7 @@ async function salvaDopo(
     versioneAttesa: versione,
     stato: nuovo,
     viste: calcolaViste(g, nuovo, p.giocatori.map((x) => x.utenteId)),
+    vistaPubblica: g.vistaPubblica?.(nuovo) ?? null,
     utente: chi,
     mossa: mossaFatta,
     statoPartita: esito ? "finita" : "in_corso",
@@ -314,6 +321,15 @@ async function unisciti(r: Record<string, unknown>, utente: string, archivio: Ar
   return { ok: true, partitaId };
 }
 
+/** Entra come spettatore con il codice d'invito: vale anche a partita iniziata o finita. */
+async function guarda(r: Record<string, unknown>, utente: string, archivio: Archivio): Promise<Risposta> {
+  if (typeof r.codice !== "string") return errore("Codice d'invito non valido");
+  const codice = r.codice.trim().toUpperCase();
+  if (!/^[A-Z0-9]{4,8}$/.test(codice)) return errore("Codice d'invito non valido");
+  const partitaId = await archivio.guarda({ codice, utente });
+  return { ok: true, partitaId };
+}
+
 /** Viste e mosse possibili di tutti i giocatori, da salvare dopo ogni cambiamento. */
 function calcolaViste(g: QualsiasiGioco, stato: unknown, giocatori: string[]): VistaDaSalvare[] {
   return giocatori.map((id) => ({ utente_id: id, vista: g.vistaGiocatore(stato, id), mosse_valide: g.mosseValide(stato, id) }));
@@ -338,6 +354,7 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
     versioneAttesa: null,
     stato,
     viste: calcolaViste(g, stato, ids),
+    vistaPubblica: g.vistaPubblica?.(stato) ?? null,
     utente,
     mossa: null,
     statoPartita: "in_corso",

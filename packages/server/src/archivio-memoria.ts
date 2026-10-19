@@ -10,10 +10,12 @@ export interface DatiMemoria {
   viste: Map<string, { vista: unknown; mosse_valide: unknown[]; versione: number }>;
   mosse: { partitaId: string; numero: number; utente: string; mossa: unknown }[];
   vocali: { id: string; partitaId: string; utente: string; byte: number; tipo: string; durataMs: number }[];
+  spettatori: Map<string, Set<string>>;
+  vistePubbliche: Map<string, { vista: unknown; versione: number }>;
 }
 
 export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
-  const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [], vocali: [] };
+  const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [], vocali: [], spettatori: new Map(), vistePubbliche: new Map() };
   let contatore = 0;
   const copia = <T>(x: T): T => structuredClone(x);
 
@@ -42,6 +44,16 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       if (partita.stato !== "attesa") throw new ErroreArchivio("PARTITA_INIZIATA");
       if (partita.giocatori.length >= partita.maxGiocatori) throw new ErroreArchivio("PARTITA_PIENA");
       partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: false });
+      return partita.id;
+    },
+    async guarda(p) {
+      const partita = [...dati.partite.values()].find((x) => x.codice === p.codice);
+      if (!partita) throw new ErroreArchivio("CODICE_NON_VALIDO");
+      if (!partita.giocatori.some((g) => g.utenteId === p.utente)) {
+        const insieme = dati.spettatori.get(partita.id) ?? new Set<string>();
+        insieme.add(p.utente);
+        dati.spettatori.set(partita.id, insieme);
+      }
       return partita.id;
     },
     async utenteBot(numero) {
@@ -80,6 +92,7 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       }
       partita.stato = p.statoPartita;
       dati.stati.set(p.partitaId, { stato: copia(p.stato), versione });
+      if (p.vistaPubblica !== null) dati.vistePubbliche.set(p.partitaId, { vista: copia(p.vistaPubblica), versione });
       for (const v of p.viste) {
         dati.viste.set(`${p.partitaId}/${v.utente_id}`, { vista: copia(v.vista), mosse_valide: copia(v.mosse_valide), versione });
       }

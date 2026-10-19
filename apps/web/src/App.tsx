@@ -3,6 +3,7 @@ import { configurato } from "./lib/supabase";
 import { Home } from "./pagine/Home";
 import { Invito } from "./pagine/Invito";
 import { Partita } from "./pagine/Partita";
+import { EntraSpettatore, Spettatore } from "./pagine/Spettatore";
 import { PaginaRegole } from "./pagine/Regole";
 import { Protezione } from "./Protezione";
 import { FornitoreSkin } from "./giochi/primo-gioco/skin";
@@ -25,6 +26,8 @@ export function App() {
         <Route path="/" element={<Home />} />
         <Route path="/p/:codice" element={<Invito />} />
         <Route path="/partita/:id" element={<Partita />} />
+        <Route path="/t/:codice" element={<EntraSpettatore />} />
+        <Route path="/guarda/:id" element={<Spettatore />} />
         <Route path="/regole" element={<PaginaRegole />} />
         <Route path="*" element={<Home />} />
       </Routes>

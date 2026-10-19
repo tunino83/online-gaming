@@ -9,7 +9,8 @@
  * Le mosse possibili le calcola sempre il server.
  */
 import { type CartaDiamante, type CartaPersonaggio, type Evento, type Mossa, type VistaGiocatore, personaggio } from "@og/primo-gioco";
-import { BookOpen, ChevronLeft, ChevronRight, Flame, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Flame, MonitorPlay, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { QrCodice, linkTavolo } from "../../QrCodice";
 import { type CSSProperties, type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AvatarPunti } from "../../Avatar";
 import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
@@ -105,7 +106,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string; azione?: () => void } | null>(null);
   const [daScartare, setDaScartare] = useState<string[]>([]);
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
-  const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | null>(null);
+  const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | "schermo" | null>(null);
   const [registroAperto, setRegistroAperto] = useState(false);
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
   const [fulmineNo, setFulmineNo] = useState<number | null>(null);
@@ -403,6 +404,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
             <BottoneIcona etichetta="Come si gioca" onClick={() => setFoglio("regole")}>
               <BookOpen size={17} />
             </BottoneIcona>
+            <BottoneIcona etichetta="Schermo del tavolo e spettatori" onClick={() => setFoglio("schermo")}>
+              <MonitorPlay size={17} />
+            </BottoneIcona>
             <BottoneIcona etichetta={suoni ? "Spegni i suoni" : "Accendi i suoni"} onClick={() => impostaSuoni(!suoni)}>
               {suoni ? <Volume2 size={17} /> : <VolumeX size={17} />}
             </BottoneIcona>
@@ -679,6 +683,16 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               {registroAperto ? "Mostra meno" : "Le ultime 3 di ogni giocatore"}
             </button>
           )}
+        </Foglio>
+      )}
+      {foglio === "schermo" && (
+        <Foglio titolo="📺 Schermo del tavolo" onChiudi={() => setFoglio(null)}>
+          <p className="mb-3 text-sm">
+            Apri questo codice su un tablet, un PC o una TV: mostra la partita a tutti, senza le carte in mano. Va bene anche per chi vuole
+            solo guardare.
+          </p>
+          <QrCodice testo={linkTavolo(partita.codice)} dimensione={190} />
+          <p className="mt-2 break-all text-center text-xs text-tenue select-all">{linkTavolo(partita.codice)}</p>
         </Foglio>
       )}
       {foglio === "regole" && (

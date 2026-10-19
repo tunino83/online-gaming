@@ -179,6 +179,33 @@ describe("arbitro sul server", () => {
     expect(erroreFile).not.toBeNull();
   });
 
+  it("spettatrice: Carla entra col codice a partita iniziata, vede la vista pubblica ma nessuna mano né lo stato segreto", async () => {
+    expect(await carla.chiedi({ azione: "guarda", codice })).toEqual({ ok: true, partitaId });
+    const [vA, vB] = await Promise.all([miaVista(anna, partitaId), miaVista(bruno, partitaId)]);
+    const [chi] = vA.mosse_valide.length > 0 ? [anna] : [bruno];
+    expect(await chi.chiedi({ azione: "mossa", partitaId, mossa: { tipo: "pescaNumero" } })).toMatchObject({ ok: true });
+
+    const { data: pubblica } = await carla.client.from("viste_pubbliche").select("vista, versione").eq("partita_id", partitaId).single();
+    const vista = pubblica!.vista as { io: string; mano: unknown[]; giocatori: Record<string, { carteInMano: number }> };
+    expect(vista.io).toBe("");
+    expect(vista.mano).toEqual([]);
+    expect(Object.keys(vista.giocatori).sort()).toEqual([anna.id, bruno.id].sort());
+
+    const { data: partite } = await carla.client.from("partite").select("id").eq("id", partitaId);
+    expect(partite).toHaveLength(1);
+    const { data: giocatori } = await carla.client.from("giocatori_partita").select("nickname").eq("partita_id", partitaId);
+    expect(giocatori).toHaveLength(2);
+    const { data: viste } = await carla.client.from("viste").select("*").eq("partita_id", partitaId);
+    expect(viste).toEqual([]);
+    const { data: stati } = await carla.client.from("stati_partita").select("*").eq("partita_id", partitaId);
+    expect(stati ?? []).toEqual([]);
+    // Non gioca e non scrive
+    expect(await carla.chiedi({ azione: "mossa", partitaId, mossa: { tipo: "pescaNumero" } })).toMatchObject({ ok: false });
+    const { error } = await carla.client.from("spettatori").insert({ partita_id: partitaId, utente_id: carla.id });
+    expect(error).not.toBeNull();
+    void vB;
+  });
+
   it("modalità di prova: le partite contro il computer riusano gli stessi robot", async () => {
     const robotDi = async (g: Giocatore, partitaId: string) => {
       const { data } = await g.client.from("giocatori_partita").select("utente_id, bot").eq("partita_id", partitaId);

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TavoloPrimoGioco } from "../giochi/primo-gioco/Tavolo";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { QrCodice, linkTavolo } from "../QrCodice";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
 import { chiediArbitro } from "../lib/supabase";
 import { CerchioAvatar } from "../Avatar";
@@ -10,6 +11,12 @@ import { Caricamento, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 export function Partita() {
   const { id = "" } = useParams();
   const stato = usePartita(id);
+  const vai = useNavigate();
+  // Chi non gioca in questa partita (ma la può vedere) è uno spettatore: va allo schermo del tavolo
+  const spettatore = stato.tipo === "pronta" && !stato.giocatori.some((g) => g.utente_id === stato.io);
+  useEffect(() => {
+    if (spettatore) vai(`/guarda/${id}`, { replace: true });
+  }, [spettatore, id, vai]);
 
   if (stato.tipo === "carico") return <Pagina><Caricamento /></Pagina>;
   if (stato.tipo === "errore") return <Pagina><Errore testo={stato.testo} /></Pagina>;
@@ -98,6 +105,15 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
       <Riquadro titolo={`Giocatori (${giocatori.length}/${partita.max_giocatori})`}>
         <TavoloAttesa giocatori={giocatori} posti={partita.max_giocatori} io={io} creatore={partita.creatore} />
         <p className="mt-3 text-xs text-tenue">Punti per vincere: {partita.opzioni.puntiPerVincere ?? 15}</p>
+      </Riquadro>
+
+      <Riquadro titolo="📺 Schermo del tavolo">
+        <p className="-mt-2 mb-3 text-sm text-tenue">
+          Un tablet, un PC o una TV al centro del tavolo può mostrare la partita a tutti (senza le carte in mano). Inquadra il codice
+          o apri il link:
+        </p>
+        <QrCodice testo={linkTavolo(partita.codice)} dimensione={150} />
+        <p className="mt-2 break-all text-center text-xs text-tenue select-all">{linkTavolo(partita.codice)}</p>
       </Riquadro>
 
       <Errore testo={errore} />

@@ -98,6 +98,23 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
   return vista;
 }
 
+/**
+ * Cosa vede uno spettatore (o lo schermo "tavolo"): solo le informazioni pubbliche.
+ * Nessuna mano (solo quante carte ha ognuno), nessuna scelta in sospeso, nessuna carta del Mago o della Fatina.
+ * Stessa forma della vista di un giocatore, con `io` vuoto e mano vuota.
+ */
+export function vistaPubblica(s: StatoPartita): VistaGiocatore {
+  const primo = s.ordine[0]!;
+  const { primoPersonaggio: _mago, manoAvversario: _fatina, ...v } = vistaGiocatore(s, primo);
+  return {
+    ...v,
+    io: "",
+    turno: { giocatore: s.turno.giocatore, mosseRimaste: s.turno.mosseRimaste, attesa: null, virtualiUsate: [] },
+    mano: [],
+    limiteMano: s.opzioni.limiteMano,
+  };
+}
+
 /** Le proprie risorse per i codici, ricavate dalla propria vista (le usa il browser). */
 export function risorseDaVista(v: VistaGiocatore): Risorse {
   const io = v.giocatori[v.io]!;
