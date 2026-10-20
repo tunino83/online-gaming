@@ -53,6 +53,9 @@ importers:
       '@og/primo-gioco':
         specifier: workspace:*
         version: link:../../games/primo-gioco
+      '@og/ufficio':
+        specifier: workspace:*
+        version: link:../../games/ufficio
       '@supabase/supabase-js':
         specifier: ^2.45.0
         version: 2.118.0
@@ -97,6 +100,12 @@ importers:
         specifier: workspace:*
         version: link:../../packages/engine
 
+  games/ufficio:
+    dependencies:
+      '@og/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+
   packages/engine: {}
 
   packages/server:
@@ -107,6 +116,9 @@ importers:
       '@og/primo-gioco':
         specifier: workspace:*
         version: link:../../games/primo-gioco
+      '@og/ufficio':
+        specifier: workspace:*
+        version: link:../../games/ufficio
     devDependencies:
       '@supabase/supabase-js':
         specifier: ^2.45.0

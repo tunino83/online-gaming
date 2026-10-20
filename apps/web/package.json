@@ -15,6 +15,7 @@
     "@fontsource/cinzel": "^5.1.0",
     "@og/engine": "workspace:^",
     "@og/primo-gioco": "workspace:*",
+    "@og/ufficio": "workspace:*",
     "@supabase/supabase-js": "^2.45.0",
     "lucide-react": "^0.460.0",
     "qrcode-generator": "1.4.4",

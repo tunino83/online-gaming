@@ -5,12 +5,13 @@
  */
 import { AVATAR_PREDEFINITO, type Gioco, type IdGiocatore, avatarValido } from "@og/engine";
 import { primoGioco } from "@og/primo-gioco";
+import { giocoUfficio } from "@og/ufficio";
 
 // biome-ignore lint: ogni gioco ha i suoi tipi di stato, mossa, opzioni e vista
 type QualsiasiGioco = Gioco<any, any, any, any>;
 
 /** Giochi disponibili sulla piattaforma. */
-export const GIOCHI: Record<string, QualsiasiGioco> = { "primo-gioco": primoGioco };
+export const GIOCHI: Record<string, QualsiasiGioco> = { "primo-gioco": primoGioco, ufficio: giocoUfficio };
 
 /* ------------------------------------------------------------------ */
 /* Archivio (database)                                                 */

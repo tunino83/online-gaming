@@ -1,4 +1,5 @@
 import { PERSONAGGI } from "@og/primo-gioco";
+import { PERSONAGGI as PERSONAGGI_UFFICIO } from "@og/ufficio";
 import { type FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { immaginePersonaggio } from "../giochi/primo-gioco/skin";
@@ -7,7 +8,20 @@ import { avatarSalvato, nicknameSalvato, salvaAvatar, salvaNickname } from "../l
 import { SceltaAvatar } from "../Avatar";
 import { Campo, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 
-const carte = PERSONAGGI.reduce((totale, p) => totale + p.copie, 0);
+/** Giochi che si possono scegliere (id tecnico come nell'arbitro). */
+const GIOCHI = [
+  { id: "primo-gioco", nome: "Il Portale", personaggi: PERSONAGGI },
+  { id: "ufficio", nome: "Ufficio", personaggi: PERSONAGGI_UFFICIO, prova: true },
+] as const;
+type IdGioco = (typeof GIOCHI)[number]["id"];
+
+function giocoSalvato(): IdGioco {
+  try {
+    return localStorage.getItem("og.gioco") === "ufficio" ? "ufficio" : "primo-gioco";
+  } catch {
+    return "primo-gioco";
+  }
+}
 
 export function Home() {
   const vai = useNavigate();
@@ -18,6 +32,17 @@ export function Home() {
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
   const [bot, setBot] = useState(1);
+  const [gioco, setGioco] = useState<IdGioco>(giocoSalvato);
+  const scelto = GIOCHI.find((g) => g.id === gioco)!;
+  const carte = scelto.personaggi.reduce((totale, p) => totale + p.copie, 0);
+  const scegliGioco = (id: IdGioco) => {
+    setGioco(id);
+    try {
+      localStorage.setItem("og.gioco", id);
+    } catch {
+      // vale solo per questa visita
+    }
+  };
 
   async function crea(e: FormEvent) {
     e.preventDefault();
@@ -25,7 +50,7 @@ export function Home() {
     setErrore(null);
     salvaNickname(nickname);
     salvaAvatar(avatarId);
-    const r = await chiediArbitro({ azione: "crea", nickname, avatar: avatarId, maxGiocatori, opzioni: { puntiPerVincere: punti } });
+    const r = await chiediArbitro({ azione: "crea", gioco, nickname, avatar: avatarId, maxGiocatori, opzioni: { puntiPerVincere: punti } });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -38,7 +63,7 @@ export function Home() {
     setErrore(null);
     salvaNickname(nickname);
     salvaAvatar(avatarId);
-    const r = await chiediArbitro({ azione: "controComputer", nickname, avatar: avatarId, bot, opzioni: { puntiPerVincere: punti } });
+    const r = await chiediArbitro({ azione: "controComputer", gioco, nickname, avatar: avatarId, bot, opzioni: { puntiPerVincere: punti } });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -47,14 +72,39 @@ export function Home() {
   return (
     <Pagina>
       <p className="-mt-4 text-luce/80">Giochi di carte e da tavolo da fare online con gli amici.</p>
+      <div className="grid grid-cols-2 gap-2" role="group" aria-label="Scegli il gioco">
+        {GIOCHI.map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            onClick={() => scegliGioco(g.id)}
+            aria-pressed={g.id === gioco}
+            className={`rounded-xl border-2 px-3 py-2 font-titolo text-base font-bold transition ${
+              g.id === gioco ? "border-oro bg-oro text-[#2b1a05]" : "border-oro/40 text-oro-chiaro hover:bg-oro/10"
+            }`}
+          >
+            {g.id === "ufficio" ? "🏢 " : "✨ "}
+            {g.nome}
+            {"prova" in g && <span className="ml-1 align-middle text-[10px] font-semibold uppercase opacity-70">in prova</span>}
+          </button>
+        ))}
+      </div>
       <Riquadro>
         {/* copertina della "scatola" del gioco */}
         {/* l'altezza segue le proporzioni dell'immagine: si vede intera, senza tagli */}
-        <div className="relative -mx-5 -mt-5 mb-4 overflow-hidden rounded-t-2xl border-b-2 border-oro">
-          {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="block h-auto w-full" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-notte/90 via-notte/20 to-transparent" />
-          <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il Portale</h2>
-        </div>
+        {gioco === "primo-gioco" ? (
+          <div className="relative -mx-5 -mt-5 mb-4 overflow-hidden rounded-t-2xl border-b-2 border-oro">
+            {immaginePersonaggio("drago") && <img src={immaginePersonaggio("drago")} alt="" className="block h-auto w-full" />}
+            <div className="absolute inset-0 bg-gradient-to-t from-notte/90 via-notte/20 to-transparent" />
+            <h2 className="absolute bottom-2 left-4 font-titolo text-2xl font-bold text-oro-chiaro drop-shadow">Il Portale</h2>
+          </div>
+        ) : (
+          <div className="-mx-5 -mt-5 mb-4 rounded-t-2xl border-b-2 border-oro bg-gradient-to-br from-[#2f6fb3] to-[#1d2d4f] px-5 py-8 text-center">
+            <div className="text-5xl" aria-hidden="true">🏢</div>
+            <h2 className="mt-2 font-titolo text-2xl font-bold text-[#f2d58a]">Ufficio</h2>
+            <p className="text-xs text-white/70">In costruzione: per ora ha le stesse regole di Il Portale</p>
+          </div>
+        )}
         <p className="-mt-2 mb-4 text-sm text-tenue">
           {PERSONAGGI.length} personaggi, {carte} carte, da 2 a 5 giocatori.
         </p>

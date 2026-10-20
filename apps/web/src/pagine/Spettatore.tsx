@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { TavoloSpettatore } from "../giochi/primo-gioco/TavoloSpettatore";
+import { TavoloSpettatore as TavoloSpettatoreUfficio } from "../giochi/ufficio/TavoloSpettatore";
 import { chiediArbitro } from "../lib/supabase";
 import { usePartita } from "../lib/usePartita";
 import { Caricamento, Errore, Pagina, Riquadro } from "../ui";
@@ -65,6 +66,7 @@ export function Spettatore() {
       </Pagina>
     );
   }
+  if (partita.gioco === "ufficio") return <TavoloSpettatoreUfficio partita={partita} giocatori={giocatori} />;
   if (partita.gioco !== "primo-gioco") return <Pagina><Errore testo="Gioco non ancora disponibile nel browser." /></Pagina>;
   return <TavoloSpettatore partita={partita} giocatori={giocatori} />;
 }

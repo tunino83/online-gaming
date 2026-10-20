@@ -38,6 +38,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
 - Prova a due giocatori in locale: `pnpm --filter @og/web build`, poi anteprima "web" su `localhost:4173` (giocatore 1)
   e `bruno.localhost:4173` (giocatore 2: indirizzo diverso = sessione separata).
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
+- Secondo gioco "Ufficio": `pnpm simula:ufficio [n]` e `pnpm carte:ufficio` (scrivono in `docs/ufficio/`).
 
 ## Architettura
 
@@ -84,3 +85,14 @@ File principali del primo gioco (`games/primo-gioco/src`):
   skin di base `classica`, elenco skin in `apps/web/src/giochi/primo-gioco/skin.tsx`, scelta per giocatore (salvata nel browser);
   cartelle che iniziano con `_` (es. `_originali`) escluse dal sito;
   senza immagine la carta mostra un simbolo provvisorio. La grafica della carta in Fase 2 riprende quella di `scripts/anteprima-carte.ts`.
+
+## Secondo gioco: Ufficio (in costruzione)
+
+Nato il 2026-10-20 come **copia esatta di Il Portale**, da trasformare in un gioco ambientato in ufficio
+(colleghi al posto dei personaggi, tool al posto dei numeri…). **Non toccare Il Portale** quando si modifica Ufficio.
+- Regole: `games/ufficio` (pacchetto `@og/ufficio`, id tecnico `ufficio`, oggetto `giocoUfficio`), regolamento `docs/ufficio/regolamento.md`.
+- Schermata: `apps/web/src/giochi/ufficio` (copia di `giochi/primo-gioco`). Il file `carte.css` è caricato da entrambi i giochi:
+  le modifiche allo stile di Ufficio vanno messe sotto una classe propria (es. `.gioco-ufficio`) per non cambiare Il Portale.
+- Immagini: `games/ufficio/immagini/classica/` (per ora vuota: le carte mostrano il simbolo provvisorio).
+- Si sceglie il gioco nella pagina iniziale (✨ Il Portale / 🏢 Ufficio); l'arbitro conosce entrambi (`GIOCHI` in `packages/server/src/arbitro.ts`).
+

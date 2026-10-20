@@ -348,3 +348,16 @@ describe("robot fissi", () => {
     expect(await robot(id2)).toEqual(["bot-1", "bot-2", "bot-3"]);
   });
 });
+
+describe("gioco Ufficio (clone di Il Portale)", () => {
+  it("si crea una partita di Ufficio, anche contro il computer, e si gioca", async () => {
+    const { chiedi, archivio } = prepara(21);
+    const r = await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 1, gioco: "ufficio" });
+    expect(r).toMatchObject({ ok: true });
+    const partitaId = (r as unknown as { partitaId: string }).partitaId;
+    expect(archivio.dati.partite.get(partitaId)!.gioco).toBe("ufficio");
+    expect(archivio.dati.vistePubbliche.get(partitaId)).toBeDefined();
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", gioco: "scacchi" })).toEqual({ ok: false, errore: "Gioco sconosciuto" });
+  });
+});
+

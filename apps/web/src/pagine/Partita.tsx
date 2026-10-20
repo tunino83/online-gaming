@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { TavoloPrimoGioco } from "../giochi/primo-gioco/Tavolo";
+import { TavoloPrimoGioco as TavoloUfficio } from "../giochi/ufficio/Tavolo";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { QrCodice, linkTavolo } from "../QrCodice";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
@@ -35,11 +36,14 @@ export function Partita() {
 
   const { partita, giocatori, io } = stato;
   if (partita.gioco === "primo-gioco") document.title = "Il Portale · Online Gaming";
+  if (partita.gioco === "ufficio") document.title = "Ufficio · Online Gaming";
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
     <Pagina inGioco>
       {partita.gioco === "primo-gioco" ? (
         <TavoloPrimoGioco partita={partita} giocatori={giocatori} io={io} />
+      ) : partita.gioco === "ufficio" ? (
+        <TavoloUfficio partita={partita} giocatori={giocatori} io={io} />
       ) : (
         <Errore testo="Gioco non ancora disponibile nel browser." />
       )}
