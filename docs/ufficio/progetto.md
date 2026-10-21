@@ -3,6 +3,18 @@
 > Stato: **proposta**, niente è ancora deciso né programmato. Le parti segnate con ❓ sono domande aperte.
 > Il regolamento vero (`docs/ufficio/regolamento.md`) si aggiorna solo dopo l'ok.
 
+## Decisioni prese (2026-10-21)
+
+- **I tool NON hanno un valore da 1 a 8**: sono solo tipi diversi. Spariscono quindi somme, scale, pari/dispari e il caffè "+1".
+  I codici dei colleghi si costruiscono in altro modo (proposta al punto 2b).
+- **Colleghi (18):** Saverio, Antonio, Sergio, Dario, Donato, Giancarlo, Martina, Marianna, Paola, Marco, Sara, Gianluca,
+  Haitam, Raffaele, Carmelo, Antonio Eletto, **Maurizio e Pompeo (i capi)**. Più **Claude**.
+- **Allergie:** lattosio 🥛 = Donato, Raffaele; glutine 🌾 = Maurizio.
+- **Cibo:** un mazzo separato per ogni pasto (colazione, pranzo, giropizza, aperitivo).
+- **Escalation:** la attiva chi la pesca e **decide lui** chi colpire.
+- **Idee extra** (Ferie, Capo, Venerdì pomeriggio, dotazioni in più…): **nessuna per ora**, si aggiungono in seguito.
+  Restano le carte chieste: consegne, rilasci, escalation, Internet, PC nuovo, iPhone Duo.
+
 ## 1. L'idea in una frase
 
 Ogni giocatore è un capo progetto: raccoglie **tool** (le carte da 1 a 8), coinvolge **colleghi** (i personaggi),
@@ -24,9 +36,37 @@ Vince chi arriva per primo ai punti carriera necessari per la **promozione** (po
 | Consegne e rilasci | 🆕 nuovo | Obiettivi comuni sul tavolo |
 | Dotazioni (PC nuovo, iPhone Duo…) | 🆕 nuovo | Oggetti che ti tieni e danno un vantaggio |
 
+## 2b. Tool e codici senza numeri (proposta)
+
+**8 tool in 3 famiglie** (7 copie ciascuno = 56 carte, come oggi):
+
+| Famiglia | Tool |
+| --- | --- |
+| 🗣️ Comunicazione | ✉️ Email · 💬 Chat · 📞 Telefono |
+| 📁 Documenti | 📊 Foglio di calcolo · 📽️ Presentazione · 📝 Documento |
+| ⚙️ Tecnici | 💻 Codice · 🗂️ Gestionale |
+
+**Tipi di requisito per coinvolgere un collega** (al posto di somme e scale):
+
+| Requisito | Esempio | Prende il posto di |
+| --- | --- | --- |
+| Tool precisi | ✉️ ✉️ 📊 | i codici "esatti" (7788) |
+| Uguali | 3 tool uguali (qualsiasi) | coppia, tris, poker (restano) |
+| Doppia coppia | 2+2 uguali | resta |
+| **Tutti diversi** | 4 tool tutti diversi ("progetto trasversale") | la **scala** |
+| **Stessa famiglia** | 3 tool di Comunicazione | **pari/dispari** |
+| **Uno per famiglia** | 1 🗣️ + 1 📁 + 1 ⚙️ ("riunione completa") | la **somma** |
+| Misto | 📊 📊 + una coppia qualsiasi | i codici "combinati" (resta) |
+
+- **☕ Caffè:** non può più fare +1, quindi diventa un **jolly**: vale un tool qualsiasi in un requisito (uno per requisito).
+  ⚡ **Straordinario** resta: una mossa in più.
+- I poteri di Il Portale legati ai numeri si trasformano così: "esperto di un tool" (come i nani), "ogni ✉️ vale anche 💬"
+  (come Robin Hood), "ogni ✉️ vale qualsiasi tool" (come Tremotino); Xena (−1) sparisce.
+
 ## 3. Colleghi, team e Claude
 
-- **Circa 12 colleghi**, divisi in **3–4 team** (es. Sviluppo, Commerciale, Amministrazione, Marketing). ❓ i team veri e i nomi
+- **18 colleghi** (vedi decisioni), divisi in team. ❓ quali team e chi sta in quale
+- **Maurizio e Pompeo, i capi:** carte speciali, con più punti e requisiti più difficili. ❓ hanno un potere "da capo"?
 - Ogni collega ha: **requisiti** (il codice in tool per coinvolgerlo), **punti**, eventuale **superpotere**,
   eventuale **allergia** (🥛 lattosio, 🌾 glutine), e il **team**.
 - **Esperti** (come i nani): "ha sempre un 📊 a disposizione, una volta per turno".
@@ -96,10 +136,11 @@ Carte speciali nel mazzo tool: chi le prende le mette davanti a sé e valgono pe
 
 ## 10. Domande aperte ❓
 
-1. Tool con livello 1–8 (strada A) e quali 8 tool?
-2. Elenco colleghi: nome, team, caratteristica (che diventa il superpotere), eventuale allergia.
-3. Allergie: contano i colleghi nei posti, quelli coinvolti o entrambi? −1 per ogni allergico o una volta sola?
-4. Mazzo cibo unico o un mucchio per tipo di pasto?
-5. Consegne e rilasci: va bene la lettura del punto 5?
-6. Escalation: colpisce chi è in testa (proposta) o la sceglie chi la fa uscire?
-7. Quali idee del punto 8 ti piacciono?
+1. Vanno bene gli 8 tool, le 3 famiglie e i tipi di requisito del punto 2b? E il caffè come jolly?
+2. Team: quali sono e chi sta in quale? (es. "Sviluppo: Saverio, Dario, Haitam…")
+3. Per ogni collega una caratteristica che diventa il superpotere (es. "Martina: regina dei fogli di calcolo"),
+   oppure i superpoteri li propongo io e tu li correggi?
+4. Ci sono due Antonio (Antonio e Antonio Eletto): sulle carte li chiamiamo così o con un soprannome?
+5. Allergie: contano i colleghi nei posti, quelli già coinvolti o entrambi? −1 per ogni allergico o una volta sola?
+6. Consegne e rilasci: va bene la lettura del punto 5?
+7. Escalation: quale effetto subisce chi viene scelto? (proposta: una mossa in meno al prossimo turno)
