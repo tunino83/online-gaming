@@ -1,25 +1,25 @@
 /**
- * Disegna gli avatar "a stili" (id "stile:seme") con DiceBear, direttamente nel browser.
- * Lo stesso seme dà sempre lo stesso disegno. I disegni già fatti si tengono in memoria.
+ * Avatar "a stili" (id "stile:seme"): i disegni li fa la libreria DiceBear (lib/avatarDiceBear.ts),
+ * che è grande, quindi si scarica solo la prima volta che serve un avatar disegnato.
  */
-import { createAvatar } from "@dicebear/core";
-import { adventurer, bottts, funEmoji, lorelei, pixelArt } from "@dicebear/collection";
+import { useEffect, useState } from "react";
+import { importaConRicarica } from "./caricaPigro";
 
-const STILI = { avventuriero: adventurer, ritratto: lorelei, pixel: pixelArt, robottino: bottts, faccina: funEmoji } as const;
-const SFONDI = ["f2d58a", "c0aede", "b6e3f4", "ffd5dc", "d1f4d1", "ffdfbf"];
-const memoria = new Map<string, string>();
+type Modulo = typeof import("./avatarDiceBear");
+let caricamento: Promise<Modulo> | null = null;
+let modulo: Modulo | null = null;
+const carica = () => (caricamento ??= importaConRicarica(() => import("./avatarDiceBear")).then((m) => (modulo = m)));
 
-/** Immagine (data URI) dell'avatar, oppure null se l'id non è di uno stile disegnato. */
-export function immagineAvatar(id: string): string | null {
-  const i = id.indexOf(":");
-  if (i <= 0) return null;
-  const stile = STILI[id.slice(0, i) as keyof typeof STILI];
-  if (!stile) return null;
-  let uri = memoria.get(id);
-  if (!uri) {
-    // biome-ignore lint: ogni stile ha le sue opzioni; qui si usano solo quelle comuni
-    uri = createAvatar(stile as any, { seed: id.slice(i + 1), backgroundColor: SFONDI }).toDataUri();
-    memoria.set(id, uri);
-  }
-  return uri;
+/** È un avatar disegnato (e non uno dei classici)? */
+export const eDisegnato = (id: string | null | undefined): id is string => !!id && id.indexOf(":") > 0;
+
+/** Immagine dell'avatar disegnato: null finché la libreria non è arrivata (o se non è un avatar disegnato). */
+export function useImmagineAvatar(id: string | null | undefined): string | null {
+  const [, aggiorna] = useState(0);
+  const disegnato = eDisegnato(id);
+  useEffect(() => {
+    if (disegnato && !modulo) void carica().then(() => aggiorna((n) => n + 1));
+  }, [disegnato]);
+  if (!disegnato || !modulo) return null;
+  return modulo.immagineAvatar(id);
 }

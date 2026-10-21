@@ -306,13 +306,13 @@ describe("diamanti con valore", () => {
     expect(ok(r, { tipo: "esatto", valori: [7, 8] }, comb)).toBe(false);
   });
 
-  it("il fulmine non fa +1 e non vale come numero", () => {
+  it("il fulmine può fare +1 (come un diamante) ma non vale come numero", () => {
     const r = risorse({ mano: mano(7, 8), diamanti: diam("f") });
     const piuUno: Combinazione = [
       { tipo: "numero", id: "n0", valore: 8, modifica: { diamante: "d0", delta: 1 } },
       { tipo: "numero", id: "n1", valore: 8 },
     ];
-    expect(ok(r, codice("hansel-e-gretel"), piuUno)).toBe(false);
+    expect(ok(r, codice("hansel-e-gretel"), piuUno)).toBe(true);
     const comeNumero: Combinazione = [...carte(r, 1), { tipo: "diamante", id: "d0", valore: 8 }];
     expect(ok(r, codice("hansel-e-gretel"), comeNumero)).toBe(false);
   });
@@ -634,8 +634,24 @@ describe("attivazione a tocchi: diamanti aggiunti in automatico", () => {
     expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])?.aggiunti).toHaveLength(1);
   });
 
-  it("il fulmine non fa +1", () => {
+  it("il fulmine fa +1 se serve", () => {
     const r = risorse({ mano: mano(8, 7), diamanti: diam("f") });
-    expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])).toBeNull();
+    expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])?.aggiunti).toEqual(["d0"]);
+  });
+
+  it("a parità usa un diamante con valore e tiene il fulmine", () => {
+    const r = risorse({ mano: mano(8, 7), diamanti: diam("f", 2) });
+    expect(combinazioneConDiamanti(r, codice("hansel-e-gretel"), ["n0", "n1"])?.aggiunti).toEqual(["d1"]);
+  });
+
+  it("con Xena il fulmine fa anche −1", () => {
+    const r: Risorse = { ...risorse({ mano: mano(8, 8, 8, 2), diamanti: diam("f") }), poteri: { unoValeOtto: false, treJolly: false, diamanteMenoUno: true } };
+    // un 8 con il fulmine −1 diventa 7: 8 8 8 → 7 8 8
+    const comb: Combinazione = [
+      { tipo: "numero", id: "n0", valore: 7, modifica: { diamante: "d0", delta: -1 } },
+      { tipo: "numero", id: "n1", valore: 8 },
+      { tipo: "numero", id: "n2", valore: 8 },
+    ];
+    expect(ok(r, { tipo: "esatto", valori: [7, 8, 8] }, comb)).toBe(true);
   });
 });

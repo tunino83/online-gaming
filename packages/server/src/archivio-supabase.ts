@@ -27,6 +27,10 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
         p_avatar: p.avatar,
       });
       if (error) traduci(error);
+      if (!p.pubblica) {
+        const { error: erroreVisibile } = await db.from("partite").update({ pubblica: false }).eq("id", data as string);
+        if (erroreVisibile) traduci(erroreVisibile);
+      }
       return data as string;
     },
 
@@ -88,6 +92,35 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
       const { error: erroreSalva } = await db.from("bot_fissi").upsert({ numero, utente_id: id }, { onConflict: "numero" });
       if (erroreSalva) traduci(erroreSalva);
       return id;
+    },
+
+    async elencaAperte() {
+      const limite = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await db
+        .from("partite")
+        .select("codice, gioco, creatore, max_giocatori, creata_il, giocatori_partita (utente_id, nickname, avatar)")
+        .eq("stato", "attesa")
+        .eq("pubblica", true)
+        .gt("creata_il", limite)
+        .order("creata_il", { ascending: false })
+        .limit(30);
+      if (error) traduci(error);
+      type Riga = { codice: string; gioco: string; creatore: string; max_giocatori: number; creata_il: string; giocatori_partita: { utente_id: string; nickname: string; avatar: string }[] };
+      return ((data ?? []) as Riga[])
+        .filter((x) => x.giocatori_partita.length < x.max_giocatori)
+        .slice(0, 20)
+        .map((x) => {
+          const c = x.giocatori_partita.find((g) => g.utente_id === x.creatore) ?? x.giocatori_partita[0];
+          return {
+            codice: x.codice,
+            gioco: x.gioco,
+            creatore: c?.nickname ?? "?",
+            avatar: c?.avatar ?? "mago",
+            giocatori: x.giocatori_partita.length,
+            maxGiocatori: x.max_giocatori,
+            creataIl: x.creata_il,
+          };
+        });
     },
 
     async guarda(p) {

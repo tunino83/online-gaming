@@ -5,7 +5,7 @@
 import { type Archivio, ErroreArchivio, type InfoPartita } from "./arbitro";
 
 export interface DatiMemoria {
-  partite: Map<string, InfoPartita & { esito: unknown }>;
+  partite: Map<string, InfoPartita & { esito: unknown; pubblica: boolean; creataIl: string }>;
   stati: Map<string, { stato: unknown; versione: number }>;
   viste: Map<string, { vista: unknown; mosse_valide: unknown[]; versione: number }>;
   mosse: { partitaId: string; numero: number; utente: string; mossa: unknown }[];
@@ -34,6 +34,8 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
         maxGiocatori: p.maxGiocatori,
         giocatori: [{ utenteId: p.creatore, nickname: p.nickname, avatar: p.avatar, bot: false }],
         esito: null,
+        pubblica: p.pubblica,
+        creataIl: new Date(Date.now() + contatore).toISOString(),
       });
       return id;
     },
@@ -45,6 +47,17 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       if (partita.giocatori.length >= partita.maxGiocatori) throw new ErroreArchivio("PARTITA_PIENA");
       partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: false });
       return partita.id;
+    },
+    async elencaAperte() {
+      const limite = Date.now() - 3 * 60 * 60 * 1000;
+      return [...dati.partite.values()]
+        .filter((x) => x.stato === "attesa" && x.pubblica && x.giocatori.length < x.maxGiocatori && Date.parse(x.creataIl) > limite)
+        .sort((a, b) => b.creataIl.localeCompare(a.creataIl))
+        .slice(0, 20)
+        .map((x) => {
+          const c = x.giocatori.find((g) => g.utenteId === x.creatore) ?? x.giocatori[0]!;
+          return { codice: x.codice, gioco: x.gioco, creatore: c.nickname, avatar: c.avatar, giocatori: x.giocatori.length, maxGiocatori: x.maxGiocatori, creataIl: x.creataIl };
+        });
     },
     async guarda(p) {
       const partita = [...dati.partite.values()].find((x) => x.codice === p.codice);

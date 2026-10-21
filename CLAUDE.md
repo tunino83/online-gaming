@@ -71,6 +71,9 @@ Partite contro il computer: i robot muovono una mossa ogni 3 secondi, su richies
 Spettatori e schermo "tavolo": `/t/CODICE` (QR nella stanza d'attesa e col pulsante 📺 in partita) o "Guarda come spettatore"
 nel link d'invito → azione `guarda` (tabella `spettatori`), pagina `/guarda/ID` (`pagine/Spettatore.tsx`, `giochi/primo-gioco/TavoloSpettatore.tsx`).
 Vedono solo la vista pubblica (`vistaPubblica` nel motore, tabella `viste_pubbliche` salvata dall'arbitro a ogni mossa), chi gioca e i vocali.
+Partite aperte: nella pagina iniziale la lista delle partite in attesa (azione `aperte`, colonna `partite.pubblica`,
+ultime 3 ore, non piene); chi crea può toglierla dalla lista. Le partite contro il computer non compaiono.
+Suoni: `apps/web/src/lib/suoni.ts` (un effetto per ogni azione del registro con `suonoPerAzione`; sblocco dell'audio su iPhone al primo tocco).
 
 Sito online: https://online-gaming.onrender.com/
 
@@ -95,4 +98,8 @@ Nato il 2026-10-20 come **copia esatta di Il Portale**, da trasformare in un gio
   le modifiche allo stile di Ufficio vanno messe sotto una classe propria (es. `.gioco-ufficio`) per non cambiare Il Portale.
 - Immagini: `games/ufficio/immagini/classica/` (per ora vuota: le carte mostrano il simbolo provvisorio).
 - Si sceglie il gioco nella pagina iniziale (✨ Il Portale / 🏢 Ufficio); l'arbitro conosce entrambi (`GIOCHI` in `packages/server/src/arbitro.ts`).
+- Finché Ufficio non diverge, la sua schermata si riallinea copiando `giochi/primo-gioco` in `giochi/ufficio`
+  (sostituendo `@og/primo-gioco` → `@og/ufficio` e il percorso delle immagini in `skin.tsx`).
+- Ogni gioco (tavolo e schermo spettatori) e la libreria degli avatar disegnati si scaricano solo quando servono
+  (`lib/caricaPigro.ts`: se dopo un aggiornamento del sito un pezzo vecchio manca, la pagina si ricarica da sola).
 

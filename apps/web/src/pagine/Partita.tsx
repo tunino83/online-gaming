@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
-import { TavoloPrimoGioco } from "../giochi/primo-gioco/Tavolo";
-import { TavoloPrimoGioco as TavoloUfficio } from "../giochi/ufficio/Tavolo";
+import { Suspense, useEffect, useState } from "react";
+import { pigro } from "../lib/caricaPigro";
+// Ogni gioco si scarica solo quando serve (il sito si apre più in fretta)
+const TavoloPrimoGioco = pigro(() => import("../giochi/primo-gioco/Tavolo").then((m) => m.TavoloPrimoGioco));
+const TavoloUfficio = pigro(() => import("../giochi/ufficio/Tavolo").then((m) => m.TavoloPrimoGioco));
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { QrCodice, linkTavolo } from "../QrCodice";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
@@ -40,6 +42,7 @@ export function Partita() {
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
     <Pagina inGioco>
+      <Suspense fallback={<Caricamento testo="Preparo il tavolo…" />}>
       {partita.gioco === "primo-gioco" ? (
         <TavoloPrimoGioco partita={partita} giocatori={giocatori} io={io} />
       ) : partita.gioco === "ufficio" ? (
@@ -47,6 +50,7 @@ export function Partita() {
       ) : (
         <Errore testo="Gioco non ancora disponibile nel browser." />
       )}
+      </Suspense>
     </Pagina>
   );
 }

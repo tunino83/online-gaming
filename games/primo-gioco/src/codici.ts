@@ -258,7 +258,6 @@ export function verificaCombinazione(risorse: Risorse, codice: Codice, comb: Com
       const m = el.modifica;
       const d = diamanti.get(m.diamante);
       if (!d) return errore(`Diamante non posseduto: ${m.diamante}`);
-      if (d.tipo !== "valore") return errore("Solo un diamante con valore può fare +1/−1");
       if (!usa(m.diamante)) return errore(`Carta usata due volte: ${m.diamante}`);
       if (m.delta === -1 && !risorse.poteri.diamanteMenoUno) return errore("Il −1 richiede il potere di Xena");
       if (m.delta !== 1 && m.delta !== -1) return errore("Un diamante cambia il valore solo di 1");
@@ -381,7 +380,8 @@ export function trovaCombinazioni(risorse: Risorse, codice: Codice, limite = Inf
       firmaPrecedente = c.firma;
 
       const modificatori = tutti.filter(
-        (m) => m.tipo === "diamante" && m.base !== null && !occupati.has(m.chiave) && m.chiave !== c.chiave,
+        // anche il fulmine può fare +1/−1 (invece di dare la mossa in più)
+        (m) => m.tipo === "diamante" && !occupati.has(m.chiave) && m.chiave !== c.chiave,
       );
       for (const o of opzioni(c, risorse, modificatori)) {
         const nuoviPezzi = [...pezzi, o.pezzo];
@@ -463,7 +463,12 @@ export function combinazioneConDiamanti(
     const usate = risorseUsate(comb);
     if (![...insieme].every((k) => usate.includes(k))) continue;
     const aggiunti = usate.filter((k) => !insieme.has(k));
-    if (!migliore || aggiunti.length < migliore.aggiunti.length) migliore = { combinazione: comb, aggiunti };
+    // Il meno possibile; a parità si tiene il fulmine (che altrimenti dà una mossa in più)
+    const fulmini = aggiunti.filter((k) => r.diamanti.find((d) => d.id === k)?.tipo === "fulmine").length;
+    const fulminiMigliore = migliore ? migliore.aggiunti.filter((k) => r.diamanti.find((d) => d.id === k)?.tipo === "fulmine").length : 0;
+    if (!migliore || aggiunti.length < migliore.aggiunti.length || (aggiunti.length === migliore.aggiunti.length && fulmini < fulminiMigliore)) {
+      migliore = { combinazione: comb, aggiunti };
+    }
   }
   return migliore;
 }

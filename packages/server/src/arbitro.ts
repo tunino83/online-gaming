@@ -43,6 +43,16 @@ export interface InfoPartita {
   giocatori: { utenteId: string; nickname: string; avatar: string; bot: boolean }[];
 }
 
+export interface PartitaAperta {
+  codice: string;
+  gioco: string;
+  creatore: string;
+  avatar: string;
+  giocatori: number;
+  maxGiocatori: number;
+  creataIl: string;
+}
+
 export interface VistaDaSalvare {
   utente_id: string;
   vista: unknown;
@@ -59,7 +69,11 @@ export interface Archivio {
     opzioni: Record<string, unknown>;
     maxGiocatori: number;
     avatar: string;
+    /** Compare nella lista delle partite aperte della pagina iniziale. */
+    pubblica: boolean;
   }): Promise<string>;
+  /** Partite in attesa, pubbliche, non piene e create da poco (le più recenti prima). */
+  elencaAperte(): Promise<PartitaAperta[]>;
   /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
   unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
   /** Entra come spettatore (anche a partita iniziata). Errore CODICE_NON_VALIDO. Chi gioca resta giocatore. */
@@ -148,6 +162,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await unisciti(richiesta, utente, archivio);
       case "guarda":
         return await guarda(richiesta, utente, archivio);
+      case "aperte":
+        return { ok: true, partite: await archivio.elencaAperte() };
       case "avvia":
         return await avvia(richiesta, utente, archivio, amb);
       case "controComputer":
@@ -171,7 +187,7 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
 async function controComputer(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
   const quanti = r.bot ?? 1;
   if (!Number.isInteger(quanti) || (quanti as number) < 1 || (quanti as number) > 4) return errore("Si gioca contro 1-4 giocatori del computer");
-  const creata = await crea({ ...r, maxGiocatori: (quanti as number) + 1 }, utente, archivio, amb);
+  const creata = await crea({ ...r, maxGiocatori: (quanti as number) + 1, pubblica: false }, utente, archivio, amb);
   if (!creata.ok) return creata;
   const partitaId = creata.partitaId as string;
   for (let i = 1; i <= (quanti as number); i++) {
@@ -298,10 +314,13 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
     }
   }
 
+  if (r.pubblica !== undefined && typeof r.pubblica !== "boolean") return errore("Richiesta non valida");
+  const pubblica = r.pubblica !== false;
+
   for (let tentativo = 0; tentativo < 5; tentativo++) {
     const codice = Array.from({ length: LUNGHEZZA_CODICE }, () => ALFABETO_CODICE[Math.floor(amb.casuale() * ALFABETO_CODICE.length)]).join("");
     try {
-      const partitaId = await archivio.creaPartita({ creatore: utente, nickname, codice, gioco, opzioni, maxGiocatori: max as number, avatar });
+      const partitaId = await archivio.creaPartita({ creatore: utente, nickname, codice, gioco, opzioni, maxGiocatori: max as number, avatar, pubblica });
       return { ok: true, partitaId, codice };
     } catch (e) {
       if (!(e instanceof ErroreArchivio && e.codice === "CODICE_DUPLICATO")) throw e;

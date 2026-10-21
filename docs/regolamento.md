@@ -8,7 +8,7 @@ Il gioco usa tre mazzi: carte numero per formare i codici, personaggi da attivar
 | --- | --- | --- |
 | Carte numero | 56 carte, valori 1–8, 7 copie per valore; 3 di queste (un 3, un 4 e un 5) hanno le frecce | Formare i codici di attivazione |
 | Personaggi | 55 carte (42 personaggi diversi, alcuni in più copie); facili da aggiungere | Si attivano per fare punti e ottenere poteri |
-| Diamanti | 20 carte: 2 per ogni valore 1–8 + 4 fulmini | Valori extra per i codici; il fulmine dà una mossa in più |
+| Diamanti | 20 carte: 2 per ogni valore 1–8 + 4 fulmini | Valori extra per i codici; il fulmine dà una mossa in più oppure fa +1 a una carta |
 
 Ogni personaggio ha:
 
@@ -161,7 +161,8 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Tremotino: ogni 3 in mano, carta o diamante con valore 3, può valere qualsiasi numero da 1 a 8.
 - Una sola modifica per carta: un diamante +1/−1 oppure un potere (Tremotino, Robin Hood), non entrambi.
 - Una carta virtuale (nano, fenice, drago) si usa una sola volta per turno, quindi al massimo una volta nello stesso codice.
-- Il fulmine non ha un numero, quindi non può fare da carta in un codice. L'unico caso in cui entra in un codice è Capitan Uncino ("un diamante qualsiasi, anche un fulmine").
+- Il fulmine non ha un numero, quindi non può fare da carta in un codice (salvo Capitan Uncino, "un diamante qualsiasi, anche un fulmine").
+- Il fulmine però può fare **+1** a una carta (e −1 con Xena), come un diamante con valore (deciso il 2026-10-21): si sceglie se usarlo così o come mossa in più; in entrambi i casi poi si scarta.
 - Capitan Uncino pagato con un fulmine: il fulmine si consuma come pagamento e non dà la mossa in più. Un diamante con valore usato come "diamante qualsiasi" conta solo come diamante, non col suo numero.
 
 **Decisioni prese (turno e poteri, 2026-10-17)**

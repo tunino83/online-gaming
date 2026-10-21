@@ -9,15 +9,16 @@
  * Le mosse possibili le calcola sempre il server.
  */
 import { type CartaDiamante, type CartaPersonaggio, type Evento, type Mossa, type VistaGiocatore, personaggio } from "@og/ufficio";
-import { BookOpen, ChevronLeft, ChevronRight, Flame, MonitorPlay, ScrollText, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Flame, MonitorPlay, Moon, MoreHorizontal, ScrollText, Sun, Users, Volume2, VolumeX, Wand2 } from "lucide-react";
 import { QrCodice, linkTavolo } from "../../QrCodice";
 import { type CSSProperties, type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { AvatarPunti } from "../../Avatar";
-import { impostaSuoni, suonoMossa, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
+import { AvatarPunti, CerchioAvatar } from "../../Avatar";
+import { cambiaTema, useTema } from "../../lib/tema";
+import { impostaSuoni, suonoMischia, suonoPerAzione, suonoTuoTurno, useSuoniAttivi } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
-import { BottoneTema, Caricamento, Errore, Riquadro } from "../../ui";
+import { Caricamento, Errore, Riquadro } from "../../ui";
 import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
@@ -106,7 +107,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const [primoPiano, setPrimoPiano] = useState<{ carta: CartaDaMostrare; titolo?: string; azione?: () => void } | null>(null);
   const [daScartare, setDaScartare] = useState<string[]>([]);
   const [daAttivare, setDaAttivare] = useState<string | null>(null);
-  const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | "schermo" | null>(null);
+  const [foglio, setFoglio] = useState<"tavolo" | "storico" | "regole" | "schermo" | "menu" | null>(null);
   const [registroAperto, setRegistroAperto] = useState(false);
   const [biancaneveNo, setBiancaneveNo] = useState<number | null>(null);
   const [fulmineNo, setFulmineNo] = useState<number | null>(null);
@@ -175,16 +176,28 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
   // Registro: animazioni di attivazione (tutti) e fumetto con l'ultima mossa degli altri
   const ultimoEvento = useRef<number | null>(null);
+  const mazziPrima = useRef<{ numeri: number; personaggi: number } | null>(null);
   useEffect(() => {
     if (!riga) return;
     const registro = riga.vista.registro ?? [];
     const ultimo = registro.at(-1)?.n ?? 0;
     if (ultimoEvento.current === null) {
       ultimoEvento.current = ultimo; // primo caricamento: niente animazioni per il passato
+      mazziPrima.current = { numeri: riga.vista.mazzi.numeri, personaggi: riga.vista.mazzi.personaggi };
       return;
     }
     const nuovi = registro.filter((e) => e.n > ultimoEvento.current!);
     ultimoEvento.current = Math.max(ultimoEvento.current, ultimo);
+    // Un suono per ogni azione (al massimo le ultime 3, una dopo l'altra); il mazzo rimescolato fa il suo rumore
+    nuovi
+      .filter((e) => e.tipo !== "attiva")
+      .slice(-3)
+      .forEach((e, i) => setTimeout(() => suonoPerAzione(e.tipo, e as { scartate?: number }), i * 180));
+    const mazzi = riga.vista.mazzi;
+    const primaMazzi = mazziPrima.current;
+    mazziPrima.current = { numeri: mazzi.numeri, personaggi: mazzi.personaggi };
+    if (primaMazzi && (mazzi.numeri > primaMazzi.numeri + 1 || mazzi.personaggi > primaMazzi.personaggi + 1)) setTimeout(suonoMischia, 250);
+
     const attivazioni = nuovi.filter((e): e is Attivazione => e.tipo === "attiva");
     if (attivazioni.length > 0) setCodaAttivazioni((c) => [...c, ...attivazioni]);
     // fumetto: l'ultima mossa degli altri, oppure il cambio dei personaggi per una carta con le frecce (anche se l'ho fatta uscire io)
@@ -199,8 +212,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     return () => clearTimeout(t);
   }, [fumetto]);
 
-  // Suoni e banner: "tic" a ogni mossa, melodia e "Tocca a te!" quando diventa il mio turno
+  // Melodia e "Tocca a te!" quando diventa il mio turno (i suoni delle azioni li fa il registro, sopra)
   const suoni = useSuoniAttivi();
+  const tema = useTema();
   const precedente = useRef<{ versione: number; turnoDi: string } | null>(null);
   useEffect(() => {
     if (!riga) return;
@@ -211,7 +225,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     if (ora.turnoDi === io && prima.turnoDi !== io && !riga.vista.finita) {
       suonoTuoTurno();
       setBanner(Date.now());
-    } else suonoMossa();
+    }
   }, [riga, io]);
   useEffect(() => {
     if (!banner) return;
@@ -379,38 +393,34 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         <div className={`mx-auto max-w-md px-3 pt-2 pb-2 md:max-w-2xl ${grande ? "flex !max-w-6xl items-center gap-3" : ""}`}>
           <div className={grande ? "w-[24rem] shrink-0" : ""}>
           <div className="flex items-center gap-1.5">
+            {/* chi sta giocando: avatar, nome per intero e mosse rimaste */}
             <div
-              className={`min-w-0 flex-1 truncate rounded-full px-3 py-1 font-titolo text-sm font-bold ${
+              className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-full py-0.5 pr-1 pl-0.5 font-titolo font-bold shadow ${
                 v.finita
-                  ? "bg-oro text-[#2b1a05]"
+                  ? "bg-oro pl-3 text-[#2b1a05]"
                   : mioTurno
                     ? "bg-gradient-to-r from-[#e3c06a] to-[#b8892b] text-[#2b1a05]"
-                    : "border border-oro/40 text-luce"
+                    : "bg-gradient-to-r from-[#2f6fb3] to-[#1f4f8f] text-white"
               }`}
+              aria-live="polite"
             >
-              {v.finita
-                ? "Partita finita"
-                : mioTurno
-                  ? `Tocca a te · ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}`
-                  : `Tocca ${aPersona(nick(v.turno.giocatore))}…`}
+              {!v.finita && <CerchioAvatar id={avatarDi(v.turno.giocatore)} dimensione={28} />}
+              <span className="min-w-0 truncate text-[15px] leading-tight">
+                {v.finita ? "Partita finita" : mioTurno ? "Tocca a te!" : `Tocca ${aPersona(nick(v.turno.giocatore))}`}
+              </span>
+              {!v.finita && (
+                <span className="ml-auto shrink-0 rounded-full bg-black/20 px-2 py-0.5 font-sans text-[11px] whitespace-nowrap">
+                  {v.turno.mosseRimaste} {v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}
+                </span>
+              )}
             </div>
             {conPersone && <PulsanteVocale partitaId={partita.id} />}
             <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
               <Users size={17} />
             </BottoneIcona>
-            <BottoneIcona etichetta="Ultime mosse" onClick={() => setFoglio("storico")}>
-              <ScrollText size={17} />
+            <BottoneIcona etichetta="Altro: ultime mosse, regole, schermo, suoni, tema" onClick={() => setFoglio("menu")}>
+              <MoreHorizontal size={17} />
             </BottoneIcona>
-            <BottoneIcona etichetta="Come si gioca" onClick={() => setFoglio("regole")}>
-              <BookOpen size={17} />
-            </BottoneIcona>
-            <BottoneIcona etichetta="Schermo del tavolo e spettatori" onClick={() => setFoglio("schermo")}>
-              <MonitorPlay size={17} />
-            </BottoneIcona>
-            <BottoneIcona etichetta={suoni ? "Spegni i suoni" : "Accendi i suoni"} onClick={() => impostaSuoni(!suoni)}>
-              {suoni ? <Volume2 size={17} /> : <VolumeX size={17} />}
-            </BottoneIcona>
-            <BottoneTema />
           </div>
           {fineVicina && (
             <p className="mt-1 inline-block rounded-full bg-rosso px-2.5 py-0.5 text-xs font-bold text-white">
@@ -685,6 +695,25 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           )}
         </Foglio>
       )}
+      {foglio === "menu" && (
+        <Foglio titolo="Menu" onChiudi={() => setFoglio(null)}>
+          <div className="grid gap-2">
+            <VoceMenu icona={<ScrollText size={20} />} testo="Ultime mosse" onClick={() => setFoglio("storico")} />
+            <VoceMenu icona={<BookOpen size={20} />} testo="Come si gioca" onClick={() => setFoglio("regole")} />
+            <VoceMenu icona={<MonitorPlay size={20} />} testo="Schermo del tavolo e spettatori" onClick={() => setFoglio("schermo")} />
+            <VoceMenu
+              icona={suoni ? <Volume2 size={20} /> : <VolumeX size={20} />}
+              testo={suoni ? "Suoni accesi (tocca per spegnere)" : "Suoni spenti (tocca per accendere)"}
+              onClick={() => impostaSuoni(!suoni)}
+            />
+            <VoceMenu
+              icona={tema === "scuro" ? <Sun size={20} /> : <Moon size={20} />}
+              testo={tema === "scuro" ? "Passa al tema chiaro" : "Passa al tema scuro"}
+              onClick={cambiaTema}
+            />
+          </div>
+        </Foglio>
+      )}
       {foglio === "schermo" && (
         <Foglio titolo="📺 Schermo del tavolo" onChiudi={() => setFoglio(null)}>
           <p className="mb-3 text-sm">
@@ -796,6 +825,19 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 /* ------------------------------------------------------------------ */
 /* Pezzi grafici                                                       */
 /* ------------------------------------------------------------------ */
+
+function VoceMenu({ icona, testo, onClick }: { icona: React.ReactNode; testo: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-3 rounded-xl border border-inchiostro/15 bg-white/60 px-4 py-3 text-left font-semibold hover:bg-white"
+    >
+      <span className="text-blu">{icona}</span>
+      {testo}
+    </button>
+  );
+}
 
 function BottoneIcona({ etichetta, onClick, children }: { etichetta: string; onClick: () => void; children: React.ReactNode }) {
   return (

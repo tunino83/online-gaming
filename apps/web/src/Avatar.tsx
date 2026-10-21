@@ -2,10 +2,14 @@
 import { AVATAR, STILI_AVATAR, type StileAvatar, avatar, avatarCasuale, stileAvatar } from "@og/engine";
 import { Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { immagineAvatar } from "./lib/disegnaAvatar";
+import { eDisegnato, useImmagineAvatar } from "./lib/disegnaAvatar";
 
 export function CerchioAvatar({ id, dimensione = 36, titolo }: { id: string | null | undefined; dimensione?: number; titolo?: string }) {
-  const disegno = id ? immagineAvatar(id) : null;
+  const disegno = useImmagineAvatar(id);
+  if (eDisegnato(id) && !disegno) {
+    // la libreria dei disegni sta arrivando: un cerchio vuoto al suo posto
+    return <span className="inline-block shrink-0 rounded-full border-2 border-white bg-white/40 shadow" style={{ width: dimensione, height: dimensione }} />;
+  }
   if (disegno) {
     return (
       <img

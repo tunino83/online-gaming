@@ -361,3 +361,27 @@ describe("gioco Ufficio (clone di Il Portale)", () => {
   });
 });
 
+describe("partite aperte (lista nella pagina iniziale)", () => {
+  it("elenca le partite in attesa non piene e pubbliche; non quelle private, piene, avviate o contro il computer", async () => {
+    const { chiedi } = prepara(31);
+    const crea = async (u: string, r: Record<string, unknown>) => (await chiedi(u, { azione: "crea", ...r })) as { ok: true; codice: string };
+    const aperta = await crea(A, { nickname: "Anna", maxGiocatori: 3 });
+    const privata = await crea(A, { nickname: "Anna", pubblica: false });
+    const piena = await crea(B, { nickname: "Bruno", maxGiocatori: 2 });
+    await chiedi(C, { azione: "unisciti", codice: piena.codice, nickname: "Carla" });
+    await chiedi(C, { azione: "controComputer", nickname: "Carla", bot: 1 });
+    const r = (await chiedi(C, { azione: "aperte" })) as unknown as { ok: true; partite: { codice: string; creatore: string; giocatori: number; maxGiocatori: number; gioco: string }[] };
+    expect(r.ok).toBe(true);
+    expect(r.partite.map((p) => p.codice)).toEqual([aperta.codice]);
+    expect(r.partite[0]).toMatchObject({ creatore: "Anna", giocatori: 1, maxGiocatori: 3, gioco: "primo-gioco" });
+    expect(privata.ok).toBe(true);
+    // entrando col codice della lista si gioca
+    expect(await chiedi(B, { azione: "unisciti", codice: aperta.codice, nickname: "Bruno" })).toMatchObject({ ok: true });
+  });
+
+  it("pubblica deve essere sì/no", async () => {
+    const { chiedi } = prepara(32);
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", pubblica: "forse" })).toEqual({ ok: false, errore: "Richiesta non valida" });
+  });
+});
+

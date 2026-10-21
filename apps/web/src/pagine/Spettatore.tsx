@@ -3,10 +3,11 @@
  * - /t/CODICE  entra come spettatore col codice d'invito (è il link del QR "schermo del tavolo");
  * - /guarda/ID la partita vista da fuori (schermo "tavolo").
  */
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { pigro } from "../lib/caricaPigro";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { TavoloSpettatore } from "../giochi/primo-gioco/TavoloSpettatore";
-import { TavoloSpettatore as TavoloSpettatoreUfficio } from "../giochi/ufficio/TavoloSpettatore";
+const TavoloSpettatore = pigro(() => import("../giochi/primo-gioco/TavoloSpettatore").then((m) => m.TavoloSpettatore));
+const TavoloSpettatoreUfficio = pigro(() => import("../giochi/ufficio/TavoloSpettatore").then((m) => m.TavoloSpettatore));
 import { chiediArbitro } from "../lib/supabase";
 import { usePartita } from "../lib/usePartita";
 import { Caricamento, Errore, Pagina, Riquadro } from "../ui";
@@ -66,7 +67,14 @@ export function Spettatore() {
       </Pagina>
     );
   }
-  if (partita.gioco === "ufficio") return <TavoloSpettatoreUfficio partita={partita} giocatori={giocatori} />;
-  if (partita.gioco !== "primo-gioco") return <Pagina><Errore testo="Gioco non ancora disponibile nel browser." /></Pagina>;
-  return <TavoloSpettatore partita={partita} giocatori={giocatori} />;
+  if (partita.gioco !== "primo-gioco" && partita.gioco !== "ufficio") return <Pagina><Errore testo="Gioco non ancora disponibile nel browser." /></Pagina>;
+  return (
+    <Suspense fallback={<Pagina><Caricamento testo="Apro il tavolo…" /></Pagina>}>
+      {partita.gioco === "ufficio" ? (
+        <TavoloSpettatoreUfficio partita={partita} giocatori={giocatori} />
+      ) : (
+        <TavoloSpettatore partita={partita} giocatori={giocatori} />
+      )}
+    </Suspense>
+  );
 }

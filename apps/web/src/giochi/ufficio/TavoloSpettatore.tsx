@@ -7,7 +7,7 @@
 import { type CartaPersonaggio, type Evento, type VistaGiocatore } from "@og/ufficio";
 import { Eye, Volume2, VolumeX } from "lucide-react";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { impostaSuoni, suonoMossa, useSuoniAttivi } from "../../lib/suoni";
+import { impostaSuoni, suonoPerAzione, useSuoniAttivi } from "../../lib/suoni";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVistaPubblica } from "../../lib/useVistaPubblica";
 import { BottoneTema, Caricamento, Errore, Riquadro } from "../../ui";
@@ -93,7 +93,10 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
     const nuovi = registro.filter((e) => e.n > ultimo.current!);
     ultimo.current = Math.max(ultimo.current, n);
     if (nuovi.length === 0) return;
-    suonoMossa();
+    nuovi
+      .filter((e) => e.tipo !== "attiva")
+      .slice(-3)
+      .forEach((e, i) => setTimeout(() => suonoPerAzione(e.tipo, e as { scartate?: number }), i * 180));
     const attivazioni = nuovi.filter((e): e is Attivazione => e.tipo === "attiva");
     if (attivazioni.length > 0) setCoda((c) => [...c, ...attivazioni]);
     const racconto = [...nuovi].reverse().find((e) => significativo(e) && e.tipo !== "attiva");

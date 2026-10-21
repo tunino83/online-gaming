@@ -6,6 +6,7 @@ import { immaginePersonaggio } from "../giochi/primo-gioco/skin";
 import { chiediArbitro } from "../lib/supabase";
 import { avatarSalvato, nicknameSalvato, salvaAvatar, salvaNickname } from "../lib/ricordi";
 import { SceltaAvatar } from "../Avatar";
+import { PartiteAperte } from "./PartiteAperte";
 import { Campo, Errore, Pagina, Pulsante, Riquadro } from "../ui";
 
 /** Giochi che si possono scegliere (id tecnico come nell'arbitro). */
@@ -32,6 +33,7 @@ export function Home() {
   const [inCorso, setInCorso] = useState(false);
   const [errore, setErrore] = useState<string | null>(null);
   const [bot, setBot] = useState(1);
+  const [pubblica, setPubblica] = useState(true);
   const [gioco, setGioco] = useState<IdGioco>(giocoSalvato);
   const scelto = GIOCHI.find((g) => g.id === gioco)!;
   const carte = scelto.personaggi.reduce((totale, p) => totale + p.copie, 0);
@@ -50,7 +52,20 @@ export function Home() {
     setErrore(null);
     salvaNickname(nickname);
     salvaAvatar(avatarId);
-    const r = await chiediArbitro({ azione: "crea", gioco, nickname, avatar: avatarId, maxGiocatori, opzioni: { puntiPerVincere: punti } });
+    const r = await chiediArbitro({ azione: "crea", gioco, nickname, avatar: avatarId, maxGiocatori, pubblica, opzioni: { puntiPerVincere: punti } });
+    setInCorso(false);
+    if (!r.ok) return setErrore(r.errore);
+    vai(`/partita/${r.partitaId}`);
+  }
+
+  /** Entra in una partita della lista "partite aperte". */
+  async function entraAperta(codice: string) {
+    if (!nickname.trim()) return setErrore("Scegli prima un nickname");
+    setInCorso(true);
+    setErrore(null);
+    salvaNickname(nickname);
+    salvaAvatar(avatarId);
+    const r = await chiediArbitro({ azione: "unisciti", codice, nickname, avatar: avatarId });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -143,11 +158,18 @@ export function Home() {
               onChange={(e) => setPunti(Number(e.target.value))}
             />
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={pubblica} onChange={(e) => setPubblica(e.target.checked)} className="h-4 w-4 accent-[#b8892b]" />
+            Mostrala tra le partite aperte (chiunque può entrare)
+          </label>
           <Errore testo={errore} />
           <Pulsante type="submit" disabled={inCorso || !nickname.trim()}>
             {inCorso ? "Creo la partita…" : "Crea una partita"}
           </Pulsante>
         </form>
+        <div className="mt-5 border-t-2 border-dashed border-inchiostro/15 pt-4">
+          <PartiteAperte onEntra={entraAperta} inCorso={inCorso} />
+        </div>
         <div className="mt-5 border-t-2 border-dashed border-inchiostro/15 pt-4">
           <p className="text-sm font-semibold">Modalità di prova</p>
           <p className="mb-2 text-xs text-tenue">Giochi subito contro il computer, che sceglie mosse a caso. Utile per provare il gioco.</p>
