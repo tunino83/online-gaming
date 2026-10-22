@@ -442,3 +442,79 @@ button.carta:disabled { cursor: wait; opacity: 0.7; }
 .carta.rosso .tipo::before { content: "① "; }
 .carta.speciale .tipo::before { content: "✦ "; }
 .carta.misto .tipo::before { content: "①∞ "; }
+
+/* ---------- Carta personaggio: immagine grande, potere in una riga, codice in fondo ---------- */
+.carta.personaggio .cornice { padding: 0.32em; }
+.carta.personaggio .arte {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  margin-top: 0;
+  position: relative;
+  border-radius: 0.4em;
+}
+.carta.personaggio .arte img { object-position: 50% 25%; }
+.carta.personaggio .codice { margin-top: 0.3em; flex: none; }
+/* il potere breve, sovrapposto in fondo all'immagine */
+.carta.personaggio .potere-breve {
+  position: absolute;
+  left: 0.3em;
+  right: 0.3em;
+  bottom: 0.3em;
+  display: flex;
+  gap: 0.25em;
+  justify-content: center;
+  pointer-events: none;
+}
+.carta.personaggio .potere-breve .voce {
+  line-height: 1.25;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  min-width: 0;
+  max-width: 100%;
+  background: rgb(255 255 255 / 0.92);
+  border: 0.1em solid var(--c);
+  border-radius: 99em;
+  padding: 0.12em 0.5em;
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--scuro);
+  white-space: nowrap;
+  box-shadow: 0 0.05em 0.2em rgb(0 0 0 / 0.3);
+}
+.carta.personaggio .potere-breve .parole { overflow: hidden; text-overflow: ellipsis; }
+.carta.personaggio .potere-breve .icona { font-size: 1.1em; line-height: 1; }
+/* più di un potere: pastiglie più strette */
+.carta.personaggio .potere-breve:has(.voce + .voce) .voce { padding: 0.12em 0.35em; font-size: 0.7em; }
+/* carte piccole: solo le icone del potere, più grandi */
+.carta.personaggio.compatta .arte { height: auto; }
+.carta.personaggio.compatta .potere-breve .parole { display: none; }
+.carta.personaggio.compatta .potere-breve .voce { font-size: 1.15em; padding: 0.05em 0.25em; }
+
+/* Pulsante ⓘ sulle carte da giocare: apre la carta grande con tutte le informazioni */
+.carta-con-info {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  font-size: calc(var(--larghezza, 180px) / 12);
+}
+.carta-con-info > .carta { font-size: calc(var(--larghezza, 180px) / 12); }
+.info-carta {
+  position: absolute;
+  top: 0.35em;
+  left: 0.35em;
+  z-index: 3;
+  width: max(1.9em, 20px);
+  height: max(1.9em, 20px);
+  border-radius: 50%;
+  border: 0.12em solid #1f4f8f;
+  background: rgb(255 255 255 / 0.95);
+  color: #1f4f8f;
+  font: italic 700 max(1.2em, 12px) / 1 Georgia, serif;
+  display: grid;
+  place-items: center;
+  cursor: help;
+  box-shadow: 0 0.05em 0.2em rgb(0 0 0 / 0.35);
+}
+

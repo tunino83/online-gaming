@@ -199,7 +199,7 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
               <span className="mx-1 self-stretch border-l border-dashed border-white/20" />
               {v.tavolo.personaggi.map((c, i) =>
                 c ? (
-                  <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={pers} onIngrandisci={ingrandisci(c)} onTocca={ingrandisci(c)} />
+                  <CartaPersonaggioGrafica key={c.id} id={c.personaggio} larghezza={pers} onIngrandisci={ingrandisci(c)} />
                 ) : (
                   <PostoVuoto key={`p${i}`} larghezza={pers} />
                 ),

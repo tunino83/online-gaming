@@ -8,8 +8,10 @@ Per una nuova skin (es. `bambini/`): crea la cartella, mettici le immagini con g
 aggiungerla all'elenco delle skin. I personaggi che mancano nella nuova skin usano l'immagine della classica.
 Le cartelle che iniziano con `_` (es. `_originali/`) non sono skin e non vanno online.
 
-Formato consigliato: **solo l'illustrazione** (niente cornice, numeri o testi: li disegna l'app),
-un po' più larga che alta, circa **5:4** (es. 1000 × 800 pixel); viene ritagliata per riempire lo spazio.
+Formato consigliato (dal 2026-10-22, carte con immagine grande): **solo l'illustrazione** (niente cornice, numeri o testi:
+li disegna l'app), **verticale**, circa **5:6** (es. **1000 × 1200 pixel**), con il soggetto al centro e la testa nella metà alta.
+Le immagini di forma diversa vengono ritagliate da sola per riempire la carta (si vede la parte centrale, un po' verso l'alto):
+quelle molto larghe (es. 1000 × 545) perdono più di metà dell'immagine ai lati, quindi conviene rifarle verticali.
 L'app la usa da sola; per l'anteprima lancia `pnpm carte`. Per vederla online va salvata su GitHub.
 Le immagini più larghe di 1000 pixel vengono ridotte; gli originali restano in `_originali/` (non pubblicata).
 Anteprima di una skin: `pnpm carte bambini` (crea `docs/anteprima-carte-bambini.html`).

@@ -215,6 +215,20 @@ export function etichettaPotere(e: Effetto): { icona: string; testo: string } {
       return { icona: "🍀", testo: "3 = jolly" };
     case "dueInDiamante":
       return { icona: "🍎", testo: "2 → ◆" };
+    case "scartaPersonaggioAvversario":
+      return { icona: "🐍", testo: "scarta un avversario" };
+    case "tieniUnaCartaDelCodice":
+      return { icona: "🐾", testo: "tieni 1 carta" };
+    case "riceviDiamanti":
+      return { icona: "💎", testo: `+${e.quanti} diamant${e.quanti === 1 ? "e" : "i"}` };
+    case "mosseExtraOra":
+      return { icona: "⚡", testo: `+${e.mosse} mosse ora` };
+    case "mossaExtraAlSuccessivo":
+      return { icona: "👻", testo: "+1 mossa al prossimo" };
+    case "rubaCarta":
+      return { icona: "🧚", testo: "ruba 1 carta" };
+    case "attivabileDaVicini":
+      return { icona: "✦", testo: "anche dai vicini" };
     default:
       return { icona: "✨", testo: "potere" };
   }

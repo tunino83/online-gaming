@@ -21,7 +21,7 @@ export function CatalogoCarte() {
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {PERSONAGGI.map((p) => (
           <li key={p.id} className="flex flex-col items-center gap-1 rounded-xl border border-inchiostro/15 bg-white/50 p-2 text-center">
-            <CartaPersonaggioGrafica id={p.id} larghezza={120} onIngrandisci={() => setAperta(p.id)} onTocca={() => setAperta(p.id)} />
+            <CartaPersonaggioGrafica id={p.id} larghezza={120} onIngrandisci={() => setAperta(p.id)} />
             <p className="font-titolo text-sm leading-tight font-bold">{p.nome}</p>
             <p className="text-xs">
               <strong>Si attiva con:</strong> {p.codiceTesto}

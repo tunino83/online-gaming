@@ -3,7 +3,7 @@
  * o per vedere la carta appena pescata. Si chiude con "OK" o toccando fuori.
  * Con un elenco di personaggi diventa un carosello: frecce, swipe laterale o tasti ← → per sfogliarli tutti.
  */
-import { personaggio } from "@og/ufficio";
+import { personaggio, tipoCarta } from "@og/ufficio";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica } from "./carte";
@@ -83,6 +83,24 @@ export function PrimoPiano({
         {p && (
           <div className="max-w-[320px] text-center text-white drop-shadow">
             <p className="font-titolo text-lg font-bold">{p.nome}</p>
+            <div className="mx-auto mt-1 max-w-[320px] rounded-xl bg-black/45 px-3 py-2 text-left text-sm leading-snug">
+              <p>
+                <strong>Si attiva con:</strong> {p.codiceTesto}
+              </p>
+              <p>
+                <strong>Punti:</strong> {p.punti}
+                {p.copie > 1 && ` · ${p.copie} copie nel mazzo`}
+              </p>
+              <p>
+                {p.poteri.length > 0 ? (
+                  <>
+                    <strong>Potere ({tipoCarta(p).etichetta.toLowerCase()}):</strong> {p.potereTesto}
+                  </>
+                ) : (
+                  <strong>Nessun potere</strong>
+                )}
+              </p>
+            </div>
             {carosello && (
               <p className="text-xs text-white/70">
                 {indice + 1} di {elenco!.length} · scorri di lato per vedere le altre

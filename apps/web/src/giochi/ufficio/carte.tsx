@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import "@fontsource/cinzel/700.css";
 import "./carte.css";
 
+import { etichettaPotere } from "./descrivi";
 import { immaginePersonaggio, useSkin } from "./skin";
 
 interface Comune {
@@ -26,6 +27,25 @@ function Contenitore({
   children,
 }: Comune & { classe: string; children: ReactNode }) {
   const stile = { "--larghezza": `${larghezza}px` } as CSSProperties;
+  if (onTocca && onIngrandisci) {
+    // carta da giocare: il tocco gioca, il pulsante ⓘ mostra la carta grande con tutte le informazioni
+    return (
+      <span className="carta-con-info" style={stile}>
+        <button type="button" className={`carta toccabile ${classe}`} style={stile} onClick={onTocca} disabled={disabilitata} title={titolo}>
+          {children}
+        </button>
+        <button
+          type="button"
+          className="info-carta"
+          onClick={onIngrandisci}
+          aria-label={`Informazioni su ${titolo ?? "questa carta"}`}
+          title="Informazioni sulla carta"
+        >
+          i
+        </button>
+      </span>
+    );
+  }
   if (!onTocca && onIngrandisci) {
     return (
       <button type="button" className={`carta ingrandibile ${classe}`} style={stile} onClick={onIngrandisci} title={titolo}>
@@ -70,8 +90,9 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
   const skin = useSkin();
   const img = immaginePersonaggio(p.id, skin);
   const pezzi = pezziCodice(p.codice);
+  const poteri = p.poteri.map((x) => etichettaPotere(x.effetto));
   return (
-    <Contenitore classe={`${colore} skin-${skin} ${compatta ? "compatta" : ""}`} titolo={comune.titolo ?? p.nome} {...comune}>
+    <Contenitore classe={`personaggio ${colore} skin-${skin} ${compatta ? "compatta" : ""}`} titolo={comune.titolo ?? p.nome} {...comune}>
       <span className="punti" aria-label={`${p.punti} punti`}>
         <span>{p.punti}</span>
       </span>
@@ -85,13 +106,24 @@ export function CartaPersonaggioGrafica({ id, compatta, ...comune }: Comune & { 
               <span className="nome">{p.nome}</span>
             </div>
           )}
+          {poteri.length > 0 && (
+            <span className="potere-breve" title={p.potereTesto}>
+              {poteri.map((x, i) => (
+                <span key={i} className="voce">
+                  <span className="icona" aria-hidden="true">
+                    {x.icona}
+                  </span>
+                  <span className="parole">{x.testo}</span>
+                </span>
+              ))}
+            </span>
+          )}
         </div>
         <div className={`codice ${pezzi.length >= 7 ? "lungo lunghissimo" : pezzi.length >= 5 ? "lungo" : ""}`} aria-label={`Codice: ${p.codiceTesto}`}>
           {pezzi.map((pz, i) => (
             <Pezzo key={i} p={pz} />
           ))}
         </div>
-        {p.poteri.length > 0 && <p className={`testo-potere ${p.potereTesto.length > 90 ? "lungo" : ""}`}>{p.potereTesto}</p>}
       </div>
     </Contenitore>
   );
