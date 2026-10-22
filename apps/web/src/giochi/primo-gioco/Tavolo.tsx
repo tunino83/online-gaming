@@ -369,6 +369,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const popupFulmine = !!giocaFulmine && mosseFinite && fulmineNo !== v.numeroTurno;
   const popupBiancaneve = !popupFulmine && !!scambioDue && mosseFinite && biancaneveNo !== v.numeroTurno;
   const quantiDue = v.mano.filter((c) => c.valore === 2).length;
+  const scambioDiamante = !!scambioDue && scambioDue.tipo === "dueInDiamante" && !v.mano.some((c) => c.id === scambioDue.carta);
   const chiudiSeNienteAltro = (restaBiancaneve: boolean) => {
     if (puoChiudere && eccesso === 0 && !conScheletro && !restaBiancaneve) chiudiTurno(false);
   };
@@ -816,7 +817,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       {popupBiancaneve && nessunPannello && (
         <Foglio titolo="🍎 Biancaneve">
           <p className="text-sm">
-            {quantiDue === 1
+            {scambioDiamante
+              ? "Hai un diamante 2: vuoi scambiarlo con un altro diamante pescato dal mazzo?"
+              : quantiDue === 1
               ? "Hai un 2 in mano: vuoi scambiarlo con un diamante pescato dal mazzo?"
               : `Hai ${quantiDue} carte 2 in mano: vuoi scambiarne una con un diamante pescato dal mazzo?`}
           </p>
@@ -1037,13 +1040,21 @@ function Scelte({
   );
 }
 
-function Diamanti({ diamanti }: { diamanti: CartaDiamante[] }) {
+function Diamanti({ diamanti, onTocca }: { diamanti: CartaDiamante[]; /** diamanti toccabili (es. il 2 con Biancaneve) */ onTocca?: (d: CartaDiamante) => (() => void) | undefined }) {
   if (diamanti.length === 0) return null;
   return (
     <div className="flex flex-wrap items-center">
-      {diamanti.map((d) => (
-        <Diamante key={d.id} d={d} />
-      ))}
+      {diamanti.map((d) => {
+        const azione = onTocca?.(d);
+        return azione ? (
+          <button key={d.id} type="button" onClick={azione} className="relative rounded-full ring-2 ring-oro" title="Scambialo con un altro diamante (Biancaneve)">
+            <Diamante d={d} />
+            <span className="pointer-events-none absolute -top-2 -right-1 text-xs" aria-hidden="true">🍎</span>
+          </button>
+        ) : (
+          <Diamante key={d.id} d={d} />
+        );
+      })}
     </div>
   );
 }
@@ -1201,7 +1212,14 @@ function BarraMieCarte({
 
         {mio.diamanti.length > 0 && (
           <div className="flex items-center justify-center text-xs">
-            <Diamanti diamanti={mio.diamanti} />
+            <Diamanti
+              diamanti={mio.diamanti}
+              onTocca={(d) =>
+                biancaneve && d.tipo === "valore" && d.valore === 2 && mosse.some((m) => m.tipo === "dueInDiamante" && m.carta === d.id)
+                  ? () => setDueDaScambiare(d.id)
+                  : undefined
+              }
+            />
           </div>
         )}
         </div>
@@ -1235,7 +1253,11 @@ function BarraMieCarte({
 
       {dueDaScambiare && (
         <Foglio titolo="🍎 Biancaneve" onChiudi={() => setDueDaScambiare(null)}>
-          <p className="text-sm">Scambiare questo 2 con un diamante pescato dal mazzo? Non costa mosse.</p>
+          <p className="text-sm">
+            {mio.diamanti.some((d) => d.id === dueDaScambiare)
+              ? "Scambiare questo diamante 2 con un altro diamante pescato dal mazzo? Non costa mosse."
+              : "Scambiare questo 2 con un diamante pescato dal mazzo? Non costa mosse."}
+          </p>
           <div className="my-3 flex justify-center">
             <CartaNumeroGrafica valore={2} larghezza={70} />
           </div>

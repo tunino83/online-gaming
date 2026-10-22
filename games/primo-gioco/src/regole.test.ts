@@ -583,10 +583,27 @@ describe("poteri blu", () => {
     expect(dopo.giocatori.A!.diamanti).toHaveLength(1);
     expect(dopo.scarti.numeri).toEqual([due]);
     expect(dopo.turno.mosseRimaste).toBe(3);
-    expect(errore(s, "A", { tipo: "dueInDiamante", carta: tre.id })).toBe("Serve un 2 in mano");
+    expect(errore(s, "A", { tipo: "dueInDiamante", carta: tre.id })).toBe("Serve un 2 in mano o un diamante 2");
     const senza = partita();
     senza.giocatori.A!.mano = [due];
     expect(errore(senza, "A", { tipo: "dueInDiamante", carta: due.id })).toBe("Serve Biancaneve");
+  });
+
+  it("Biancaneve: anche un diamante 2 si scambia con un altro diamante, senza usare mosse", () => {
+    const s = partita();
+    const d2 = dia(2);
+    const d5 = dia(5);
+    s.giocatori.A!.diamanti = [d2, d5];
+    s.giocatori.A!.attivati = [pers("biancaneve")];
+    expect(mosseValide(s, "A")).toContainEqual({ tipo: "dueInDiamante", carta: d2.id });
+    expect(mosseValide(s, "A")).not.toContainEqual({ tipo: "dueInDiamante", carta: d5.id });
+    const dopo = gioca(s, "A", { tipo: "dueInDiamante", carta: d2.id });
+    expect(dopo.giocatori.A!.diamanti).toHaveLength(2);
+    expect(dopo.giocatori.A!.diamanti.map((d) => d.id)).not.toContain(d2.id);
+    expect(dopo.scarti.diamanti).toEqual([d2]);
+    expect(dopo.turno.mosseRimaste).toBe(3);
+    expect(dopo.registro.at(-1)).toMatchObject({ tipo: "dueInDiamante", diamante: true });
+    expect(errore(s, "A", { tipo: "dueInDiamante", carta: d5.id })).toBe("Serve un 2 in mano o un diamante 2");
   });
 
   it("Mago: a inizio turno si vede la prima carta del mazzo personaggi, solo nel proprio turno", () => {

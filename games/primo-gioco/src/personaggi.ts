@@ -364,7 +364,7 @@ export const PERSONAGGI: Personaggio[] = [
     codice: esatto(2),
     punti: 0,
     potereTesto:
-      "Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa",
+      "Ricevi 1 diamante; ogni 2 in mano (carta o diamante) può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa",
     poteri: [diamanti(1), blu({ tipo: "dueInDiamante" })],
     copie: 1,
   },

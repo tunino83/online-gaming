@@ -321,12 +321,22 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     }
     case "dueInDiamante": {
       if (!ha(g, "dueInDiamante")) rifiuta("Serve Biancaneve");
-      const i = g.mano.findIndex((c) => c.id === m.carta);
-      if (i < 0 || g.mano[i]!.valore !== 2) rifiuta("Serve un 2 in mano");
       if (!puoPescare(s, "diamanti")) rifiuta("Non ci sono diamanti da pescare");
-      s.scarti.numeri.push(...g.mano.splice(i, 1));
-      g.diamanti.push(pesca(s, "diamanti")!);
-      registra(s, id, { tipo: "dueInDiamante" });
+      const i = g.mano.findIndex((c) => c.id === m.carta);
+      if (i >= 0 && g.mano[i]!.valore === 2) {
+        s.scarti.numeri.push(...g.mano.splice(i, 1));
+        g.diamanti.push(pesca(s, "diamanti")!);
+        registra(s, id, { tipo: "dueInDiamante" });
+        return;
+      }
+      // Anche un diamante 2 si scambia con un altro diamante (prima si pesca, poi si scarta il vecchio)
+      const j = g.diamanti.findIndex((d) => d.id === m.carta);
+      const d = g.diamanti[j];
+      if (!d || d.tipo !== "valore" || d.valore !== 2) rifiuta("Serve un 2 in mano o un diamante 2");
+      const nuovo = pesca(s, "diamanti")!;
+      s.scarti.diamanti.push(...g.diamanti.splice(j, 1));
+      g.diamanti.push(nuovo);
+      registra(s, id, { tipo: "dueInDiamante", diamante: true });
       return;
     }
     case "fineTurno":
@@ -564,7 +574,11 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
   const fulmine = g.diamanti.find((d) => d.tipo === "fulmine");
   if (fulmine) mosse.push({ tipo: "giocaFulmine", diamante: fulmine.id });
   const due = g.mano.find((c) => c.valore === 2);
-  if (due && ha(g, "dueInDiamante") && puoPescare(s, "diamanti")) mosse.push({ tipo: "dueInDiamante", carta: due.id });
+  if (ha(g, "dueInDiamante") && puoPescare(s, "diamanti")) {
+    if (due) mosse.push({ tipo: "dueInDiamante", carta: due.id });
+    const diamanteDue = g.diamanti.find((d) => d.tipo === "valore" && d.valore === 2);
+    if (diamanteDue) mosse.push({ tipo: "dueInDiamante", carta: diamanteDue.id });
+  }
   const tavoloNumeriPieno = s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri");
   if (ha(g, "bruciaGratis") && !t.iniziato && !t.bruciaGratisUsata && tavoloNumeriPieno) mosse.push({ tipo: "bruciaGratis" });
 
@@ -650,8 +664,9 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (g.diamanti.some((d) => d.tipo === "fulmine")) return null; // può ancora giocare il fulmine
   if (g.mano.length > limiteMano(s, g)) return null; // deve scegliere cosa scartare
   if (ha(g, "cambiaMano")) return null; // Scheletro: può cambiare la mano a fine turno
-  // Biancaneve con un 2 in mano: il giocatore sceglie se scambiarlo con un diamante
-  if (ha(g, "dueInDiamante") && g.mano.some((c) => c.valore === 2) && puoPescare(s, "diamanti")) return null;
+  // Biancaneve con un 2 in mano (o un diamante 2): il giocatore sceglie se scambiarlo con un diamante
+  const haUnDue = g.mano.some((c) => c.valore === 2) || g.diamanti.some((d) => d.tipo === "valore" && d.valore === 2);
+  if (ha(g, "dueInDiamante") && haUnDue && puoPescare(s, "diamanti")) return null;
   return { giocatore, mossa: { tipo: "fineTurno", scarta: [], cambiaMano: false } };
 }
 

@@ -103,7 +103,7 @@ export type DatiEvento =
     }
   | { tipo: "scartaPersonaggio"; personaggio: string }
   | { tipo: "fulmine" }
-  | { tipo: "dueInDiamante" }
+  | { tipo: "dueInDiamante"; /** scambiato un diamante 2 (non una carta 2) */ diamante?: true }
   | { tipo: "scambiaConTavolo"; dato: string; preso: string }
   | { tipo: "prendiDaFatina"; da: IdGiocatore }
   | { tipo: "fineTurno"; scartate: number; cambiaMano: boolean }

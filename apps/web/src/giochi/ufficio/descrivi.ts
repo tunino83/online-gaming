@@ -167,7 +167,7 @@ export function descriviEvento(e: Evento, nickname: (id: string) => string, io: 
     case "fulmine":
       return `${chi} giocato un fulmine (+1 mossa)`;
     case "dueInDiamante":
-      return `${chi} scambiato un 2 con un diamante (Biancaneve)`;
+      return `${chi} scambiato ${e.diamante ? "un diamante 2" : "un 2"} con un diamante (Biancaneve)`;
     case "scambiaConTavolo":
       return `${chi} scambiato ${nome(e.dato)} con ${nome(e.preso)} del tavolo (Cappellaio)`;
     case "prendiDaFatina":

@@ -137,7 +137,7 @@ Nell'app lo stesso elenco, con le carte disegnate, è in "Come si gioca" → "Tu
 | <img src="../games/primo-gioco/immagini/classica/xena.jpg" width="90" alt="Xena"> | Xena | 357 | 1 | Ricevi 1 diamante; da quel momento i tuoi diamanti possono fare anche −1 al valore di una carta | Rosso + Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/capitan-uncino.jpg" width="90" alt="Capitan Uncino"> | Capitan Uncino | 222 + un diamante qualsiasi (obbligatorio, anche un fulmine) | 3 | Nessuno | — | 1 |
 | <img src="../games/primo-gioco/immagini/classica/folletto.jpg" width="90" alt="Tremotino"> | Tremotino | 333 | 1 | Ogni 3 in mano può valere qualsiasi numero da 1 a 8 | Blu | 1 |
-| <img src="../games/primo-gioco/immagini/classica/biancaneve.png" width="90" alt="Biancaneve"> | Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
+| <img src="../games/primo-gioco/immagini/classica/biancaneve.png" width="90" alt="Biancaneve"> | Biancaneve | 2 | 0 | Ricevi 1 diamante; ogni 2 in mano (carta o diamante) può essere scambiato con un diamante pescato dal mazzo diamanti, senza usare una mossa | Rosso + Blu | 1 |
 | <img src="../games/primo-gioco/immagini/classica/lucciola-444-555.jpg" width="90" alt="Lucciola 444/555"> | Lucciola 444/555 | 444 oppure 555 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 | <img src="../games/primo-gioco/immagini/classica/lucciola-333-666.jpg" width="90" alt="Lucciola 333/666"> | Lucciola 333/666 | 333 oppure 666 | 3 | Anche il giocatore prima o dopo chi la ha nei posti può attivarla, usando una mossa: i punti vanno a chi la attiva | Speciale | 1 |
 
@@ -178,6 +178,7 @@ Dubbi emersi in Fase 1 (2026-10-17). Tra parentesi la proposta di Claude, da con
 - Fatina: si può attivare anche se l'avversario ha la mano vuota (nessun effetto); si prendono solo carte numero, non diamanti.
 - Scheletro: si cambiano tutte le carte in mano o nessuna.
 - Biancaneve: il 2 scambiato va negli scarti numeri; lo scambio si fa solo nel proprio turno.
+- Biancaneve: anche un **diamante 2** si scambia con un altro diamante pescato dal mazzo (deciso il 2026-10-22); il diamante 2 va negli scarti diamanti.
 - Mago: la prima carta del mazzo personaggi si vede solo durante il proprio turno.
 - Cappellaio matto: lo scambio è facoltativo e si può fare anche con i posti pieni (è uno scambio 1 contro 1).
 
