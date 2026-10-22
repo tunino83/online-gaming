@@ -22,7 +22,7 @@ import { Caricamento, Errore, Riquadro } from "../../ui";
 import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
 import { PannelloAttivazione } from "./Attivazione";
-import { PanoramicaTavolo } from "./PanoramicaTavolo";
+import { PanoramicaTavolo, SchedaGiocatore } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, MiniCartaVirtuale, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento, descriviMossa, etichettaPotere, gruppoMossa, ordinePotere, raccogliCarte } from "./descrivi";
 import { TUTTI_I_PERSONAGGI } from "./Catalogo";
@@ -89,6 +89,10 @@ function useMedia(condizione: string): boolean {
 const useSchermoLargo = () => useMedia("(min-width: 768px)");
 /** Schermo da computer: barre su una sola riga e carte grandi, per sfruttare lo spazio. */
 const useSchermoGrande = () => useMedia("(min-width: 1280px) and (min-height: 600px)");
+/** Schermo da computer molto largo: c'è posto per il pannello laterale fisso con il tavolo. */
+const useConPannelloLaterale = () => useMedia("(min-width: 1400px) and (min-height: 600px)");
+/** Larghezza del pannello laterale (in pixel). */
+const LARGHEZZA_PANNELLO = 360;
 
 /** Eventi da raccontare: si salta il semplice "ha chiuso il turno". */
 const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 0 && !e.cambiaMano);
@@ -118,6 +122,15 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const inizioSwipe = useRef<number | null>(null);
   const largo = useSchermoLargo();
   const grande = useSchermoGrande();
+  const laterale = useConPannelloLaterale();
+  const destra = laterale ? LARGHEZZA_PANNELLO : 0;
+  // Con il pannello laterale la pagina si restringe a sinistra del pannello
+  useEffect(() => {
+    document.body.style.paddingRight = destra ? `${destra}px` : "";
+    return () => {
+      document.body.style.paddingRight = "";
+    };
+  }, [destra]);
   const finestra = useFinestra();
   // Telefono basso: barre più compatte, così resta spazio per il tavolo
   const basso = finestra.altezza < 720;
@@ -374,7 +387,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const larghezzaPosto = grande ? 92 : largo ? 72 : basso ? 46 : 58;
   const baseNumero = grande ? 120 : largo ? 64 : 52;
   const basePersonaggio = grande ? 250 : largo ? 140 : 112;
-  const larghezzaPanno = Math.min(finestra.larghezza, grande ? 1152 : largo ? 672 : 448) - 24 - 24;
+  const larghezzaPanno = Math.min(finestra.larghezza - destra, grande ? 1152 : largo ? 672 : 448) - 24 - 24;
   const spazioPanno = finestra.altezza - altezzaAlta - altezzaBassa - 16;
   const fisso = 24 + 10 + (basso ? 0 : 22) + (gratuite.length > 0 ? 34 : 0) + (v.primoPersonaggio ? 100 : 0);
   const rapporto = basePersonaggio / baseNumero;
@@ -389,7 +402,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   return (
     <>
       {/* ---------------- barra in alto ---------------- */}
-      <div ref={barraAlta} className="fixed inset-x-0 top-0 z-30 border-b-2 border-oro/60 bg-notte/90 shadow-[0_6px_20px_rgba(0,0,0,0.5)] backdrop-blur">
+      <div
+        ref={barraAlta}
+        className="fixed inset-x-0 top-0 z-30 border-b-2 border-oro/60 bg-notte/90 shadow-[0_6px_20px_rgba(0,0,0,0.5)] backdrop-blur"
+        style={{ right: destra }}
+      >
         <div className={`mx-auto max-w-md px-3 pt-2 pb-2 md:max-w-2xl ${grande ? "flex !max-w-6xl items-center gap-3" : ""}`}>
           <div className={grande ? "w-[24rem] shrink-0" : ""}>
           <div className="flex items-center gap-1.5">
@@ -415,9 +432,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
               )}
             </div>
             {conPersone && <PulsanteVocale partitaId={partita.id} />}
-            <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
-              <Users size={17} />
-            </BottoneIcona>
+            {!laterale && (
+              <BottoneIcona etichetta="Tavolo: tutti i giocatori" onClick={() => setFoglio("tavolo")}>
+                <Users size={17} />
+              </BottoneIcona>
+            )}
             <BottoneIcona etichetta="Altro: ultime mosse, regole, schermo, suoni, tema" onClick={() => setFoglio("menu")}>
               <MoreHorizontal size={17} />
             </BottoneIcona>
@@ -625,6 +644,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       {/* ---------------- barra in basso ---------------- */}
       <BarraMieCarte
         rif={barraBassa}
+        destra={destra}
         basso={basso}
         grande={grande}
         avatarId={avatarDi(io)}
@@ -648,6 +668,49 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
         }
         ingrandisci={ingrandisci}
       />
+
+      {/* ---------------- pannello laterale (solo su schermi molto larghi) ---------------- */}
+      {laterale && (
+        <aside
+          className="fixed top-0 right-0 bottom-0 z-30 flex flex-col border-l-2 border-oro/60 bg-notte/95 shadow-[-8px_0_24px_rgba(0,0,0,0.4)]"
+          style={{ width: LARGHEZZA_PANNELLO }}
+          aria-label="Tavolo: tutti i giocatori"
+        >
+          <h2 className="px-4 pt-3 pb-2 font-titolo text-lg font-bold text-oro-chiaro">👥 Tavolo</h2>
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 pb-3 text-inchiostro">
+            {v.ordine.map((id, posizione) => (
+              <SchedaGiocatore
+                key={id}
+                v={v}
+                id={id}
+                posizione={posizione}
+                io={io}
+                nick={nick}
+                avatarDi={avatarDi}
+                ingrandisci={ingrandisci}
+                massimo={Math.max(...v.ordine.map((x) => v.giocatori[x]!.punti))}
+              />
+            ))}
+            <section className="rounded-2xl border-2 border-inchiostro/15 bg-[#fbf3df] p-3">
+              <p className="mb-1 text-[11px] font-bold tracking-wide text-tenue uppercase">📜 Ultime mosse</p>
+              {eventi.length === 0 ? (
+                <p className="text-xs text-tenue">Ancora nessuna mossa.</p>
+              ) : (
+                <ol className="space-y-1 text-xs">
+                  {[...eventi]
+                    .reverse()
+                    .slice(0, 6)
+                    .map((e, i) => (
+                      <li key={e.n} className={i === 0 ? "font-semibold" : "text-tenue"}>
+                        {descriviEvento(e, nick, io)}
+                      </li>
+                    ))}
+                </ol>
+              )}
+            </section>
+          </div>
+        </aside>
+      )}
 
       {/* ---------------- pannelli ---------------- */}
       {foglio === "tavolo" && (
@@ -1019,6 +1082,7 @@ function Esito({ partita, v, nick, io }: { partita: Partita; v: VistaGiocatore; 
  */
 function BarraMieCarte({
   rif,
+  destra,
   basso,
   grande,
   avatarId,
@@ -1041,6 +1105,8 @@ function BarraMieCarte({
   ingrandisci,
 }: {
   rif: RefObject<HTMLDivElement>;
+  /** spazio lasciato a destra per il pannello laterale */
+  destra: number;
   basso: boolean;
   grande: boolean;
   avatarId?: string;
@@ -1079,7 +1145,11 @@ function BarraMieCarte({
   );
 
   return (
-    <div ref={rif} className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-oro/60 bg-notte/92 shadow-[0_-8px_24px_rgba(0,0,0,0.55)] backdrop-blur">
+    <div
+      ref={rif}
+      className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-oro/60 bg-notte/92 shadow-[0_-8px_24px_rgba(0,0,0,0.55)] backdrop-blur"
+      style={{ right: destra }}
+    >
       <div
         className={`mx-auto max-w-md px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] md:max-w-2xl ${grande ? "flex !max-w-6xl items-center gap-4" : ""}`}
       >

@@ -3,7 +3,7 @@
  * Non sa nulla di Supabase: legge e scrive tramite un `Archivio` (vedi archivio-*.ts),
  * così si può provare con un archivio in memoria.
  */
-import { AVATAR_PREDEFINITO, type Gioco, type IdGiocatore, avatarValido } from "@og/engine";
+import { AVATAR, AVATAR_PREDEFINITO, type Gioco, type IdGiocatore, avatarValido } from "@og/engine";
 import { primoGioco } from "@og/primo-gioco";
 import { giocoUfficio } from "@og/ufficio";
 
@@ -22,6 +22,7 @@ export type CodiceErroreArchivio =
   | "CODICE_NON_VALIDO"
   | "PARTITA_INIZIATA"
   | "PARTITA_PIENA"
+  | "AVATAR_PRESO"
   | "PARTITA_GIA_AVVIATA"
   | "CONFLITTO";
 
@@ -74,7 +75,7 @@ export interface Archivio {
   }): Promise<string>;
   /** Partite in attesa, pubbliche, non piene e create da poco (le più recenti prima). */
   elencaAperte(): Promise<PartitaAperta[]>;
-  /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA. Se si è già dentro, va bene. */
+  /** Errori CODICE_NON_VALIDO, PARTITA_INIZIATA, PARTITA_PIENA, AVATAR_PRESO. Se si è già dentro, va bene. */
   unisciti(p: { codice: string; utente: string; nickname: string; avatar: string }): Promise<string>;
   /** Entra come spettatore (anche a partita iniziata). Errore CODICE_NON_VALIDO. Chi gioca resta giocatore. */
   guarda(p: { codice: string; utente: string }): Promise<string>;
@@ -130,6 +131,7 @@ const MESSAGGI: Record<CodiceErroreArchivio, string> = {
   CODICE_NON_VALIDO: "Codice d'invito non valido",
   PARTITA_INIZIATA: "La partita è già iniziata: il link non è più valido",
   PARTITA_PIENA: "La partita è piena",
+  AVATAR_PRESO: "Questo avatar ce l'ha già un altro giocatore: scegline un altro",
   PARTITA_GIA_AVVIATA: "La partita è già stata avviata",
   CONFLITTO: "La partita è cambiata nel frattempo: riprova",
 };
@@ -337,8 +339,22 @@ async function unisciti(r: Record<string, unknown>, utente: string, archivio: Ar
   if (typeof r.codice !== "string") return errore("Codice d'invito non valido");
   const codice = r.codice.trim().toUpperCase();
   if (!/^[A-Z0-9]{4,8}$/.test(codice)) return errore("Codice d'invito non valido");
-  const partitaId = await archivio.unisciti({ codice, utente, nickname, avatar });
-  return { ok: true, partitaId };
+  if (r.avatar !== undefined) {
+    // avatar scelto: se ce l'ha già un altro giocatore, errore (se ne sceglie un altro)
+    const partitaId = await archivio.unisciti({ codice, utente, nickname, avatar });
+    return { ok: true, partitaId };
+  }
+  // nessuna scelta: il predefinito, oppure il primo classico libero
+  const candidati = [AVATAR_PREDEFINITO, ...AVATAR.map((a) => a.id).filter((id) => id !== AVATAR_PREDEFINITO && id !== "robot")];
+  for (const id of candidati) {
+    try {
+      const partitaId = await archivio.unisciti({ codice, utente, nickname, avatar: id });
+      return { ok: true, partitaId };
+    } catch (e) {
+      if (!(e instanceof ErroreArchivio && e.codice === "AVATAR_PRESO")) throw e;
+    }
+  }
+  return errore(MESSAGGI.AVATAR_PRESO);
 }
 
 /** Entra come spettatore con il codice d'invito: vale anche a partita iniziata o finita. */

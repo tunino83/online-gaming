@@ -385,3 +385,22 @@ describe("partite aperte (lista nella pagina iniziale)", () => {
   });
 });
 
+describe("avatar unici nella partita", () => {
+  it("non si entra con l'avatar di un altro giocatore; con un altro sì", async () => {
+    const t = prepara(41);
+    const creata = (await t.chiedi(A, { azione: "crea", nickname: "Anna", avatar: "volpe" })) as { ok: true; codice: string };
+    expect(await t.chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno", avatar: "volpe" })).toEqual({
+      ok: false,
+      errore: "Questo avatar ce l'ha già un altro giocatore: scegline un altro",
+    });
+    expect(await t.chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno", avatar: "lupo" })).toMatchObject({ ok: true });
+    // senza scegliere si prende il predefinito (mago): se è libero va bene
+    expect(await t.chiedi(C, { azione: "unisciti", codice: creata.codice, nickname: "Carla" })).toMatchObject({ ok: true });
+  });
+
+  it("contro il computer i robot hanno tutti lo stesso avatar", async () => {
+    const t = prepara(42);
+    expect(await t.chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 3 })).toMatchObject({ ok: true });
+  });
+});
+

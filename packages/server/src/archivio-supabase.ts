@@ -5,7 +5,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Archivio, type CodiceErroreArchivio, ErroreArchivio, type InfoPartita } from "./arbitro";
 
-const CODICI: CodiceErroreArchivio[] = ["CODICE_NON_VALIDO", "PARTITA_INIZIATA", "PARTITA_PIENA", "PARTITA_GIA_AVVIATA", "CONFLITTO"];
+const CODICI: CodiceErroreArchivio[] = ["CODICE_NON_VALIDO", "PARTITA_INIZIATA", "PARTITA_PIENA", "AVATAR_PRESO", "PARTITA_GIA_AVVIATA", "CONFLITTO"];
 
 function traduci(e: { code?: string; message?: string }): never {
   if (e.code === "23505") throw new ErroreArchivio("CODICE_DUPLICATO");

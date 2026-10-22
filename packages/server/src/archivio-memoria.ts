@@ -45,6 +45,7 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
       if (partita.giocatori.some((g) => g.utenteId === p.utente)) return partita.id;
       if (partita.stato !== "attesa") throw new ErroreArchivio("PARTITA_INIZIATA");
       if (partita.giocatori.length >= partita.maxGiocatori) throw new ErroreArchivio("PARTITA_PIENA");
+      if (partita.giocatori.some((g) => g.avatar === p.avatar)) throw new ErroreArchivio("AVATAR_PRESO");
       partita.giocatori.push({ utenteId: p.utente, nickname: p.nickname, avatar: p.avatar, bot: false });
       return partita.id;
     },
