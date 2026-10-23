@@ -140,9 +140,11 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
     },
 
     async leggiStato(id) {
-      const { data, error } = await db.from("stati_partita").select("stato, versione").eq("partita_id", id).maybeSingle();
+      const { data, error } = await db.from("stati_partita").select("stato, versione, aggiornato_il, al_posto_di").eq("partita_id", id).maybeSingle();
       if (error) traduci(error);
-      return data ? { stato: data.stato, versione: data.versione } : null;
+      return data
+        ? { stato: data.stato, versione: data.versione, aggiornatoIl: Date.parse(data.aggiornato_il), alPostoDi: data.al_posto_di ?? null }
+        : null;
     },
 
     async salvaVocale(p) {
@@ -170,6 +172,7 @@ export function creaArchivioSupabase(db: SupabaseClient): Archivio {
         p_mossa: p.mossa,
         p_stato_partita: p.statoPartita,
         p_esito: p.esito,
+        p_al_posto_di: p.alPostoDi,
       });
       if (error) traduci(error);
       // Vista per spettatori e schermo "tavolo" (stessa versione delle viste dei giocatori)

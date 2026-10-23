@@ -404,3 +404,83 @@ describe("avatar unici nella partita", () => {
   });
 });
 
+
+describe("il computer gioca al posto di chi è fermo", () => {
+  /** Partita tra A e B con un orologio finto che i test spostano in avanti. */
+  async function conOrologio() {
+    let adesso = 1_000_000;
+    const archivio = creaArchivioMemoria(() => adesso);
+    const rng = creaCasuale(3);
+    const amb: Ambiente = { casuale: () => prossimo(rng), ora: () => adesso };
+    const chiedi = (utente: string, richiesta: unknown) => gestisci(richiesta, utente, archivio, amb);
+    const creata = (await chiedi(A, { azione: "crea", nickname: "Anna" })) as unknown as { partitaId: string; codice: string };
+    const partitaId = creata.partitaId;
+    await chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno" });
+    await chiedi(A, { azione: "avvia", partitaId });
+    const stato = () => archivio.dati.stati.get(partitaId)!.stato as StatoPartita;
+    const avanti = (ms: number) => {
+      adesso += ms;
+    };
+    return { chiedi, partitaId, stato, avanti };
+  }
+
+  it("prima dei 60 secondi non fa niente e dice quanto manca", async () => {
+    const { chiedi, partitaId, stato, avanti } = await conOrologio();
+    avanti(45_000);
+    const prima = stato().registro.length;
+    expect(await chiedi(A, { azione: "alPosto", partitaId })).toEqual({ ok: true, fatto: false, attendiMs: 15_000, alPosto: false });
+    expect(stato().registro.length).toBe(prima);
+  });
+
+  it("dopo 60 secondi fa una mossa per chi è di turno, poi una ogni 10 secondi", async () => {
+    const { chiedi, partitaId, stato, avanti } = await conOrologio();
+    const fermo = stato().turno.giocatore;
+    const altro = fermo === A ? B : A;
+    avanti(60_000);
+    // lo può chiedere chiunque giochi, anche l'altro giocatore
+    expect(await chiedi(altro, { azione: "alPosto", partitaId })).toMatchObject({ ok: true, fatto: true, attendiMs: 10_000 });
+    expect(stato().turno.mosseRimaste).toBe(2);
+    expect(stato().registro.at(-1)!.giocatore).toBe(fermo);
+    avanti(5_000);
+    expect(await chiedi(altro, { azione: "alPosto", partitaId })).toMatchObject({ fatto: false, attendiMs: 5_000, alPosto: true });
+    avanti(5_000);
+    expect(await chiedi(altro, { azione: "alPosto", partitaId })).toMatchObject({ fatto: true });
+    expect(stato().turno.mosseRimaste).toBe(1);
+  });
+
+  it("se la persona torna a muovere, si ricomincia dai 60 secondi", async () => {
+    const { chiedi, partitaId, stato, avanti } = await conOrologio();
+    const fermo = stato().turno.giocatore;
+    avanti(60_000);
+    await chiedi(fermo, { azione: "alPosto", partitaId });
+    expect(await chiedi(fermo, { azione: "mossa", partitaId, mossa: { tipo: "pescaNumero" } })).toEqual({ ok: true });
+    avanti(10_000);
+    expect(await chiedi(fermo, { azione: "alPosto", partitaId })).toMatchObject({ fatto: false, attendiMs: 50_000 });
+  });
+
+  it("finite le mosse chiude il turno; al turno dopo si aspettano di nuovo 60 secondi", async () => {
+    const { chiedi, partitaId, stato, avanti } = await conOrologio();
+    const fermo = stato().turno.giocatore;
+    avanti(60_000);
+    for (let i = 0; i < 10 && stato().turno.giocatore === fermo; i++) {
+      expect(await chiedi(fermo, { azione: "alPosto", partitaId })).toMatchObject({ ok: true, fatto: true });
+      avanti(10_000);
+    }
+    expect(stato().turno.giocatore).not.toBe(fermo);
+    expect(await chiedi(fermo, { azione: "alPosto", partitaId })).toMatchObject({ fatto: false, attendiMs: 50_000 });
+  });
+
+  it("non vale per i giocatori del computer né per chi non è nella partita", async () => {
+    const { chiedi, partitaId, avanti } = await conOrologio();
+    avanti(60_000);
+    expect(await chiedi(C, { azione: "alPosto", partitaId })).toEqual({ ok: false, errore: "Partita non trovata" });
+    const t = prepara(3);
+    const r = await t.chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 1 });
+    const id = (r as unknown as { partitaId: string }).partitaId;
+    const s = t.archivio.dati.stati.get(id)!.stato as StatoPartita;
+    if (s.turno.giocatore !== A) {
+      t.archivio.dati.stati.get(id)!.aggiornatoIl -= 60_000;
+      expect(await t.chiedi(A, { azione: "alPosto", partitaId: id })).toEqual({ ok: false, errore: "Non tocca a una persona" });
+    }
+  });
+});

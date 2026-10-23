@@ -84,7 +84,11 @@ export interface Archivio {
   utenteBot(numero: number): Promise<string>;
   /** Aggiunge un giocatore del computer a una partita in attesa. */
   aggiungiBot(p: { partitaId: string; utente: string; nickname: string; avatar: string }): Promise<void>;
-  leggiStato(id: string): Promise<{ stato: unknown; versione: number } | null>;
+  /**
+   * Stato salvato, con il momento del salvataggio (millisecondi) e, se l'ultima mossa l'ha fatta
+   * il computer al posto di una persona ferma, l'id di quella persona.
+   */
+  leggiStato(id: string): Promise<{ stato: unknown; versione: number; aggiornatoIl: number; alPostoDi: string | null } | null>;
   /**
    * Salva tutto insieme (stato, viste, mossa, stato della partita).
    * `versioneAttesa` null = avvio (errore PARTITA_GIA_AVVIATA se già avviata);
@@ -101,6 +105,8 @@ export interface Archivio {
     mossa: unknown | null;
     statoPartita: "in_corso" | "finita";
     esito: unknown | null;
+    /** La mossa l'ha fatta il computer al posto di questa persona (azione alPosto); null = no. */
+    alPostoDi: string | null;
   }): Promise<number>;
   /** Salva un messaggio vocale (file audio + avviso per gli altri giocatori); restituisce il suo id. */
   salvaVocale(p: { partitaId: string; utente: string; dati: Uint8Array; tipo: TipoAudio; durataMs: number }): Promise<string>;
@@ -122,7 +128,13 @@ export type Risposta = { ok: true; [k: string]: unknown } | { ok: false; errore:
 export interface Ambiente {
   /** Numero casuale in [0, 1): per codici d'invito e seed delle partite. */
   casuale(): number;
+  /** Ora attuale in millisecondi (facoltativa: di base l'orologio vero). */
+  ora?(): number;
 }
+
+/** Dopo quanto tempo fermo il computer gioca al posto di una persona, e poi ogni quanto muove. */
+export const ATTESA_PRIMA_DEL_SOSTITUTO_MS = 60_000;
+export const PAUSA_SOSTITUTO_MS = 10_000;
 
 const ALFABETO_CODICE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // senza 0/O, 1/I
 const LUNGHEZZA_CODICE = 5;
@@ -174,6 +186,8 @@ export async function gestisci(richiesta: unknown, utente: IdGiocatore, archivio
         return await mossa(richiesta, utente, archivio, amb);
       case "turnoComputer":
         return await turnoComputer(richiesta, utente, archivio, amb);
+      case "alPosto":
+        return await alPosto(richiesta, utente, archivio, amb);
       case "vocale":
         return await vocale(richiesta, utente, archivio);
       default:
@@ -256,6 +270,37 @@ async function turnoComputer(r: Record<string, unknown>, utente: string, archivi
   return await salvaDopo(g, p, salvato.versione, applicaAutomatiche(g, risultato.stato), chi, mossaBot, archivio);
 }
 
+/**
+ * Il computer gioca al posto di una persona ferma: se tocca a lei da 60 secondi senza che abbia mosso,
+ * fa una mossa per lei; poi una ogni 10 secondi finché la persona non torna a muovere da sola
+ * (a ogni suo nuovo turno si ricomincia dai 60 secondi). Lo chiede il browser di chiunque giochi.
+ * Se è ancora presto risponde { fatto: false, attendiMs } con quanto manca; alPosto dice se il computer
+ * sta già giocando per quella persona.
+ */
+async function alPosto(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
+  if (!idValido(r.partitaId)) return errore("Partita non trovata");
+  const p = await archivio.leggiPartita(r.partitaId);
+  if (!p || !p.giocatori.some((x) => x.utenteId === utente && !x.bot)) return errore("Partita non trovata");
+  if (p.stato !== "in_corso") return errore("La partita non è in corso");
+  const g = GIOCHI[p.gioco];
+  const salvato = await archivio.leggiStato(p.id);
+  if (!g || !salvato || !g.mossaSostituto) return errore("Partita non trovata");
+
+  const prima = applicaAutomatiche(g, salvato.stato);
+  const chi = g.diTurno?.(prima);
+  if (!chi || !p.giocatori.some((x) => x.utenteId === chi && !x.bot)) return errore("Non tocca a una persona");
+  const attesa = salvato.alPostoDi === chi ? PAUSA_SOSTITUTO_MS : ATTESA_PRIMA_DEL_SOSTITUTO_MS;
+  const trascorsi = (amb.ora?.() ?? Date.now()) - salvato.aggiornatoIl;
+  // alPosto: il computer sta già giocando per questa persona (il browser lo mostra)
+  if (trascorsi < attesa) return { ok: true, fatto: false, attendiMs: attesa - trascorsi, alPosto: salvato.alPostoDi === chi };
+
+  const scelta = g.mossaSostituto(prima, chi, amb.casuale);
+  const risultato = g.applicaMossa(prima, chi, scelta);
+  if (!risultato.ok) return errore(risultato.errore);
+  const salvata = await salvaDopo(g, p, salvato.versione, applicaAutomatiche(g, risultato.stato), chi, scelta, archivio, chi);
+  return salvata.ok ? { ...salvata, fatto: true, attendiMs: PAUSA_SOSTITUTO_MS, alPosto: true } : salvata;
+}
+
 /** Salva il nuovo stato con le viste di tutti; chiude la partita se è finita. */
 async function salvaDopo(
   g: QualsiasiGioco,
@@ -265,6 +310,7 @@ async function salvaDopo(
   chi: string,
   mossaFatta: unknown,
   archivio: Archivio,
+  alPostoDi: string | null = null,
 ): Promise<Risposta> {
   const esito = g.finePartita(nuovo);
   await archivio.salva({
@@ -277,6 +323,7 @@ async function salvaDopo(
     mossa: mossaFatta,
     statoPartita: esito ? "finita" : "in_corso",
     esito,
+    alPostoDi,
   });
   return { ok: true, ...(esito ? { esito } : {}) };
 }
@@ -395,6 +442,7 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
     mossa: null,
     statoPartita: "in_corso",
     esito: null,
+    alPostoDi: null,
   });
   return { ok: true };
 }

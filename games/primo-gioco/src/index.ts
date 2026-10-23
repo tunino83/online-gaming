@@ -8,6 +8,7 @@ export * from "./regole";
 export * from "./vista";
 export * from "./gioco";
 export * from "./bot";
+export * from "./sostituto";
 export * from "./simulazione";
 export * from "./valida-mossa";
 export * from "./aspetto";

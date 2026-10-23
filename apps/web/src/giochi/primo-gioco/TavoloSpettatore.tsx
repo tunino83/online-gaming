@@ -12,6 +12,7 @@ import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVistaPubblica } from "../../lib/useVistaPubblica";
 import { BottoneTema, Caricamento, Errore, Riquadro } from "../../ui";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
+import { AvvisoTraguardo, EasterEgg, useAvvisiSpeciali } from "./Avvisi";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, DorsoMazzo, PostoVuoto } from "./carte";
 import { aPersona, descriviEvento } from "./descrivi";
 import { SchedaGiocatore } from "./PanoramicaTavolo";
@@ -107,6 +108,8 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
     const t = setTimeout(() => setFumetto(null), 4500);
     return () => clearTimeout(t);
   }, [fumetto]);
+
+  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id);
 
   if (errore) return <Errore testo={errore} />;
   if (!riga) {
@@ -227,6 +230,10 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
       </div>
 
       {coda[0] && <AnimazioneAttivazione key={coda[0].n} evento={coda[0]} nick={nick} io="" onFine={() => setCoda((c) => c.slice(1))} />}
+      {avvisi.traguardo && !coda[0] && (
+        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io="" onChiudi={avvisi.chiudiTraguardo} />
+      )}
+      {avvisi.easterEgg && !avvisi.traguardo && !coda[0] && <EasterEgg onChiudi={avvisi.chiudiEasterEgg} />}
       {primoPiano && <PrimoPiano carta={primoPiano} onChiudi={() => setPrimoPiano(null)} />}
       {!riga && <Caricamento />}
     </div>

@@ -6,7 +6,7 @@ import { type Archivio, ErroreArchivio, type InfoPartita } from "./arbitro";
 
 export interface DatiMemoria {
   partite: Map<string, InfoPartita & { esito: unknown; pubblica: boolean; creataIl: string }>;
-  stati: Map<string, { stato: unknown; versione: number }>;
+  stati: Map<string, { stato: unknown; versione: number; aggiornatoIl: number; alPostoDi: string | null }>;
   viste: Map<string, { vista: unknown; mosse_valide: unknown[]; versione: number }>;
   mosse: { partitaId: string; numero: number; utente: string; mossa: unknown }[];
   vocali: { id: string; partitaId: string; utente: string; byte: number; tipo: string; durataMs: number }[];
@@ -14,7 +14,8 @@ export interface DatiMemoria {
   vistePubbliche: Map<string, { vista: unknown; versione: number }>;
 }
 
-export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
+/** `ora`: orologio usato per segnare quando si salva (i test lo spostano a piacere). */
+export function creaArchivioMemoria(ora: () => number = Date.now): Archivio & { dati: DatiMemoria } {
   const dati: DatiMemoria = { partite: new Map(), stati: new Map(), viste: new Map(), mosse: [], vocali: [], spettatori: new Map(), vistePubbliche: new Map() };
   let contatore = 0;
   const copia = <T>(x: T): T => structuredClone(x);
@@ -105,7 +106,7 @@ export function creaArchivioMemoria(): Archivio & { dati: DatiMemoria } {
         if (p.mossa !== null) dati.mosse.push({ partitaId: p.partitaId, numero: versione, utente: p.utente, mossa: copia(p.mossa) });
       }
       partita.stato = p.statoPartita;
-      dati.stati.set(p.partitaId, { stato: copia(p.stato), versione });
+      dati.stati.set(p.partitaId, { stato: copia(p.stato), versione, aggiornatoIl: ora(), alPostoDi: p.alPostoDi });
       if (p.vistaPubblica !== null) dati.vistePubbliche.set(p.partitaId, { vista: copia(p.vistaPubblica), versione });
       for (const v of p.viste) {
         dati.viste.set(`${p.partitaId}/${v.utente_id}`, { vista: copia(v.vista), mosse_valide: copia(v.mosse_valide), versione });

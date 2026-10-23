@@ -112,6 +112,9 @@ html[data-tema="scuro"] {
   pointer-events: none;
   animation: banner 1.8s ease-in-out both;
 }
+/* Avvisi a tutto schermo (punti obiettivo, easter egg): la scheda entra "saltando" */
+.avviso-grande { animation: avviso-grande 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes avviso-grande { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: none; } }
 @keyframes banner {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
   15% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
@@ -158,5 +161,5 @@ html[data-tema="scuro"] {
 @keyframes anello { from { filter: drop-shadow(0 0 2px var(--color-oro-chiaro)); } to { filter: drop-shadow(0 0 9px var(--color-oro-chiaro)); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .foglio, .foglio-velo, .banner-turno, .punti-vola, .fumetto, .anello-turno, .avatar-nuovo, .registra-vocale, .fumetto-vocale { animation: none; }
+  .foglio, .foglio-velo, .banner-turno, .avviso-grande, .punti-vola, .fumetto, .anello-turno, .avatar-nuovo, .registra-vocale, .fumetto-vocale { animation: none; }
 }

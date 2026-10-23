@@ -58,6 +58,12 @@ export interface Gioco<Stato, Mossa, Opzioni, Vista> {
    */
   mossaBot?(stato: Stato, giocatore: IdGiocatore, casuale: () => number): Mossa;
 
+  /**
+   * Facoltativa: una mossa scelta dal computer al posto di una persona ferma da troppo tempo
+   * (gioca in modo sensato, non a caso). `casuale` dà numeri in [0, 1).
+   */
+  mossaSostituto?(stato: Stato, giocatore: IdGiocatore, casuale: () => number): Mossa;
+
   /** Facoltativa: a chi tocca adesso (per far muovere i bot); null a partita finita. */
   diTurno?(stato: Stato): IdGiocatore | null;
 }

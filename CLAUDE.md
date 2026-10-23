@@ -68,6 +68,11 @@ Vocali in partita (solo tra persone): il browser registra (max 20 s) e manda il 
 nello spazio privato `vocali` (cartella = id partita) e nella tabella `vocali`; gli altri giocatori lo ricevono in tempo reale
 e parte da solo (`apps/web/src/lib/vocali.ts`, `giochi/primo-gioco/Vocali.tsx`). I vocali più vecchi di un giorno si cancellano.
 Partite contro il computer: i robot muovono una mossa ogni 3 secondi, su richiesta del browser (azione `turnoComputer`).
+Persona ferma: se tocca a lei da 60 s senza muovere, il computer gioca al suo posto (azione `alPosto`, regole in
+`games/primo-gioco/src/sostituto.ts`), poi una mossa ogni 10 s finché non torna a muovere; si ricomincia dai 60 s a ogni turno.
+I tempi li controlla l'arbitro (`stati_partita.aggiornato_il` e `al_posto_di`); il browser mostra il conto alla rovescia.
+Avvisi a tutto schermo per tutti (`giochi/primo-gioco/Avvisi.tsx`): punti obiettivo raggiunti (evento `ultimoGiro`) ed
+easter egg "Antonio è bello" circa ogni 35 mosse (sorteggio uguale su tutti i telefoni). Solo Il Portale, non Ufficio.
 Spettatori e schermo "tavolo": `/t/CODICE` (QR nella stanza d'attesa e col pulsante 📺 in partita) o "Guarda come spettatore"
 nel link d'invito → azione `guarda` (tabella `spettatori`), pagina `/guarda/ID` (`pagine/Spettatore.tsx`, `giochi/primo-gioco/TavoloSpettatore.tsx`).
 Vedono solo la vista pubblica (`vistaPubblica` nel motore, tabella `viste_pubbliche` salvata dall'arbitro a ogni mossa), chi gioca e i vocali.

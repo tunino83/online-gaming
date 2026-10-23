@@ -21,6 +21,7 @@ import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Riquadro } from "../../ui";
 import { TestoRegole } from "../../pagine/Regole";
 import { AnimazioneAttivazione } from "./AnimazioneAttivazione";
+import { AvvisoTraguardo, EasterEgg, useAvvisiSpeciali } from "./Avvisi";
 import { PannelloAttivazione } from "./Attivazione";
 import { PanoramicaTavolo, SchedaGiocatore } from "./PanoramicaTavolo";
 import { CartaNumeroGrafica, CartaPersonaggioGrafica, Diamante, DorsoMazzo, MiniCartaVirtuale, PostoVuoto } from "./carte";
@@ -98,6 +99,9 @@ const LARGHEZZA_PANNELLO = 360;
 const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 0 && !e.cambiaMano);
 
 type Attivazione = Extract<Evento, { tipo: "attiva" }>;
+
+/** Dopo ogni cambiamento, fra quanto chiedere all'arbitro se il computer deve giocare al posto di chi è fermo. */
+const PRIMA_DOMANDA_SOSTITUTO_MS = 10_000;
 
 /** Pausa tra una mossa e l'altra dei giocatori del computer. */
 const PAUSA_COMPUTER_MS = 3000;
@@ -265,6 +269,43 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       clearTimeout(t);
     };
   }, [turnoDelComputer, versione, tentativoBot, partita.id, ricarica]);
+
+  // Chi è fermo da 60 secondi: il computer gioca al suo posto, poi una mossa ogni 10 secondi finché non torna a muovere.
+  // I tempi li conosce l'arbitro: il browser chiede e, se è presto, si fa dire quanto manca (per il conto alla rovescia).
+  const turnoDiPersona = !!riga && !riga.vista.finita && !turnoDelComputer;
+  const [sostituto, setSostituto] = useState<{ scadenza: number; attivo: boolean; per: string } | null>(null);
+  useEffect(() => {
+    setSostituto((x) => (x && x.per === turnoDi ? x : null));
+    if (!turnoDiPersona || !turnoDi) return;
+    let annullato = false;
+    let t: ReturnType<typeof setTimeout>;
+    const chiedi = async () => {
+      const r = await chiediArbitro({ azione: "alPosto", partitaId: partita.id });
+      if (annullato) return;
+      if (!r.ok) {
+        t = setTimeout(chiedi, PRIMA_DOMANDA_SOSTITUTO_MS); // es. un'altra mossa nel frattempo: si riprova
+        return;
+      }
+      const attendi = typeof r.attendiMs === "number" ? r.attendiMs : PRIMA_DOMANDA_SOSTITUTO_MS;
+      setSostituto({ scadenza: Date.now() + attendi, attivo: r.alPosto === true, per: turnoDi });
+      if (r.fatto) ricarica();
+      else t = setTimeout(chiedi, attendi + 300);
+    };
+    t = setTimeout(chiedi, PRIMA_DOMANDA_SOSTITUTO_MS);
+    return () => {
+      annullato = true;
+      clearTimeout(t);
+    };
+  }, [turnoDiPersona, turnoDi, versione, partita.id, ricarica]);
+  // Conto alla rovescia: si aggiorna ogni secondo
+  const [adesso, setAdesso] = useState(Date.now());
+  useEffect(() => {
+    if (!sostituto) return;
+    const i = setInterval(() => setAdesso(Date.now()), 1000);
+    return () => clearInterval(i);
+  }, [sostituto]);
+
+  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id);
 
   const barraAlta = useRef<HTMLDivElement>(null);
   const barraBassa = useRef<HTMLDivElement>(null);
@@ -540,6 +581,24 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           </div>
         )}
         <Errore testo={errore} />
+        {sostituto && !v.finita && sostituto.per === v.turno.giocatore && (sostituto.attivo || sostituto.scadenza - adesso <= 30_000) && (
+          <div className="pointer-events-none fixed inset-x-0 z-20 flex justify-center px-3" style={{ bottom: altezzaBassa + 8, right: destra }}>
+            <span
+              className={`rounded-full border px-3 py-1.5 text-center text-xs font-semibold shadow-lg ${
+                mioTurno ? "border-oro bg-[#7a2d1f]/95 text-white" : "border-oro/60 bg-notte/95 text-luce"
+              }`}
+              aria-live="polite"
+            >
+              {sostituto.attivo
+                ? mioTurno
+                  ? "🤖 Il computer sta giocando per te: fai una mossa per riprendere"
+                  : `🤖 Il computer gioca al posto di ${nick(v.turno.giocatore)}`
+                : `⏳ ${Math.max(0, Math.ceil((sostituto.scadenza - adesso) / 1000))} s, poi il computer gioca al posto ${
+                    mioTurno ? "tuo" : `di ${nick(v.turno.giocatore)}`
+                  }`}
+            </span>
+          </div>
+        )}
         {v.finita && <Esito partita={partita} v={v} nick={nick} io={io} />}
 
         <section className={`panno rounded-3xl p-3 ${mioTurno ? "mio-turno" : ""}`}>
@@ -873,6 +932,11 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
           </div>
         </div>
       )}
+
+      {avvisi.traguardo && !codaAttivazioni[0] && (
+        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io={io} onChiudi={avvisi.chiudiTraguardo} />
+      )}
+      {avvisi.easterEgg && !avvisi.traguardo && !codaAttivazioni[0] && <EasterEgg onChiudi={avvisi.chiudiEasterEgg} />}
 
       {primoPiano && (
         <PrimoPiano
