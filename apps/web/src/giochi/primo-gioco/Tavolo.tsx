@@ -100,8 +100,12 @@ const significativo = (e: Evento) => !(e.tipo === "fineTurno" && e.scartate === 
 
 type Attivazione = Extract<Evento, { tipo: "attiva" }>;
 
-/** Dopo ogni cambiamento, fra quanto chiedere all'arbitro se il computer deve giocare al posto di chi è fermo. */
-const PRIMA_DOMANDA_SOSTITUTO_MS = 10_000;
+/**
+ * Dopo ogni mossa si chiede subito all'arbitro quanto manca prima che il computer giochi al posto di chi è fermo
+ * (così il conto alla rovescia è sempre giusto); se la domanda non va a buon fine si riprova più tardi.
+ */
+const PRIMA_DOMANDA_SOSTITUTO_MS = 1500;
+const RIPROVA_SOSTITUTO_MS = 10_000;
 
 /** Pausa tra una mossa e l'altra dei giocatori del computer. */
 const PAUSA_COMPUTER_MS = 3000;
@@ -275,7 +279,9 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
   const turnoDiPersona = !!riga && !riga.vista.finita && !turnoDelComputer;
   const [sostituto, setSostituto] = useState<{ scadenza: number; attivo: boolean; per: string } | null>(null);
   useEffect(() => {
-    setSostituto((x) => (x && x.per === turnoDi ? x : null));
+    // Appena qualcuno muove il conto alla rovescia sparisce; resta solo l'avviso "il computer sta giocando"
+    // finché l'arbitro non conferma (fra un attimo) se continua o se la persona è tornata a giocare
+    setSostituto((x) => (x && x.per === turnoDi && x.attivo ? x : null));
     if (!turnoDiPersona || !turnoDi) return;
     let annullato = false;
     let t: ReturnType<typeof setTimeout>;
@@ -283,10 +289,10 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       const r = await chiediArbitro({ azione: "alPosto", partitaId: partita.id });
       if (annullato) return;
       if (!r.ok) {
-        t = setTimeout(chiedi, PRIMA_DOMANDA_SOSTITUTO_MS); // es. un'altra mossa nel frattempo: si riprova
+        t = setTimeout(chiedi, RIPROVA_SOSTITUTO_MS); // es. un'altra mossa nel frattempo: si riprova
         return;
       }
-      const attendi = typeof r.attendiMs === "number" ? r.attendiMs : PRIMA_DOMANDA_SOSTITUTO_MS;
+      const attendi = typeof r.attendiMs === "number" ? r.attendiMs : RIPROVA_SOSTITUTO_MS;
       setSostituto({ scadenza: Date.now() + attendi, attivo: r.alPosto === true, per: turnoDi });
       if (r.fatto) ricarica();
       else t = setTimeout(chiedi, attendi + 300);
