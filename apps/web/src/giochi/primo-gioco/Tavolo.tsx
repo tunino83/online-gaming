@@ -312,7 +312,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
     return () => clearInterval(i);
   }, [sostituto]);
 
-  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id);
+  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id, true);
 
   const barraAlta = useRef<HTMLDivElement>(null);
   const barraBassa = useRef<HTMLDivElement>(null);
@@ -941,7 +941,7 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
       )}
 
       {avvisi.traguardo && !codaAttivazioni[0] && (
-        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io={io} onChiudi={avvisi.chiudiTraguardo} />
+        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io={io} bloccante onChiudi={avvisi.chiudiTraguardo} />
       )}
       {avvisi.easterEgg && !avvisi.traguardo && !codaAttivazioni[0] && <EasterEgg onChiudi={avvisi.chiudiEasterEgg} />}
 

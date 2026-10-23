@@ -21,7 +21,11 @@ function sorteggio(partitaId: string, n: number): number {
 }
 
 /** Segue il registro e dice quali avvisi mostrare (niente avvisi per le mosse già fatte quando si apre la pagina). */
-export function useAvvisiSpeciali(registro: readonly Evento[] | undefined, partitaId: string) {
+/**
+ * `traguardoBloccante`: l'avviso dei punti resta finché non si tocca OK (per i giocatori, così nessuno lo perde);
+ * senza, si chiude da solo (schermo degli spettatori, dove spesso nessuno tocca).
+ */
+export function useAvvisiSpeciali(registro: readonly Evento[] | undefined, partitaId: string, traguardoBloccante: boolean) {
   const [traguardo, setTraguardo] = useState<Extract<Evento, { tipo: "ultimoGiro" }> | null>(null);
   const [easterEgg, setEasterEgg] = useState<number | null>(null);
   const ultimo = useRef<number | null>(null);
@@ -41,10 +45,10 @@ export function useAvvisiSpeciali(registro: readonly Evento[] | undefined, parti
   }, [registro, partitaId]);
 
   useEffect(() => {
-    if (!traguardo) return;
+    if (!traguardo || traguardoBloccante) return;
     const t = setTimeout(() => setTraguardo(null), DURATA_TRAGUARDO_MS);
     return () => clearTimeout(t);
-  }, [traguardo]);
+  }, [traguardo, traguardoBloccante]);
   useEffect(() => {
     if (!easterEgg) return;
     const t = setTimeout(() => setEasterEgg(null), DURATA_EASTER_EGG_MS);
@@ -54,23 +58,28 @@ export function useAvvisiSpeciali(registro: readonly Evento[] | undefined, parti
   return { traguardo, chiudiTraguardo: () => setTraguardo(null), easterEgg, chiudiEasterEgg: () => setEasterEgg(null) };
 }
 
-/** Qualcuno ha raggiunto i punti per vincere: avviso grande per tutti. Si chiude toccando o da solo. */
+/**
+ * Qualcuno ha raggiunto i punti per vincere: avviso grande per tutti.
+ * Bloccante: copre il tavolo e si chiude solo con OK. Altrimenti si chiude anche toccando fuori.
+ */
 export function AvvisoTraguardo({
   evento,
   nick,
   avatar,
   io,
+  bloccante,
   onChiudi,
 }: {
   evento: Extract<Evento, { tipo: "ultimoGiro" }>;
   nick: (id: string) => string;
   avatar: (id: string) => string | undefined;
   io: string;
+  bloccante: boolean;
   onChiudi: () => void;
 }) {
   const sonoIo = evento.giocatore === io;
   return (
-    <div className="velo" style={{ zIndex: 65 }} onClick={onChiudi} role="alertdialog" aria-live="assertive" aria-label="Punti obiettivo raggiunti">
+    <div className="velo" style={{ zIndex: 65 }} onClick={bloccante ? undefined : onChiudi} role="alertdialog" aria-live="assertive" aria-label="Punti obiettivo raggiunti">
       <div className="avviso-grande flex max-w-sm flex-col items-center gap-3 rounded-3xl border-2 border-oro bg-gradient-to-b from-[#1f3f73] to-notte px-8 py-7 text-center shadow-[0_0_60px_rgba(242,213,138,0.6)]">
         <p className="text-6xl">🏆</p>
         <CerchioAvatar id={avatar(evento.giocatore)} dimensione={72} />
@@ -78,7 +87,14 @@ export function AvvisoTraguardo({
           {sonoIo ? "Hai raggiunto" : `${nick(evento.giocatore)} ha raggiunto`} {evento.punti} punti!
         </p>
         <p className="text-luce">Si finisce il giro e poi si gioca l'ultimo giro: ogni giocatore ha ancora un turno.</p>
-        <p className="text-xs text-luce/70">Tocca per chiudere</p>
+        <button
+          type="button"
+          onClick={onChiudi}
+          autoFocus
+          className="mt-1 rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-10 py-3 text-lg font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518]"
+        >
+          OK
+        </button>
       </div>
     </div>
   );

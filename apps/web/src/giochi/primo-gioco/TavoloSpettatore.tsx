@@ -109,7 +109,7 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
     return () => clearTimeout(t);
   }, [fumetto]);
 
-  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id);
+  const avvisi = useAvvisiSpeciali(riga?.vista.registro, partita.id, false);
 
   if (errore) return <Errore testo={errore} />;
   if (!riga) {
@@ -231,7 +231,7 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
 
       {coda[0] && <AnimazioneAttivazione key={coda[0].n} evento={coda[0]} nick={nick} io="" onFine={() => setCoda((c) => c.slice(1))} />}
       {avvisi.traguardo && !coda[0] && (
-        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io="" onChiudi={avvisi.chiudiTraguardo} />
+        <AvvisoTraguardo evento={avvisi.traguardo} nick={nick} avatar={avatarDi} io="" bloccante={false} onChiudi={avvisi.chiudiTraguardo} />
       )}
       {avvisi.easterEgg && !avvisi.traguardo && !coda[0] && <EasterEgg onChiudi={avvisi.chiudiEasterEgg} />}
       {primoPiano && <PrimoPiano carta={primoPiano} onChiudi={() => setPrimoPiano(null)} />}
