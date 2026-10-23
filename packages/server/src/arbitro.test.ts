@@ -407,13 +407,13 @@ describe("avatar unici nella partita", () => {
 
 describe("il computer gioca al posto di chi è fermo", () => {
   /** Partita tra A e B con un orologio finto che i test spostano in avanti. */
-  async function conOrologio() {
+  async function conOrologio(opzioni?: Record<string, unknown>) {
     let adesso = 1_000_000;
     const archivio = creaArchivioMemoria(() => adesso);
     const rng = creaCasuale(3);
     const amb: Ambiente = { casuale: () => prossimo(rng), ora: () => adesso };
     const chiedi = (utente: string, richiesta: unknown) => gestisci(richiesta, utente, archivio, amb);
-    const creata = (await chiedi(A, { azione: "crea", nickname: "Anna" })) as unknown as { partitaId: string; codice: string };
+    const creata = (await chiedi(A, { azione: "crea", nickname: "Anna", ...(opzioni ? { opzioni } : {}) })) as unknown as { partitaId: string; codice: string };
     const partitaId = creata.partitaId;
     await chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno" });
     await chiedi(A, { azione: "avvia", partitaId });
@@ -482,5 +482,31 @@ describe("il computer gioca al posto di chi è fermo", () => {
       t.archivio.dati.stati.get(id)!.aggiornatoIl -= 60_000;
       expect(await t.chiedi(A, { azione: "alPosto", partitaId: id })).toEqual({ ok: false, errore: "Non tocca a una persona" });
     }
+  });
+});
+
+describe("opzione: il computer gioca al posto di chi è fermo (sì / no)", () => {
+  it("chi crea la partita può disattivarla: allora il computer non gioca mai al posto di nessuno", async () => {
+    let adesso = 1_000_000;
+    const archivio = creaArchivioMemoria(() => adesso);
+    const rng = creaCasuale(3);
+    const chiedi = (u: string, r: unknown) => gestisci(r, u, archivio, { casuale: () => prossimo(rng), ora: () => adesso });
+    const creata = (await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { computerAlPosto: false } })) as unknown as { partitaId: string; codice: string };
+    await chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno" });
+    expect(await chiedi(A, { azione: "avvia", partitaId: creata.partitaId })).toEqual({ ok: true });
+    // l'opzione resta della partita: non entra nelle regole del gioco
+    const stato = archivio.dati.stati.get(creata.partitaId)!.stato as StatoPartita;
+    expect(stato.opzioni).not.toHaveProperty("computerAlPosto");
+    adesso += 120_000;
+    expect(await chiedi(A, { azione: "alPosto", partitaId: creata.partitaId })).toEqual({
+      ok: false,
+      errore: "In questa partita il computer non gioca al posto di nessuno",
+    });
+  });
+
+  it("accetta solo sì o no", async () => {
+    const { chiedi } = prepara();
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { computerAlPosto: "forse" } })).toEqual({ ok: false, errore: "Opzioni non valide" });
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { computerAlPosto: true } })).toMatchObject({ ok: true });
   });
 });

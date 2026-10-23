@@ -282,6 +282,7 @@ async function alPosto(r: Record<string, unknown>, utente: string, archivio: Arc
   const p = await archivio.leggiPartita(r.partitaId);
   if (!p || !p.giocatori.some((x) => x.utenteId === utente && !x.bot)) return errore("Partita non trovata");
   if (p.stato !== "in_corso") return errore("La partita non è in corso");
+  if (p.opzioni.computerAlPosto === false) return errore("In questa partita il computer non gioca al posto di nessuno");
   const g = GIOCHI[p.gioco];
   const salvato = await archivio.leggiStato(p.id);
   if (!g || !salvato || !g.mossaSostituto) return errore("Partita non trovata");
@@ -341,6 +342,18 @@ function applicaAutomatiche(g: QualsiasiGioco, stato: unknown): unknown {
   return s;
 }
 
+/**
+ * Opzioni scelte da chi crea la partita. computerAlPosto: il computer gioca al posto di chi è fermo
+ * da 60 secondi (se manca vale sì); è della piattaforma, non delle regole, quindi non arriva al gioco.
+ */
+const OPZIONI_ACCETTATE = ["puntiPerVincere", "computerAlPosto"];
+
+/** Opzioni da passare alle regole del gioco (senza quelle della piattaforma). */
+function opzioniDelGioco(opzioni: Record<string, unknown>): Record<string, unknown> {
+  const { computerAlPosto: _, ...resto } = opzioni;
+  return resto;
+}
+
 async function crea(r: Record<string, unknown>, utente: string, archivio: Archivio, amb: Ambiente): Promise<Risposta> {
   const nickname = nicknameValido(r.nickname);
   if (!nickname) return errore("Scegli un nickname da 1 a 24 caratteri");
@@ -355,11 +368,16 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
   }
   const opzioni: Record<string, unknown> = {};
   if (r.opzioni !== undefined) {
-    if (!isOggetto(r.opzioni) || Object.keys(r.opzioni).some((k) => k !== "puntiPerVincere")) return errore("Opzioni non valide");
+    if (!isOggetto(r.opzioni) || Object.keys(r.opzioni).some((k) => !OPZIONI_ACCETTATE.includes(k))) return errore("Opzioni non valide");
     const p = r.opzioni.puntiPerVincere;
     if (p !== undefined) {
       if (!Number.isInteger(p) || (p as number) < 5 || (p as number) > 50) return errore("I punti per vincere vanno da 5 a 50");
       opzioni.puntiPerVincere = p;
+    }
+    const alPosto = r.opzioni.computerAlPosto;
+    if (alPosto !== undefined) {
+      if (typeof alPosto !== "boolean") return errore("Opzioni non valide");
+      opzioni.computerAlPosto = alPosto;
     }
   }
 
@@ -431,7 +449,7 @@ async function avvia(r: Record<string, unknown>, utente: string, archivio: Archi
   const ids = p.giocatori.map((x) => x.utenteId);
   const seed = Math.floor(amb.casuale() * 2 ** 32);
   // Se tocca prima a un giocatore del computer, sarà il browser a chiedergli di muovere (turnoComputer)
-  const stato = applicaAutomatiche(g, g.setup(ids, p.opzioni, seed));
+  const stato = applicaAutomatiche(g, g.setup(ids, opzioniDelGioco(p.opzioni), seed));
   await archivio.salva({
     partitaId: p.id,
     versioneAttesa: null,

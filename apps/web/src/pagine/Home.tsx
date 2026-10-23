@@ -34,6 +34,7 @@ export function Home() {
   const [errore, setErrore] = useState<string | null>(null);
   const [bot, setBot] = useState(1);
   const [pubblica, setPubblica] = useState(true);
+  const [computerAlPosto, setComputerAlPosto] = useState(true);
   const [gioco, setGioco] = useState<IdGioco>(giocoSalvato);
   const scelto = GIOCHI.find((g) => g.id === gioco)!;
   const carte = scelto.personaggi.reduce((totale, p) => totale + p.copie, 0);
@@ -52,7 +53,7 @@ export function Home() {
     setErrore(null);
     salvaNickname(nickname);
     salvaAvatar(avatarId);
-    const r = await chiediArbitro({ azione: "crea", gioco, nickname, avatar: avatarId, maxGiocatori, pubblica, opzioni: { puntiPerVincere: punti } });
+    const r = await chiediArbitro({ azione: "crea", gioco, nickname, avatar: avatarId, maxGiocatori, pubblica, opzioni: { puntiPerVincere: punti, ...(gioco === "primo-gioco" ? { computerAlPosto } : {}) } });
     setInCorso(false);
     if (!r.ok) return setErrore(r.errore);
     vai(`/partita/${r.partitaId}`);
@@ -162,6 +163,17 @@ export function Home() {
             <input type="checkbox" checked={pubblica} onChange={(e) => setPubblica(e.target.checked)} className="h-4 w-4 accent-[#b8892b]" />
             Mostrala tra le partite aperte (chiunque può entrare)
           </label>
+          {gioco === "primo-gioco" && (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={computerAlPosto}
+                onChange={(e) => setComputerAlPosto(e.target.checked)}
+                className="h-4 w-4 accent-[#b8892b]"
+              />
+              Se qualcuno resta fermo 60 secondi, il computer gioca al suo posto
+            </label>
+          )}
           <Errore testo={errore} />
           <Pulsante type="submit" disabled={inCorso || !nickname.trim()}>
             {inCorso ? "Creo la partita…" : "Crea una partita"}

@@ -112,7 +112,11 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
 
       <Riquadro titolo={`Giocatori (${giocatori.length}/${partita.max_giocatori})`}>
         <TavoloAttesa giocatori={giocatori} posti={partita.max_giocatori} io={io} creatore={partita.creatore} />
-        <p className="mt-3 text-xs text-tenue">Punti per vincere: {partita.opzioni.puntiPerVincere ?? 15}</p>
+        <p className="mt-3 text-xs text-tenue">
+          Punti per vincere: {partita.opzioni.puntiPerVincere ?? 15}
+          {partita.gioco === "primo-gioco" &&
+            ` · Chi resta fermo 60 secondi: ${partita.opzioni.computerAlPosto === false ? "si aspetta" : "gioca il computer al suo posto"}`}
+        </p>
       </Riquadro>
 
       <Riquadro titolo="📺 Schermo del tavolo">

@@ -13,7 +13,7 @@ export interface Partita {
   stato: "attesa" | "in_corso" | "finita";
   creatore: string;
   max_giocatori: number;
-  opzioni: { puntiPerVincere?: number };
+  opzioni: { puntiPerVincere?: number; computerAlPosto?: boolean };
   esito: { vincitori: string[]; punti: Record<string, number> } | null;
 }
 

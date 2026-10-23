@@ -276,7 +276,8 @@ export function TavoloPrimoGioco({ partita, giocatori, io }: { partita: Partita;
 
   // Chi è fermo da 60 secondi: il computer gioca al suo posto, poi una mossa ogni 10 secondi finché non torna a muovere.
   // I tempi li conosce l'arbitro: il browser chiede e, se è presto, si fa dire quanto manca (per il conto alla rovescia).
-  const turnoDiPersona = !!riga && !riga.vista.finita && !turnoDelComputer;
+  // (se chi ha creato la partita l'ha disattivato, niente computer al posto di nessuno)
+  const turnoDiPersona = !!riga && !riga.vista.finita && !turnoDelComputer && partita.opzioni.computerAlPosto !== false;
   const [sostituto, setSostituto] = useState<{ scadenza: number; attivo: boolean; per: string } | null>(null);
   useEffect(() => {
     // Appena qualcuno muove il conto alla rovescia sparisce; resta solo l'avviso "il computer sta giocando"
