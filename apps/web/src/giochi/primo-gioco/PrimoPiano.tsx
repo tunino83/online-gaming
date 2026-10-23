@@ -53,8 +53,10 @@ export function PrimoPiano({
   const p = mostrata.tipo === "personaggio" ? personaggio(mostrata.id) : null;
   return (
     <div className="velo" onClick={onChiudi} role="dialog" aria-modal="true" aria-label={titolo ?? p?.nome ?? "Carta"}>
+      {/* Su schermi bassi (telefono) il contenuto scorre e i pulsanti restano sempre in fondo, visibili */}
       <div
-        className="flex flex-col items-center gap-4"
+        className="flex max-w-full flex-col items-center gap-4 overflow-y-auto overscroll-contain"
+        style={{ maxHeight: "calc(100dvh - 32px)" }}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={(e) => {
           inizioSwipe.current = e.touches[0]?.clientX ?? null;
@@ -108,8 +110,9 @@ export function PrimoPiano({
             )}
           </div>
         )}
+        <div className="sticky bottom-0 flex w-full shrink-0 justify-center gap-2 bg-gradient-to-t from-black/80 via-black/60 to-transparent pb-1 pt-4">
         {azione ? (
-          <div className="flex gap-2">
+          <>
             <button type="button" onClick={onChiudi} className="rounded-xl border-2 border-white/70 bg-black/30 px-6 py-2.5 font-semibold text-white">
               Chiudi
             </button>
@@ -124,12 +127,13 @@ export function PrimoPiano({
             >
               {azione.testo}
             </button>
-          </div>
+          </>
         ) : (
           <button type="button" onClick={onChiudi} className="rounded-xl bg-gradient-to-b from-[#e3c06a] to-[#b8892b] px-8 py-2.5 font-semibold text-[#2b1a05] shadow-[0_3px_0_#7a5518]">
             OK
           </button>
         )}
+        </div>
       </div>
     </div>
   );
