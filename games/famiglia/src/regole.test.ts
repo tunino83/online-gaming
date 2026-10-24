@@ -272,6 +272,19 @@ describe("mancia dei nonni e caffè", () => {
     expect(s.scarti.mancia.map((x) => x.id)).toEqual(["m"]);
   });
 
+  it("chi attiva un personaggio di livello 3 riceve 1 mancia; di livello 1 o 2 no", () => {
+    let s = partita();
+    s.giocatori.anna!.nascosti = [copia("nonno-salvatore-3"), copia("nonno-salvatore-2")]; // poker, tris
+    s.giocatori.anna!.mano = [num(5, "a"), num(5, "b"), num(5, "c"), num(5, "d"), num(6, "e"), num(6, "f"), num(6, "g")];
+    const prima = s.mazzi.mancia.at(-1)!;
+    const usa = (...ids: string[]) => ids.map((id) => ({ tipo: "numero" as const, id, valore: id < "e" ? 5 : 6 }));
+    s = fai(s, "anna", { tipo: "attiva", carta: "nonno-salvatore-3#1", combinazione: usa("a", "b", "c", "d") });
+    expect(s.giocatori.anna!.mancia).toEqual([prima]);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "attiva", mancia: true });
+    s = fai(s, "anna", { tipo: "attiva", carta: "nonno-salvatore-2#1", combinazione: usa("e", "f", "g") });
+    expect(s.giocatori.anna!.mancia).toHaveLength(1);
+  });
+
   it("un caffè fa +1 a una carta", () => {
     let s = partita();
     s.giocatori.anna!.nascosti = [copia("generoso-1")];

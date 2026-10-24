@@ -82,7 +82,8 @@ export type DatiFatto =
   | { tipo: "pescaNumero" }
   | { tipo: "pescaPersonaggio"; carta?: string }
   | { tipo: "brucia" }
-  | { tipo: "attiva"; carta: string; punti: number; valori: number[] }
+  /** `mancia`: ha ricevuto la mancia dei nonni (personaggio di livello 3). */
+  | { tipo: "attiva"; carta: string; punti: number; valori: number[]; mancia?: true }
   | { tipo: "scartaCarta"; zona: Zona; carta?: string }
   | { tipo: "caffe" }
   | { tipo: "fineTurno"; scartate: number }

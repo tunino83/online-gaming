@@ -311,7 +311,16 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   const zona = zonaDi(copia!);
   g[zona].splice(g[zona].findIndex((x) => x.id === copia!.id), 1);
   g.attivati.push({ copia: copia!, stanca: 0 });
-  registra(s, id, { tipo: "attiva", carta: c.id, punti: c.punti, valori: m.combinazione.map((el) => el.valore) });
+  // Premio dei nonni: chi attiva un personaggio di livello 3 riceve 1 mancia (se ce n'è ancora)
+  const mancia = c.livello === 3 ? pesca(s, "mancia") : null;
+  if (mancia) g.mancia.push(mancia);
+  registra(s, id, {
+    tipo: "attiva",
+    carta: c.id,
+    punti: c.punti,
+    valori: m.combinazione.map((el) => el.valore),
+    ...(mancia ? { mancia: true } : {}),
+  });
   controllaTraguardo(s);
 }
 

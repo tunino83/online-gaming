@@ -36,6 +36,8 @@ Se la zona è piena (4° attacco in attesa o 4° personaggio nascosto), si scart
 
 - 💶 **La mancia dei nonni** (in Il Portale: diamanti): banconote con valore 1–8, usate nei codici come una
   carta numero oppure per fare +1 a una carta. Visibili a tutti, non contano nel limite della mano.
+  **Come si riceve** (deciso il 2026-10-24): chi attiva un personaggio di livello 3 riceve 1 carta dal mazzo della mancia
+  (banconota o caffè), se ce n'è ancora.
 - ☕ **Il caffè** (in Il Portale: fulmine): *"Un caffè e riparto"*, una mossa in più (oppure +1 a una carta).
 - 🔔 **Il campanello** (in Il Portale: carte numero con le frecce): *"Suonano alla porta!"*. Quando una di queste
   carte numero esce scoperta sul tavolo, i 2 personaggi scoperti se ne vanno (negli scarti) e ne arrivano 2 nuovi.
@@ -126,5 +128,3 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 2. Codici e punti di ogni personaggio (livello 1: 2 carte, 1 punto; livello 2: 3 carte, 2 punti; livello 3: 4–5 carte, 3 punti).
 3. Si possono attivare personaggi presi dal tavolo direttamente, o vanno prima in mano/in attesa?
 4. Contro un attacco si gioca una sola difesa? (proposta: sì)
-5. Mancia dei nonni: come si riceve? In Il Portale i diamanti arrivano solo dai poteri, ma nella Famiglia
-   nessun potere dà mancia. (Domanda nata nel passo A2, 2026-10-24: per ora il mazzo c'è ma nessuno la riceve.)
