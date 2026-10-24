@@ -72,6 +72,8 @@ export interface CartaNumero {
   valore: Valore;
   /** Campanello: quando compare scoperta sul tavolo si cambiano i 2 personaggi scoperti. */
   campanello?: true;
+  /** Carta "fatta in casa" (Maddalena): le 2 carte unite; `valore` è la loro somma. Si scartano tutte e due. */
+  unite?: [CartaNumero, CartaNumero];
 }
 
 /** Mancia dei nonni: banconota con valore, oppure caffè (una mossa in più o +1 a una carta). */

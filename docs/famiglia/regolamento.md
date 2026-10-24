@@ -128,3 +128,24 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 2. Codici e punti di ogni personaggio (livello 1: 2 carte, 1 punto; livello 2: 3 carte, 2 punti; livello 3: 4–5 carte, 3 punti).
 3. Si possono attivare personaggi presi dal tavolo direttamente, o vanno prima in mano/in attesa?
 4. Contro un attacco si gioca una sola difesa? (proposta: sì)
+
+## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
+
+- Usare un potere costa una mossa; dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
+- **Ci penso domani** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
+- **Non sbaglio mai** (Maddalena): l'ultima carta pescata in questo turno (numero o personaggio), se la mossa
+  appena fatta era la pescata: la scarti e ne peschi un'altra dallo stesso mazzo.
+- **Fatto in casa** (Maddalena): le 2 carte restano unite come una sola carta "fatta in casa" che vale la loro somma
+  (al massimo 8). Quando si usa o si scarta, vanno negli scarti tutte e due.
+- **La vetrina della collezione** (Checca): al massimo 3 carte in vetrina in tutto; non contano nel limite delle 7
+  carte in mano; sono visibili a tutti; escono dalla vetrina solo quando si usano in un codice.
+- Dettagli scelti durante la programmazione (da confermare o cambiare):
+  - **Lezione di padel**: una carta "fatta in casa" non si può mettere sul tavolo.
+  - **Ce l'ho io!**: si cerca solo nel mazzo (non negli scarti); se quel numero non c'è, non si prende niente; poi il mazzo si rimescola.
+  - **Sono due etti e mezzo, lascio?**: vale per ogni carta numero pescata da chi la usa in quel turno, anche con i poteri (es. L'orto: 4 carte).
+  - **Doppio turno**: il turno in più non ricarica le carte stanche.
+  - **Ne ho viste tante**: le carte non scelte tornano in cima al mazzo nello stesso ordine.
+  - **Patate al forno**: dopo chi la usa scelgono gli altri nell'ordine di turno.
+  - **Mangia mangia mangia**: se a fine turno le altre carte non bastano per tornare a 7, si scartano solo quelle.
+  - **Te l'ho già detto? / L'ho già detto**: le mosse in più vanno usate dello stesso tipo dell'ultima mossa fatta
+    (non un potere) e si possono anche non usare.

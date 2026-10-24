@@ -1,22 +1,37 @@
 /**
- * Regole della partita base della Famiglia (vedi docs/famiglia/regolamento.md):
- * tavolo, mazzi, mosse, zone, limiti, mancia dei nonni, caffè, campanello, fine turno e fine partita a punti.
- * Poteri, attacchi, difese ed eventi arrivano nei passi A3–A5 (docs/famiglia/piano.md).
+ * Regole del turno della Famiglia (vedi docs/famiglia/regolamento.md):
+ * tavolo, mazzi, mosse, zone, limiti, mancia dei nonni, caffè, campanello, ricarica, fine turno e fine partita a punti.
+ * I poteri di aiuto sono in poteri.ts; attacchi, difese ed eventi arrivano nei passi A4–A5 (docs/famiglia/piano.md).
  */
 import { type EsitoPartita, type IdGiocatore, type RisultatoMossa, creaCasuale, mescola } from "@og/engine";
-import { carta, eAttacco } from "./carte";
-import { type Risorse, trovaCombinazioni, verificaCombinazione } from "./codici";
+import {
+  MossaNonValida,
+  pesca,
+  peschiNumeri,
+  puntiDi,
+  puoPescare,
+  registra,
+  riceviCarta,
+  riempiTavolo,
+  rifiuta,
+  risorseGiocatore,
+  scartaNumeri,
+  togliNumero,
+  zonaDi,
+} from "./base";
+import { carta } from "./carte";
+import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
 import { CARTE_NUMERO_SCOPERTE, MAX_GIOCATORI, MIN_GIOCATORI, OPZIONI_DEFAULT, type OpzioniPartita, PERSONAGGI_SCOPERTI } from "./parametri";
-import { type DatiFatto, LUNGHEZZA_REGISTRO, type Mazzi, type Mossa, type StatoGiocatore, type StatoPartita, type Zona } from "./stato";
-import type { CartaNumero, CopiaCarta } from "./tipi-carte";
+import { mosseDiPotere, mosseDiScelta, rispondiScelta, usaPotere } from "./poteri";
+import type { Mossa, StatoGiocatore, StatoPartita, StatoTurno, TipoMossaNormale } from "./stato";
+import type { CopiaCarta } from "./tipi-carte";
 import { validaMossa } from "./valida-mossa";
 
-/** Errore di una mossa non permessa: il messaggio è per il giocatore. */
-class MossaNonValida extends Error {}
-const rifiuta = (messaggio: string): never => {
-  throw new MossaNonValida(messaggio);
-};
+export { puntiDi, risorseGiocatore, zonaDi } from "./base";
+
+/** Mosse in un turno in più (Doppio turno di Marika). */
+const MOSSE_DOPPIO_TURNO = 2;
 
 /* ------------------------------------------------------------------ */
 /* Preparazione                                                        */
@@ -46,9 +61,12 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
       personaggi: Array.from({ length: PERSONAGGI_SCOPERTI }, () => null),
     },
     giocatori: Object.fromEntries(
-      giocatori.map((id): [IdGiocatore, StatoGiocatore] => [id, { mano: [], mancia: [], nascosti: [], attacchi: [], attivati: [] }]),
+      giocatori.map((id): [IdGiocatore, StatoGiocatore] => [
+        id,
+        { mano: [], vetrina: [], mancia: [], nascosti: [], attacchi: [], attivati: [], mosseProssimoTurno: 0 },
+      ]),
     ),
-    turno: { giocatore: "", mosseRimaste: 0, attesa: null },
+    turno: nuovoTurno("", 0),
     registro: [],
   };
   riempiTavolo(stato);
@@ -57,87 +75,31 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
 }
 
 /* ------------------------------------------------------------------ */
-/* Registro (ultime cose successe, solo informazioni pubbliche)        */
-/* ------------------------------------------------------------------ */
-
-function registra(s: StatoPartita, giocatore: IdGiocatore, f: DatiFatto): void {
-  const n = (s.registro.at(-1)?.n ?? 0) + 1;
-  s.registro.push({ n, giocatore, ...f });
-  if (s.registro.length > LUNGHEZZA_REGISTRO) s.registro.splice(0, s.registro.length - LUNGHEZZA_REGISTRO);
-}
-
-/* ------------------------------------------------------------------ */
-/* Mazzi e tavolo                                                      */
-/* ------------------------------------------------------------------ */
-
-/** Pesca la prima carta di un mazzo; se è finito rimescola gli scarti. `null` se non c'è nulla. */
-export function pesca<K extends keyof Mazzi>(s: StatoPartita, mazzo: K): Mazzi[K][number] | null {
-  if (s.mazzi[mazzo].length === 0 && s.scarti[mazzo].length > 0) {
-    s.mazzi[mazzo] = mescola<Mazzi[K][number]>(s.rng, s.scarti[mazzo]) as Mazzi[K];
-    s.scarti[mazzo] = [] as Mazzi[K];
-  }
-  return (s.mazzi[mazzo].pop() as Mazzi[K][number] | undefined) ?? null;
-}
-
-const puoPescare = (s: StatoPartita, mazzo: keyof Mazzi) => s.mazzi[mazzo].length + s.scarti[mazzo].length > 0;
-
-/**
- * Riempie i posti vuoti del tavolo, se ci sono carte disponibili.
- * Ogni carta con il campanello che compare scoperta fa cambiare i personaggi scoperti
- * (vanno negli scarti e se ne scoprono di nuovi): due campanelli, due cambi.
- */
-function riempiTavolo(s: StatoPartita): void {
-  const campanelli: CartaNumero[] = [];
-  s.tavolo.numeri = s.tavolo.numeri.map((c) => {
-    if (c) return c;
-    const nuova = pesca(s, "numeri");
-    if (nuova?.campanello) campanelli.push(nuova);
-    return nuova;
-  });
-  s.tavolo.personaggi = s.tavolo.personaggi.map((c) => c ?? pesca(s, "personaggi"));
-  for (const c of campanelli) {
-    const scartati = s.tavolo.personaggi.filter((x) => x !== null);
-    s.scarti.personaggi.push(...scartati);
-    s.tavolo.personaggi = s.tavolo.personaggi.map(() => null);
-    s.tavolo.personaggi = s.tavolo.personaggi.map(() => pesca(s, "personaggi"));
-    // A inizio partita non c'è ancora nessuno di turno: il cambio non va nel registro
-    if (s.turno.giocatore) {
-      registra(s, s.turno.giocatore, {
-        tipo: "campanello",
-        valore: c.valore,
-        scartati: scartati.map((x) => x.carta),
-        nuovi: s.tavolo.personaggi.filter((x) => x !== null).map((x) => x.carta),
-      });
-    }
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Giocatori                                                           */
-/* ------------------------------------------------------------------ */
-
-/** Punti di un giocatore: la somma dei punti dei personaggi attivati. */
-export const puntiDi = (g: Pick<StatoGiocatore, "attivati">): number => g.attivati.reduce((tot, a) => tot + carta(a.copia.carta).punti, 0);
-
-/** Cosa può usare il giocatore per un codice: carte numero in mano e mancia. */
-export const risorseGiocatore = (g: Pick<StatoGiocatore, "mano" | "mancia">): Risorse => ({ mano: g.mano, mancia: g.mancia });
-
-/** Zona in cui va una carta del mazzo personaggi: gli attacchi scoperti, tutto il resto nascosto in mano. */
-export const zonaDi = (copia: CopiaCarta): Zona => (eAttacco(carta(copia.carta)) ? "attacchi" : "nascosti");
-
-const limiteZona = (s: StatoPartita, zona: Zona) => (zona === "nascosti" ? s.opzioni.maxNascosti : s.opzioni.maxAttacchi);
-
-/* ------------------------------------------------------------------ */
 /* Turni                                                               */
 /* ------------------------------------------------------------------ */
 
-const giocatoreDiTurno = (s: StatoPartita, n: number) => s.ordine[n % s.ordine.length]!;
+function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
+  return {
+    giocatore,
+    mosseRimaste: mosse,
+    attesa: null,
+    ultimaMossa: null,
+    mosseUguali: null,
+    appenaPescata: null,
+    pescaDoppia: false,
+    intoccabili: [],
+    fascicolo: null,
+    doppioTurno: false,
+  };
+}
 
 function iniziaTurno(s: StatoPartita): void {
-  const id = giocatoreDiTurno(s, s.numeroTurno);
-  s.turno = { giocatore: id, mosseRimaste: s.opzioni.mossePerTurno, attesa: null };
+  const id = s.ordine[s.numeroTurno % s.ordine.length]!;
+  const g = s.giocatori[id]!;
+  s.turno = nuovoTurno(id, s.opzioni.mossePerTurno + g.mosseProssimoTurno);
+  g.mosseProssimoTurno = 0;
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
-  for (const a of s.giocatori[id]!.attivati) if (a.stanca > 0) a.stanca -= 1;
+  for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
 }
 
 /** Se qualcuno ha raggiunto i punti per vincere: si finisce il giro e poi si gioca un ultimo giro. */
@@ -162,6 +124,12 @@ function haMossePossibili(s: StatoPartita): boolean {
 
 /** Chi deve decidere adesso: chi ha una scelta in sospeso, altrimenti chi è di turno. */
 export const chiDeveMuovere = (s: StatoPartita): IdGiocatore => s.turno.attesa?.giocatore ?? s.turno.giocatore;
+
+/** Carte numero che il giocatore può scartare a fine turno (non quelle prese con Alessia). */
+const scartabili = (s: StatoPartita, g: StatoGiocatore) => g.mano.filter((c) => !s.turno.intoccabili.includes(c.id));
+
+/** Quante carte numero deve scartare a fine turno (vetrina esclusa, mai più di quelle scartabili). */
+const daScartare = (s: StatoPartita, g: StatoGiocatore) => Math.min(Math.max(0, g.mano.length - s.opzioni.limiteMano), scartabili(s, g).length);
 
 /* ------------------------------------------------------------------ */
 /* Applicazione delle mosse                                            */
@@ -190,19 +158,21 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
 
   // Decisione in attesa: si accetta solo la risposta.
   if (t.attesa) {
-    if (t.attesa.tipo === "scartaCarta" && m.tipo === "scartaCarta") {
-      if (m.carta === t.attesa.nuova) rifiuta("Devi scartare una delle carte che avevi già");
-      const zona = g[t.attesa.zona];
-      const i = zona.findIndex((c) => c.id === m.carta);
+    if (t.attesa.tipo === "scartaCarta") {
+      if (m.tipo !== "scartaCarta") rifiuta("Prima devi completare la scelta in sospeso");
+      const { zona, nuova } = t.attesa;
+      if ((m as { carta: string }).carta === nuova) rifiuta("Devi scartare una delle carte che avevi già");
+      const i = g[zona].findIndex((c) => c.id === (m as { carta: string }).carta);
       if (i < 0) rifiuta("Carta non presente in quella zona");
-      const [scartata] = zona.splice(i, 1);
+      const [scartata] = g[zona].splice(i, 1);
       s.scarti.personaggi.push(scartata!);
       // Si dice quale carta solo se era scoperta (attacchi)
-      registra(s, id, { tipo: "scartaCarta", zona: t.attesa.zona, ...(t.attesa.zona === "attacchi" ? { carta: scartata!.carta } : {}) });
+      registra(s, id, { tipo: "scartaCarta", zona, ...(zona === "attacchi" ? { carta: scartata!.carta } : {}) });
       t.attesa = null;
       return;
     }
-    rifiuta("Prima devi completare la scelta in sospeso");
+    rispondiScelta(s, id, m);
+    return;
   }
 
   switch (m.tipo) {
@@ -218,12 +188,20 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       fineTurno(s, g, m.scarta);
       return;
     case "scartaCarta":
+    case "scegli":
+    case "riordina":
       rifiuta("Non c'è nessuna scelta in sospeso");
   }
 
-  // Da qui in poi le mosse costano una mossa.
-  if (t.mosseRimaste <= 0) rifiuta("Hai finito le mosse");
-  t.mosseRimaste -= 1;
+  // Da qui in poi le mosse costano una mossa: prima quelle "uguali" di Nonno Salvatore, se la mossa è di quel tipo.
+  if (t.mosseUguali && t.mosseUguali.quante > 0 && m.tipo === t.mosseUguali.tipo) {
+    t.mosseUguali.quante -= 1;
+  } else {
+    if (t.mosseRimaste <= 0) rifiuta("Hai finito le mosse");
+    t.mosseRimaste -= 1;
+  }
+  const appenaPescata = t.appenaPescata;
+  t.appenaPescata = null;
 
   switch (m.tipo) {
     case "prendiNumero": {
@@ -243,9 +221,9 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       break;
     }
     case "pescaNumero": {
-      const c = pesca(s, "numeri");
-      if (!c) rifiuta("Il mazzo numeri è vuoto");
-      g.mano.push(c!);
+      const prese = peschiNumeri(s, id, 1);
+      if (prese.length === 0) rifiuta("Il mazzo numeri è vuoto");
+      t.appenaPescata = { mazzo: "numeri", id: prese.at(-1)!.id };
       registra(s, id, { tipo: "pescaNumero" });
       break;
     }
@@ -254,6 +232,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       if (!c) rifiuta("Il mazzo personaggi è vuoto");
       // Un attacco va scoperto, quindi tutti sanno quale; una carta nascosta resta segreta
       registra(s, id, { tipo: "pescaPersonaggio", ...(zonaDi(c!) === "attacchi" ? { carta: c!.carta } : {}) });
+      t.appenaPescata = { mazzo: "personaggi", id: c!.id };
       riceviCarta(s, id, c!);
       break;
     }
@@ -264,16 +243,12 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     case "attiva":
       attiva(s, id, m);
       break;
+    case "potere":
+      usaPotere(s, id, m, appenaPescata);
+      break;
   }
+  if (m.tipo !== "potere") t.ultimaMossa = m.tipo as TipoMossaNormale;
   riempiTavolo(s);
-}
-
-/** Mette la carta nella zona giusta; se la zona è piena il giocatore deve scartarne una delle vecchie. */
-function riceviCarta(s: StatoPartita, id: IdGiocatore, copia: CopiaCarta): void {
-  const zona = zonaDi(copia);
-  const lista = s.giocatori[id]![zona];
-  lista.push(copia);
-  if (lista.length > limiteZona(s, zona)) s.turno.attesa = { tipo: "scartaCarta", giocatore: id, zona, nuova: copia.id };
 }
 
 /** Scarta le carte numero scoperte e ne scopre di nuove. */
@@ -299,11 +274,11 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   const esito = verificaCombinazione(risorseGiocatore(g), c.codice, m.combinazione);
   if (!esito.ok) rifiuta(esito.errore);
 
-  // Carte usate (anche mance e caffè per il +1): vanno negli scarti.
+  // Carte usate (anche quelle in vetrina, mance e caffè per il +1): vanno negli scarti.
   const usate = m.combinazione.flatMap((el) => [el.id, ...(el.modifica ? [el.modifica.mancia] : [])]);
   for (const idCarta of usate) {
-    const iMano = g.mano.findIndex((x) => x.id === idCarta);
-    if (iMano >= 0) s.scarti.numeri.push(...g.mano.splice(iMano, 1));
+    const numero = togliNumero(g, idCarta);
+    if (numero) scartaNumeri(s, [numero]);
     else s.scarti.mancia.push(...g.mancia.splice(g.mancia.findIndex((x) => x.id === idCarta), 1));
   }
 
@@ -325,17 +300,24 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
 }
 
 function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[]): void {
-  if (s.turno.mosseRimaste > 0 && haMossePossibili(s)) rifiuta("Devi ancora fare tutte le mosse");
-  const eccesso = Math.max(0, g.mano.length - s.opzioni.limiteMano);
+  const t = s.turno;
+  if (t.mosseRimaste > 0 && haMossePossibili(s)) rifiuta("Devi ancora fare tutte le mosse");
+  const quante = daScartare(s, g);
   if (new Set(scarta).size !== scarta.length) rifiuta("Carta da scartare ripetuta");
-  if (scarta.length !== eccesso) rifiuta(`Devi scartare esattamente ${eccesso} carte`);
+  if (scarta.length !== quante) rifiuta(`Devi scartare esattamente ${quante} carte`);
   for (const idCarta of scarta) {
+    if (t.intoccabili.includes(idCarta)) rifiuta("Le carte prese con Alessia non si scartano in questo turno");
     const i = g.mano.findIndex((c) => c.id === idCarta);
     if (i < 0) rifiuta("Puoi scartare solo carte che hai in mano");
-    s.scarti.numeri.push(...g.mano.splice(i, 1));
+    scartaNumeri(s, g.mano.splice(i, 1));
   }
-  registra(s, s.turno.giocatore, { tipo: "fineTurno", scartate: scarta.length });
+  registra(s, t.giocatore, { tipo: "fineTurno", scartate: scarta.length });
 
+  // Doppio turno (Marika): subito un altro turno con 2 mosse, senza ricarica
+  if (t.doppioTurno) {
+    s.turno = nuovoTurno(t.giocatore, MOSSE_DOPPIO_TURNO);
+    return;
+  }
   if (s.ultimoTurno !== null && s.numeroTurno >= s.ultimoTurno) {
     s.finita = true;
     return;
@@ -353,8 +335,8 @@ const COMBINAZIONI_PER_CARTA = 10;
 
 /**
  * Elenco delle mosse possibili ora per il giocatore.
- * Per le attivazioni propone un numero limitato di combinazioni; `applicaMossa`
- * accetta comunque qualsiasi combinazione valida.
+ * Per attivazioni e poteri propone un numero limitato di scelte; `applicaMossa`
+ * accetta comunque qualsiasi scelta valida.
  */
 export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
   if (s.finita || chiDeveMuovere(s) !== id) return [];
@@ -365,34 +347,44 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
     const nuova = t.attesa.nuova;
     return g[t.attesa.zona].filter((c) => c.id !== nuova).map((c) => ({ tipo: "scartaCarta", carta: c.id }));
   }
+  if (t.attesa) return mosseDiScelta(s);
 
   const mosse: Mossa[] = [];
   const caffe = g.mancia.find((x) => x.tipo === "caffe");
   if (caffe) mosse.push({ tipo: "caffe", mancia: caffe.id });
 
   if (t.mosseRimaste > 0) {
-    s.tavolo.numeri.forEach((c, posizione) => c && mosse.push({ tipo: "prendiNumero", posizione }));
-    s.tavolo.personaggi.forEach((c, posizione) => c && mosse.push({ tipo: "prendiPersonaggio", posizione }));
-    if (puoPescare(s, "numeri")) mosse.push({ tipo: "pescaNumero" });
-    if (puoPescare(s, "personaggi")) mosse.push({ tipo: "pescaPersonaggio" });
-    if (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri")) mosse.push({ tipo: "brucia" });
-    const risorse = risorseGiocatore(g);
-    for (const copia of attivabili(g)) {
-      for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {
-        mosse.push({ tipo: "attiva", carta: copia.id, combinazione });
-      }
-    }
+    mosse.push(...mosseNormali(s, g), ...mosseDiPotere(s, id));
+  } else if (t.mosseUguali && t.mosseUguali.quante > 0) {
+    const tipo = t.mosseUguali.tipo;
+    mosse.push(...mosseNormali(s, g).filter((m) => m.tipo === tipo));
   }
 
   if (t.mosseRimaste === 0 || !haMossePossibili(s)) mosse.push(...mosseDiFineTurno(s, g));
   return mosse;
 }
 
+/** Prendere, pescare, bruciare e attivare. */
+function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
+  const mosse: Mossa[] = [];
+  s.tavolo.numeri.forEach((c, posizione) => c && mosse.push({ tipo: "prendiNumero", posizione }));
+  s.tavolo.personaggi.forEach((c, posizione) => c && mosse.push({ tipo: "prendiPersonaggio", posizione }));
+  if (puoPescare(s, "numeri")) mosse.push({ tipo: "pescaNumero" });
+  if (puoPescare(s, "personaggi")) mosse.push({ tipo: "pescaPersonaggio" });
+  if (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri")) mosse.push({ tipo: "brucia" });
+  const risorse = risorseGiocatore(g);
+  for (const copia of attivabili(g)) {
+    for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {
+      mosse.push({ tipo: "attiva", carta: copia.id, combinazione });
+    }
+  }
+  return mosse;
+}
+
 function mosseDiFineTurno(s: StatoPartita, g: StatoGiocatore): Mossa[] {
-  const eccesso = Math.max(0, g.mano.length - s.opzioni.limiteMano);
   return sottoinsiemi(
-    g.mano.map((c) => c.id),
-    eccesso,
+    scartabili(s, g).map((c) => c.id),
+    daScartare(s, g),
     10,
   ).map((scarta): Mossa => ({ tipo: "fineTurno", scarta }));
 }
@@ -412,13 +404,17 @@ function sottoinsiemi<T>(lista: T[], k: number, limite: number): T[][] {
   return res;
 }
 
-/** Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite, tranne se c'è un caffè o carte da scartare. */
+/**
+ * Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite, tranne se c'è un caffè,
+ * restano mosse "uguali" di Nonno Salvatore o carte da scartare.
+ */
 export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; mossa: Mossa } | null {
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
+  if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
-  if (g.mano.length > s.opzioni.limiteMano) return null; // deve scegliere cosa scartare
+  if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare
   return { giocatore, mossa: { tipo: "fineTurno", scarta: [] } };
 }
 

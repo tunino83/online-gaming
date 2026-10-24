@@ -1,63 +1,10 @@
 import { creaCasuale, interoTra } from "@og/engine";
 import { describe, expect, it } from "vitest";
 import { carta } from "./carte";
-import { applicaMossa, mossaAutomatica, mosseValide, puntiDi, setup } from "./regole";
-import type { Mossa, StatoPartita } from "./stato";
-import type { CartaMancia, CartaNumero, CopiaCarta, Valore } from "./tipi-carte";
+import { GIOCATORI, banconota, caffe, contaCarte, copia, fai, num, partita, rifiutata } from "./aiuti-test";
+import { mossaAutomatica, mosseValide, puntiDi, setup } from "./regole";
+import type { Mossa } from "./stato";
 import { vistaGiocatore, vistaPubblica } from "./vista";
-
-/* ---------------- aiuti per scrivere i test in breve ---------------- */
-
-const GIOCATORI = ["anna", "bruno", "carla"];
-
-/**
- * Partita con un ordine fisso: anna, bruno, carla (anna di turno).
- * Senza campanelli e con gli scarti vuoti, così i test non dipendono dal caso
- * (i test sul campanello lo mettono apposta).
- */
-function partita(n = 3): StatoPartita {
-  const s = setup(GIOCATORI.slice(0, n), {}, 1);
-  s.ordine = GIOCATORI.slice(0, n);
-  s.turno.giocatore = "anna";
-  for (const c of [...s.mazzi.numeri, ...s.tavolo.numeri]) delete c?.campanello;
-  s.mazzi.personaggi.unshift(...s.scarti.personaggi);
-  s.scarti.personaggi = [];
-  return s;
-}
-
-const num = (valore: number, id = `x${valore}-${Math.random()}`): CartaNumero => ({ id, valore: valore as Valore });
-const copia = (idCarta: string, n = 1): CopiaCarta => ({ id: `${idCarta}#${n}`, carta: idCarta });
-const banconota = (valore: number, id = `mb${valore}`): CartaMancia => ({ id, tipo: "valore", valore: valore as Valore });
-const caffe = (id = "caffe-x"): CartaMancia => ({ id, tipo: "caffe" });
-
-/** Applica una mossa che deve riuscire. */
-function fai(s: StatoPartita, chi: string, m: Mossa): StatoPartita {
-  const r = applicaMossa(s, chi, m);
-  if (!r.ok) throw new Error(r.errore);
-  return r.stato;
-}
-
-/** Applica una mossa che deve essere rifiutata; restituisce il messaggio. */
-function rifiutata(s: StatoPartita, chi: string, m: Mossa): string {
-  const r = applicaMossa(s, chi, m);
-  if (r.ok) throw new Error("La mossa doveva essere rifiutata");
-  return r.errore;
-}
-
-/** Tutte le carte del gioco, ovunque siano: servono a controllare che non se ne perda nessuna. */
-function contaCarte(s: StatoPartita) {
-  const giocatori = Object.values(s.giocatori);
-  return {
-    numeri:
-      s.mazzi.numeri.length + s.scarti.numeri.length + s.tavolo.numeri.filter(Boolean).length + giocatori.reduce((t, g) => t + g.mano.length, 0),
-    personaggi:
-      s.mazzi.personaggi.length +
-      s.scarti.personaggi.length +
-      s.tavolo.personaggi.filter(Boolean).length +
-      giocatori.reduce((t, g) => t + g.nascosti.length + g.attacchi.length + g.attivati.length, 0),
-    mancia: s.mazzi.mancia.length + s.scarti.mancia.length + giocatori.reduce((t, g) => t + g.mancia.length, 0),
-  };
-}
 
 /* ---------------- preparazione ---------------- */
 
@@ -175,7 +122,7 @@ describe("zone piene", () => {
     s.giocatori.anna!.attacchi = [copia("toto-1"), copia("antonio-2"), copia("vento")];
     s.tavolo.personaggi[0] = copia("greta");
     s = fai(s, "anna", { tipo: "prendiPersonaggio", posizione: 0 });
-    expect(s.turno.attesa?.zona).toBe("attacchi");
+    expect(s.turno.attesa).toMatchObject({ zona: "attacchi" });
     s = fai(s, "anna", { tipo: "scartaCarta", carta: "vento#1" });
     expect(s.registro.at(-1)).toMatchObject({ tipo: "scartaCarta", zona: "attacchi", carta: "vento" });
   });
