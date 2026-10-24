@@ -146,16 +146,14 @@ Durata in turni (turno = il turno di un giocatore), provvisoria.
 | --- | --- | --- |
 | 🎄 Natale | 3 turni | Tutti fanno 1 mossa in meno, tranne chi ha Nonna Dina o Gerardina, che fa 1 mossa in più |
 | 🐣 La Resurrezione (Pasqua / Pasquetta) | 2 turni | Chi ha Totò pesca 1 carta in più e la dà a chi vuole; le carte di Totò non si stancano mai |
-| 🎭 Carnevale di Teora | 2 turni | Lo Squacqualacchione è sempre carico; Totò salta il turno (da chiarire) |
-| ⚱️ Funerale | 2 turni | Franchino e Don Pasquale si ricaricano; tutti passano 1 carta dalla mano al giocatore alla propria destra |
+| 🎭 Carnevale di Teora | 2 turni | Lo Squacqualacchione è sempre carico; i poteri di Totò non si possono usare e chi ha Totò fa 1 mossa in meno |
+| ⚱️ Funerale | 2 turni | Franchino e Don Pasquale si ricaricano; tutti passano 1 carta numero al giocatore alla propria destra, che la sceglie (a carte coperte) dalla mano di chi la dà |
 | 💒 Matrimonio | 1 turno | Tutti fanno 1 mossa in meno; Don Pasquale e Donato si ricaricano e non si stancano mai |
-| 🌭 Sagra delle tomacelle | 1 turno | Come il Carnevale: lo Squacqualacchione è sempre carico; Totò salta il turno (da chiarire) |
+| 🌭 Sagra delle tomacelle | 1 turno | Come il Carnevale: lo Squacqualacchione è sempre carico; i poteri di Totò non si possono usare e chi ha Totò fa 1 mossa in meno |
 | 🍝 Pranzo della domenica | 1 turno | da definire |
 | ☀️ Ferragosto | 1 turno | da definire |
 
 Domande sugli eventi:
-- "Totò salta il turno": chi ha Totò non può usare i poteri di Totò, oppure salta proprio il suo turno?
-- "Tutti passano 1 carta": una carta numero a scelta o a caso?
 - Mentre un evento è ancora in corso se ne può aggiungere un altro, o si aspetta che finisca? (regola attuale: si aspetta)
 
 Le domande aperte sulle regole sono in `regolamento.md`.
