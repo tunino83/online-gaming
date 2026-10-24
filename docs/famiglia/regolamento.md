@@ -81,6 +81,11 @@ Ci si difende in due modi:
 | Dopo | Il personaggio diventa stanco | Il personaggio (o la carta difesa) e le carte numero usate vanno negli scarti |
 | Punti | Il personaggio continua a dare i suoi punti | Nessun punto |
 
+**Regola del livello** (decisa il 2026-10-24): una difesa ferma solo gli attacchi del suo livello o più bassi.
+Una difesa di livello 1 ferma solo attacchi di livello 1, una di livello 2 ferma attacchi di livello 1 e 2,
+una di livello 3 li ferma tutti. Fanno eccezione le carte che dicono già cosa fermano
+(es. Taurasi: qualsiasi attacco; Paesano: solo livello 1; Aglianico: livello 1 o 2).
+
 Le carte difesa (vini, Campari, scuse) non si attivano mai: si usano solo d'emergenza.
 
 | Carta difesa | Codice per usarla |
