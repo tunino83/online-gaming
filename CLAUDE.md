@@ -98,7 +98,8 @@ File principali del primo gioco (`games/primo-gioco/src`):
 
 Personaggi = membri della famiglia e gente del paese, con poteri di attacco/difesa/aiuto che si ricaricano.
 Carte e poteri in `docs/famiglia/bozza.md`, codici in `docs/famiglia/carte.md`, regole in `docs/famiglia/regolamento.md`, piano in `docs/famiglia/piano.md`.
-Pacchetto `games/famiglia` (`@og/famiglia`): dati in `carte.ts` ed `eventi.ts` (un test li confronta con `carte.md`), codici in `codici.ts`.
+Pacchetto `games/famiglia` (`@og/famiglia`): dati in `carte.ts` ed `eventi.ts` (un test li confronta con `carte.md`), codici in `codici.ts`,
+stato e mosse in `stato.ts`, regole in `regole.ts`, vista in `vista.ts`, oggetto gioco `giocoFamiglia` in `gioco.ts` (non ancora registrato nell'arbitro).
 Immagini in `games/famiglia/immagini/classica/` (prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
 Quando si passa al codice: seguire lo schema di Ufficio (pacchetto in `games/`, schermata in `apps/web/src/giochi/`),
 senza toccare Il Portale e Ufficio. Proporre il piano e aspettare l'ok prima di iniziare.

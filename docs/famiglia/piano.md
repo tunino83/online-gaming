@@ -22,7 +22,7 @@ L'elenco esatto dei nomi file sarà in `games/famiglia/immagini/LEGGIMI.md`.
 | Passo | Cosa | Come si verifica |
 | --- | --- | --- |
 | A1 ✅ | Dati delle carte (tutte le 100 + eventi) in un file di dati, codici di attivazione | Test: ogni carta ha codice, punti, tipo, ricarica |
-| A2 | Partita base: tavolo, mazzi, 3 mosse, prendere/pescare/bruciare/attivare, zone (mano nascosta, attacchi in attesa, attivati), limiti, mancia dei nonni, caffè, campanello | Test per ogni regola |
+| A2 ✅ | Partita base: tavolo, mazzi, 3 mosse, prendere/pescare/bruciare/attivare, zone (mano nascosta, attacchi in attesa, attivati), limiti, mancia dei nonni, caffè, campanello | Test per ogni regola |
 | A3 | Ricarica e poteri di aiuto ✨ | Un test per ogni potere |
 | A4 | Attacchi ⚔️ e difese 🛡️: la partita si ferma e l'attaccato sceglie se difendersi (regola del livello, difese d'emergenza, carte difesa e attacco) | Un test per ogni attacco e ogni difesa |
 | A5 | Eventi, Famiglia al completo, fine partita (a punti o fine mazzo) | Test |
