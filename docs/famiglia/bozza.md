@@ -119,6 +119,20 @@ Proposta: contano nel limite dei personaggi nascosti in mano.
 Totale carte difesa: 14. **Totale mazzo personaggi: 96 carte.** Obiettivo: almeno 100.
 Nota di bilanciamento: ora le difese sono molte; le prossime carte conviene che siano attacchi.
 
+## Carte attacco (oggetti e dispetti, decise il 2026-10-24)
+
+Come le carte difesa ma al contrario: non sono personaggi e non danno punti. Stanno scoperte negli
+attacchi in attesa; si usano una volta sola (pagando il codice, con una mossa) e poi si scartano.
+
+| Carta | Livello | Copie | Effetto |
+| --- | --- | --- | --- |
+| 🌭 **La tomacella** | 2 | 1 | Una carta carica di un avversario si stanca |
+| 🃏 **Giro aperto** | 2 | 1 | Prendi 1 carta numero a caso dalla mano di un avversario |
+| 🧿 **Gli occhi 'nguoll** | 2 | 1 | Un avversario scarta un personaggio nascosto a caso |
+| 🌬️ **Vento** | 1 | 1 | Volano via le carte numero dalla mano di un avversario: le scarta tutte e ne ripesca altrettante dal mazzo |
+
+**Totale mazzo personaggi: 100 carte** (82 personaggi, 14 carte difesa, 4 carte attacco).
+
 **Legami tra personaggi** (deciso il 2026-10-24): alcune carte hanno un bonus se insieme a un altro parente.
 Primo legame: Tritacarne + Chicca. Altri possibili: Zio Salvatore e Generoso (vino), Nonno Nicola e Nonna Dina (cibo).
 

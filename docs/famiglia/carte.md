@@ -108,6 +108,15 @@ Regole usate:
 | ❄️ Nevicava, non è potuto venire | 2 | 2 carte qualsiasi |
 | 🛒 Sono andato a Lioni a fa' a spesa | 2 | 2 carte qualsiasi |
 
+## Carte attacco (0 punti, si usano una volta)
+
+| Carta | Livello | Copie | Codice |
+| --- | --- | --- | --- |
+| 🌭 La tomacella | 2 | 1 | Coppia |
+| 🃏 Giro aperto | 2 | 1 | Coppia |
+| 🧿 Gli occhi 'nguoll | 2 | 1 | Coppia |
+| 🌬️ Vento | 1 | 1 | 1 carta qualsiasi |
+
 ## Riepilogo
 
 | | Carte | Punti in tutto |
@@ -116,7 +125,8 @@ Regole usate:
 | Livello 2 | 31 | 62 |
 | Livello 3 | 24 | 72 |
 | Carte difesa | 14 | 0 |
-| **Totale** | **96** | **161** |
+| Carte attacco | 4 | 0 |
+| **Totale** | **100** | **161** |
 
 Con 20 punti per vincere servono, per esempio, 2 carte di livello 3 + 4 di livello 2 + 6 di livello 1, oppure 7 di livello 3.
 I codici più usati (coppia, somme facili) si ripetono di proposito: le simulazioni diranno quali carte escono troppo o troppo poco.

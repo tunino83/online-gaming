@@ -86,7 +86,14 @@ Una difesa di livello 1 ferma solo attacchi di livello 1, una di livello 2 ferma
 una di livello 3 li ferma tutti. Fanno eccezione le carte che dicono già cosa fermano
 (es. Taurasi: qualsiasi attacco; Paesano: solo livello 1; Aglianico: livello 1 o 2).
 
+**Attacchi contro tutti** (Urla, Manca 'o sale, Rospe per tutti, Volo infuocato…): ogni avversario si difende
+per conto suo e la sua difesa protegge solo lui. Un attacco contro tutti non si può deviare (Maddalena).
+
+**Carte rubate**: chi cura i danni (Zia Diana) recupera le carte scartate, non quelle rubate.
+
 Le carte difesa (vini, Campari, scuse) non si attivano mai: si usano solo d'emergenza.
+Le carte attacco (tomacella, giro aperto, occhi 'nguoll, vento) stanno scoperte negli attacchi in attesa:
+si usano una volta sola, pagando il codice e usando una mossa, poi si scartano. Non danno punti.
 
 | Carta difesa | Codice per usarla |
 | --- | --- |
