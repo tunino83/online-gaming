@@ -5,13 +5,14 @@
  */
 import { AVATAR, AVATAR_PREDEFINITO, type Gioco, type IdGiocatore, avatarValido } from "@og/engine";
 import { primoGioco } from "@og/primo-gioco";
+import { giocoFamiglia } from "@og/famiglia";
 import { giocoUfficio } from "@og/ufficio";
 
 // biome-ignore lint: ogni gioco ha i suoi tipi di stato, mossa, opzioni e vista
 type QualsiasiGioco = Gioco<any, any, any, any>;
 
 /** Giochi disponibili sulla piattaforma. */
-export const GIOCHI: Record<string, QualsiasiGioco> = { "primo-gioco": primoGioco, ufficio: giocoUfficio };
+export const GIOCHI: Record<string, QualsiasiGioco> = { "primo-gioco": primoGioco, ufficio: giocoUfficio, famiglia: giocoFamiglia };
 
 /* ------------------------------------------------------------------ */
 /* Archivio (database)                                                 */
@@ -282,15 +283,17 @@ async function alPosto(r: Record<string, unknown>, utente: string, archivio: Arc
   const p = await archivio.leggiPartita(r.partitaId);
   if (!p || !p.giocatori.some((x) => x.utenteId === utente && !x.bot)) return errore("Partita non trovata");
   if (p.stato !== "in_corso") return errore("La partita non è in corso");
-  if (p.opzioni.computerAlPosto === false) return errore("In questa partita il computer non gioca al posto di nessuno");
   const g = GIOCHI[p.gioco];
   const salvato = await archivio.leggiStato(p.id);
   if (!g || !salvato || !g.mossaSostituto) return errore("Partita non trovata");
 
   const prima = applicaAutomatiche(g, salvato.stato);
+  // Tempo massimo previsto dalle regole (es. per difendersi): vale anche senza "computer al posto di chi è fermo"
+  const limite = g.attesaMassimaMs?.(prima) ?? null;
+  if (limite === null && p.opzioni.computerAlPosto === false) return errore("In questa partita il computer non gioca al posto di nessuno");
   const chi = g.diTurno?.(prima);
   if (!chi || !p.giocatori.some((x) => x.utenteId === chi && !x.bot)) return errore("Non tocca a una persona");
-  const attesa = salvato.alPostoDi === chi ? PAUSA_SOSTITUTO_MS : ATTESA_PRIMA_DEL_SOSTITUTO_MS;
+  const attesa = limite ?? (salvato.alPostoDi === chi ? PAUSA_SOSTITUTO_MS : ATTESA_PRIMA_DEL_SOSTITUTO_MS);
   const trascorsi = (amb.ora?.() ?? Date.now()) - salvato.aggiornatoIl;
   // alPosto: il computer sta già giocando per questa persona (il browser lo mostra)
   if (trascorsi < attesa) return { ok: true, fatto: false, attendiMs: attesa - trascorsi, alPosto: salvato.alPostoDi === chi };
@@ -346,7 +349,7 @@ function applicaAutomatiche(g: QualsiasiGioco, stato: unknown): unknown {
  * Opzioni scelte da chi crea la partita. computerAlPosto: il computer gioca al posto di chi è fermo
  * da 60 secondi (se manca vale sì); è della piattaforma, non delle regole, quindi non arriva al gioco.
  */
-const OPZIONI_ACCETTATE = ["puntiPerVincere", "computerAlPosto"];
+const OPZIONI_ACCETTATE = ["puntiPerVincere", "computerAlPosto", "modoFine", "secondiDifesa"];
 
 /** Opzioni da passare alle regole del gioco (senza quelle della piattaforma). */
 function opzioniDelGioco(opzioni: Record<string, unknown>): Record<string, unknown> {
@@ -378,6 +381,19 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
     if (alPosto !== undefined) {
       if (typeof alPosto !== "boolean") return errore("Opzioni non valide");
       opzioni.computerAlPosto = alPosto;
+    }
+    // Solo per la Famiglia: come finisce la partita e secondi per difendersi
+    const modoFine = r.opzioni.modoFine;
+    if (modoFine !== undefined) {
+      if (gioco !== "famiglia" || (modoFine !== "punti" && modoFine !== "mazzo")) return errore("Opzioni non valide");
+      opzioni.modoFine = modoFine;
+    }
+    const secondi = r.opzioni.secondiDifesa;
+    if (secondi !== undefined) {
+      if (gioco !== "famiglia" || !Number.isInteger(secondi) || (secondi as number) < 10 || (secondi as number) > 120) {
+        return errore("Il tempo per difendersi va da 10 a 120 secondi");
+      }
+      opzioni.secondiDifesa = secondi;
     }
   }
 

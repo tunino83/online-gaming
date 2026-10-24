@@ -1,4 +1,5 @@
 import { creaCasuale, prossimo } from "@og/engine";
+import { type StatoPartita as StatoFamiglia, giocoFamiglia } from "@og/famiglia";
 import { type StatoPartita, mossaDelBot } from "@og/primo-gioco";
 import { describe, expect, it } from "vitest";
 import { type Ambiente, gestisci } from "./arbitro";
@@ -508,5 +509,74 @@ describe("opzione: il computer gioca al posto di chi è fermo (sì / no)", () =>
     const { chiedi } = prepara();
     expect(await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { computerAlPosto: "forse" } })).toEqual({ ok: false, errore: "Opzioni non valide" });
     expect(await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { computerAlPosto: true } })).toMatchObject({ ok: true });
+  });
+});
+
+describe("gioco La Famiglia", () => {
+  it("una partita contro il computer, passando dall'arbitro, arriva alla fine", async () => {
+    const { chiedi, archivio } = prepara(31);
+    const r = (await chiedi(A, { azione: "controComputer", nickname: "Anna", bot: 2, gioco: "famiglia" })) as unknown as { partitaId: string };
+    const partitaId = r.partitaId;
+    const rng = creaCasuale(7);
+    const casuale = () => prossimo(rng);
+    for (let i = 0; i < 3000 && archivio.dati.partite.get(partitaId)!.stato !== "finita"; i++) {
+      const stato = archivio.dati.stati.get(partitaId)!.stato as StatoFamiglia;
+      const chi = giocoFamiglia.diTurno!(stato);
+      const risposta =
+        chi === A
+          ? await chiedi(A, { azione: "mossa", partitaId, mossa: giocoFamiglia.mossaBot!(stato, A, casuale) })
+          : await chiedi(A, { azione: "turnoComputer", partitaId });
+      expect(risposta).toMatchObject({ ok: true });
+    }
+    expect(archivio.dati.partite.get(partitaId)!.stato).toBe("finita");
+  });
+
+  it("opzioni della Famiglia: come finisce e secondi per difendersi (solo per questo gioco)", async () => {
+    const { chiedi, archivio } = prepara(32);
+    const ok = (await chiedi(A, { azione: "crea", nickname: "Anna", gioco: "famiglia", opzioni: { modoFine: "mazzo", secondiDifesa: 20 } })) as unknown as {
+      partitaId: string;
+    };
+    expect(archivio.dati.partite.get(ok.partitaId)!.opzioni).toEqual({ modoFine: "mazzo", secondiDifesa: 20 });
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", gioco: "famiglia", opzioni: { modoFine: "boh" } })).toMatchObject({ ok: false });
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", gioco: "famiglia", opzioni: { secondiDifesa: 5 } })).toMatchObject({ ok: false });
+    expect(await chiedi(A, { azione: "crea", nickname: "Anna", opzioni: { modoFine: "mazzo" } })).toMatchObject({ ok: false });
+  });
+
+  it("chi è attaccato ha un tempo per difendersi: poi l'attacco passa, anche senza il computer al posto di chi è fermo", async () => {
+    let adesso = 1_000_000;
+    const archivio = creaArchivioMemoria(() => adesso);
+    const rng = creaCasuale(5);
+    const amb: Ambiente = { casuale: () => prossimo(rng), ora: () => adesso };
+    const chiedi = (utente: string, richiesta: unknown) => gestisci(richiesta, utente, archivio, amb);
+    const creata = (await chiedi(A, {
+      azione: "crea",
+      nickname: "Anna",
+      gioco: "famiglia",
+      opzioni: { computerAlPosto: false, secondiDifesa: 10 },
+    })) as unknown as { partitaId: string; codice: string };
+    const partitaId = creata.partitaId;
+    await chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno" });
+    await chiedi(A, { azione: "avvia", partitaId });
+    // Si prepara la situazione: anna di turno con Totò (Si incanta), bruno con Christian (Che paura!)
+    const salvato = archivio.dati.stati.get(partitaId)!;
+    const s = salvato.stato as StatoFamiglia;
+    s.ordine = [A, B];
+    s.turno.giocatore = A;
+    s.turno.mosseRimaste = 3;
+    s.giocatori[A]!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 });
+    s.giocatori[B]!.attivati.push({ copia: { id: "christian#1", carta: "christian" }, stanca: 0 });
+    expect(await chiedi(A, { azione: "mossa", partitaId, mossa: { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: B } })).toMatchObject({ ok: true });
+    expect((archivio.dati.stati.get(partitaId)!.stato as StatoFamiglia).turno.attesa).toEqual({ tipo: "difesa", giocatore: B });
+
+    adesso += 4_000;
+    expect(await chiedi(A, { azione: "alPosto", partitaId })).toEqual({ ok: true, fatto: false, attendiMs: 6_000, alPosto: false });
+    adesso += 6_000;
+    expect(await chiedi(A, { azione: "alPosto", partitaId })).toMatchObject({ ok: true, fatto: true });
+    const dopo = archivio.dati.stati.get(partitaId)!.stato as StatoFamiglia;
+    expect(dopo.turno.attesa).toBeNull();
+    expect(dopo.giocatori[B]!.mosseProssimoTurno).toBe(-1);
+    // Di nuovo il turno di anna: senza il computer al posto di chi è fermo, nessuno muove per lei
+    adesso += 120_000;
+    expect(await chiedi(B, { azione: "alPosto", partitaId })).toMatchObject({ ok: false });
   });
 });

@@ -66,4 +66,11 @@ export interface Gioco<Stato, Mossa, Opzioni, Vista> {
 
   /** Facoltativa: a chi tocca adesso (per far muovere i bot); null a partita finita. */
   diTurno?(stato: Stato): IdGiocatore | null;
+
+  /**
+   * Facoltativa: tempo massimo (millisecondi) per la decisione che si aspetta adesso, se le regole ne prevedono uno
+   * (es. difendersi da un attacco nella Famiglia). Passato il tempo l'arbitro fa la mossa del sostituto, anche se
+   * la partita non ha il "computer al posto di chi è fermo". null = vale l'attesa normale.
+   */
+  attesaMassimaMs?(stato: Stato): number | null;
 }

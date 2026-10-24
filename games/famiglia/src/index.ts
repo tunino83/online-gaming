@@ -11,4 +11,5 @@ export * from "./poteri";
 export * from "./attacchi";
 export * from "./vista";
 export * from "./gioco";
+export * from "./bot";
 export * from "./valida-mossa";

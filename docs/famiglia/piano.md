@@ -26,14 +26,14 @@ L'elenco esatto dei nomi file sarà in `games/famiglia/immagini/LEGGIMI.md`.
 | A3 ✅ | Ricarica e poteri di aiuto ✨ | Un test per ogni potere |
 | A4 ✅ | Attacchi ⚔️ e difese 🛡️: la partita si ferma e l'attaccato sceglie se difendersi (regola del livello, difese d'emergenza, carte difesa e attacco) | Un test per ogni attacco e ogni difesa |
 | A5 ✅ | Eventi, Famiglia al completo, fine partita (a punti o fine mazzo) | Test |
-| A6 | Robot che giocano a caso + simulazione di 1000 partite (`pnpm simula:famiglia`) con statistiche: durata, carte più usate, attacchi andati a segno | Rapporto `docs/famiglia/statistiche-simulazione.md`, da guardare insieme per il bilanciamento |
+| A6 ✅ (senza le 1000 partite, per ora) | Robot che giocano a caso + simulazione di 1000 partite (`pnpm simula:famiglia`) con statistiche: durata, carte più usate, attacchi andati a segno | Rapporto `docs/famiglia/statistiche-simulazione.md`, da guardare insieme per il bilanciamento |
 
 ### Fase B – Arbitro (server)
 
 | Passo | Cosa |
 | --- | --- |
-| B1 | L'arbitro conosce il nuovo gioco; opzioni di chi crea la partita: punti (20), modo di fine, tempo per difendersi (30 s) |
-| B2 | Tempo per difendersi: se l'attaccato non risponde in tempo, l'attacco passa da solo (stesso meccanismo del "computer al posto di chi è fermo") |
+| B1 ✅ | L'arbitro conosce il nuovo gioco; opzioni di chi crea la partita: punti (20), modo di fine, tempo per difendersi (30 s) |
+| B2 ✅ | Tempo per difendersi: se l'attaccato non risponde in tempo, l'attacco passa da solo (stesso meccanismo del "computer al posto di chi è fermo") |
 | B3 | Pubblicazione dell'arbitro e test sul progetto Supabase di prova |
 
 ### Fase C – Schermata (sito)

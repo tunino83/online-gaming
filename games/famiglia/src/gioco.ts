@@ -1,7 +1,8 @@
-/** La Famiglia, nella forma comune a tutti i giochi della piattaforma. Robot e sostituto arrivano nel passo A6. */
+/** La Famiglia, nella forma comune a tutti i giochi della piattaforma. */
 import type { Gioco } from "@og/engine";
+import { attesaMassimaMs, diTurno, mossaDelBot, mossaDelSostituto } from "./bot";
 import { MAX_GIOCATORI, MIN_GIOCATORI, type OpzioniPartita } from "./parametri";
-import { applicaMossa, chiDeveMuovere, finePartita, mossaAutomatica, mosseValide, setup } from "./regole";
+import { applicaMossa, finePartita, mossaAutomatica, mosseValide, setup } from "./regole";
 import type { Mossa, StatoPartita } from "./stato";
 import { type VistaGiocatore, vistaGiocatore, vistaPubblica } from "./vista";
 
@@ -16,5 +17,8 @@ export const giocoFamiglia: Gioco<StatoPartita, Mossa, OpzioniPartita, VistaGioc
   vistaGiocatore,
   vistaPubblica,
   mossaAutomatica,
-  diTurno: (stato) => (stato.finita ? null : chiDeveMuovere(stato)),
+  mossaBot: mossaDelBot,
+  mossaSostituto: mossaDelSostituto,
+  attesaMassimaMs,
+  diTurno,
 };

@@ -11,7 +11,8 @@
   "dependencies": {
     "@og/engine": "workspace:*",
     "@og/primo-gioco": "workspace:*",
-    "@og/ufficio": "workspace:*"
+    "@og/ufficio": "workspace:*",
+    "@og/famiglia": "workspace:*"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.45.0"

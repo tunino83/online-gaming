@@ -119,6 +119,9 @@ importers:
       '@og/engine':
         specifier: workspace:*
         version: link:../engine
+      '@og/famiglia':
+        specifier: workspace:*
+        version: link:../../games/famiglia
       '@og/primo-gioco':
         specifier: workspace:*
         version: link:../../games/primo-gioco
