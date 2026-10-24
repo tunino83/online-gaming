@@ -98,7 +98,7 @@ const ADULTI: Carta[] = [
     {
       codice: pari(2),
       poteri: [
-        aiuto("Non sbaglio mai", "Scarti la carta appena pescata e ne peschi un'altra"),
+        aiuto("Non sbaglio mai", "Subito dopo una pescata cambi la carta con un'altra, senza usare mosse"),
         aiuto("Fatto in casa", "Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8)"),
       ],
     },

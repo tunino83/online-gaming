@@ -131,10 +131,11 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
-- Usare un potere costa una mossa; dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
+- Usare un potere costa una mossa (salvo Non sbaglio mai); dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
 - **Ci penso domani** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
-- **Non sbaglio mai** (Maddalena): l'ultima carta pescata in questo turno (numero o personaggio), se la mossa
-  appena fatta era la pescata: la scarti e ne peschi un'altra dallo stesso mazzo.
+- **Non sbaglio mai** (Maddalena): subito dopo una pescata (numero o personaggio) scarti quella carta e ne peschi
+  un'altra dallo stesso mazzo, **senza usare mosse** (deciso il 2026-10-24: è l'unico potere che non costa una mossa).
+  Si può usare anche dopo l'ultima pescata del turno. La carta poi si stanca come le altre.
 - **Fatto in casa** (Maddalena): le 2 carte restano unite come una sola carta "fatta in casa" che vale la loro somma
   (al massimo 8). Quando si usa o si scarta, vanno negli scarti tutte e due.
 - **La vetrina della collezione** (Checca): al massimo 3 carte in vetrina in tutto; non contano nel limite delle 7

@@ -25,7 +25,7 @@ const anna = (s: StatoPartita) => s.giocatori.anna!;
 /* ---------------- regole comuni ---------------- */
 
 describe("usare un potere", () => {
-  it("costa una mossa e la carta diventa stanca per il suo tempo di ricarica", () => {
+  it("costa una mossa (salvo Non sbaglio mai) e la carta diventa stanca per il suo tempo di ricarica", () => {
     let s = conCarta("nonno-nicola-1"); // L'orto, ricarica 1
     s = usa(s, "nonno-nicola-1");
     expect(s.turno.mosseRimaste).toBe(2);
@@ -186,15 +186,28 @@ describe("pescare", () => {
     expect(anna(s).mano).toHaveLength(3);
   });
 
-  it("Non sbaglio mai: subito dopo aver pescato, scarti quella carta e ne peschi un'altra", () => {
+  it("Non sbaglio mai: subito dopo aver pescato, scarti quella carta e ne peschi un'altra, senza usare mosse", () => {
     let s = conCarta("maddalena-1");
     expect(rifiutata(s, "anna", potere("maddalena-1"))).toMatch(/subito dopo/);
     s = fai(s, "anna", { tipo: "pescaNumero" });
     const pescata = anna(s).mano[0]!;
     s = usa(s, "maddalena-1");
+    expect(s.turno.mosseRimaste).toBe(2); // solo la pescata ha usato una mossa
+    expect(anna(s).attivati[0]!.stanca).toBe(1);
     expect(s.scarti.numeri).toEqual([pescata]);
     expect(anna(s).mano).toHaveLength(1);
     expect(anna(s).mano[0]).not.toEqual(pescata);
+  });
+
+  it("Non sbaglio mai si può usare anche dopo l'ultima pescata del turno (e il turno non si chiude da solo)", () => {
+    let s = conCarta("maddalena-1");
+    s.turno.mosseRimaste = 1;
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    expect(s.turno.mosseRimaste).toBe(0);
+    expect(mossaAutomatica(s)).toBeNull();
+    expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
+    s = usa(s, "maddalena-1");
+    expect(mossaAutomatica(s)).not.toBeNull();
   });
 
   it("Non sbaglio mai funziona anche con un personaggio, ma non dopo un'altra mossa", () => {

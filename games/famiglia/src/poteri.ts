@@ -25,6 +25,9 @@ type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
 /** Poteri di aiuto che dipendono dagli attacchi e arrivano con il passo A4. */
 export const AIUTI_DEL_PASSO_A4 = new Set(["sempre-la-stessa-storia", "giacca-al-rovescio"]);
 
+/** Poteri che non costano mosse (Non sbaglio mai: la pescata sbagliata non conta). */
+export const POTERI_GRATIS = new Set(["non-sbaglio-mai"]);
+
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;
 

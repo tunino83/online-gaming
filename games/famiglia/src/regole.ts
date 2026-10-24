@@ -23,7 +23,7 @@ import { carta } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
 import { CARTE_NUMERO_SCOPERTE, MAX_GIOCATORI, MIN_GIOCATORI, OPZIONI_DEFAULT, type OpzioniPartita, PERSONAGGI_SCOPERTI } from "./parametri";
-import { mosseDiPotere, mosseDiScelta, rispondiScelta, usaPotere } from "./poteri";
+import { POTERI_GRATIS, mosseDiPotere, mosseDiScelta, rispondiScelta, usaPotere } from "./poteri";
 import type { Mossa, StatoGiocatore, StatoPartita, StatoTurno, TipoMossaNormale } from "./stato";
 import type { CopiaCarta } from "./tipi-carte";
 import { validaMossa } from "./valida-mossa";
@@ -193,6 +193,13 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       rifiuta("Non c'è nessuna scelta in sospeso");
   }
 
+  // Poteri che non costano mosse: la carta appena pescata resta quella "appena pescata" fino a qui
+  if (m.tipo === "potere" && POTERI_GRATIS.has(m.potere)) {
+    usaPotere(s, id, m, t.appenaPescata);
+    t.appenaPescata = null;
+    return;
+  }
+
   // Da qui in poi le mosse costano una mossa: prima quelle "uguali" di Nonno Salvatore, se la mossa è di quel tipo.
   if (t.mosseUguali && t.mosseUguali.quante > 0 && m.tipo === t.mosseUguali.tipo) {
     t.mosseUguali.quante -= 1;
@@ -355,9 +362,12 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
 
   if (t.mosseRimaste > 0) {
     mosse.push(...mosseNormali(s, g), ...mosseDiPotere(s, id));
-  } else if (t.mosseUguali && t.mosseUguali.quante > 0) {
-    const tipo = t.mosseUguali.tipo;
-    mosse.push(...mosseNormali(s, g).filter((m) => m.tipo === tipo));
+  } else {
+    if (t.mosseUguali && t.mosseUguali.quante > 0) {
+      const tipo = t.mosseUguali.tipo;
+      mosse.push(...mosseNormali(s, g).filter((m) => m.tipo === tipo));
+    }
+    mosse.push(...mosseDiPotere(s, id).filter((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere)));
   }
 
   if (t.mosseRimaste === 0 || !haMossePossibili(s)) mosse.push(...mosseDiFineTurno(s, g));
@@ -406,12 +416,13 @@ function sottoinsiemi<T>(lista: T[], k: number, limite: number): T[][] {
 
 /**
  * Mossa che il server fa da solo: chiudere il turno quando le mosse sono finite, tranne se c'è un caffè,
- * restano mosse "uguali" di Nonno Salvatore o carte da scartare.
+ * restano mosse "uguali" di Nonno Salvatore, si può usare un potere gratis o ci sono carte da scartare.
  */
 export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; mossa: Mossa } | null {
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
+  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere))) return null; // es. Non sbaglio mai
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
   if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare
