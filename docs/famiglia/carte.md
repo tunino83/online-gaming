@@ -92,8 +92,8 @@ Regole usate:
 | Donato | 2 | Non ti sento, sto suonando | 🛡️ | Scala da 3 |
 | Franchino | 2 | Multa | ⚔️ | 3 carte con somma 15 |
 | Vincenzo | 1 | Frutta e verdura! | ✨ | 2 carte con somma 8 |
-| Il parroco | 2 | Benedizione | 🛡️ | Tris |
-| Il medico | 1 | Ricetta | ✨ | 2 carte con somma 10 |
+| Don Pasquale (parroco) | 2 | Benedizione | 🛡️ | Tris |
+| Dottor Racioppi (medico) | 1 | Ricetta | ✨ | 2 carte con somma 10 |
 | Zia Diana | 2 | Guardia medica | 🛡️ | 3 carte con somma 12 |
 
 ## Carte difesa (0 punti, solo d'emergenza)

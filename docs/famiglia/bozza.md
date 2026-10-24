@@ -75,8 +75,8 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 | --- | --- | --- | --- |
 | **Franchino** (il vigile) | 2 | ⚔️ *Multa*: chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti) | 2 |
 | **Vincenzo** (il fruttivendolo con l'Ape) | 1 | ✨ *Frutta e verdura!*: scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 1 |
-| **Il parroco** (nome da decidere) | 2 | 🛡️ *Benedizione*: annulli un attacco contro qualsiasi giocatore, anche contro un altro | 2 |
-| **Il medico** (nome da decidere) | 1 | ✨ *Ricetta*: ricarichi subito una carta stanca di chi vuoi (anche di un avversario, per farti un alleato) | 1 |
+| **Don Pasquale** (il parroco) | 2 | 🛡️ *Benedizione*: annulli un attacco contro qualsiasi giocatore, anche contro un altro | 2 |
+| **Dottor Racioppi** (il medico) | 1 | ✨ *Ricetta*: ricarichi subito una carta stanca di chi vuoi (anche di un avversario, per farti un alleato) | 1 |
 | **Zia Diana** (la guardia medica) | 2 | 🛡️ *Guardia medica*: dopo che un attacco ti ha colpito, curi i danni: le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche | 2 |
 | **Donato** (musicista) | 2 | 🛡️ *Non ti sento, sto suonando*: annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro | 2 |
 | **Nicole** | 2 | ⚔️ *Parla parla parla*: un avversario è così frastornato che nel suo prossimo turno non può usare poteri | 2 |
@@ -136,42 +136,26 @@ attacchi in attesa; si usano una volta sola (pagando il codice, con una mossa) e
 **Legami tra personaggi** (deciso il 2026-10-24): alcune carte hanno un bonus se insieme a un altro parente.
 Primo legame: Tritacarne + Chicca. Altri possibili: Zio Salvatore e Generoso (vino), Nonno Nicola e Nonna Dina (cibo).
 
-## Carte evento (idea del 2026-10-24, da definire)
+## Carte evento
 
-Oltre ai personaggi ci saranno carte **evento**: cose che succedono in famiglia e valgono per tutti.
+Cose che succedono in famiglia e valgono per tutti. Come si pescano: vedi `regolamento.md` ("Eventi").
+Durata in turni (turno = il turno di un giocatore), provvisoria.
+"Chi ha X" = chi ha almeno una carta di X attivata.
 
-**Come escono (deciso il 2026-10-24)**: mazzo eventi a parte. All'inizio di ogni turno un giocatore,
-a rotazione, decide se si gioca un evento. Se sì, si pesca una carta evento, che vale per quel turno.
-
-**Durata**: ogni evento ha la sua durata, scritta sulla carta (turno = il turno di un giocatore).
-
-| Evento | Durata |
-| --- | --- |
-| Natale | 3 turni |
-| La Resurrezione (Pasqua / Pasquetta) | 2 turni |
-| Carnevale di Teora | 2 turni |
-| Funerale | 2 turni |
-| Pranzo della domenica | 1 turno |
-| Matrimonio | 1 turno |
-| Ferragosto | 1 turno |
-| Sagra delle tomacelle | 1 turno (evento diverso dal Carnevale di Teora) |
-
-Durate provvisorie: si rivedono quando si decidono gli effetti.
-
-**Effetti**: bonus e malus sui personaggi, da definire in seguito.
+| Evento | Durata | Effetto |
+| --- | --- | --- |
+| 🎄 Natale | 3 turni | Tutti fanno 1 mossa in meno, tranne chi ha Nonna Dina o Gerardina, che fa 1 mossa in più |
+| 🐣 La Resurrezione (Pasqua / Pasquetta) | 2 turni | Chi ha Totò pesca 1 carta in più e la dà a chi vuole; le carte di Totò non si stancano mai |
+| 🎭 Carnevale di Teora | 2 turni | Lo Squacqualacchione è sempre carico; Totò salta il turno (da chiarire) |
+| ⚱️ Funerale | 2 turni | Franchino e Don Pasquale si ricaricano; tutti passano 1 carta dalla mano al giocatore alla propria destra |
+| 💒 Matrimonio | 1 turno | Tutti fanno 1 mossa in meno; Don Pasquale e Donato si ricaricano e non si stancano mai |
+| 🌭 Sagra delle tomacelle | 1 turno | Come il Carnevale: lo Squacqualacchione è sempre carico; Totò salta il turno (da chiarire) |
+| 🍝 Pranzo della domenica | 1 turno | da definire |
+| ☀️ Ferragosto | 1 turno | da definire |
 
 Domande sugli eventi:
-- Chi decide a rotazione: il giocatore di turno, o un altro (es. il giocatore precedente)?
-- Mentre un evento è ancora in corso se ne può aggiungere un altro, o si aspetta che finisca?
+- "Totò salta il turno": chi ha Totò non può usare i poteri di Totò, oppure salta proprio il suo turno?
+- "Tutti passano 1 carta": una carta numero a scelta o a caso?
+- Mentre un evento è ancora in corso se ne può aggiungere un altro, o si aspetta che finisca? (regola attuale: si aspetta)
 
-## Domande aperte
-
-1. Quanti personaggi nascosti si possono tenere in mano? (proposta: 3)
-1. Limite di carte numero in mano: 5 come Il Portale o diverso? (da capire, anche con le simulazioni)
-2. Un personaggio usato in difesa dalla mano si scarta, o resta in mano e si stanca anche lui? (proposta: si scarta)
-3. Contro un attacco si può giocare una sola difesa, o anche una difesa contro la difesa? (proposta: una sola)
-4. Nuove persone da aggiungere (con 3 carte ciascuna): chi?
-5. "Famiglia al completo" (+2 punti con le 3 carte della stessa persona): sì o no?
-6. Si tengono i diamanti e le carte con le frecce di Il Portale?
-7. Punti per vincere: 15 come Il Portale?
-8. Nome del gioco.
+Le domande aperte sulle regole sono in `regolamento.md`.
