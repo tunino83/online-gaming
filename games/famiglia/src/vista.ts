@@ -44,7 +44,7 @@ export interface VistaGiocatore {
     rivelati: StatoTurno["rivelati"];
   };
   /** Attacco in corso (informazioni pubbliche). */
-  attacco: Pick<AttaccoInCorso, "attaccante" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile"> | null;
+  attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile"> | null;
   /** Benedizione di Don Pasquale in corso (di chi). */
   benedizione: IdGiocatore | null;
   /** Nevicava: nessuno può attaccare fino a questo turno compreso. */
@@ -100,6 +100,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     attacco: s.attacco
       ? {
           attaccante: s.attacco.attaccante,
+          da: s.attacco.da,
           carta: s.attacco.carta,
           potere: s.attacco.potere,
           livello: s.attacco.livello,

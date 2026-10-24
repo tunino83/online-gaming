@@ -8,6 +8,7 @@ import { pigro } from "../lib/caricaPigro";
 import { Link, useNavigate, useParams } from "react-router-dom";
 const TavoloSpettatore = pigro(() => import("../giochi/primo-gioco/TavoloSpettatore").then((m) => m.TavoloSpettatore));
 const TavoloSpettatoreUfficio = pigro(() => import("../giochi/ufficio/TavoloSpettatore").then((m) => m.TavoloSpettatore));
+const TavoloSpettatoreFamiglia = pigro(() => import("../giochi/famiglia/TavoloSpettatore").then((m) => m.TavoloSpettatore));
 import { chiediArbitro } from "../lib/supabase";
 import { usePartita } from "../lib/usePartita";
 import { Caricamento, Errore, Pagina, Riquadro } from "../ui";
@@ -56,7 +57,7 @@ export function Spettatore() {
     );
   }
   const { partita, giocatori } = stato;
-  document.title = "Tavolo · Il Portale";
+  document.title = partita.gioco === "famiglia" ? "Tavolo · La Famiglia" : "Tavolo · Il Portale";
   if (partita.stato === "attesa") {
     return (
       <Pagina>
@@ -67,11 +68,13 @@ export function Spettatore() {
       </Pagina>
     );
   }
-  if (partita.gioco !== "primo-gioco" && partita.gioco !== "ufficio") return <Pagina><Errore testo="Gioco non ancora disponibile nel browser." /></Pagina>;
+  if (partita.gioco !== "primo-gioco" && partita.gioco !== "ufficio" && partita.gioco !== "famiglia") return <Pagina><Errore testo="Gioco non ancora disponibile nel browser." /></Pagina>;
   return (
     <Suspense fallback={<Pagina><Caricamento testo="Apro il tavolo…" /></Pagina>}>
       {partita.gioco === "ufficio" ? (
         <TavoloSpettatoreUfficio partita={partita} giocatori={giocatori} />
+      ) : partita.gioco === "famiglia" ? (
+        <TavoloSpettatoreFamiglia partita={partita} giocatori={giocatori} />
       ) : (
         <TavoloSpettatore partita={partita} giocatori={giocatori} />
       )}

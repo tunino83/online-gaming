@@ -94,15 +94,20 @@ File principali del primo gioco (`games/primo-gioco/src`):
   cartelle che iniziano con `_` (es. `_originali`) escluse dal sito;
   senza immagine la carta mostra un simbolo provvisorio. La grafica della carta in Fase 2 riprende quella di `scripts/anteprima-carte.ts`.
 
-## Terzo gioco: La Famiglia (in costruzione: Fase A, regole)
+## Terzo gioco: La Famiglia (in prova: regole, arbitro e prima schermata fatti)
 
 Personaggi = membri della famiglia e gente del paese, con poteri di attacco/difesa/aiuto che si ricaricano.
-Carte e poteri in `docs/famiglia/bozza.md`, codici in `docs/famiglia/carte.md`, regole in `docs/famiglia/regolamento.md`, piano in `docs/famiglia/piano.md`.
-Pacchetto `games/famiglia` (`@og/famiglia`): dati in `carte.ts` ed `eventi.ts` (un test li confronta con `carte.md`), codici in `codici.ts`,
-stato e mosse in `stato.ts`, regole del turno in `regole.ts`, poteri in `poteri.ts`, attacchi e difese in `attacchi.ts` (pezzi comuni in `base.ts`), vista in `vista.ts`, oggetto gioco `giocoFamiglia` in `gioco.ts` (non ancora registrato nell'arbitro).
-Immagini in `games/famiglia/immagini/classica/` (prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
-Quando si passa al codice: seguire lo schema di Ufficio (pacchetto in `games/`, schermata in `apps/web/src/giochi/`),
-senza toccare Il Portale e Ufficio. Proporre il piano e aspettare l'ok prima di iniziare.
+Carte e poteri in `docs/famiglia/bozza.md`, codici in `docs/famiglia/carte.md`, regole e decisioni in `docs/famiglia/regolamento.md`, piano in `docs/famiglia/piano.md`.
+Pacchetto `games/famiglia` (`@og/famiglia`, id tecnico `famiglia`, oggetto `giocoFamiglia`): dati in `carte.ts` ed `eventi.ts`
+(un test li confronta con `carte.md`), codici in `codici.ts`, stato e mosse in `stato.ts`, regole del turno in `regole.ts`,
+poteri in `poteri.ts`, attacchi e difese in `attacchi.ts`, eventi in `effetti-eventi.ts` (pezzi comuni in `base.ts`),
+vista in `vista.ts`, robot e sostituto in `bot.ts`. Aiuti per i test in `aiuti-test.ts`.
+Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi deve scegliere). Il tempo per difendersi
+(opzione `secondiDifesa`, di base 30) lo fa rispettare l'arbitro con `attesaMassimaMs` del gioco (azione `alPosto`,
+vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (20) o "mazzo".
+Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide descritte in `descrivi.ts`; `TavoloSpettatore.tsx`).
+Immagini in `games/famiglia/immagini/classica/` (anche `.svg`; prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
+Ancora da fare: simulazione di 1000 partite (`pnpm simula:famiglia`), poteri di Simone e Annalisa, effetti di Pranzo della domenica e Ferragosto.
 
 ## Secondo gioco: Ufficio (in costruzione)
 

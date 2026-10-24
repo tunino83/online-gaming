@@ -34,17 +34,17 @@ L'elenco esatto dei nomi file sarà in `games/famiglia/immagini/LEGGIMI.md`.
 | --- | --- |
 | B1 ✅ | L'arbitro conosce il nuovo gioco; opzioni di chi crea la partita: punti (20), modo di fine, tempo per difendersi (30 s) |
 | B2 ✅ | Tempo per difendersi: se l'attaccato non risponde in tempo, l'attacco passa da solo (stesso meccanismo del "computer al posto di chi è fermo") |
-| B3 | Pubblicazione dell'arbitro e test sul progetto Supabase di prova |
+| B3 ✅ | Pubblicazione dell'arbitro e test sul progetto Supabase di prova |
 
 ### Fase C – Schermata (sito)
 
 | Passo | Cosa |
 | --- | --- |
-| C1 | Scelta del gioco nella pagina iniziale (👨‍👩‍👧 La Famiglia) e catalogo "Tutte le carte" |
-| C2 | Disegno delle carte (immagine o nome, livello, tipo, codice, punti, carica/stanca) |
-| C3 | Tavolo: le tre zone, mosse, attivazione, uso dei poteri |
-| C4 | Finestra "Ti attaccano! Ti difendi?" con conto alla rovescia; evento in corso in alto |
-| C5 | Schermo spettatori, suoni, prova a due giocatori, pubblicazione su Render |
+| C1 ✅ | Scelta del gioco nella pagina iniziale (👨‍👩‍👧 La Famiglia) e catalogo "Tutte le carte" |
+| C2 ✅ | Disegno delle carte (immagine o nome, livello, tipo, codice, punti, carica/stanca) |
+| C3 ✅ | Tavolo: le tre zone, mosse, attivazione, uso dei poteri |
+| C4 ✅ | Finestra "Ti attaccano! Ti difendi?" con conto alla rovescia; evento in corso in alto |
+| C5 | Schermo spettatori ✅, suoni (solo "tocca a te" per ora), prova a due giocatori, pubblicazione su Render |
 
 ## Da decidere prima o durante
 

@@ -3,6 +3,7 @@ import { pigro } from "../lib/caricaPigro";
 // Ogni gioco si scarica solo quando serve (il sito si apre più in fretta)
 const TavoloPrimoGioco = pigro(() => import("../giochi/primo-gioco/Tavolo").then((m) => m.TavoloPrimoGioco));
 const TavoloUfficio = pigro(() => import("../giochi/ufficio/Tavolo").then((m) => m.TavoloPrimoGioco));
+const TavoloFamiglia = pigro(() => import("../giochi/famiglia/Tavolo").then((m) => m.TavoloFamiglia));
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { QrCodice, linkTavolo } from "../QrCodice";
 import { type GiocatorePartita, type Partita as InfoPartita, usePartita } from "../lib/usePartita";
@@ -39,6 +40,7 @@ export function Partita() {
   const { partita, giocatori, io } = stato;
   if (partita.gioco === "primo-gioco") document.title = "Il Portale · Online Gaming";
   if (partita.gioco === "ufficio") document.title = "Ufficio · Online Gaming";
+  if (partita.gioco === "famiglia") document.title = "La Famiglia · Online Gaming";
   if (partita.stato === "attesa") return <StanzaAttesa partita={partita} giocatori={giocatori} io={io} />;
   return (
     <Pagina inGioco>
@@ -47,6 +49,8 @@ export function Partita() {
         <TavoloPrimoGioco partita={partita} giocatori={giocatori} io={io} />
       ) : partita.gioco === "ufficio" ? (
         <TavoloUfficio partita={partita} giocatori={giocatori} io={io} />
+      ) : partita.gioco === "famiglia" ? (
+        <TavoloFamiglia partita={partita} giocatori={giocatori} io={io} />
       ) : (
         <Errore testo="Gioco non ancora disponibile nel browser." />
       )}
@@ -113,8 +117,11 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
       <Riquadro titolo={`Giocatori (${giocatori.length}/${partita.max_giocatori})`}>
         <TavoloAttesa giocatori={giocatori} posti={partita.max_giocatori} io={io} creatore={partita.creatore} />
         <p className="mt-3 text-xs text-tenue">
-          Punti per vincere: {partita.opzioni.puntiPerVincere ?? 15}
-          {partita.gioco === "primo-gioco" &&
+          {partita.gioco === "famiglia" && partita.opzioni.modoFine === "mazzo"
+            ? "Si gioca fino alla fine del mazzo dei personaggi"
+            : `Punti per vincere: ${partita.opzioni.puntiPerVincere ?? (partita.gioco === "famiglia" ? 20 : 15)}`}
+          {partita.gioco === "famiglia" && ` · ${partita.opzioni.secondiDifesa ?? 30} secondi per difendersi`}
+          {(partita.gioco === "primo-gioco" || partita.gioco === "famiglia") &&
             ` · Chi resta fermo 60 secondi: ${partita.opzioni.computerAlPosto === false ? "si aspetta" : "gioca il computer al suo posto"}`}
         </p>
       </Riquadro>
