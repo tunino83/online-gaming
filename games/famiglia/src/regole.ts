@@ -23,6 +23,7 @@ import { carta } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
 import { CARTE_NUMERO_SCOPERTE, MAX_GIOCATORI, MIN_GIOCATORI, OPZIONI_DEFAULT, type OpzioniPartita, PERSONAGGI_SCOPERTI } from "./parametri";
+import { avviaAttacco, mosseDiDifesa, paga, parametriAttacco, rispondiAttacco } from "./attacchi";
 import { POTERI_GRATIS, mosseDiPotere, mosseDiScelta, rispondiScelta, usaPotere } from "./poteri";
 import type { Mossa, StatoGiocatore, StatoPartita, StatoTurno, TipoMossaNormale } from "./stato";
 import type { CopiaCarta } from "./tipi-carte";
@@ -63,10 +64,27 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
     giocatori: Object.fromEntries(
       giocatori.map((id): [IdGiocatore, StatoGiocatore] => [
         id,
-        { mano: [], vetrina: [], mancia: [], nascosti: [], attacchi: [], attivati: [], mosseProssimoTurno: 0 },
+        {
+          mano: [],
+          vetrina: [],
+          mancia: [],
+          nascosti: [],
+          attacchi: [],
+          attivati: [],
+          mosseProssimoTurno: 0,
+          zittoProssimoTurno: false,
+          protetto: false,
+          nonStancabile: false,
+          nascostiProtetti: false,
+          vietati: [],
+        },
       ]),
     ),
     turno: nuovoTurno("", 0),
+    attacco: null,
+    benedizione: null,
+    tregua: null,
+    ultimoPotere: null,
     registro: [],
   };
   riempiTavolo(stato);
@@ -90,14 +108,25 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
     intoccabili: [],
     fascicolo: null,
     doppioTurno: false,
+    zitto: false,
+    rivelati: [],
   };
 }
 
 function iniziaTurno(s: StatoPartita): void {
   const id = s.ordine[s.numeroTurno % s.ordine.length]!;
   const g = s.giocatori[id]!;
-  s.turno = nuovoTurno(id, s.opzioni.mossePerTurno + g.mosseProssimoTurno);
+  s.turno = nuovoTurno(id, Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno));
+  s.turno.zitto = g.zittoProssimoTurno;
   g.mosseProssimoTurno = 0;
+  g.zittoProssimoTurno = false;
+  // Finiscono le protezioni che duravano "fino al tuo prossimo turno"
+  g.protetto = false;
+  g.nonStancabile = false;
+  g.nascostiProtetti = false;
+  g.vietati = [];
+  if (s.benedizione === id) s.benedizione = null;
+  if (s.tregua !== null && s.numeroTurno > s.tregua) s.tregua = null;
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
   for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
 }
@@ -171,7 +200,8 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       t.attesa = null;
       return;
     }
-    rispondiScelta(s, id, m);
+    if (t.attesa.tipo === "difesa") rispondiAttacco(s, id, m);
+    else rispondiScelta(s, id, m);
     return;
   }
 
@@ -191,6 +221,10 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     case "scegli":
     case "riordina":
       rifiuta("Non c'è nessuna scelta in sospeso");
+      break;
+    case "difendi":
+    case "subisci":
+      rifiuta("Nessuno ti sta attaccando");
   }
 
   // Poteri che non costano mosse: la carta appena pescata resta quella "appena pescata" fino a qui
@@ -253,8 +287,11 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     case "potere":
       usaPotere(s, id, m, appenaPescata);
       break;
+    case "usaCarta":
+      usaCartaAttacco(s, id, m);
+      break;
   }
-  if (m.tipo !== "potere") t.ultimaMossa = m.tipo as TipoMossaNormale;
+  if (m.tipo !== "potere" && m.tipo !== "usaCarta") t.ultimaMossa = m.tipo as TipoMossaNormale;
   riempiTavolo(s);
 }
 
@@ -306,6 +343,19 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   controllaTraguardo(s);
 }
 
+/** Usa una carta attacco in attesa: si paga il codice, si scarta la carta e parte l'attacco. */
+function usaCartaAttacco(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "usaCarta" }>): void {
+  const g = s.giocatori[id]!;
+  const i = g.attacchi.findIndex((c) => c.id === m.carta && carta(c.carta).categoria === "attacco");
+  if (i < 0) rifiuta("Non hai questa carta attacco");
+  const c = carta(g.attacchi[i]!.carta);
+  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
+  const { combinazione: _c, carta: _id, tipo: _t, ...parametri } = m;
+  paga(s, g, c, m.combinazione);
+  s.scarti.personaggi.push(...g.attacchi.splice(i, 1));
+  avviaAttacco(s, id, c, c.poteri[0]!.id, parametri, null);
+}
+
 function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[]): void {
   const t = s.turno;
   if (t.mosseRimaste > 0 && haMossePossibili(s)) rifiuta("Devi ancora fare tutte le mosse");
@@ -354,6 +404,7 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
     const nuova = t.attesa.nuova;
     return g[t.attesa.zona].filter((c) => c.id !== nuova).map((c) => ({ tipo: "scartaCarta", carta: c.id }));
   }
+  if (t.attesa?.tipo === "difesa") return mosseDiDifesa(s, id);
   if (t.attesa) return mosseDiScelta(s);
 
   const mosse: Mossa[] = [];
@@ -361,7 +412,7 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
   if (caffe) mosse.push({ tipo: "caffe", mancia: caffe.id });
 
   if (t.mosseRimaste > 0) {
-    mosse.push(...mosseNormali(s, g), ...mosseDiPotere(s, id));
+    mosse.push(...mosseNormali(s, g), ...mosseDiPotere(s, id), ...mosseDiCarteAttacco(s, id));
   } else {
     if (t.mosseUguali && t.mosseUguali.quante > 0) {
       const tipo = t.mosseUguali.tipo;
@@ -389,6 +440,24 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
     }
   }
   return mosse;
+}
+
+/** Carte attacco che si possono usare (prima combinazione per pagarle, alcune scelte). */
+function mosseDiCarteAttacco(s: StatoPartita, id: IdGiocatore): Mossa[] {
+  if (s.turno.zitto) return [];
+  const g = s.giocatori[id]!;
+  const risorse = risorseGiocatore(g);
+  return g.attacchi
+    .filter((c) => carta(c.carta).categoria === "attacco")
+    .flatMap((copia) => {
+      const c = carta(copia.carta);
+      const [combinazione] = trovaCombinazioni(risorse, c.codice, 1);
+      if (!combinazione) return [];
+      const pagate = new Set(combinazione.map((el) => el.id));
+      return parametriAttacco(s, id, c.poteri[0]!.id)
+        .filter((p) => !p.carte?.some((x) => pagate.has(x)))
+        .map((p): Mossa => ({ tipo: "usaCarta", carta: copia.id, combinazione, ...p }));
+    });
 }
 
 function mosseDiFineTurno(s: StatoPartita, g: StatoGiocatore): Mossa[] {

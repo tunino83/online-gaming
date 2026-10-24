@@ -150,3 +150,23 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - **Mangia mangia mangia**: se a fine turno le altre carte non bastano per tornare a 7, si scartano solo quelle.
   - **Te l'ho già detto? / L'ho già detto**: le mosse in più vanno usate dello stesso tipo dell'ultima mossa fatta
     (non un potere) e si possono anche non usare.
+
+## Decisioni su attacchi e difese (2026-10-24, passo A4)
+
+- **Risponde solo l'attaccato**: quando c'è un attacco il gioco aspetta solo chi viene colpito (negli attacchi contro tutti,
+  uno alla volta nell'ordine di turno). Ognuno si difende al massimo una volta per attacco.
+- **Antonio livello 3 "Ho sempre ragione io"**: annulla qualsiasi attacco contro di te, anche di livello 3.
+- **Don Pasquale "Benedizione"**: si usa nel proprio turno (costa una mossa): fino al prossimo turno di chi l'ha usata
+  nessun giocatore può essere attaccato.
+- **Nuvola di fumo** si può usare in due modi: quando si è attaccati (annulla e protegge) o nel proprio turno, come un potere.
+- Dettagli scelti durante la programmazione (da confermare o cambiare):
+  - Il gioco aspetta l'attaccato solo se ha una difesa che può usare o se l'attacco gli chiede una scelta; altrimenti
+    l'attacco lo colpisce subito.
+  - "Chi ti ha attaccato" (Si arrabbia, Ho appena lavato, Taurasi, Non ti sento, Zeppata difensiva) è chi ti ha mandato
+    l'attacco: dopo una deviazione di Maddalena o una Permalosa, è chi l'ha deviato o rimandato.
+  - Un attacco deviato o rimandato colpisce il nuovo bersaglio con scelte a caso (es. quale carta carica far stancare).
+  - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
+    non fanno niente se tornano a chi li ha fatti.
+  - **Volo infuocato**: la carta che si stanca è scelta a caso. **Multa**: tra gli avversari; le 2 carte sono a caso.
+  - **Tritacarne**: il legame con Chicca ricarica una sola carta di Chicca, appena si usa il Tritacarne.
+  - **Guardia medica** rispetta la regola del livello; cura solo carte numero scartate e carte fatte stancare.

@@ -5,12 +5,13 @@
  * Eccezioni previste dalle regole:
  * - Studia il fascicolo: per tutto il turno si vedono le carte in mano dell'avversario scelto;
  * - Ne ho viste tante e Ogni cosa al suo posto: chi sceglie vede le carte prese dal mazzo;
- * - Vincenzo e Patate al forno: le carte scoperte tra cui scegliere le vedono tutti.
+ * - Vincenzo e Patate al forno: le carte scoperte tra cui scegliere le vedono tutti;
+ * - Schietta e Zeppata difensiva: le carte mostrate le vedono tutti per il resto del turno.
  */
 import type { IdGiocatore } from "@og/engine";
 import { puntiDi, risorseGiocatore } from "./base";
 import type { Risorse } from "./codici";
-import type { Attesa, Attivato, Fatto, StatoPartita, StatoTurno } from "./stato";
+import type { AttaccoInCorso, Attesa, Attivato, Fatto, StatoPartita, StatoTurno } from "./stato";
 import type { CartaMancia, CartaNumero, CopiaCarta } from "./tipi-carte";
 
 export interface VistaAvversario {
@@ -37,7 +38,19 @@ export interface VistaGiocatore {
     sceglie: IdGiocatore | null;
     /** Carte prese con Alessia: solo per chi è di turno. */
     intoccabili: string[];
+    /** Chi è di turno non può usare poteri (Parla parla parla). */
+    zitto: boolean;
+    /** Carte mostrate a tutti in questo turno (Schietta, Zeppata difensiva). */
+    rivelati: StatoTurno["rivelati"];
   };
+  /** Attacco in corso (informazioni pubbliche). */
+  attacco: Pick<AttaccoInCorso, "attaccante" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile"> | null;
+  /** Benedizione di Don Pasquale in corso (di chi). */
+  benedizione: IdGiocatore | null;
+  /** Nevicava: nessuno può attaccare fino a questo turno compreso. */
+  tregua: number | null;
+  /** Ultimo potere usato al tavolo (per Sempre la stessa storia). */
+  ultimoPotere: StatoPartita["ultimoPotere"];
   tavolo: StatoPartita["tavolo"];
   /** Numero di carte coperte rimaste in ogni mazzo e negli scarti. */
   mazzi: { numeri: number; personaggi: number; mancia: number };
@@ -78,7 +91,23 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
       attesa: !s.finita && t.attesa?.giocatore === id ? structuredClone(t.attesa) : null,
       sceglie: s.finita ? null : (t.attesa?.giocatore ?? null),
       intoccabili: mioTurno ? [...t.intoccabili] : [],
+      zitto: t.zitto,
+      rivelati: structuredClone(t.rivelati),
     },
+    attacco: s.attacco
+      ? {
+          attaccante: s.attacco.attaccante,
+          carta: s.attacco.carta,
+          potere: s.attacco.potere,
+          livello: s.attacco.livello,
+          bersaglio: s.attacco.bersaglio,
+          controTutti: s.attacco.controTutti,
+          indifendibile: s.attacco.indifendibile,
+        }
+      : null,
+    benedizione: s.benedizione,
+    tregua: s.tregua,
+    ultimoPotere: s.ultimoPotere ? { ...s.ultimoPotere } : null,
     tavolo: structuredClone(s.tavolo),
     mazzi: { numeri: s.mazzi.numeri.length, personaggi: s.mazzi.personaggi.length, mancia: s.mazzi.mancia.length },
     scarti: { numeri: s.scarti.numeri.length, personaggi: s.scarti.personaggi.length, mancia: s.scarti.mancia.length },

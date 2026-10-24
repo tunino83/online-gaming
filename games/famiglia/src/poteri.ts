@@ -1,7 +1,7 @@
 /**
- * Poteri di aiuto ✨ dei personaggi attivati (vedi docs/famiglia/bozza.md e le decisioni in regolamento.md).
- * Usare un potere costa una mossa (lo conta regole.ts); poi la carta diventa stanca per il suo tempo di ricarica.
- * Attacchi e difese arrivano nel passo A4.
+ * Uso dei poteri dei personaggi attivati e poteri di aiuto ✨ (vedi docs/famiglia/bozza.md e le decisioni in regolamento.md).
+ * Usare un potere costa una mossa (lo conta regole.ts; Non sbaglio mai no); poi la carta diventa stanca per il suo tempo di ricarica.
+ * Gli attacchi e le difese sono in attacchi.ts.
  */
 import { type IdGiocatore, mescola } from "@og/engine";
 import {
@@ -16,14 +16,15 @@ import {
   scartaNumeri,
   togliNumero,
 } from "./base";
+import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { carta } from "./carte";
 import type { Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
-import type { CartaNumero, CopiaCarta } from "./tipi-carte";
+import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
 
 type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
 
-/** Poteri di aiuto che dipendono dagli attacchi e arrivano con il passo A4. */
-export const AIUTI_DEL_PASSO_A4 = new Set(["sempre-la-stessa-storia", "giacca-al-rovescio"]);
+/** Poteri che copiano un altro potere (Sempre la stessa storia, Giacca al rovescio). */
+export const POTERI_COPIA = new Set(["sempre-la-stessa-storia", "giacca-al-rovescio"]);
 
 /** Poteri che non costano mosse (Non sbaglio mai: la pescata sbagliata non conta). */
 export const POTERI_GRATIS = new Set(["non-sbaglio-mai"]);
@@ -38,9 +39,38 @@ export const MAX_VETRINA = 3;
 /* Uso di un potere                                                    */
 /* ------------------------------------------------------------------ */
 
+/** Un potere si può copiare? Aiuti, attacchi e difese da usare nel proprio turno, ma non gli altri poteri che copiano. */
+function copiabile(c: Carta, potere: string): boolean {
+  const p = c.poteri.find((x) => x.id === potere);
+  if (!p || POTERI_COPIA.has(potere)) return false;
+  return p.tipo !== "difesa" || DIFESE_ANCHE_PROATTIVE.has(potere);
+}
+
+/** Il potere che si usa davvero: quello della carta, oppure quello copiato (Sempre la stessa storia, Giacca al rovescio). */
+function potereDaUsare(s: StatoPartita, id: IdGiocatore, c: Carta, potere: string, m: ParametriPotere): { origine: Carta; potere: string } {
+  if (potere === "sempre-la-stessa-storia") {
+    const u = s.ultimoPotere;
+    if (!u || !copiabile(carta(u.carta), u.potere)) rifiuta("Non c'è un potere da ripetere");
+    return { origine: carta(u!.carta), potere: u!.potere };
+  }
+  if (potere === "giacca-al-rovescio") {
+    const fonte = s.ordine
+      .filter((x) => x !== id)
+      .flatMap((x) => s.giocatori[x]!.attivati)
+      .find((a) => a.copia.id === m.fonte && a.stanca === 0);
+    if (!fonte) rifiuta("Scegli una carta attivata e carica di un avversario");
+    const origine = carta(fonte!.copia.carta);
+    const copiato = m.potereCopiato ?? origine.poteri[0]!.id;
+    if (!copiabile(origine, copiato)) rifiuta("Questo potere non si può copiare");
+    return { origine, potere: copiato };
+  }
+  return { origine: c, potere };
+}
+
 /**
- * Usa un potere di aiuto. `appenaPescata` è la carta pescata con la mossa precedente (se lo era),
- * per Non sbaglio mai: regole.ts la azzera prima di ogni mossa, quindi la passa qui.
+ * Usa un potere di un proprio personaggio attivato e carico: aiuto, attacco, o difesa da usare nel proprio turno.
+ * `appenaPescata` è la carta pescata con la mossa precedente (se lo era), per Non sbaglio mai:
+ * regole.ts la azzera prima di ogni mossa, quindi la passa qui.
  */
 export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appenaPescata: StatoPartita["turno"]["appenaPescata"]): void {
   const g = s.giocatori[id]!;
@@ -50,11 +80,22 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   const p = c.poteri.find((x) => x.id === m.potere);
   if (!p) rifiuta("Questo personaggio non ha quel potere");
   if (a!.stanca > 0) rifiuta("Questa carta è stanca: deve ricaricarsi");
-  if (p!.tipo !== "aiuto" || AIUTI_DEL_PASSO_A4.has(p!.id)) rifiuta("Questo potere non si può ancora usare");
+  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
+  if (p!.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p!.id)) rifiuta("Questa difesa si usa quando ti attaccano");
 
-  const bersaglio = applicaAiuto(s, id, g, a!, p!.id, m, appenaPescata);
+  const { origine, potere } = potereDaUsare(s, id, c, p!.id, m);
+  const tipo = origine.poteri.find((x) => x.id === potere)!.tipo;
+  s.ultimoPotere = { carta: origine.id, potere };
   a!.stanca = c.ricarica;
-  registra(s, id, { tipo: "potere", carta: c.id, potere: p!.id, ...(bersaglio ? { bersaglio } : {}) });
+  if (tipo === "attacco") {
+    avviaAttacco(s, id, origine, potere, m, origine === c ? a!.copia.id : null);
+    return;
+  }
+  let bersaglio: IdGiocatore | undefined;
+  if (potere === "nuvola-di-fumo") g.protetto = true;
+  else if (potere === "benedizione") s.benedizione = id;
+  else bersaglio = applicaAiuto(s, id, g, a!, potere, m, appenaPescata);
+  registra(s, id, { tipo: "potere", carta: origine.id, potere, ...(bersaglio ? { bersaglio } : {}) });
 }
 
 /** Applica l'effetto; restituisce il giocatore coinvolto (per il registro), se c'è. */
@@ -377,20 +418,49 @@ export function mosseDiScelta(s: StatoPartita): Mossa[] {
 /* Poteri che si possono usare adesso                                  */
 /* ------------------------------------------------------------------ */
 
-/** Usi possibili dei poteri di aiuto (con alcune scelte dei parametri, non tutte). */
+/** Usi possibili dei poteri (con alcune scelte dei parametri, non tutte). */
 export function mosseDiPotere(s: StatoPartita, id: IdGiocatore): Mossa[] {
+  if (s.turno.zitto) return [];
   const g = s.giocatori[id]!;
   const mosse: Mossa[] = [];
   for (const a of g.attivati) {
     if (a.stanca > 0) continue;
     const c = carta(a.copia.carta);
     for (const p of c.poteri) {
-      if (p.tipo !== "aiuto" || AIUTI_DEL_PASSO_A4.has(p.id)) continue;
+      if (p.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p.id)) continue;
       const base = { tipo: "potere" as const, carta: a.copia.id, potere: p.id };
-      for (const parametri of parametriPossibili(s, id, g, a, p.id)) mosse.push({ ...base, ...parametri });
+      for (const parametri of usiPossibili(s, id, g, a, c, p.id)) mosse.push({ ...base, ...parametri });
     }
   }
   return mosse;
+}
+
+/** Scelte possibili per un potere, compresi quelli copiati. */
+function usiPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore, a: Attivato, c: Carta, potere: string): ParametriPotere[] {
+  if (potere === "sempre-la-stessa-storia") {
+    const u = s.ultimoPotere;
+    return u && copiabile(carta(u.carta), u.potere) ? parametriDi(s, id, g, a, carta(u.carta), u.potere) : [];
+  }
+  if (potere === "giacca-al-rovescio") {
+    return s.ordine
+      .filter((x) => x !== id)
+      .flatMap((x) => s.giocatori[x]!.attivati.filter((y) => y.stanca === 0))
+      .flatMap((y) => {
+        const origine = carta(y.copia.carta);
+        return origine.poteri
+          .filter((q) => copiabile(origine, q.id))
+          .flatMap((q) => parametriDi(s, id, g, a, origine, q.id).slice(0, 3).map((x) => ({ ...x, fonte: y.copia.id, potereCopiato: q.id })));
+      })
+      .slice(0, 12);
+  }
+  return parametriDi(s, id, g, a, c, potere);
+}
+
+function parametriDi(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore, a: Attivato, c: Carta, potere: string): ParametriPotere[] {
+  const tipo = c.poteri.find((x) => x.id === potere)!.tipo;
+  if (tipo === "attacco") return parametriAttacco(s, id, potere);
+  if (tipo === "difesa") return [{}]; // Nuvola di fumo, Benedizione
+  return parametriPossibili(s, id, g, a, potere);
 }
 
 function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore, questa: Attivato, potere: string): ParametriPotere[] {

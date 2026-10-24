@@ -7,6 +7,7 @@ export * from "./mazzi";
 export * from "./stato";
 export * from "./regole";
 export * from "./poteri";
+export * from "./attacchi";
 export * from "./vista";
 export * from "./gioco";
 export * from "./valida-mossa";

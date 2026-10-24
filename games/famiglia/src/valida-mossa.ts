@@ -25,6 +25,21 @@ function elementoValido(e: unknown): boolean {
   return campi(e, ["id", "valore"], ["modifica"]) && isTesto(e.id) && isIntero(e.valore) && (e.modifica === undefined || modificaValida(e.modifica));
 }
 
+const combinazioneValida = (x: unknown) => Array.isArray(x) && x.length >= 1 && x.length <= 20 && x.every(elementoValido);
+
+/** Parametri facoltativi dei poteri (vedi ParametriPotere in stato.ts). */
+const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "scelte", "propria", "fonte", "potereCopiato"];
+
+function parametriValidi(m: Oggetto): boolean {
+  return (
+    (m.carte === undefined || listaTesti(m.carte)) &&
+    (m.posizioni === undefined || (Array.isArray(m.posizioni) && m.posizioni.length <= 10 && m.posizioni.every(isPosizione))) &&
+    (m.valore === undefined || isIntero(m.valore)) &&
+    (m.scelte === undefined || listaTesti(m.scelte)) &&
+    ["giocatore", "bersaglio", "propria", "fonte", "potereCopiato"].every((k) => m[k] === undefined || isTesto(m[k]))
+  );
+}
+
 export function validaMossa(m: unknown): m is Mossa {
   if (!isOggetto(m)) return false;
   switch (m.tipo) {
@@ -44,28 +59,23 @@ export function validaMossa(m: unknown): m is Mossa {
     case "riordina":
       return campi(m, ["ordine"]) && listaTesti(m.ordine);
     case "potere":
+      return campi(m, ["carta", "potere"], PARAMETRI) && isTesto(m.carta) && isTesto(m.potere) && parametriValidi(m);
+    case "usaCarta":
+      return campi(m, ["carta", "combinazione"], PARAMETRI) && isTesto(m.carta) && combinazioneValida(m.combinazione) && parametriValidi(m);
+    case "difendi":
       return (
-        campi(m, ["carta", "potere"], ["carte", "posizioni", "valore", "giocatore", "bersaglio", "scelte"]) &&
+        campi(m, ["carta"], ["potere", "combinazione", "giocatore", "carte", "bersaglio"]) &&
         isTesto(m.carta) &&
-        isTesto(m.potere) &&
-        (m.carte === undefined || listaTesti(m.carte)) &&
-        (m.posizioni === undefined || (Array.isArray(m.posizioni) && m.posizioni.length <= 10 && m.posizioni.every(isPosizione))) &&
-        (m.valore === undefined || isIntero(m.valore)) &&
-        (m.giocatore === undefined || isTesto(m.giocatore)) &&
-        (m.bersaglio === undefined || isTesto(m.bersaglio)) &&
-        (m.scelte === undefined || listaTesti(m.scelte))
+        (m.potere === undefined || isTesto(m.potere)) &&
+        (m.combinazione === undefined || combinazioneValida(m.combinazione)) &&
+        parametriValidi(m)
       );
+    case "subisci":
+      return campi(m, [], ["carte", "bersaglio"]) && parametriValidi(m);
     case "fineTurno":
       return campi(m, ["scarta"]) && Array.isArray(m.scarta) && m.scarta.length <= 30 && m.scarta.every(isTesto);
     case "attiva":
-      return (
-        campi(m, ["carta", "combinazione"]) &&
-        isTesto(m.carta) &&
-        Array.isArray(m.combinazione) &&
-        m.combinazione.length >= 1 &&
-        m.combinazione.length <= 20 &&
-        m.combinazione.every(elementoValido)
-      );
+      return campi(m, ["carta", "combinazione"]) && isTesto(m.carta) && combinazioneValida(m.combinazione);
     default:
       return false;
   }

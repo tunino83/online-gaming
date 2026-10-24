@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { banconota, contaCarte, copia, fai, num, partita, rifiutata } from "./aiuti-test";
 import { CARTE, carta } from "./carte";
-import { AIUTI_DEL_PASSO_A4, MAX_VETRINA } from "./poteri";
+import { MAX_VETRINA, POTERI_COPIA } from "./poteri";
 import { mossaAutomatica, mosseValide } from "./regole";
 import type { Mossa, ParametriPotere, StatoPartita } from "./stato";
 import { vistaGiocatore } from "./vista";
@@ -50,18 +50,18 @@ describe("usare un potere", () => {
     expect(mosseValide(s, "anna").some((m) => m.tipo === "potere")).toBe(true);
   });
 
-  it("solo i poteri dei propri personaggi attivati; attacchi e difese non ancora (passo A4)", () => {
+  it("solo i poteri dei propri personaggi attivati; le difese che si usano quando si è attaccati no", () => {
     const s = partita();
     s.giocatori.bruno!.attivati.push({ copia: copia("nonno-nicola-1"), stanca: 0 });
     expect(rifiutata(s, "anna", potere("nonno-nicola-1"))).toMatch(/attivati/);
     s.giocatori.anna!.nascosti.push(copia("generoso-1"));
     expect(rifiutata(s, "anna", potere("generoso-1"))).toMatch(/attivati/);
-    conCarta("toto-1", s); // Si incanta: attacco
-    expect(rifiutata(s, "anna", potere("toto-1"))).toMatch(/ancora/);
+    conCarta("antonio-3", s); // Ho sempre ragione io: difesa
+    expect(rifiutata(s, "anna", potere("antonio-3"))).toMatch(/quando ti attaccano/);
   });
 
   it("ogni potere di aiuto si può usare e le carte non si perdono", () => {
-    const aiuti = CARTE.flatMap((c) => c.poteri.filter((p) => p.tipo === "aiuto" && !AIUTI_DEL_PASSO_A4.has(p.id)).map((p) => ({ c, p })));
+    const aiuti = CARTE.flatMap((c) => c.poteri.filter((p) => p.tipo === "aiuto" && !POTERI_COPIA.has(p.id)).map((p) => ({ c, p })));
     expect(aiuti.length).toBeGreaterThan(30);
     for (const { c, p } of aiuti) {
       const s = conCarta(c.id);

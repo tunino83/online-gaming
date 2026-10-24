@@ -75,7 +75,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 | --- | --- | --- | --- |
 | **Franchino** (il vigile) | 2 | ⚔️ *Multa*: chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti) | 2 |
 | **Vincenzo** (il fruttivendolo con l'Ape) | 1 | ✨ *Frutta e verdura!*: scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 1 |
-| **Don Pasquale** (il parroco) | 2 | 🛡️ *Benedizione*: annulli un attacco contro qualsiasi giocatore, anche contro un altro | 2 |
+| **Don Pasquale** (il parroco) | 2 | 🛡️ *Benedizione*: nel tuo turno (costa una mossa), fino al tuo prossimo turno nessun giocatore può essere attaccato | 2 |
 | **Dottor Racioppi** (il medico) | 1 | ✨ *Ricetta*: ricarichi subito una carta stanca di chi vuoi (anche di un avversario, per farti un alleato) | 1 |
 | **Zia Diana** (la guardia medica) | 2 | 🛡️ *Guardia medica*: dopo che un attacco ti ha colpito, curi i danni: le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche | 2 |
 | **Donato** (musicista) | 2 | 🛡️ *Non ti sento, sto suonando*: annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro | 2 |

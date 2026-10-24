@@ -298,7 +298,7 @@ const SINGOLE: Carta[] = [
   singola("Donato", 2, scala(3), [difesa("Non ti sento, sto suonando", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro")]),
   singola("Franchino", 2, somma(3, 15), [attacco("Multa", "Chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti)")]),
   singola("Vincenzo", 1, somma(2, 8), [aiuto("Frutta e verdura!", "Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti")]),
-  singola("Don Pasquale", 2, tris, [difesa("Benedizione", "Annulli un attacco contro qualsiasi giocatore, anche contro un altro")]),
+  singola("Don Pasquale", 2, tris, [difesa("Benedizione", "Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato")]),
   singola("Dottor Racioppi", 1, somma(2, 10), [aiuto("Ricetta", "Ricarichi subito una carta stanca di chi vuoi")]),
   singola("Zia Diana", 2, somma(3, 12), [
     difesa("Guardia medica", "Dopo che un attacco ti ha colpito, le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche"),

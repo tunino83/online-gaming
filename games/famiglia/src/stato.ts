@@ -26,8 +26,19 @@ export interface StatoGiocatore {
   /** Personaggi di attacco e carte attacco in attesa, scoperti. */
   attacchi: CopiaCarta[];
   attivati: Attivato[];
-  /** Mosse in più nel prossimo turno (Ci penso domani). */
+  /** Mosse in più (o in meno, se negativo) nel prossimo turno (Ci penso domani, Si incanta, Rospe…). */
   mosseProssimoTurno: number;
+  /** Nel prossimo turno non può usare poteri (Parla parla parla). */
+  zittoProssimoTurno: boolean;
+  /* Protezioni che durano fino al prossimo turno del giocatore: */
+  /** Nessuno può attaccarlo (Nuvola di fumo). */
+  protetto: boolean;
+  /** Nessuna sua carta può essere fatta stancare (Mutandoni di lana). */
+  nonStancabile: boolean;
+  /** Nessuno può guardare o prendere i suoi personaggi nascosti (Chiusa in camera). */
+  nascostiProtetti: boolean;
+  /** Giocatori che non possono attaccarlo (Non ti sento, sto suonando). */
+  vietati: IdGiocatore[];
 }
 
 /** Zona di un giocatore che ha un limite di carte. */
@@ -49,7 +60,35 @@ export type Attesa =
   /** Ne ho viste tante: le prime carte del mazzo personaggi, ne prende una (le altre tornano in cima). */
   | { tipo: "scegliPersonaggio"; giocatore: IdGiocatore; carte: CopiaCarta[] }
   /** Ogni cosa al suo posto: le prime carte del mazzo numeri, da rimettere nell'ordine voluto. */
-  | { tipo: "riordina"; giocatore: IdGiocatore; carte: CartaNumero[] };
+  | { tipo: "riordina"; giocatore: IdGiocatore; carte: CartaNumero[] }
+  /** Il giocatore è attaccato (vedi StatoPartita.attacco): si difende o subisce (e sceglie, se l'attacco lo chiede). */
+  | { tipo: "difesa"; giocatore: IdGiocatore };
+
+/** Un attacco che si sta risolvendo, un bersaglio alla volta. */
+export interface AttaccoInCorso {
+  attaccante: IdGiocatore;
+  /** Carta da cui viene il potere (es. "antonio-2"): ne decide il livello. */
+  carta: string;
+  /** Potere d'attacco (es. "forno-a-legna"). */
+  potere: string;
+  livello: number;
+  /** Scelte dell'attaccante. */
+  parametri: ParametriPotere;
+  /** Chi è colpito adesso. */
+  bersaglio: IdGiocatore;
+  /** Chi gli ha mandato l'attacco: l'attaccante, o chi l'ha deviato o rimandato (Maddalena, Permalosa). */
+  da: IdGiocatore;
+  /** Chi sarà colpito dopo (attacchi contro tutti). */
+  coda: IdGiocatore[];
+  /** Chi si è già difeso da questo attacco (ognuno una volta sola). */
+  difesi: IdGiocatore[];
+  /** Il bersaglio attuale non può difendersi (È colpa di qualcun altro). */
+  indifendibile: boolean;
+  /** Attacco contro tutti: non si può deviare. */
+  controTutti: boolean;
+  /** Copia della carta d'attacco (se è un personaggio attivato), per Cella frigorifera. */
+  copia: string | null;
+}
 
 export interface StatoTurno {
   giocatore: IdGiocatore;
@@ -69,6 +108,10 @@ export interface StatoTurno {
   fascicolo: IdGiocatore | null;
   /** Finito questo turno se ne fa subito un altro con 2 mosse (Doppio turno). */
   doppioTurno: boolean;
+  /** In questo turno non si possono usare poteri (Parla parla parla). */
+  zitto: boolean;
+  /** Carte mostrate a tutti in questo turno (Schietta, Zeppata difensiva). */
+  rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
 }
 
 export interface Mazzi {
@@ -96,6 +139,14 @@ export interface StatoPartita {
   };
   giocatori: Record<IdGiocatore, StatoGiocatore>;
   turno: StatoTurno;
+  /** Attacco in corso (mentre l'attaccato decide come difendersi). */
+  attacco: AttaccoInCorso | null;
+  /** Benedizione di Don Pasquale: fino al prossimo turno di questo giocatore nessuno può essere attaccato. */
+  benedizione: IdGiocatore | null;
+  /** Nevicava: fino a questo turno compreso nessuno può attaccare. */
+  tregua: number | null;
+  /** Ultimo potere usato al tavolo (Sempre la stessa storia). */
+  ultimoPotere: { carta: string; potere: string } | null;
   /** Ultime cose successe, in forma pubblica. */
   registro: Fatto[];
 }
@@ -119,6 +170,14 @@ export type DatiFatto =
   /** Uso di un potere: `bersaglio` è il giocatore coinvolto, se c'è. */
   | { tipo: "potere"; carta: string; potere: string; bersaglio?: IdGiocatore }
   | { tipo: "sceglie"; quante: number }
+  /** Inizio di un attacco: `bersagli` sono i giocatori colpiti (in ordine). */
+  | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[] }
+  /** Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Forse c'è, forse no andato male. */
+  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore }
+  /** L'attacco ha colpito il giocatore. */
+  | { tipo: "colpito"; potere: string }
+  /** L'attacco non ha effetto sul giocatore (protetto o non c'era niente da colpire). */
+  | { tipo: "protetto"; potere: string }
   | { tipo: "scartaCarta"; zona: Zona; carta?: string }
   | { tipo: "caffe" }
   | { tipo: "fineTurno"; scartate: number }
@@ -143,6 +202,12 @@ export interface ParametriPotere {
   bersaglio?: string;
   /** Voci del menu (Offre la casa): due tra "caffe", "birra", "colazione". */
   scelte?: string[];
+  /** Propria carta attivata da scambiare (Baratto). */
+  propria?: string;
+  /** Carta attivata e carica di un avversario di cui usare il potere (Giacca al rovescio). */
+  fonte?: string;
+  /** Potere della carta da copiare, se ne ha due (Giacca al rovescio). */
+  potereCopiato?: string;
 }
 
 /** Tutte le mosse e azioni che un giocatore può inviare. */
@@ -157,6 +222,8 @@ export type Mossa =
   | { tipo: "attiva"; carta: string; combinazione: Combinazione }
   /** Usa il potere `potere` del personaggio attivato `carta` (id della copia). */
   | ({ tipo: "potere"; carta: string; potere: string } & ParametriPotere)
+  /** Usa una carta attacco (tomacella, giro aperto, occhi 'nguoll, vento) pagandone il codice; poi si scarta. */
+  | ({ tipo: "usaCarta"; carta: string; combinazione: Combinazione } & ParametriPotere)
   // --- non costano mosse ---
   | { tipo: "caffe"; mancia: string }
   // --- risposte a una decisione in attesa ---
@@ -164,5 +231,22 @@ export type Mossa =
   | { tipo: "scegli"; carte: string[] }
   /** Id delle carte nell'ordine voluto: la prima sarà la prima pescata. */
   | { tipo: "riordina"; ordine: string[] }
+  /**
+   * Difesa da un attacco con la carta `carta`: un personaggio attivato e carico, oppure (d'emergenza) un personaggio
+   * nascosto o una carta difesa pagandone il codice con `combinazione`.
+   * `potere`: se la carta ne ha due. `giocatore`: a chi deviare l'attacco (Maddalena).
+   * `carte` e `bersaglio`: carte da pagare (Ricorso) o scelte chieste dall'attacco (se passa comunque, Guardia medica).
+   */
+  | {
+      tipo: "difendi";
+      carta: string;
+      potere?: string;
+      combinazione?: Combinazione;
+      giocatore?: IdGiocatore;
+      carte?: string[];
+      bersaglio?: string;
+    }
+  /** Non ci si difende: `carte` / `bersaglio` sono le scelte chieste dall'attacco (es. quali carte scartare). */
+  | { tipo: "subisci"; carte?: string[]; bersaglio?: string }
   // --- chiusura del turno ---
   | { tipo: "fineTurno"; scarta: string[] };
