@@ -94,6 +94,13 @@ File principali del primo gioco (`games/primo-gioco/src`):
   cartelle che iniziano con `_` (es. `_originali`) escluse dal sito;
   senza immagine la carta mostra un simbolo provvisorio. La grafica della carta in Fase 2 riprende quella di `scripts/anteprima-carte.ts`.
 
+## Terzo gioco: La Famiglia (in progettazione, nessun codice ancora)
+
+Personaggi = membri della famiglia e gente del paese, con poteri di attacco/difesa/aiuto che si ricaricano.
+Carte e poteri in `docs/famiglia/bozza.md`, regole in `docs/famiglia/regolamento.md` (decise con il proprietario il 2026-10-24).
+Quando si passa al codice: seguire lo schema di Ufficio (pacchetto in `games/`, schermata in `apps/web/src/giochi/`),
+senza toccare Il Portale e Ufficio. Proporre il piano e aspettare l'ok prima di iniziare.
+
 ## Secondo gioco: Ufficio (in costruzione)
 
 Nato il 2026-10-20 come **copia esatta di Il Portale**, da trasformare in un gioco ambientato in ufficio
