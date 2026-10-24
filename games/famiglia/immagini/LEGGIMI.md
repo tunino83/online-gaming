@@ -1,7 +1,8 @@
 # Immagini delle carte – La Famiglia
 
-Le illustrazioni vanno nella cartella **`classica/`** (la skin di base). Formati: `.png`, `.jpg`, `.jpeg`, `.webp`.
-Le cartelle che iniziano con `_` (es. `_originali/`) non vanno online.
+Le illustrazioni vanno nella cartella **`classica/`** (la skin di base). Formati: `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`.
+Le cartelle che iniziano con `_` non vanno online: in `_originali/` ci sono le immagini originali, prima di essere
+alleggerite (in `classica/` restano quelle più leggere, che si caricano più in fretta); in `_bozze/` i disegni di prova.
 
 ## Quale immagine usa una carta
 
