@@ -94,6 +94,12 @@ importers:
         specifier: ^5.4.11
         version: 5.4.21(@types/node@20.19.43)(lightningcss@1.32.0)
 
+  games/famiglia:
+    dependencies:
+      '@og/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
+
   games/primo-gioco:
     dependencies:
       '@og/engine':
