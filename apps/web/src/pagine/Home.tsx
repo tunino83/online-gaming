@@ -247,7 +247,7 @@ export function Home() {
           </div>
         </div>
       </Riquadro>
-      <Link to="/regole" className="text-center font-semibold text-oro-chiaro underline">
+      <Link to={famiglia ? "/regole?gioco=famiglia" : "/regole"} className="text-center font-semibold text-oro-chiaro underline">
         📖 Come si gioca
       </Link>
       <p className="text-center text-xs text-luce/50">Prototipo · Fase 2</p>

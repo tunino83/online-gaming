@@ -1,8 +1,14 @@
-/** "Come si gioca": le regole del primo gioco in breve (riassunto di docs/regolamento.md). */
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+/**
+ * "Come si gioca": le regole in breve di Il Portale (riassunto di docs/regolamento.md) e, con ?gioco=famiglia,
+ * la guida della Famiglia (si scarica solo quando serve).
+ */
+import { type ReactNode, Suspense } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { CatalogoCarte } from "../giochi/primo-gioco/Catalogo";
-import { Pagina, Riquadro } from "../ui";
+import { pigro } from "../lib/caricaPigro";
+import { Caricamento, Pagina, Riquadro } from "../ui";
+
+const GuidaFamiglia = pigro(() => import("../giochi/famiglia/Guida").then((m) => m.GuidaFamiglia));
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
   return (
@@ -78,10 +84,32 @@ export function TestoRegole() {
 }
 
 export function PaginaRegole() {
+  const [parametri, setParametri] = useSearchParams();
+  const famiglia = parametri.get("gioco") === "famiglia";
+  const scheda = (attiva: boolean, testo: string, gioco: string) => (
+    <button
+      type="button"
+      onClick={() => setParametri(gioco ? { gioco } : {}, { replace: true })}
+      aria-pressed={attiva}
+      className={`rounded-xl border-2 px-3 py-2 font-titolo text-sm font-bold ${attiva ? "border-oro bg-oro text-[#2b1a05]" : "border-oro/40 text-oro-chiaro"}`}
+    >
+      {testo}
+    </button>
+  );
   return (
     <Pagina>
-      <Riquadro titolo="📖 Il Portale · Come si gioca">
-        <TestoRegole />
+      <div className="grid grid-cols-2 gap-2">
+        {scheda(!famiglia, "✨ Il Portale", "")}
+        {scheda(famiglia, "👨‍👩‍👧 La Famiglia", "famiglia")}
+      </div>
+      <Riquadro titolo={famiglia ? "📖 La Famiglia · Come si gioca" : "📖 Il Portale · Come si gioca"}>
+        {famiglia ? (
+          <Suspense fallback={<Caricamento testo="Apro la guida…" />}>
+            <GuidaFamiglia />
+          </Suspense>
+        ) : (
+          <TestoRegole />
+        )}
         <Link to="/" className="mt-5 inline-block font-semibold text-blu underline">
           Torna all'inizio
         </Link>

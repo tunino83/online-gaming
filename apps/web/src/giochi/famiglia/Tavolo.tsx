@@ -13,6 +13,7 @@ import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Pulsante } from "../../ui";
 import { CartaFamiglia, CartaNumeroGrafica, Mancia, SchedaCarta } from "./carte";
 import { cartaDiCopia, descriviFatto, descriviMossa, nomeCarta, nomePotere } from "./descrivi";
+import { GuidaFamiglia } from "./Guida";
 
 /** Pausa prima della mossa di un giocatore del computer. */
 const PAUSA_COMPUTER_MS = 2500;
@@ -29,6 +30,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const [errore, setErrore] = useState<string | null>(null);
   const [scheda, setScheda] = useState<Scheda>(null);
   const [tutteLeMosse, setTutteLeMosse] = useState(false);
+  const [guida, setGuida] = useState(false);
   const [registroAperto, setRegistroAperto] = useState(false);
   const [scelte, setScelte] = useState<string[]>([]);
   const [selezioneScarti, setSelezioneScarti] = useState(false);
@@ -297,6 +299,9 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                       ? "Devi fare una scelta"
                       : `Tocca a ${nick(diTurno ?? "")}`}
                 </span>
+                <BottoneBarra variante="vuoto" onClick={() => setGuida(true)}>
+                  📖
+                </BottoneBarra>
                 {mosse.length > 0 && !attesa && (
                   <BottoneBarra variante="vuoto" onClick={() => setTutteLeMosse(true)}>
                     Mosse ({mosse.length})
@@ -327,6 +332,11 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         <Foglio titolo={scheda.titolo} onChiudi={() => setScheda(null)}>
           {scheda.idCarta && <SchedaCarta idCarta={scheda.idCarta} stanca={scheda.stanca} />}
           <ListaMosse mosse={scheda.mosse} v={v} nick={nick} onScegli={gioca} disabilitata={bloccato} vuota="Adesso non puoi fare niente con questa carta." />
+        </Foglio>
+      )}
+      {guida && (
+        <Foglio titolo="📖 Come si gioca" onChiudi={() => setGuida(false)}>
+          <GuidaFamiglia />
         </Foglio>
       )}
       {tutteLeMosse && (
