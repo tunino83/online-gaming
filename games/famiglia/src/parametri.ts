@@ -10,6 +10,10 @@ export interface OpzioniPartita {
   maxAttacchi: number;
   /** Mosse per turno (più caffè e poteri). */
   mossePerTurno: number;
+  /** Come finisce la partita: a punti, o quando finisce il mazzo personaggi. */
+  modoFine: "punti" | "mazzo";
+  /** Secondi per decidere se difendersi (li fa rispettare l'arbitro). */
+  secondiDifesa: number;
 }
 
 export const OPZIONI_DEFAULT: OpzioniPartita = {
@@ -18,6 +22,8 @@ export const OPZIONI_DEFAULT: OpzioniPartita = {
   maxNascosti: 3,
   maxAttacchi: 3,
   mossePerTurno: 3,
+  modoFine: "punti",
+  secondiDifesa: 30,
 };
 
 export const MIN_GIOCATORI = 2;

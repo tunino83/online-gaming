@@ -7,7 +7,19 @@
  * Regola del livello: una difesa ferma solo attacchi del suo livello o più bassi.
  */
 import { type IdGiocatore, interoTra, mescola } from "@og/engine";
-import { avversariDopo, pesca, peschiNumeri, puntiDi, registra, rifiuta, risorseGiocatore, scartaNumeri, togliNumero, zonaDi } from "./base";
+import {
+  avversariDopo,
+  pesca,
+  peschiNumeri,
+  puntiDi,
+  registra,
+  rifiuta,
+  risorseGiocatore,
+  scartaNumeri,
+  stancaCarta,
+  togliNumero,
+  zonaDi,
+} from "./base";
 import { carta, cartePersona } from "./carte";
 import { type Combinazione, trovaCombinazioni, verificaCombinazione } from "./codici";
 import type { Attesa, AttaccoInCorso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
@@ -190,9 +202,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
   const suSeStesso = v === a.attaccante;
   /** Il bersaglio scelto dall'attaccante vale solo se colpisce proprio quel giocatore (non dopo una deviazione). */
   const originale = (lista: Attivato[]) => lista.find((x) => x.copia.id === p.bersaglio) ?? aCaso(s, lista);
-  const stanca = (x: Attivato | undefined) => {
-    if (x) x.stanca = carta(x.copia.carta).ricarica;
-  };
+  const stanca = (x: Attivato | undefined) => stancaCarta(s, x);
   const scartaACaso = (quante: number) => {
     for (let i = 0; i < quante && V.mano.length > 0; i++) scartaNumeri(s, V.mano.splice(interoTra(s.rng, 0, V.mano.length - 1), 1));
   };
@@ -414,11 +424,14 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
   // Pagare la difesa: carica che si stanca, oppure (d'emergenza) codice pagato e carta scartata
   if (d!.emergenza) {
     paga(s, g, c, mossa.combinazione);
-    s.scarti.personaggi.push(...g.nascosti.splice(g.nascosti.findIndex((x) => x.id === d!.copia), 1));
+    // "Sono a un matrimonio": durante l'evento Matrimonio la carta non si scarta e resta in mano
+    if (!(d!.potere === "sono-a-un-matrimonio" && s.evento?.id === "matrimonio")) {
+      s.scarti.personaggi.push(...g.nascosti.splice(g.nascosti.findIndex((x) => x.id === d!.copia), 1));
+    }
   } else {
     const x = g.attivati.find((y) => y.copia.id === d!.copia)!;
     const ultimo = Math.min(...s.ordine.map((o) => puntiDi(s.giocatori[o]!)));
-    if (!(d!.potere === "non-sa-perdere" && puntiDi(g) <= ultimo)) x.stanca = c.ricarica;
+    if (!(d!.potere === "non-sa-perdere" && puntiDi(g) <= ultimo)) stancaCarta(s, x);
   }
   a.difesi.push(id);
   s.turno.attesa = null;
@@ -521,13 +534,12 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       break;
     case "cella-frigorifera": {
       const x = s.giocatori[a.attaccante]!.attivati.find((y) => y.copia.id === a.copia);
-      if (x) x.stanca += 1;
+      if (x) stancaCarta(s, x, 1);
       break;
     }
     case "si-arrabbia": {
       if (A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
-      const x = aCaso(s, caricheColpibili(A, potere));
-      if (x) x.stanca = carta(x.copia.carta).ricarica;
+      stancaCarta(s, aCaso(s, caricheColpibili(A, potere)));
       break;
     }
     // Le altre difese annullano soltanto: Ho sempre ragione io, Non sa perdere, Sempre calma, Forse c'è,

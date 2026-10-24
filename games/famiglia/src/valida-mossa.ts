@@ -49,7 +49,10 @@ export function validaMossa(m: unknown): m is Mossa {
     case "pescaNumero":
     case "pescaPersonaggio":
     case "brucia":
+    case "pescaEvento":
       return campi(m, []);
+    case "regala":
+      return campi(m, ["giocatore"]) && isTesto(m.giocatore);
     case "caffe":
       return campi(m, ["mancia"]) && isTesto(m.mancia);
     case "scartaCarta":

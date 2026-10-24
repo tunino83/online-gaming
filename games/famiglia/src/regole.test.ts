@@ -26,8 +26,16 @@ describe("preparazione", () => {
     expect(contaCarte(s)).toEqual({ numeri: 56, personaggi: 94, mancia: 20 });
   });
 
-  it("parametri di base: 20 punti, 7 carte in mano, 3 nascosti, 3 attacchi", () => {
-    expect(setup(GIOCATORI, {}, 1).opzioni).toEqual({ puntiPerVincere: 20, limiteMano: 7, maxNascosti: 3, maxAttacchi: 3, mossePerTurno: 3 });
+  it("parametri di base: 20 punti, 7 carte in mano, 3 nascosti, 3 attacchi, fine a punti, 30 secondi per difendersi", () => {
+    expect(setup(GIOCATORI, {}, 1).opzioni).toEqual({
+      puntiPerVincere: 20,
+      limiteMano: 7,
+      maxNascosti: 3,
+      maxAttacchi: 3,
+      mossePerTurno: 3,
+      modoFine: "punti",
+      secondiDifesa: 30,
+    });
   });
 
   it("stesso seed, stessa partita", () => {

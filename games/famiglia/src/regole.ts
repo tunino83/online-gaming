@@ -21,7 +21,8 @@ import {
 } from "./base";
 import { carta } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
-import { creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
+import { fineTurnoEvento, inizioTurnoConEvento, mosseDaEvento, pescaEvento, puoPescareEvento, regala } from "./effetti-eventi";
+import { creaMazzoEventi, creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
 import { CARTE_NUMERO_SCOPERTE, MAX_GIOCATORI, MIN_GIOCATORI, OPZIONI_DEFAULT, type OpzioniPartita, PERSONAGGI_SCOPERTI } from "./parametri";
 import { avviaAttacco, mosseDiDifesa, paga, parametriAttacco, rispondiAttacco } from "./attacchi";
 import { POTERI_GRATIS, mosseDiPotere, mosseDiScelta, rispondiScelta, usaPotere } from "./poteri";
@@ -29,7 +30,7 @@ import type { Mossa, StatoGiocatore, StatoPartita, StatoTurno, TipoMossaNormale 
 import type { CopiaCarta } from "./tipi-carte";
 import { validaMossa } from "./valida-mossa";
 
-export { puntiDi, risorseGiocatore, zonaDi } from "./base";
+export { PUNTI_FAMIGLIA_AL_COMPLETO, famiglieComplete, puntiDi, risorseGiocatore, zonaDi } from "./base";
 
 /** Mosse in un turno in più (Doppio turno di Marika). */
 const MOSSE_DOPPIO_TURNO = 2;
@@ -85,6 +86,8 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
     benedizione: null,
     tregua: null,
     ultimoPotere: null,
+    evento: null,
+    eventi: { mazzo: mescola(rng, creaMazzoEventi()), scarti: [] },
     registro: [],
   };
   riempiTavolo(stato);
@@ -116,7 +119,7 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
 function iniziaTurno(s: StatoPartita): void {
   const id = s.ordine[s.numeroTurno % s.ordine.length]!;
   const g = s.giocatori[id]!;
-  s.turno = nuovoTurno(id, Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno));
+  s.turno = nuovoTurno(id, Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno + mosseDaEvento(s, id)));
   s.turno.zitto = g.zittoProssimoTurno;
   g.mosseProssimoTurno = 0;
   g.zittoProssimoTurno = false;
@@ -127,18 +130,24 @@ function iniziaTurno(s: StatoPartita): void {
   g.vietati = [];
   if (s.benedizione === id) s.benedizione = null;
   if (s.tregua !== null && s.numeroTurno > s.tregua) s.tregua = null;
+  inizioTurnoConEvento(s, id);
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
   for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
 }
 
-/** Se qualcuno ha raggiunto i punti per vincere: si finisce il giro e poi si gioca un ultimo giro. */
+/**
+ * Fine partita in arrivo: qualcuno ha raggiunto i punti per vincere (modo "a punti") oppure il mazzo personaggi
+ * è finito (modo "mazzo"). Si finisce il giro e poi si gioca un ultimo giro.
+ */
 function controllaTraguardo(s: StatoPartita): void {
-  if (s.ultimoTurno !== null) return;
-  if (!Object.values(s.giocatori).some((g) => puntiDi(g) >= s.opzioni.puntiPerVincere)) return;
+  if (s.ultimoTurno !== null || s.finita) return;
+  const aMazzo = s.opzioni.modoFine === "mazzo";
+  const arrivato = aMazzo ? s.mazzi.personaggi.length === 0 : Object.values(s.giocatori).some((g) => puntiDi(g) >= s.opzioni.puntiPerVincere);
+  if (!arrivato) return;
   const n = s.ordine.length;
   const giro = Math.floor(s.numeroTurno / n);
   s.ultimoTurno = (giro + 2) * n - 1;
-  registra(s, s.turno.giocatore, { tipo: "ultimoGiro", punti: s.opzioni.puntiPerVincere });
+  registra(s, s.turno.giocatore, { tipo: "ultimoGiro", punti: s.opzioni.puntiPerVincere, ...(aMazzo ? { mazzo: true as const } : {}) });
 }
 
 /** Il giocatore può ancora fare una mossa che costa (prendere, pescare, bruciare)? */
@@ -171,6 +180,7 @@ export function applicaMossa(stato: StatoPartita, id: IdGiocatore, mossa: Mossa)
   try {
     applica(s, id, mossa);
     riempiTavolo(s); // un mazzo può aver ricevuto carte negli scarti: i posti vuoti si riempiono
+    controllaTraguardo(s); // i punti cambiano anche con gli attacchi (Vertenza, Baratto, Sparecchio)
     return { ok: true, stato: s };
   } catch (e) {
     if (e instanceof MossaNonValida) return { ok: false, errore: e.message };
@@ -201,7 +211,10 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       return;
     }
     if (t.attesa.tipo === "difesa") rispondiAttacco(s, id, m);
-    else rispondiScelta(s, id, m);
+    else if (t.attesa.tipo === "regalo") {
+      if (m.tipo !== "regala") rifiuta("Prima scegli a chi dare la carta in più");
+      regala(s, id, (m as Extract<Mossa, { tipo: "regala" }>).giocatore);
+    } else rispondiScelta(s, id, m);
     return;
   }
 
@@ -225,6 +238,9 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     case "difendi":
     case "subisci":
       rifiuta("Nessuno ti sta attaccando");
+      break;
+    case "regala":
+      rifiuta("Non c'è niente da regalare");
   }
 
   // Poteri che non costano mosse: la carta appena pescata resta quella "appena pescata" fino a qui
@@ -280,6 +296,9 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
     case "brucia":
       brucia(s);
       registra(s, id, { tipo: "brucia" });
+      break;
+    case "pescaEvento":
+      pescaEvento(s, id);
       break;
     case "attiva":
       attiva(s, id, m);
@@ -340,7 +359,6 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
     valori: m.combinazione.map((el) => el.valore),
     ...(mancia ? { mancia: true } : {}),
   });
-  controllaTraguardo(s);
 }
 
 /** Usa una carta attacco in attesa: si paga il codice, si scarta la carta e parte l'attacco. */
@@ -369,6 +387,7 @@ function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[]): void {
     scartaNumeri(s, g.mano.splice(i, 1));
   }
   registra(s, t.giocatore, { tipo: "fineTurno", scartate: scarta.length });
+  fineTurnoEvento(s);
 
   // Doppio turno (Marika): subito un altro turno con 2 mosse, senza ricarica
   if (t.doppioTurno) {
@@ -405,6 +424,7 @@ export function mosseValide(s: StatoPartita, id: IdGiocatore): Mossa[] {
     return g[t.attesa.zona].filter((c) => c.id !== nuova).map((c) => ({ tipo: "scartaCarta", carta: c.id }));
   }
   if (t.attesa?.tipo === "difesa") return mosseDiDifesa(s, id);
+  if (t.attesa?.tipo === "regalo") return s.ordine.map((giocatore) => ({ tipo: "regala", giocatore }));
   if (t.attesa) return mosseDiScelta(s);
 
   const mosse: Mossa[] = [];
@@ -433,6 +453,7 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   if (puoPescare(s, "numeri")) mosse.push({ tipo: "pescaNumero" });
   if (puoPescare(s, "personaggi")) mosse.push({ tipo: "pescaPersonaggio" });
   if (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri")) mosse.push({ tipo: "brucia" });
+  if (puoPescareEvento(s)) mosse.push({ tipo: "pescaEvento" });
   const risorse = risorseGiocatore(g);
   for (const copia of attivabili(g)) {
     for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {

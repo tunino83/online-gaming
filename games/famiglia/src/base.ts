@@ -3,9 +3,9 @@
  * errori, registro, mazzi, tavolo, zone e carte dei giocatori.
  */
 import { type IdGiocatore, mescola } from "@og/engine";
-import { carta, eAttacco } from "./carte";
+import { carta, cartePersona, eAttacco } from "./carte";
 import type { Risorse } from "./codici";
-import { type DatiFatto, LUNGHEZZA_REGISTRO, type Mazzi, type StatoGiocatore, type StatoPartita, type Zona } from "./stato";
+import { type Attivato, type DatiFatto, LUNGHEZZA_REGISTRO, type Mazzi, type StatoGiocatore, type StatoPartita, type Zona } from "./stato";
 import type { CartaNumero, CopiaCarta } from "./tipi-carte";
 
 /** Errore di una mossa non permessa: il messaggio è per il giocatore. */
@@ -26,14 +26,17 @@ export function registra(s: StatoPartita, giocatore: IdGiocatore, f: DatiFatto):
 
 /** Pesca la prima carta di un mazzo; se è finito rimescola gli scarti. `null` se non c'è nulla. */
 export function pesca<K extends keyof Mazzi>(s: StatoPartita, mazzo: K): Mazzi[K][number] | null {
-  if (s.mazzi[mazzo].length === 0 && s.scarti[mazzo].length > 0) {
+  // Partita "fino alla fine del mazzo": il mazzo personaggi non si rimescola
+  const rimescola = !(mazzo === "personaggi" && s.opzioni.modoFine === "mazzo");
+  if (rimescola && s.mazzi[mazzo].length === 0 && s.scarti[mazzo].length > 0) {
     s.mazzi[mazzo] = mescola<Mazzi[K][number]>(s.rng, s.scarti[mazzo]) as Mazzi[K];
     s.scarti[mazzo] = [] as Mazzi[K];
   }
   return (s.mazzi[mazzo].pop() as Mazzi[K][number] | undefined) ?? null;
 }
 
-export const puoPescare = (s: StatoPartita, mazzo: keyof Mazzi) => s.mazzi[mazzo].length + s.scarti[mazzo].length > 0;
+export const puoPescare = (s: StatoPartita, mazzo: keyof Mazzi) =>
+  s.mazzi[mazzo].length > 0 || (s.scarti[mazzo].length > 0 && !(mazzo === "personaggi" && s.opzioni.modoFine === "mazzo"));
 
 /**
  * Riempie i posti vuoti del tavolo, se ci sono carte disponibili.
@@ -102,8 +105,45 @@ export function peschiNumeri(s: StatoPartita, id: IdGiocatore, quante: number): 
 
 /* ---------------- giocatori e zone ---------------- */
 
-/** Punti di un giocatore: la somma dei punti dei personaggi attivati. */
-export const puntiDi = (g: Pick<StatoGiocatore, "attivati">): number => g.attivati.reduce((tot, a) => tot + carta(a.copia.carta).punti, 0);
+/** Punti in più per ogni persona di cui si hanno attivate tutte e 3 le carte. */
+export const PUNTI_FAMIGLIA_AL_COMPLETO = 2;
+
+/** Persone di cui il giocatore ha attivato tutte e 3 le carte ("Famiglia al completo"). */
+export function famiglieComplete(g: Pick<StatoGiocatore, "attivati">): string[] {
+  const perPersona = new Map<string, Set<string>>();
+  for (const a of g.attivati) {
+    const c = carta(a.copia.carta);
+    if (!perPersona.has(c.persona)) perPersona.set(c.persona, new Set());
+    perPersona.get(c.persona)!.add(c.id);
+  }
+  return [...perPersona].filter(([persona, carte]) => carte.size === 3 && cartePersona(persona).length === 3).map(([persona]) => persona);
+}
+
+/** Punti di un giocatore: i punti dei personaggi attivati, più 2 per ogni "Famiglia al completo". */
+export const puntiDi = (g: Pick<StatoGiocatore, "attivati">): number =>
+  g.attivati.reduce((tot, a) => tot + carta(a.copia.carta).punti, 0) + famiglieComplete(g).length * PUNTI_FAMIGLIA_AL_COMPLETO;
+
+/** Il giocatore ha almeno una carta attivata di questa persona? ("Chi ha Totò" negli eventi.) */
+export const haPersona = (g: Pick<StatoGiocatore, "attivati">, persona: string): boolean =>
+  g.attivati.some((a) => carta(a.copia.carta).persona === persona);
+
+/** Persone le cui carte, durante l'evento in corso, restano sempre cariche. */
+const SEMPRE_CARICHE: Record<string, string[]> = {
+  "la-resurrezione": ["toto"],
+  "carnevale-di-teora": ["squacqualacchione"],
+  "sagra-delle-tomacelle": ["squacqualacchione"],
+  matrimonio: ["don-pasquale", "donato"],
+};
+
+/** La carta, per l'evento in corso, non si stanca mai? */
+export const sempreCarica = (s: StatoPartita, a: Attivato): boolean =>
+  s.evento !== null && (SEMPRE_CARICHE[s.evento.id] ?? []).includes(carta(a.copia.carta).persona);
+
+/** Fa stancare una carta attivata per il suo tempo di ricarica (più `inPiu` turni), salvo eventi che la tengono carica. */
+export function stancaCarta(s: StatoPartita, a: Attivato | undefined, inPiu = 0): void {
+  if (!a || sempreCarica(s, a)) return;
+  a.stanca = (a.stanca === 0 ? carta(a.copia.carta).ricarica : a.stanca) + inPiu;
+}
 
 /** Cosa può usare il giocatore per un codice: carte numero in mano e in vetrina, mancia. */
 export const risorseGiocatore = (g: Pick<StatoGiocatore, "mano" | "vetrina" | "mancia">): Risorse => ({

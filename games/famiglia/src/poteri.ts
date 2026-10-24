@@ -14,10 +14,12 @@ import {
   riempiTavolo,
   rifiuta,
   scartaNumeri,
+  stancaCarta,
   togliNumero,
 } from "./base";
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { carta } from "./carte";
+import { poteriBloccati } from "./effetti-eventi";
 import type { Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
 import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
 
@@ -81,12 +83,13 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   if (!p) rifiuta("Questo personaggio non ha quel potere");
   if (a!.stanca > 0) rifiuta("Questa carta è stanca: deve ricaricarsi");
   if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
+  if (poteriBloccati(s, c.id)) rifiuta("Durante questo evento Totò non può usare i suoi poteri");
   if (p!.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p!.id)) rifiuta("Questa difesa si usa quando ti attaccano");
 
   const { origine, potere } = potereDaUsare(s, id, c, p!.id, m);
   const tipo = origine.poteri.find((x) => x.id === potere)!.tipo;
   s.ultimoPotere = { carta: origine.id, potere };
-  a!.stanca = c.ricarica;
+  stancaCarta(s, a!);
   if (tipo === "attacco") {
     avviaAttacco(s, id, origine, potere, m, origine === c ? a!.copia.id : null);
     return;
@@ -424,7 +427,7 @@ export function mosseDiPotere(s: StatoPartita, id: IdGiocatore): Mossa[] {
   const g = s.giocatori[id]!;
   const mosse: Mossa[] = [];
   for (const a of g.attivati) {
-    if (a.stanca > 0) continue;
+    if (a.stanca > 0 || poteriBloccati(s, a.copia.carta)) continue;
     const c = carta(a.copia.carta);
     for (const p of c.poteri) {
       if (p.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p.id)) continue;

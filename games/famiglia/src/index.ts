@@ -1,6 +1,7 @@
 export * from "./tipi-carte";
 export * from "./carte";
 export * from "./eventi";
+export * from "./effetti-eventi";
 export * from "./codici";
 export * from "./parametri";
 export * from "./mazzi";

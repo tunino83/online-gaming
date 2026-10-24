@@ -47,7 +47,7 @@ const veri = (carte: CartaNumero[]): number => carte.reduce((t, c) => t + (c.uni
 export function contaCarte(s: StatoPartita) {
   const giocatori = Object.values(s.giocatori);
   const a = s.turno.attesa;
-  const inAttesaNumeri = a?.tipo === "scegliNumeri" || a?.tipo === "riordina" ? a.carte.length : 0;
+  const inAttesaNumeri = a?.tipo === "scegliNumeri" || a?.tipo === "riordina" ? a.carte.length : a?.tipo === "regalo" ? 1 : 0;
   const inAttesaPersonaggi = a?.tipo === "scegliPersonaggio" ? a.carte.length : 0;
   return {
     numeri:

@@ -51,6 +51,9 @@ export interface VistaGiocatore {
   tregua: number | null;
   /** Ultimo potere usato al tavolo (per Sempre la stessa storia). */
   ultimoPotere: StatoPartita["ultimoPotere"];
+  /** Evento in corso e quanti turni dura ancora; quanti eventi restano nel mazzo. */
+  evento: StatoPartita["evento"];
+  eventiNelMazzo: number;
   tavolo: StatoPartita["tavolo"];
   /** Numero di carte coperte rimaste in ogni mazzo e negli scarti. */
   mazzi: { numeri: number; personaggi: number; mancia: number };
@@ -108,6 +111,8 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     benedizione: s.benedizione,
     tregua: s.tregua,
     ultimoPotere: s.ultimoPotere ? { ...s.ultimoPotere } : null,
+    evento: s.evento ? { ...s.evento } : null,
+    eventiNelMazzo: s.eventi.mazzo.length + s.eventi.scarti.length,
     tavolo: structuredClone(s.tavolo),
     mazzi: { numeri: s.mazzi.numeri.length, personaggi: s.mazzi.personaggi.length, mancia: s.mazzi.mancia.length },
     scarti: { numeri: s.scarti.numeri.length, personaggi: s.scarti.personaggi.length, mancia: s.scarti.mancia.length },

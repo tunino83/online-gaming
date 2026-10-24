@@ -45,7 +45,7 @@ export interface StatoGiocatore {
 export type Zona = "nascosti" | "attacchi";
 
 /** Mosse che costano e che si possono ripetere con Nonno Salvatore. */
-export type TipoMossaNormale = "prendiNumero" | "prendiPersonaggio" | "pescaNumero" | "pescaPersonaggio" | "brucia" | "attiva";
+export type TipoMossaNormale = "prendiNumero" | "prendiPersonaggio" | "pescaNumero" | "pescaPersonaggio" | "brucia" | "attiva" | "pescaEvento";
 
 /** Decisione che un giocatore deve prendere prima che la partita vada avanti. */
 export type Attesa =
@@ -62,7 +62,9 @@ export type Attesa =
   /** Ogni cosa al suo posto: le prime carte del mazzo numeri, da rimettere nell'ordine voluto. */
   | { tipo: "riordina"; giocatore: IdGiocatore; carte: CartaNumero[] }
   /** Il giocatore è attaccato (vedi StatoPartita.attacco): si difende o subisce (e sceglie, se l'attacco lo chiede). */
-  | { tipo: "difesa"; giocatore: IdGiocatore };
+  | { tipo: "difesa"; giocatore: IdGiocatore }
+  /** La Resurrezione: chi ha Totò ha pescato una carta in più e sceglie a chi darla. */
+  | { tipo: "regalo"; giocatore: IdGiocatore; carta: CartaNumero };
 
 /** Un attacco che si sta risolvendo, un bersaglio alla volta. */
 export interface AttaccoInCorso {
@@ -147,6 +149,10 @@ export interface StatoPartita {
   tregua: number | null;
   /** Ultimo potere usato al tavolo (Sempre la stessa storia). */
   ultimoPotere: { carta: string; potere: string } | null;
+  /** Evento in corso e quanti turni dura ancora (compreso quello in corso). */
+  evento: { id: string; turniRimasti: number } | null;
+  /** Mazzo eventi (l'ultimo è il primo da pescare) e scarti. */
+  eventi: { mazzo: string[]; scarti: string[] };
   /** Ultime cose successe, in forma pubblica. */
   registro: Fatto[];
 }
@@ -181,7 +187,12 @@ export type DatiFatto =
   | { tipo: "scartaCarta"; zona: Zona; carta?: string }
   | { tipo: "caffe" }
   | { tipo: "fineTurno"; scartate: number }
-  | { tipo: "ultimoGiro"; punti: number }
+  /** `punti` = punti per vincere; `mazzo` = il mazzo personaggi è finito. */
+  | { tipo: "ultimoGiro"; punti: number; mazzo?: true }
+  | { tipo: "evento"; evento: string }
+  | { tipo: "fineEvento"; evento: string }
+  /** La Resurrezione: la carta in più data a un giocatore (si dice a chi, non quale). */
+  | { tipo: "regalo"; a: IdGiocatore }
   /** È comparsa sul tavolo una carta con il campanello: i personaggi scoperti sono stati cambiati. */
   | { tipo: "campanello"; valore: number; scartati: string[]; nuovi: string[] };
 
@@ -218,6 +229,8 @@ export type Mossa =
   | { tipo: "pescaNumero" }
   | { tipo: "pescaPersonaggio" }
   | { tipo: "brucia" }
+  /** Pesca un evento (solo se non ce n'è uno in corso). */
+  | { tipo: "pescaEvento" }
   /** Attiva un personaggio nascosto in mano o in attesa tra gli attacchi. */
   | { tipo: "attiva"; carta: string; combinazione: Combinazione }
   /** Usa il potere `potere` del personaggio attivato `carta` (id della copia). */
@@ -231,6 +244,8 @@ export type Mossa =
   | { tipo: "scegli"; carte: string[] }
   /** Id delle carte nell'ordine voluto: la prima sarà la prima pescata. */
   | { tipo: "riordina"; ordine: string[] }
+  /** La Resurrezione: a chi dare la carta in più (anche a sé stessi). */
+  | { tipo: "regala"; giocatore: IdGiocatore }
   /**
    * Difesa da un attacco con la carta `carta`: un personaggio attivato e carico, oppure (d'emergenza) un personaggio
    * nascosto o una carta difesa pagandone il codice con `combinazione`.
