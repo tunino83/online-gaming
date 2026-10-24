@@ -3,6 +3,7 @@ import { CARTE, type Carta, EVENTI, descriviCodice } from "@og/famiglia";
 import { type ReactNode, useState } from "react";
 import { CartaFamiglia } from "./carte";
 import { EMOJI_TIPO } from "./descrivi";
+import { immagineCarta } from "./immagini";
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
   return (
@@ -150,7 +151,14 @@ const GRUPPI: { titolo: string; filtro: (c: Carta) => boolean }[] = [
   { titolo: "Carte attacco (si usano una volta)", filtro: (c) => c.categoria === "attacco" },
 ];
 
-/** Elenco di tutte le carte, con poteri e codici. */
+/** Foto (o, se non c'è, il nome) della carta, piccola, accanto alla sua descrizione. */
+function Foto({ idCarta }: { idCarta: string }) {
+  const url = immagineCarta(idCarta);
+  if (url) return <img src={url} alt="" loading="lazy" className="h-[78px] w-14 shrink-0 rounded-md border border-oro/60 object-cover object-[50%_25%]" />;
+  return <CartaFamiglia idCarta={idCarta} dimensione="piccola" />;
+}
+
+/** Elenco di tutte le carte, con foto, poteri e codici (toccandone una si vede la carta intera). */
 export function CatalogoFamiglia() {
   const [aperta, setAperta] = useState<string | null>(null);
   return (
@@ -166,7 +174,11 @@ export function CatalogoFamiglia() {
                   onClick={() => setAperta(aperta === c.id ? null : c.id)}
                   className="flex w-full items-start gap-2 rounded-lg border border-oro/40 bg-white/50 p-1.5 text-left"
                 >
-                  {aperta === c.id && <CartaFamiglia idCarta={c.id} dimensione="media" />}
+                  {aperta === c.id ? (
+                    <CartaFamiglia idCarta={c.id} dimensione="media" />
+                  ) : (
+                    <Foto idCarta={c.id} />
+                  )}
                   <span className="text-xs leading-snug">
                     <strong className="text-sm">
                       {c.nome}
