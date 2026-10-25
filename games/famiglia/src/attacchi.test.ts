@@ -537,11 +537,12 @@ describe("difese", () => {
     expect(g(s, "bruno").nascosti).toHaveLength(1);
   });
 
-  it("Zeppata difensiva: chi ti ha attaccato mostra a tutti le sue carte", () => {
-    const s = bruno_si_difende("claudia-3");
-    manoDi(s, "anna", 8);
+  it("Una fetta di torta?: annulli anche un attacco di livello 3; tu peschi 2 carte, chi ti ha attaccato 1", () => {
+    const s = bruno_si_difende("claudia-3", 3);
     const dopo = difendi(s, "bruno", "claudia-3");
-    expect(vistaGiocatore(dopo, "carla").turno.rivelati).toEqual([{ giocatore: "anna", mano: [num(8, "anna0")], nascosti: [] }]);
+    expect(g(dopo, "bruno").mano).toHaveLength(5); // le sue 3 restano (il bastone non colpisce) + 2 dolci
+    expect(g(dopo, "bruno").attivati[1]!.stanca).toBe(0);
+    expect(g(dopo, "anna").mano).toHaveLength(1);
   });
 
   it("Guardia medica: l'attacco passa, ma le carte scartate tornano e le carte stancate si ricaricano", () => {

@@ -74,7 +74,7 @@ Regole usate:
 | Roberta | 3 | Sparecchio | ⚔️ | Poker |
 | Claudia | 1 | Prosecco | ✨ | 2 carte dispari |
 | Claudia | 2 | Zeppata sui social | ⚔️ | 3 carte con somma 16 |
-| Claudia | 3 | Zeppata difensiva | 🛡️ | Doppia coppia |
+| Claudia | 3 | Una fetta di torta? | 🛡️ | Doppia coppia |
 | Squacqualacchione | 1 | Burla | ⚔️ | 2 carte con somma 9 |
 | Squacqualacchione | 2 | Giacca al rovescio | ✨ | 3 carte dispari |
 | Squacqualacchione | 3 | Volo infuocato | ⚔️ | 88 + una coppia qualsiasi |

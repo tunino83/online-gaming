@@ -114,7 +114,7 @@ export interface StatoTurno {
   doppioTurno: boolean;
   /** In questo turno non si possono usare poteri (Parla parla parla). */
   zitto: boolean;
-  /** Carte mostrate a tutti in questo turno (Schietta, Zeppata difensiva). */
+  /** Carte mostrate a tutti in questo turno (Schietta). */
   rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
 }
 

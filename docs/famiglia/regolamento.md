@@ -162,7 +162,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
   - Il gioco aspetta l'attaccato solo se ha una difesa che può usare o se l'attacco gli chiede una scelta; altrimenti
     l'attacco lo colpisce subito.
-  - "Chi ti ha attaccato" (Si arrabbia, Ho appena lavato, Taurasi, Non ti sento, Zeppata difensiva) è chi ti ha mandato
+  - "Chi ti ha attaccato" (Si arrabbia, Ho appena lavato, Taurasi, Non ti sento, Una fetta di torta?) è chi ti ha mandato
     l'attacco: dopo una deviazione di Maddalena o una Permalosa, è chi l'ha deviato o rimandato.
   - Un attacco deviato o rimandato colpisce il nuovo bersaglio con scelte a caso (es. quale carta carica far stancare).
   - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
@@ -176,3 +176,8 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 **Ti chiamo un attimo…** (attacco, al posto di *Avanzi*): Roberta regala 2 carte numero (prese dal mazzo) a un avversario,
 ma lo tiene al telefono un'ora: salta il suo prossimo turno (nessuna mossa; le sue carte stanche si ricaricano lo stesso).
 Si ricarica in 2 turni invece di 1, così non si può bloccare sempre la stessa persona.
+
+## Claudia livello 3 (2026-10-25)
+
+**Una fetta di torta?** (difesa, al posto di *Zeppata difensiva*): Claudia fa sempre torte, muffin e pancake. Annulla l'attacco
+e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.

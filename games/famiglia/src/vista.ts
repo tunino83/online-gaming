@@ -6,7 +6,7 @@
  * - Studia il fascicolo: per tutto il turno si vedono le carte in mano dell'avversario scelto;
  * - Ne ho viste tante e Ogni cosa al suo posto: chi sceglie vede le carte prese dal mazzo;
  * - Vincenzo e Patate al forno: le carte scoperte tra cui scegliere le vedono tutti;
- * - Schietta e Zeppata difensiva: le carte mostrate le vedono tutti per il resto del turno.
+ * - Schietta: le carte mostrate le vedono tutti per il resto del turno.
  */
 import type { IdGiocatore } from "@og/engine";
 import { puntiDi, risorseGiocatore } from "./base";
@@ -40,7 +40,7 @@ export interface VistaGiocatore {
     intoccabili: string[];
     /** Chi è di turno non può usare poteri (Parla parla parla). */
     zitto: boolean;
-    /** Carte mostrate a tutti in questo turno (Schietta, Zeppata difensiva). */
+    /** Carte mostrate a tutti in questo turno (Schietta). */
     rivelati: StatoTurno["rivelati"];
   };
   /** Attacco in corso (informazioni pubbliche). */

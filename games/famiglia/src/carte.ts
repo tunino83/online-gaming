@@ -270,7 +270,10 @@ const ADULTI: Carta[] = [
   ...persona("Claudia", [
     { codice: dispari(2), poteri: [aiuto("Prosecco", "1 mossa in più e peschi 1 carta numero")] },
     { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
-    { codice: doppiaCoppia, poteri: [difesa("Zeppata difensiva", "Annulli l'attacco e chi ti ha attaccato mostra a tutti la sua mano e i personaggi nascosti")] },
+    {
+      codice: doppiaCoppia,
+      poteri: [difesa("Una fetta di torta?", "Annulli l'attacco e fate pace con i dolci: tu peschi 2 carte numero, chi ti ha attaccato 1")],
+    },
   ]),
   ...persona(
     "Squacqualacchione",

@@ -537,8 +537,10 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
     case "chiusa-in-camera":
       V.nascostiProtetti = true;
       break;
-    case "zeppata-difensiva":
-      s.turno.rivelati.push({ giocatore: mittente, mano: structuredClone(A.mano), nascosti: structuredClone(A.nascosti) });
+    case "una-fetta-di-torta":
+      // Claudia offre torte, muffin e pancake: si fa pace
+      peschiNumeri(s, v, 2);
+      peschiNumeri(s, mittente, 1);
       break;
     case "cella-frigorifera": {
       const x = s.giocatori[a.attaccante]!.attivati.find((y) => y.copia.id === a.copia);
