@@ -36,7 +36,7 @@ export const EVENTI: readonly Evento[] = [
     id: "matrimonio",
     nome: "Matrimonio",
     durata: 1,
-    testo: "Tutti fanno 1 mossa in meno; Don Pasquale e Donato si ricaricano e non si stancano mai",
+    testo: "Il regalo agli sposi: tutti perdono 1 carta numero a caso. Tutti fanno 1 mossa in meno; Don Pasquale e Donato si ricaricano e non si stancano mai",
   },
   {
     id: "sagra-delle-tomacelle",

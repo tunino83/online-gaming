@@ -4,7 +4,7 @@
  * scritto sulla carta (contando quello in cui si pesca). "Chi ha X" = chi ha almeno una carta di X attivata.
  */
 import { type IdGiocatore, interoTra, mescola } from "@og/engine";
-import { haPersona, pesca, registra, rifiuta } from "./base";
+import { haPersona, pesca, registra, rifiuta, scartaNumeri } from "./base";
 import { carta } from "./carte";
 import { evento } from "./eventi";
 import type { StatoPartita } from "./stato";
@@ -66,6 +66,11 @@ function inizioEvento(s: StatoPartita): void {
       break;
     case "matrimonio":
       ricarica("don-pasquale", "donato");
+      // Il regalo agli sposi: ognuno perde una carta numero (a caso) dalla mano
+      for (const id of s.ordine) {
+        const mano = s.giocatori[id]!.mano;
+        if (mano.length > 0) scartaNumeri(s, mano.splice(interoTra(s.rng, 0, mano.length - 1), 1));
+      }
       break;
     case "funerale": {
       ricarica("franchino", "don-pasquale");

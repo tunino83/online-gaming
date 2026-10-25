@@ -75,6 +75,19 @@ describe("effetti degli eventi", () => {
     expect(s.giocatori.anna!.attivati[0]!.stanca).toBe(0);
   });
 
+  it("Matrimonio: il regalo agli sposi, tutti perdono una carta numero (chi non ne ha, niente)", () => {
+    let s = partita();
+    s.giocatori.anna!.mano = [num(1, "a1"), num(2, "a2")];
+    s.giocatori.bruno!.mano = [num(3, "b1")];
+    const prima = contaCarte(s);
+    s = pescaEvento(s, "matrimonio");
+    expect(s.giocatori.anna!.mano).toHaveLength(1);
+    expect(s.giocatori.bruno!.mano).toHaveLength(0);
+    expect(s.giocatori.carla!.mano).toHaveLength(0);
+    expect(s.scarti.numeri).toHaveLength(2);
+    expect(contaCarte(s)).toEqual(prima);
+  });
+
   it("Matrimonio: la scusa \"Sono a un matrimonio\" torna in mano dopo l'uso", () => {
     let s = attivata(pescaEvento(partita(), "matrimonio"), "anna", "toto-1");
     s.giocatori.bruno!.nascosti = [copia("sono-a-un-matrimonio")];
