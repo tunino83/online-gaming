@@ -189,3 +189,20 @@ servirebbe a niente. Sono: *Non sbaglio mai* (Maddalena 1), *Un caffè* (Generos
 *Te l'ho già detto?* (Nonno Salvatore 1) e *L'ho già detto* (Nonno Salvatore 2). Si possono usare anche a mosse finite;
 la carta si stanca come le altre. Gli altri poteri che danno mosse in più ne danno almeno 2 oltre a quella spesa
 (*Anima della festa*, *Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
+
+## Carte aiuto "blu" (in progettazione, 2026-10-25 – non ancora nel gioco)
+
+Idea: alcune carte aiuto diventano come le carte blu di Il Portale.
+- **Sempre attive** dopo l'attivazione: non si stancano e non costano mosse.
+- Ogni effetto si usa **una volta per turno**, salvo eccezioni scritte sulla carta.
+
+Carte blu decise finora:
+- **Mercatino** (Nonna Patrizia 1): scambi una carta che hai in mano con una a scelta dalla pila degli scarti (numeri o personaggi).
+- **Prosecco** (Claudia 1): quando attivi un personaggio puoi usare il codice di un'altra carta che hai ("sei brilla e sbagli").
+- **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): la prima mossa del turno la puoi rifare gratis (es. peschi un numero: ne peschi un altro).
+- **Studia il fascicolo** (Giuseppe 1): a ogni turno scegli un avversario e vedi le sue carte.
+- **Ne ho viste tante** (Nonno Antonio 1): vedi sempre le prime 2 carte del mazzo personaggi e, pescando, scegli quale prendere.
+
+Altre proposte in discussione:
+- **Anima della festa** (Zio Salvatore 3): gratis, 3 mosse in più ora e 1 in meno nei 2 turni successivi.
+- **Mangia mangia mangia** (Alessia): 4 carte, poi per 2 turni il limite della mano scende di 1 (indigestione).
