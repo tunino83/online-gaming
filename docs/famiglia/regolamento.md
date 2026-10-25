@@ -271,3 +271,7 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Vertenza** (Giuseppe 3): prende solo personaggi di livello 1 o 2, mai di livello 3; e per prenderlo si deve
   **pagare con le proprie carte il codice di attivazione** di quel personaggio. Il codice si paga quando si lancia
   l'attacco: se l'avversario si difende, le carte pagate sono perse.
+- **Si canta!** (Zio Salvatore 1): prima prendi 1 carta numero a caso da ogni avversario colpito (chi si difende non dà
+  e non riceve); solo dopo averle prese tutte scegli quale carta della tua mano dare a ciascuno (1 a testa).
+- **Punti tolti alle carte più forti**: Nonno Nicola 1 (L'orto) e Claudia 1 (Prosecco) valgono **0 punti**,
+  Alessia vale **1 punto** (invece di 2).

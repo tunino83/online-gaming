@@ -46,6 +46,8 @@ interface Lato {
   poteri: Potere[];
   /** Turni di ricarica, se diversi dal livello (es. Roberta 1). */
   ricarica?: number;
+  /** Punti, se diversi dal livello (carte forti, decise dopo la simulazione: es. Nonno Nicola 1 vale 0). */
+  punti?: number;
 }
 
 /** Una persona con 3 carte (livello 1, 2, 3): punti e ricarica uguali al livello. */
@@ -58,7 +60,7 @@ function persona(nome: string, lati: [Lato, Lato, Lato], nota?: string): Carta[]
     categoria: "personaggio",
     livello: (i + 1) as Livello,
     codice: l.codice,
-    punti: i + 1,
+    punti: l.punti ?? i + 1,
     ricarica: l.ricarica ?? i + 1,
     poteri: l.poteri,
     ...(nota ? { nota } : {}),
@@ -119,7 +121,7 @@ const ADULTI: Carta[] = [
     { codice: scala(5), poteri: [aiuto("Cucina per 200", "Tu peschi 4 carte numero, ogni avversario 1")] },
   ]),
   ...persona("Nonno Nicola", [
-    { codice: dispari(2), poteri: [aiutoBlu("L'orto", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero")], ricarica: 0 },
+    { codice: dispari(2), poteri: [aiutoBlu("L'orto", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero")], ricarica: 0, punti: 0 },
     { codice: somma(3, 12), poteri: [attacco("Solo per vedere comm sape", "Rubi 1 carta numero a caso dalla mano di un avversario")] },
     { codice: piuCoppia(6, 6), poteri: [attacco("Manca 'o sale", "Ogni avversario ti dà 1 carta numero (sceglie lui quale)")] },
   ]),
@@ -174,7 +176,7 @@ const ADULTI: Carta[] = [
     { codice: esatto(1, 2, 3, 4), poteri: [attacco("Urla", "Ogni avversario scarta 2 carte numero (sceglie lui quali)")] },
   ]),
   ...persona("Zio Salvatore", [
-    { codice: esatto(7, 7), poteri: [attacco("Si canta!", "Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno")] },
+    { codice: esatto(7, 7), poteri: [attacco("Si canta!", "Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno")] },
     { codice: somma(3, 14), poteri: [attacco("Versa il vino", "Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi")] },
     {
       codice: piuCoppia(8, 8),
@@ -311,6 +313,7 @@ const ADULTI: Carta[] = [
           "Sempre attiva, una volta per turno: attivi un personaggio pagando il codice di un'altra tua carta con al massimo 1 livello di differenza (sei brilla e ti confondi)",
         )],
       ricarica: 0,
+      punti: 0,
     },
     { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
     {
@@ -386,12 +389,16 @@ const ADULTI: Carta[] = [
 const SINGOLE: Carta[] = [
   singola("Nicole", 2, somma(3, 11), [attacco("Parla parla parla", "Un avversario nel suo prossimo turno non può usare poteri")]),
   singola("Christian", 1, coppia, [aiuto("Ho tanta fame", "Peschi 3 carte numero")], 2),
-  singola("Alessia", 2, pari(3), [
-    aiuto(
-      "Mangia mangia mangia",
-      "Gratis: peschi 4 carte numero alla cieca; poi l'indigestione: nei tuoi 2 turni successivi, a fine turno, scarti sempre 1 carta in più",
-    ),
-  ]),
+  {
+    // Vale 1 punto invece di 2 (carta forte, deciso dopo la simulazione)
+    ...singola("Alessia", 2, pari(3), [
+      aiuto(
+        "Mangia mangia mangia",
+        "Gratis: peschi 4 carte numero alla cieca; poi l'indigestione: nei tuoi 2 turni successivi, a fine turno, scarti sempre 1 carta in più",
+      ),
+    ]),
+    punti: 1,
+  },
   singola("Greta", 2, dispari(3), [attacco("Risata contagiosa", "Ogni avversario scarta 1 carta numero a caso")]),
   singola("Donato", 2, scala(3), [difesa("Non ti sento, sto suonando", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro")]),
   singola("Franchino", 2, somma(3, 15), [attacco("Multa", "Chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti)")]),

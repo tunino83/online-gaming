@@ -389,15 +389,37 @@ describe("attacchi contro tutti", () => {
     expect(g(s, "carla").mano).toHaveLength(0);
   });
 
-  it("Si canta!: ognuno ti dà una carta a caso e tu ne dai una a scelta a ciascuno", () => {
+  it("Si canta!: prendi una carta a caso da ognuno; solo dopo averle prese tutte scegli quale ridare a ciascuno", () => {
     let s = attivata(partita(), "anna", "zio-salvatore-1");
-    manoDi(s, "anna", 1, 2);
+    manoDi(s, "anna", 1);
     manoDi(s, "bruno", 5);
     manoDi(s, "carla", 6);
-    s = attacca(s, "zio-salvatore-1", { carte: ["anna1", "anna0"] });
-    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["anna1"]);
+    s = attacca(s, "zio-salvatore-1");
+    // prima prende da tutti
+    expect(g(s, "anna").mano.map((c) => c.id).sort()).toEqual(["anna0", "bruno0", "carla0"]);
+    expect(s.turno.attesa).toEqual({ tipo: "canto", giocatore: "anna", a: ["bruno", "carla"] });
+    expect(rifiutata(s, "anna", { tipo: "scegli", carte: ["anna0"] })).toMatch(/2 carte/);
+    // poi decide: a bruno la carta di carla, a carla la sua
+    s = fai(s, "anna", { tipo: "scegli", carte: ["carla0", "anna0"] });
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["carla0"]);
     expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["anna0"]);
-    expect(g(s, "anna").mano.map((c) => c.id).sort()).toEqual(["bruno0", "carla0"]);
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["bruno0"]);
+    expect(s.turno.attesa).toBeNull();
+    expect(s.turno.canto).toBeNull();
+  });
+
+  it("Si canta!: chi si difende non dà e non riceve", () => {
+    let s = attivata(attivata(partita(), "anna", "zio-salvatore-1"), "bruno", "gerardina-1"); // Sempre calma
+    manoDi(s, "anna", 1);
+    manoDi(s, "bruno", 5);
+    manoDi(s, "carla", 6);
+    s = attacca(s, "zio-salvatore-1");
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    s = difendi(s, "bruno", "gerardina-1");
+    expect(s.turno.attesa).toEqual({ tipo: "canto", giocatore: "anna", a: ["carla"] });
+    s = fai(s, "anna", { tipo: "scegli", carte: ["anna0"] });
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno0"]);
+    expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["anna0"]);
   });
 
   it("Zeppata sui social: ognuno sceglie se dare una carta o far stancare una sua carta carica", () => {

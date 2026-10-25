@@ -452,6 +452,20 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
     riceviCarta(s, id, scelta!);
     return;
   }
+  if (a?.tipo === "canto" && m.tipo === "scegli") {
+    // Si canta!: una carta della mano per ogni avversario colpito, nello stesso ordine
+    const quante = Math.min(a.a.length, g.mano.length);
+    if (m.carte.length !== quante || new Set(m.carte).size !== quante || !m.carte.every((x) => g.mano.some((c) => c.id === x))) {
+      rifiuta(quante === 1 ? "Scegli la carta da dare" : `Scegli ${quante} carte da dare, una per giocatore`);
+    }
+    m.carte.forEach((x, i) => {
+      s.giocatori[a.a[i]!]!.mano.push(togliNumero(g, x)!);
+      registra(s, id, { tipo: "regalo", a: a.a[i]! });
+    });
+    s.turno.attesa = null;
+    s.turno.canto = null;
+    return;
+  }
   if (a?.tipo === "scambiaTavolo" && m.tipo === "scegli") {
     if (m.carte.length > 0) {
       const mia = m.carte.length === 2 ? g.mano.find((c) => c.id === m.carte[0] && !c.unite) : undefined;
@@ -483,6 +497,15 @@ export function mosseDiScelta(s: StatoPartita): Mossa[] {
     return quante === 1 ? ids.map((x) => ({ tipo: "scegli", carte: [x] })) : coppie(ids).map((carte) => ({ tipo: "scegli", carte }));
   }
   if (a?.tipo === "scegliPersonaggio") return a.carte.map((c) => ({ tipo: "scegli", carte: [c.id] }));
+  if (a?.tipo === "canto") {
+    // Alcune possibilità: le prime, le ultime, le più basse, le più alte
+    const g = s.giocatori[a.giocatore]!;
+    const quante = Math.min(a.a.length, g.mano.length);
+    const perValore = [...g.mano].sort((x, y) => x.valore - y.valore).map((c) => c.id);
+    const ids = g.mano.map((c) => c.id);
+    const scelte = [ids.slice(0, quante), ids.slice(-quante), perValore.slice(0, quante), perValore.slice(-quante)];
+    return [...new Map(scelte.map((x) => [x.join(), x])).values()].map((carte): Mossa => ({ tipo: "scegli", carte }));
+  }
   if (a?.tipo === "scambiaTavolo") {
     // Niente scambio, oppure una carta per valore della mano con una del tavolo di valore diverso
     const g = s.giocatori[a.giocatore]!;

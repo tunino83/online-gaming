@@ -14,7 +14,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Checca | 1 | **Schietta** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
 | Checca | 3 | **Allergica al finocchietto** | Scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi peschi 2 carte numero | 4 carte con somma 24 | ricarica 3 |
 | Donatina | 3 | **Urla** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
-| Zio Salvatore | 1 | **Si canta!** | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
+| Zio Salvatore | 1 | **Si canta!** | Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
 | Zio Salvatore | 2 | **Versa il vino** | Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi | 3 carte con somma 14 | ricarica 2 |
 | Francesco | 2 | **Smash** | Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso | 3 carte con somma 20 | ricarica 2 |
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |

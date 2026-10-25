@@ -80,9 +80,10 @@ describe("regole sui dati delle carte", () => {
     expect(CARTE.reduce((s, c) => s + c.copie, 0)).toBe(101);
   });
 
-  it("personaggi: punti uguali al livello, ricarica uguale al livello (Christian e Roberta 1: 2; carte blu: 0)", () => {
+  it("personaggi: punti uguali al livello (Nonno Nicola 1 e Claudia 1: 0; Alessia: 1), ricarica uguale al livello (Christian e Roberta 1: 2; carte blu: 0)", () => {
+    const puntiSpeciali: Record<string, number> = { "nonno-nicola-1": 0, "claudia-1": 0, alessia: 1 };
     for (const c of CARTE.filter((x) => x.categoria === "personaggio")) {
-      expect(c.punti, c.id).toBe(c.livello);
+      expect(c.punti, c.id).toBe(puntiSpeciali[c.id] ?? c.livello);
       if (c.poteri.every((p) => p.blu)) expect(c.ricarica, c.id).toBe(0); // le blu non si stancano
       else expect(c.ricarica, c.id).toBe(c.id === "christian" || c.id === "roberta-1" ? 2 : c.livello);
     }

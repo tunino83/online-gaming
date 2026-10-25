@@ -344,15 +344,15 @@ describe("fine partita a punti", () => {
       copia: copia(id),
       stanca: 0,
     }));
-    s.giocatori.anna!.nascosti = [copia("alessia")]; // 3 carte pari, 2 punti
-    s.giocatori.anna!.mano = [num(2, "a"), num(4, "b"), num(6, "c")];
+    s.giocatori.anna!.nascosti = [copia("greta")]; // 3 carte dispari, 2 punti
+    s.giocatori.anna!.mano = [num(1, "a"), num(3, "b"), num(5, "c")];
     s = fai(s, "anna", {
       tipo: "attiva",
-      carta: "alessia#1",
+      carta: "greta#1",
       combinazione: [
-        { tipo: "numero", id: "a", valore: 2 },
-        { tipo: "numero", id: "b", valore: 4 },
-        { tipo: "numero", id: "c", valore: 6 },
+        { tipo: "numero", id: "a", valore: 1 },
+        { tipo: "numero", id: "b", valore: 3 },
+        { tipo: "numero", id: "c", valore: 5 },
       ],
     });
     expect(puntiDi(s.giocatori.anna!)).toBe(20);

@@ -74,6 +74,11 @@ export type Attesa =
   | { tipo: "scambiaTavolo"; giocatore: IdGiocatore }
   /** Il giocatore è attaccato (vedi StatoPartita.attacco): si difende o subisce (e sceglie, se l'attacco lo chiede). */
   | { tipo: "difesa"; giocatore: IdGiocatore }
+  /**
+   * Si canta!: l'attaccante ha preso una carta da ogni avversario colpito e ora sceglie quale carta dare a ciascuno
+   * (`a`, nell'ordine di turno). Si risponde con "scegli": una carta della mano per ogni giocatore, nello stesso ordine.
+   */
+  | { tipo: "canto"; giocatore: IdGiocatore; a: IdGiocatore[] }
   /** La Resurrezione: chi ha Totò ha pescato una carta in più e sceglie a chi darla. */
   | { tipo: "regalo"; giocatore: IdGiocatore; carta: CartaNumero };
 
@@ -127,6 +132,8 @@ export interface StatoTurno {
   doppioTurno: boolean;
   /** In questo turno non si possono usare poteri (Parla parla parla). */
   zitto: boolean;
+  /** Si canta! in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
+  canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */
   rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
 }

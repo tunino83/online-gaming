@@ -923,6 +923,41 @@ function SceltaInSospeso({
     );
   }
 
+  if (a.tipo === "canto") {
+    // Si canta!: tocca le carte nell'ordine dei giocatori a cui darle
+    const quante = Math.min(a.a.length, v.mano.length);
+    const restanti = v.mano.filter((c) => !scelte.includes(c.id));
+    return (
+      <Foglio titolo="🎤 Si canta!: scegli quale carta dare a ciascuno">
+        <ul className="mb-2 space-y-1 text-sm">
+          {a.a.slice(0, quante).map((chi, i) => {
+            const data = v.mano.find((c) => c.id === scelte[i]);
+            return (
+              <li key={chi}>
+                a <b>{nick(chi)}</b>: {data ? <b>il {data.valore}</b> : <span className="text-tenue">tocca una carta…</span>}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="flex flex-wrap gap-2">
+          {[...restanti]
+            .sort((x, y) => x.valore - y.valore)
+            .map((c) => (
+              <CartaNumeroGrafica key={c.id} c={c} onClick={scelte.length < quante ? () => setScelte((s) => [...s, c.id]) : undefined} />
+            ))}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Pulsante variante="vuoto" onClick={() => setScelte([])}>
+            Ricomincia
+          </Pulsante>
+          <Pulsante disabled={bloccato || scelte.length !== quante} onClick={() => gioca({ tipo: "scegli", carte: scelte })}>
+            Dai le carte
+          </Pulsante>
+        </div>
+      </Foglio>
+    );
+  }
+
   if (a.tipo === "scambiaTavolo") {
     // Pranzo a domicilio: una carta della mano (prima scelta) e una del tavolo (seconda), oppure niente
     const mia = scelte.find((id) => v.mano.some((c) => c.id === id));

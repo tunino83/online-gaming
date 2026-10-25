@@ -190,7 +190,17 @@ function prosegui(s: StatoPartita): void {
     }
     avanza(s);
   }
-  s.turno.attesa = dopo;
+  s.turno.attesa = dopo ?? attesaDelCanto(s);
+}
+
+/** Finito Si canta!, chi ha cantato sceglie quale carta ridare a ciascun avversario colpito. */
+function attesaDelCanto(s: StatoPartita): Attesa | null {
+  const canto = s.turno.canto;
+  if (!canto || canto.a.length === 0 || s.giocatori[canto.da]!.mano.length === 0) {
+    s.turno.canto = null;
+    return null;
+  }
+  return { tipo: "canto", giocatore: canto.da, a: [...canto.a] };
 }
 
 /** Passa al prossimo bersaglio, o chiude l'attacco. */
@@ -267,13 +277,12 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       break;
     }
     case "si-canta": {
+      // Prima si prende una carta a caso da ogni avversario colpito; finito l'attacco si sceglie cosa ridare a ciascuno
       if (suSeStesso) break;
       const c = rubaACaso();
       if (c) A.mano.push(c);
-      const i = avversariDopo(s, a.attaccante).indexOf(v); // stesso ordine delle carte scelte (parametriAttacco)
-      const voluta = p.carte?.[i];
-      const dono = (voluta && A.mano.find((x) => x.id === voluta && x !== c)) || aCaso(s, A.mano.filter((x) => x !== c));
-      if (dono) V.mano.push(togliNumero(A, dono.id)!);
+      const canto = (s.turno.canto ??= { da: a.attaccante, a: [] });
+      canto.a.push(v);
       break;
     }
     case "si-incanta":
@@ -651,7 +660,9 @@ export function mosseDiDifesa(s: StatoPartita, v: IdGiocatore): Mossa[] {
         const scelta = scelte[0] ?? {};
         if (scelta.carte && scelta.carte.some((x) => pagate.has(x))) {
           const libere = g.mano.filter((c) => !pagate.has(c.id)).map((c) => c.id);
-          mosse.push({ ...m, carte: libere.slice(0, Math.min(scelta.carte.length, libere.length)) });
+          const carte = libere.slice(0, Math.min(scelta.carte.length, libere.length));
+          // Se non resta niente da scegliere, decide il caso (o l'attacco ha poco da prendere)
+          mosse.push(carte.length > 0 ? { ...m, carte } : m);
         } else {
           mosse.push({ ...m, ...scelta });
         }
@@ -689,7 +700,7 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
   if (CONTRO_TUTTI.has(potere)) {
     if (potere === "multa" && avversari.every((x) => s.giocatori[x]!.mano.length === 0)) return [];
     if (avversari.length === 0) return [];
-    return potere === "si-canta" ? [{ carte: g.mano.slice(0, avversariDopo(s, id).length).map((c) => c.id) }] : [{}];
+    return [{}];
   }
   if (potere === "invasione-di-campo") {
     if (avversari.length <= 1) return avversari.map((x) => ({ giocatori: [x] }));

@@ -120,7 +120,7 @@ export function CartaFamiglia({
           <Stemma key={tipo} tipo={tipo} dimensione={Math.round(19 * s)} />
         ))}
       </div>
-      {c.punti > 0 && <span className="cf-punti">{c.punti}</span>}
+      {c.categoria === "personaggio" && <span className="cf-punti">{c.punti}</span>}
     </Contenitore>
   );
 }

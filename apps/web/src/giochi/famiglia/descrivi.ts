@@ -114,6 +114,10 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     case "scartaCarta":
       return `Scarta ${nomeCopia(m.carta)}`;
     case "scegli": {
+      const attesa = v.turno.attesa;
+      if (attesa?.tipo === "canto") {
+        return `Dai ${elenco(m.carte.map((id, i) => `il ${numeri.get(id)?.valore ?? "?"} a ${nick(attesa.a[i] ?? "")}`))}`;
+      }
       if (v.turno.attesa?.tipo === "scambiaTavolo") {
         if (m.carte.length === 0) return "Nessuno scambio";
         const tavolo = v.tavolo.numeri.find((c) => c?.id === m.carte[1]);

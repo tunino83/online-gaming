@@ -28,6 +28,11 @@ describe("simulazione", () => {
     expect(simulaPartita(365, 2).errore).toBeUndefined();
   });
 
+  it("partite 100003 e 100805: Guardia medica d'emergenza contro Zeppata sui social, con la carta da dare usata per pagare", () => {
+    expect(simulaPartita(100003, 5).errore).toBeUndefined();
+    expect(simulaPartita(100805, 5).errore).toBeUndefined();
+  });
+
   it("anche con la fine quando finisce il mazzo", () => {
     const st = simula(4, { modoFine: "mazzo" });
     expect(st.errori).toEqual([]);
