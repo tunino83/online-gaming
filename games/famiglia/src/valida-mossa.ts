@@ -28,7 +28,7 @@ function elementoValido(e: unknown): boolean {
 const combinazioneValida = (x: unknown) => Array.isArray(x) && x.length >= 1 && x.length <= 20 && x.every(elementoValido);
 
 /** Parametri facoltativi dei poteri (vedi ParametriPotere in stato.ts). */
-const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "scelte", "propria", "fonte", "potereCopiato"];
+const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "bersagli", "scelte", "propria", "fonte", "potereCopiato"];
 
 function parametriValidi(m: Oggetto): boolean {
   return (
@@ -36,6 +36,7 @@ function parametriValidi(m: Oggetto): boolean {
     (m.posizioni === undefined || (Array.isArray(m.posizioni) && m.posizioni.length <= 10 && m.posizioni.every(isPosizione))) &&
     (m.valore === undefined || isIntero(m.valore)) &&
     (m.scelte === undefined || listaTesti(m.scelte)) &&
+    (m.bersagli === undefined || listaTesti(m.bersagli)) &&
     ["giocatore", "bersaglio", "propria", "fonte", "potereCopiato"].every((k) => m[k] === undefined || isTesto(m[k]))
   );
 }

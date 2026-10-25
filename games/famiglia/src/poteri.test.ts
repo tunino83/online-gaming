@@ -25,12 +25,17 @@ const anna = (s: StatoPartita) => s.giocatori.anna!;
 /* ---------------- regole comuni ---------------- */
 
 describe("usare un potere", () => {
-  it("costa una mossa (salvo Non sbaglio mai) e la carta diventa stanca per il suo tempo di ricarica", () => {
-    let s = conCarta("nonna-dina-1"); // Sposta i mobili, ricarica 1
-    s = usa(s, "nonna-dina-1");
+  it("costa una mossa (salvo i poteri gratis) e la carta diventa stanca per il suo tempo di ricarica", () => {
+    let s = conCarta("generoso-2"); // Colazione, ricarica 2
+    s = usa(s, "generoso-2");
     expect(s.turno.mosseRimaste).toBe(2);
-    expect(anna(s).attivati[0]!.stanca).toBe(1);
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "potere", carta: "nonna-dina-1", potere: "sposta-i-mobili" });
+    expect(anna(s).attivati[0]!.stanca).toBe(2);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "potere", carta: "generoso-2", potere: "colazione" });
+
+    let t = conCarta("nonna-dina-1"); // Sposta i mobili: gratis, ma la carta si stanca
+    t = usa(t, "nonna-dina-1");
+    expect(t.turno.mosseRimaste).toBe(3);
+    expect(anna(t).attivati[0]!.stanca).toBe(1);
   });
 
   it("una carta stanca non si usa; si ricarica a inizio dei propri turni", () => {
@@ -142,9 +147,9 @@ describe("pescare", () => {
     expect(s.giocatori.carla!.mano).toHaveLength(1);
   });
 
-  it("Colazione: 1 personaggio e 1 carta numero", () => {
+  it("Colazione: 1 personaggio e 2 carte numero", () => {
     const s = usa(conCarta("generoso-2"), "generoso-2");
-    expect(anna(s).mano).toHaveLength(1);
+    expect(anna(s).mano).toHaveLength(2);
     expect(anna(s).nascosti.length + anna(s).attacchi.length).toBe(1);
   });
 
@@ -178,10 +183,25 @@ describe("pescare", () => {
     const pescata = anna(s).mano[0]!;
     s = usa(s, "maddalena-1");
     expect(s.turno.mosseRimaste).toBe(2); // solo la pescata ha usato una mossa
-    expect(anna(s).attivati[0]!.stanca).toBe(1);
+    expect(anna(s).attivati[0]!.stanca).toBe(0); // potere blu: la carta non si stanca
     expect(s.scarti.numeri).toEqual([pescata]);
     expect(anna(s).mano).toHaveLength(1);
     expect(anna(s).mano[0]).not.toEqual(pescata);
+    // una volta per turno
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    expect(rifiutata(s, "anna", potere("maddalena-1"))).toMatch(/una volta per turno/);
+  });
+
+  it("Maddalena 1: Non sbaglio mai (blu) funziona anche con la carta stanca per Fatto in casa", () => {
+    let s = conCarta("maddalena-1");
+    anna(s).mano = [num(3, "a"), num(4, "b")];
+    s = usa(s, "maddalena-1", { carte: ["a", "b"] }, "fatto-in-casa");
+    expect(anna(s).attivati[0]!.stanca).toBe(1);
+    expect(rifiutata(s, "anna", potere("maddalena-1", { carte: ["a", "b"] }, "fatto-in-casa"))).toMatch(/stanca/);
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
+    s = usa(s, "maddalena-1");
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "potere", potere: "non-sbaglio-mai" });
   });
 
   it("Non sbaglio mai si può usare anche dopo l'ultima pescata del turno (e il turno non si chiude da solo)", () => {
@@ -193,6 +213,25 @@ describe("pescare", () => {
     expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
     s = usa(s, "maddalena-1");
     expect(mossaAutomatica(s)).not.toBeNull();
+  });
+
+  it("Ho tanta fame: 3 carte numero", () => {
+    const s = usa(conCarta("christian"), "christian", {}, "ho-tanta-fame");
+    expect(anna(s).mano).toHaveLength(3);
+  });
+
+  it("Lezione di padel (blu): gratis, una volta per turno, scambi una tua carta con una del tavolo", () => {
+    let s = conCarta("francesco-1");
+    anna(s).mano = [num(2, "mia")];
+    const sulTavolo = s.tavolo.numeri[0]!;
+    if (sulTavolo.valore === 2) s.tavolo.numeri[0] = { ...sulTavolo, valore: 5 };
+    const tavolo = s.tavolo.numeri[0]!;
+    s = usa(s, "francesco-1", { carte: ["mia"], posizioni: [0] });
+    expect(anna(s).mano).toEqual([tavolo]);
+    expect(s.tavolo.numeri[0]!.id).toBe("mia");
+    expect(s.turno.mosseRimaste).toBe(3);
+    expect(anna(s).attivati[0]!.stanca).toBe(0);
+    expect(rifiutata(s, "anna", potere("francesco-1", { carte: [tavolo.id], posizioni: [1] }))).toMatch(/una volta per turno/);
   });
 
   it("Non sbaglio mai funziona anche con un personaggio, ma non dopo un'altra mossa", () => {
@@ -260,13 +299,15 @@ describe("scelte tra carte", () => {
     expect(s.turno.attesa).toBeNull();
   });
 
-  it("Patate al forno: una carta in meno dei giocatori; sceglie prima chi la usa, poi gli altri; l'ultimo resta senza", () => {
+  it("Patate al forno: tante carte quanti i giocatori; chi la usa ne prende 2, poi gli altri 1; l'ultimo resta senza", () => {
     let s = usa(conCarta("nonna-maddalena-3"), "nonna-maddalena-3");
     const a = s.turno.attesa!;
-    expect(a).toMatchObject({ tipo: "scegliNumeri", motivo: "patate", giocatore: "anna", coda: ["bruno", "carla"] });
+    expect(a).toMatchObject({ tipo: "scegliNumeri", motivo: "patate", giocatore: "anna", quante: 2, coda: ["bruno", "carla"] });
     const patate = vistaGiocatore(s, "carla").offerta;
-    expect(patate).toHaveLength(2);
-    s = fai(s, "anna", { tipo: "scegli", carte: [patate[1]!.id] });
+    expect(patate).toHaveLength(3);
+    expect(rifiutata(s, "anna", { tipo: "scegli", carte: [patate[1]!.id] })).toMatch(/2 carte/);
+    s = fai(s, "anna", { tipo: "scegli", carte: [patate[1]!.id, patate[2]!.id] });
+    expect(anna(s).mano).toHaveLength(2);
     expect(rifiutata(s, "anna", { tipo: "pescaNumero" })).toMatch(/altro giocatore/);
     expect(mosseValide(s, "bruno")).toEqual([{ tipo: "scegli", carte: [patate[0]!.id] }]);
     s = fai(s, "bruno", { tipo: "scegli", carte: [patate[0]!.id] });
@@ -275,14 +316,19 @@ describe("scelte tra carte", () => {
     expect(s.turno.giocatore).toBe("anna");
   });
 
-  it("Ogni cosa al suo posto: le prime 5 carte del mazzo numeri tornano nell'ordine scelto", () => {
+  it("Ogni cosa al suo posto: delle prime 5 carte del mazzo numeri ne tieni 1, le altre tornano nell'ordine scelto", () => {
     let s = usa(conCarta("nonna-maddalena-1"), "nonna-maddalena-1");
+    const prime = vistaGiocatore(s, "anna").offerta;
+    expect(prime).toHaveLength(5);
+    expect(s.turno.attesa).toMatchObject({ tipo: "scegliNumeri", motivo: "posto", quante: 1 });
+    s = fai(s, "anna", { tipo: "scegli", carte: [prime[2]!.id] });
+    expect(anna(s).mano).toEqual([prime[2]]);
     const carte = s.turno.attesa!.tipo === "riordina" ? s.turno.attesa!.carte : [];
-    expect(carte).toHaveLength(5);
-    const ordine = [carte[4]!.id, carte[0]!.id, carte[3]!.id, carte[1]!.id, carte[2]!.id];
+    expect(carte).toHaveLength(4);
+    const ordine = [carte[3]!.id, carte[0]!.id, carte[2]!.id, carte[1]!.id];
     s = fai(s, "anna", { tipo: "riordina", ordine });
     s = fai(s, "anna", { tipo: "pescaNumero" });
-    expect(anna(s).mano[0]!.id).toBe(ordine[0]);
+    expect(anna(s).mano[1]!.id).toBe(ordine[0]);
     expect(s.mazzi.numeri.at(-1)!.id).toBe(ordine[1]);
   });
 });
@@ -355,12 +401,18 @@ describe("carte numero in mano", () => {
 /* ---------------- ricarica e informazioni ---------------- */
 
 describe("ricarica e informazioni", () => {
-  it("Brace accesa: ricarica un'altra tua carta stanca (non sé stessa)", () => {
+  it("Brace accesa: ricarica 2 altre tue carte stanche (o 1 se è l'unica; non sé stessa)", () => {
     let s = conCarta("toto-2");
     anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 });
-    expect(rifiutata(s, "anna", potere("toto-2", { bersaglio: "toto-2#1" }))).toMatch(/un'altra/);
-    s = usa(s, "toto-2", { bersaglio: "generoso-3#1" });
+    expect(rifiutata(s, "anna", potere("toto-2", { bersagli: ["toto-2#1"] }))).toMatch(/un'altra/);
+    s = usa(s, "toto-2", { bersagli: ["generoso-3#1"] });
     expect(anna(s).attivati.map((a) => a.stanca)).toEqual([2, 0]);
+
+    let t = conCarta("toto-2");
+    anna(t).attivati.push({ copia: copia("generoso-3"), stanca: 3 }, { copia: copia("generoso-2"), stanca: 1 });
+    expect(rifiutata(t, "anna", potere("toto-2", { bersagli: ["generoso-3#1"] }))).toMatch(/2 altre/);
+    t = usa(t, "toto-2", { bersagli: ["generoso-3#1", "generoso-2#1"] });
+    expect(anna(t).attivati.map((a) => a.stanca)).toEqual([2, 0, 0]);
   });
 
   it("Grigliata: ricarica tutte le altre tue carte; poi si stanca lei", () => {

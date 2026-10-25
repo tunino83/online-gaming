@@ -1,6 +1,7 @@
 /**
  * Uso dei poteri dei personaggi attivati e poteri di aiuto ✨ (vedi docs/famiglia/bozza.md e le decisioni in regolamento.md).
- * Usare un potere costa una mossa (lo conta regole.ts; Non sbaglio mai no); poi la carta diventa stanca per il suo tempo di ricarica.
+ * Usare un potere costa una mossa (lo conta regole.ts; i poteri gratis no); poi la carta diventa stanca per il suo tempo di ricarica
+ * (i poteri blu no: funzionano una volta per turno anche se la carta è stanca).
  * Gli attacchi e le difese sono in attacchi.ts.
  */
 import { type IdGiocatore, mescola } from "@og/engine";
@@ -42,6 +43,8 @@ export const POTERI_GRATIS = new Set([
   "mercatino",
   "sono-due-etti-e-mezzo-lascio",
   "studia-il-fascicolo",
+  "lezione-di-padel",
+  "sposta-i-mobili",
 ]);
 
 /** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
@@ -97,7 +100,7 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   const c = carta(a!.copia.carta);
   const p = c.poteri.find((x) => x.id === m.potere);
   if (!p) rifiuta("Questo personaggio non ha quel potere");
-  if (a!.stanca > 0) rifiuta("Questa carta è stanca: deve ricaricarsi");
+  if (a!.stanca > 0 && !p!.blu) rifiuta("Questa carta è stanca: deve ricaricarsi"); // i poteri blu funzionano anche da stanca
   if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
   if (poteriBloccati(s, c.id)) rifiuta("Durante questo evento Totò non può usare i suoi poteri");
   if (p!.blu) {
@@ -110,7 +113,7 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   const { origine, potere } = potereDaUsare(s, id, c, p!.id, m);
   const tipo = origine.poteri.find((x) => x.id === potere)!.tipo;
   s.ultimoPotere = { carta: origine.id, potere };
-  stancaCarta(s, a!);
+  if (!p!.blu) stancaCarta(s, a!);
   if (tipo === "attacco") {
     avviaAttacco(s, id, origine, potere, m, origine === c ? a!.copia.id : null);
     return;
@@ -157,7 +160,7 @@ function applicaAiuto(
 
     /* ---------------- pescare ---------------- */
     case "ho-tanta-fame":
-      peschiNumeri(s, id, 2);
+      peschiNumeri(s, id, 3);
       return;
     case "cucina-per-200":
       peschiNumeri(s, id, 4);
@@ -167,7 +170,7 @@ function applicaAiuto(
       }
       return;
     case "colazione":
-      peschiNumeri(s, id, 1);
+      peschiNumeri(s, id, 2);
       pescaPersonaggio(s, id);
       return;
     case "offre-la-casa": {
@@ -299,13 +302,15 @@ function applicaAiuto(
       return;
     }
     case "patate-al-forno": {
-      const carte = pescaFinoA(s, s.ordine.length - 1);
-      if (carte.length > 0) t.attesa = { tipo: "scegliNumeri", giocatore: id, motivo: "patate", carte, quante: 1, coda: avversariDopo(s, id) };
+      // Tante carte quanti i giocatori: chi la usa ne prende 2, poi gli altri 1 a testa finché ce ne sono
+      const carte = pescaFinoA(s, s.ordine.length);
+      if (carte.length > 0) t.attesa = { tipo: "scegliNumeri", giocatore: id, motivo: "patate", carte, quante: 2, coda: avversariDopo(s, id) };
       return;
     }
     case "ogni-cosa-al-suo-posto": {
+      // Prima se ne prende 1, poi le altre si rimettono nel mazzo nell'ordine scelto
       const carte = pescaFinoA(s, 5);
-      if (carte.length > 0) t.attesa = { tipo: "riordina", giocatore: id, carte };
+      if (carte.length > 0) t.attesa = { tipo: "scegliNumeri", giocatore: id, motivo: "posto", carte, quante: 1, coda: [] };
       return;
     }
 
@@ -325,9 +330,15 @@ function applicaAiuto(
 
     /* ---------------- ricarica e informazioni ---------------- */
     case "brace-accesa": {
-      const altra = g.attivati.find((x) => x.copia.id === m.bersaglio && x !== questa && x.stanca > 0);
-      if (!altra) rifiuta("Scegli un'altra tua carta stanca");
-      altra!.stanca = 0;
+      // 2 altre carte stanche (o 1, se è l'unica)
+      const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0);
+      const scelte = m.bersagli ?? [];
+      const quante = Math.min(2, stanche.length);
+      const ricaricate = stanche.filter((x) => scelte.includes(x.copia.id));
+      if (quante === 0 || new Set(scelte).size !== scelte.length || ricaricate.length !== scelte.length || scelte.length !== quante) {
+        rifiuta(quante <= 1 ? "Scegli un'altra tua carta stanca" : "Scegli 2 altre tue carte stanche");
+      }
+      for (const x of ricaricate) x.stanca = 0;
       return;
     }
     case "grigliata":
@@ -395,7 +406,9 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
     const resto = a.carte.filter((c) => !m.carte.includes(c.id));
     registra(s, id, { tipo: "sceglie", quante });
     if (a.motivo === "patate" && resto.length > 0 && a.coda.length > 0) {
-      s.turno.attesa = { ...a, giocatore: a.coda[0]!, carte: resto, coda: a.coda.slice(1) };
+      s.turno.attesa = { ...a, giocatore: a.coda[0]!, carte: resto, quante: 1, coda: a.coda.slice(1) };
+    } else if (a.motivo === "posto" && resto.length > 0) {
+      s.turno.attesa = { tipo: "riordina", giocatore: id, carte: resto };
     } else {
       scartaNumeri(s, resto);
       s.turno.attesa = null;
@@ -449,9 +462,10 @@ export function mosseDiPotere(s: StatoPartita, id: IdGiocatore): Mossa[] {
   const g = s.giocatori[id]!;
   const mosse: Mossa[] = [];
   for (const a of g.attivati) {
-    if (a.stanca > 0 || poteriBloccati(s, a.copia.carta)) continue;
+    if (poteriBloccati(s, a.copia.carta)) continue;
     const c = carta(a.copia.carta);
     for (const p of c.poteri) {
+      if (a.stanca > 0 && !p.blu) continue;
       if (p.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p.id)) continue;
       if (p.blu && (BLU_DA_SOLI.has(p.id) || s.turno.bluUsati.includes(p.id))) continue;
       const base = { tipo: "potere" as const, carta: a.copia.id, potere: p.id };
@@ -527,11 +541,13 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       return puoPescare(s, "numeri") ? [{}] : [];
     case "sono-due-etti-e-mezzo-lascio":
       return t.primaPescata && puoPescare(s, t.primaPescata) ? [{}] : [];
-    case "lezione-di-padel":
-      return g.mano
-        .filter((c) => !c.unite)
-        .slice(0, 4)
-        .flatMap((c) => posizioniNumeri.map((p) => ({ carte: [c.id], posizioni: [p] })));
+    case "lezione-di-padel": {
+      // Carte uguali danno lo stesso scambio: se ne propone uno solo
+      const perValore = [...new Map(g.mano.filter((c) => !c.unite).map((c) => [c.valore, c])).values()];
+      return perValore.flatMap((c) =>
+        posizioniNumeri.filter((p) => s.tavolo.numeri[p]!.valore !== c.valore).map((p) => ({ carte: [c.id], posizioni: [p] })),
+      );
+    }
     case "ce-l-ho-io":
       return [1, 2, 3, 4, 5, 6, 7, 8].map((valore) => ({ valore }));
     case "fatto-in-casa": {
@@ -543,8 +559,10 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       if (posto <= 0 || mano.length === 0) return [];
       return [{ carte: mano.slice(0, posto) }, ...mano.slice(0, 4).map((x) => ({ carte: [x] }))];
     }
-    case "brace-accesa":
-      return g.attivati.filter((x) => x !== questa && x.stanca > 0).map((x) => ({ bersaglio: x.copia.id }));
+    case "brace-accesa": {
+      const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0).map((x) => x.copia.id);
+      return stanche.length <= 1 ? stanche.map((x) => ({ bersagli: [x] })) : coppie(stanche).map((bersagli) => ({ bersagli }));
+    }
     case "ricetta":
       return s.ordine.flatMap((x) => s.giocatori[x]!.attivati.filter((y) => y.stanca > 0).map((y) => ({ bersaglio: y.copia.id })));
     case "studia-il-fascicolo":

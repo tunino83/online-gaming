@@ -780,7 +780,15 @@ function SceltaInSospeso({
   if (a.tipo === "scegliNumeri") {
     const quante = Math.min(a.quante, a.carte.length);
     return (
-      <Foglio titolo={a.motivo === "patate" ? "🥔 Patate al forno: scegli la tua" : `🍅 Frutta e verdura: scegli ${quante} carte`}>
+      <Foglio
+        titolo={
+          a.motivo === "patate"
+            ? `🥔 Patate al forno: scegli ${quante === 1 ? "la tua" : `le tue ${quante}`}`
+            : a.motivo === "posto"
+              ? "🧹 Ogni cosa al suo posto: scegli la carta da tenere"
+              : `🍅 Frutta e verdura: scegli ${quante} carte`
+        }
+      >
         <div className="flex flex-wrap gap-2">
           {a.carte.map((c) => (
             <CartaNumeroGrafica key={c.id} c={c} selezionata={scelte.includes(c.id)} onClick={() => setScelte((s) => alterna(s, c.id, quante))} />

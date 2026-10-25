@@ -125,7 +125,9 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
         ))}
         {c.poteri.some((p) => p.blu) && (
           <p className="rounded-lg bg-[#2f6fb3]/15 px-2 py-1">
-            🔵 <b>Carta blu</b>: dopo averla attivata è sempre attiva, non si stanca mai (nemmeno con gli attacchi) e non costa mosse.
+            {c.poteri.every((p) => p.blu)
+              ? "🔵 Carta blu: dopo averla attivata è sempre attiva, non si stanca mai (nemmeno con gli attacchi) e non costa mosse."
+              : "🔵 Potere blu: funziona una volta per turno anche se la carta è stanca e non costa mosse; l'altro potere fa stancare la carta come sempre."}
           </p>
         )}
         <p className="text-tenue">
@@ -134,7 +136,7 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
           {c.categoria === "difesa" && " · si usa solo quando ti attaccano, poi si scarta"}
           {c.categoria === "attacco" && " · si usa una volta, poi si scarta"}
         </p>
-        {stanca !== undefined && !c.poteri.some((p) => p.blu) && <p className="font-semibold">{stanca === 0 ? "⚡ Carica: il potere si può usare" : `😴 Stanca: torna carica tra ${stanca} turni`}</p>}
+        {stanca !== undefined && !c.poteri.every((p) => p.blu) && <p className="font-semibold">{stanca === 0 ? "⚡ Carica: il potere si può usare" : `😴 Stanca: torna carica tra ${stanca} turni`}</p>}
       </div>
     </div>
   );

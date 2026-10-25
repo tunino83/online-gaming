@@ -102,7 +102,7 @@ const ADULTI: Carta[] = [
     {
       codice: pari(2),
       poteri: [
-        aiuto("Non sbaglio mai", "Subito dopo una pescata cambi la carta con un'altra, senza usare mosse"),
+        aiutoBlu("Non sbaglio mai", "Sempre attivo, una volta per turno: subito dopo una pescata cambi la carta con un'altra, senza usare mosse"),
         aiuto("Fatto in casa", "Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8)"),
       ],
     },
@@ -115,7 +115,7 @@ const ADULTI: Carta[] = [
     { codice: poker, poteri: [aiuto("Sempre la stessa storia", "Copi l'ultimo potere giocato al tavolo da chiunque")] },
   ]),
   ...persona("Nonna Dina", [
-    { codice: somma(2, 7), poteri: [aiuto("Sposta i mobili", "Cambi tutte le carte scoperte sul tavolo (numeri e personaggi)")] },
+    { codice: somma(2, 7), poteri: [aiuto("Sposta i mobili", "Gratis (non usa mosse): cambi tutte le carte scoperte sul tavolo (numeri e personaggi)")] },
     { codice: pari(3), poteri: [aiuto("Frigge di tutto", "Scarti le carte numero che vuoi e ne peschi altrettante più una")] },
     { codice: scala(5), poteri: [aiuto("Cucina per 200", "Tu peschi 4 carte numero, ogni avversario 1")] },
   ]),
@@ -153,7 +153,7 @@ const ADULTI: Carta[] = [
   ]),
   ...persona("Totò", [
     { codice: somma(2, 11), poteri: [attacco("Si incanta", "Un avversario fa 1 mossa in meno nel suo prossimo turno")] },
-    { codice: somma(3, 15), poteri: [aiuto("Brace accesa", "Ricarichi subito un'altra tua carta stanca")] },
+    { codice: somma(3, 15), poteri: [aiuto("Brace accesa", "Ricarichi subito 2 altre tue carte stanche")] },
     { codice: pari(4), poteri: [aiuto("Grigliata", "Ricarichi subito tutte le tue carte stanche")] },
   ]),
   ...persona("Checca", [
@@ -184,7 +184,7 @@ const ADULTI: Carta[] = [
   ]),
   ...persona("Generoso", [
     { codice: somma(2, 4), poteri: [aiutoBlu("Un caffè", "Sempre attiva: fai 4 mosse per turno invece di 3")], ricarica: 0 },
-    { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 1 carta numero")] },
+    { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 2 carte numero")] },
     {
       codice: somma(4, 16),
       poteri: [aiuto("Offre la casa", "Scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio)")],
@@ -193,7 +193,11 @@ const ADULTI: Carta[] = [
   ...persona(
     "Francesco",
     [
-      { codice: somma(2, 12), poteri: [aiuto("Lezione di padel", "Scambi 1 carta numero della tua mano con 1 scoperta sul tavolo")] },
+      {
+        codice: somma(2, 12),
+        poteri: [aiutoBlu("Lezione di padel", "Sempre attiva, una volta per turno: scambi 1 carta numero della tua mano con 1 scoperta sul tavolo")],
+        ricarica: 0,
+      },
       { codice: somma(3, 20), poteri: [attacco("Smash", "Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso")] },
       {
         codice: somma(4, 20),
@@ -276,14 +280,14 @@ const ADULTI: Carta[] = [
     "102 anni",
   ),
   ...persona("Nonna Maddalena", [
-    { codice: pari(2), poteri: [aiuto("Ogni cosa al suo posto", "Guardi le prime 5 carte del mazzo numeri e le rimetti nell'ordine che vuoi")] },
+    { codice: pari(2), poteri: [aiuto("Ogni cosa al suo posto", "Guardi le prime 5 carte del mazzo numeri: ne prendi 1 e rimetti le altre nell'ordine che vuoi")] },
     { codice: somma(3, 9), poteri: [difesa("Ho appena lavato a terra", "Annulli un attacco e chi ti ha attaccato fa 1 mossa in meno nel suo prossimo turno")] },
     {
       codice: scala(5),
       poteri: [
         aiuto(
           "Patate al forno",
-          "Scopri una carta numero in meno dei giocatori; ne prendi una per prima, poi gli altri a turno; l'ultimo resta senza",
+          "Scopri tante carte numero quanti sono i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza",
         ),
       ],
     },
@@ -331,7 +335,7 @@ const SINGOLE: Carta[] = [
     "Christian",
     1,
     coppia,
-    [aiuto("Ho tanta fame", "Peschi 2 carte numero"), difesa("Che paura!", "Annulli un attacco contro di te")],
+    [aiuto("Ho tanta fame", "Peschi 3 carte numero"), difesa("Che paura!", "Annulli un attacco contro di te")],
     2,
   ),
   singola("Alessia", 2, pari(3), [
@@ -388,8 +392,14 @@ export function carta(id: string): Carta {
   return c;
 }
 
-/** La carta è "blu" (sempre attiva, non si stanca)? */
-export const eBlu = (idCarta: string): boolean => carta(idCarta).poteri.some((p) => p.blu);
+/**
+ * La carta è "blu" (sempre attiva, non si stanca mai)? Solo se tutti i suoi poteri sono blu:
+ * Maddalena 1 ha Non sbaglio mai (blu) e Fatto in casa (normale), quindi si stanca usando Fatto in casa.
+ */
+export const eBlu = (idCarta: string): boolean => carta(idCarta).poteri.every((p) => p.blu);
+
+/** Quel potere della carta è blu? */
+export const potereBlu = (idCarta: string, potere: string): boolean => !!carta(idCarta).poteri.find((p) => p.id === potere)?.blu;
 
 /** La carta ha almeno un potere di attacco? Allora si tiene scoperta negli attacchi in attesa. */
 export const eAttacco = (c: Carta): boolean => c.poteri.some((p) => p.tipo === "attacco");

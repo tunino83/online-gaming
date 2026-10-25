@@ -58,6 +58,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
       const mercatino = m.tipo === "potere" && m.potere === "mercatino";
       parti.push(n ? `prendi il ${n.valore}` : `${mercatino ? "prendi" : "su"} ${nomeCopia(p.bersaglio)}`);
     }
+    if (p.bersagli && p.bersagli.length > 0) parti.push(`ricarichi ${elenco(p.bersagli.map(nomeCopia))}`);
     if (p.carte && p.carte.length > 0) parti.push(`carte ${valori(p.carte)}`);
     if (p.posizioni && p.posizioni.length > 0) {
       parti.push(

@@ -62,7 +62,7 @@ export type Attesa =
    * Vincenzo ("frutta": ne prende 2, il resto va negli scarti),
    * Patate al forno ("patate": una a testa, in ordine; `coda` = chi sceglie dopo).
    */
-  | { tipo: "scegliNumeri"; giocatore: IdGiocatore; motivo: "frutta" | "patate"; carte: CartaNumero[]; quante: number; coda: IdGiocatore[] }
+  | { tipo: "scegliNumeri"; giocatore: IdGiocatore; motivo: "frutta" | "patate" | "posto"; carte: CartaNumero[]; quante: number; coda: IdGiocatore[] }
   /** Ne ho viste tante: le prime carte del mazzo personaggi, ne prende una (le altre tornano in cima). */
   | { tipo: "scegliPersonaggio"; giocatore: IdGiocatore; carte: CopiaCarta[] }
   /** Ogni cosa al suo posto: le prime carte del mazzo numeri, da rimettere nell'ordine voluto. */
@@ -219,8 +219,10 @@ export interface ParametriPotere {
   valore?: number;
   /** Giocatore scelto (Studia il fascicolo). */
   giocatore?: IdGiocatore;
-  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vende la carne, Brace accesa, Ricetta, Mercatino). */
+  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vende la carne, Ricetta, Mercatino). */
   bersaglio?: string;
+  /** Più carte attivate scelte (Brace accesa: le carte stanche da ricaricare). */
+  bersagli?: string[];
   /** Voci del menu (Offre la casa): due tra "caffe", "birra", "colazione". */
   scelte?: string[];
   /** Propria carta attivata da scambiare (Baratto). */

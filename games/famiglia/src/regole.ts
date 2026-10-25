@@ -20,7 +20,7 @@ import {
   togliNumero,
   zonaDi,
 } from "./base";
-import { carta, eBlu } from "./carte";
+import { carta, eBlu, potereBlu } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { fineTurnoEvento, inizioTurnoConEvento, mosseDaEvento, pescaEvento, puoPescareEvento, regala } from "./effetti-eventi";
 import { creaMazzoEventi, creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
@@ -575,8 +575,9 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
   // Un potere gratis carico (es. Non sbaglio mai, Un caffè di prima…): il giocatore può ancora usarlo.
-  // I poteri blu che si usano ogni turno (Mercatino, Studia il fascicolo…) non fermano la chiusura del turno.
-  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && !eBlu(cartaDiCopia(m.carta)))) return null;
+  // I poteri blu che si usano ogni turno (Mercatino, Studia il fascicolo…) non fermano la chiusura del turno;
+  // Non sbaglio mai sì, perché si usa subito dopo una pescata (anche l'ultima).
+  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && (m.potere === "non-sbaglio-mai" || !potereBlu(cartaDiCopia(m.carta), m.potere)))) return null;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
   if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare

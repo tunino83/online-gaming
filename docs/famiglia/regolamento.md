@@ -131,7 +131,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
-- Usare un potere costa una mossa (salvo Non sbaglio mai); dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
+- Usare un potere costa una mossa (salvo i poteri gratis e le carte blu); dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
 - **Ci penso domani** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
 - **Non sbaglio mai** (Maddalena): subito dopo una pescata (numero o personaggio) scarti quella carta e ne peschi
   un'altra dallo stesso mazzo, **senza usare mosse** (deciso il 2026-10-24: è l'unico potere che non costa una mossa).
@@ -146,7 +146,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - **Sono due etti e mezzo, lascio?**: vale per ogni carta numero pescata da chi la usa in quel turno, anche con i poteri (es. L'orto: 4 carte).
   - **Doppio turno**: il turno in più non ricarica le carte stanche.
   - **Ne ho viste tante**: le carte non scelte tornano in cima al mazzo nello stesso ordine.
-  - **Patate al forno**: dopo chi la usa scelgono gli altri nell'ordine di turno.
+  - **Patate al forno**: si scoprono tante carte quanti i giocatori; chi la usa ne prende 2, poi gli altri 1 a testa nell'ordine di turno.
   - **Mangia mangia mangia**: se a fine turno le altre carte non bastano per tornare a 7, si scartano solo quelle.
   - **Te l'ho già detto? / L'ho già detto**: le mosse in più vanno usate dello stesso tipo dell'ultima mossa fatta
     (non un potere) e si possono anche non usare.
@@ -185,8 +185,8 @@ e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.
 ## Poteri gratis (2026-10-25)
 
 Usare un potere costa una mossa, ma alcuni poteri **non costano mosse**: altrimenti spendere una mossa per riaverla non
-servirebbe a niente. Sono: *Non sbaglio mai* (Maddalena 1), *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto*
-(Nonno Salvatore 2), *Anima della festa* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
+servirebbe a niente. Sono: *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto* (Nonno Salvatore 2), *Sposta i mobili* (Nonna Dina 1),
+*Anima della festa* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
 Si possono usare anche a mosse finite; la carta si stanca come le altre (le blu no). Gli altri poteri che danno mosse in
 più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
 
@@ -216,4 +216,16 @@ Cambiate insieme alle blu (non blu, si stancano come le altre):
   2 turni successivi, a fine turno, scarti **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8
   carte ne scarti 2; con 5 carte ne scarti comunque 1).
 
-Gli altri aiuti si analizzeranno più avanti.
+- **Non sbaglio mai** (Maddalena 1, potere blu): una volta per turno. La carta ha anche *Fatto in casa*, che è normale:
+  usandolo la carta si stanca, ma Non sbaglio mai funziona lo stesso (e il turno aspetta, se resta da usare dopo l'ultima pescata).
+- **Lezione di padel** (Francesco 1): una volta per turno scambi 1 tua carta numero con 1 scoperta sul tavolo.
+
+## Altri aiuti ritoccati (2026-10-25)
+
+Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare più di una mossa normale (1 carta).
+- **Sposta i mobili** (Nonna Dina 1): ora gratis.
+- **Ogni cosa al suo posto** (Nonna Maddalena 1): delle prime 5 carte numero ne prendi 1, le altre le riordini.
+- **Patate al forno** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
+- **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
+- **Ho tanta fame** (Christian): 3 carte numero. **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
+- Restano come sono: *Frigge di tutto* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.

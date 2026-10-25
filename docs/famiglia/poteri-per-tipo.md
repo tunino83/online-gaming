@@ -73,36 +73,36 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
 | Antonio | 1 | **Ci penso domani** | Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
-| Maddalena | 1 | **Non sbaglio mai** | Subito dopo una pescata cambi la carta con un'altra, senza usare mosse | 2 carte pari | ricarica 1, gratis |
+| Maddalena | 1 | 🔵 **Non sbaglio mai** | Una volta per turno, subito dopo una pescata cambi la carta con un'altra | 2 carte pari | blu (anche da stanca) |
 | Maddalena | 1 | **Fatto in casa** | Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 2 carte pari | ricarica 1 |
 | Nonno Salvatore | 1 | **Te l'ho già detto?** | Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto | Coppia | ricarica 1, gratis |
 | Nonno Salvatore | 2 | **L'ho già detto** | Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto | Tris | ricarica 2, gratis |
 | Nonno Salvatore | 3 | **Sempre la stessa storia** | Copi l'ultimo potere giocato al tavolo da chiunque | Poker | ricarica 3 |
-| Nonna Dina | 1 | **Sposta i mobili** | Cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | 2 carte con somma 7 | ricarica 1 |
+| Nonna Dina | 1 | **Sposta i mobili** | Cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | 2 carte con somma 7 | ricarica 1, gratis |
 | Nonna Dina | 2 | **Frigge di tutto** | Scarti le carte numero che vuoi e ne peschi altrettante più una | 3 carte pari | ricarica 2 |
 | Nonna Dina | 3 | **Cucina per 200** | Tu peschi 4 carte numero, ogni avversario 1 | Scala da 5 | ricarica 3 |
 | Nonno Nicola | 1 | 🔵 **L'orto** | A inizio di ogni tuo turno peschi 1 carta numero | 2 carte dispari | blu |
 | Nonna Patrizia | 1 | 🔵 **Mercatino** | Una volta per turno scambi una carta in mano con una degli scarti | 2 carte con somma 10 | blu |
 | Chicca | 1 | **Vende la carne** | Scarti un personaggio nascosto dalla mano e peschi 3 carte numero | 2 carte con somma 8 | ricarica 1 |
-| Totò | 2 | **Brace accesa** | Ricarichi subito un'altra tua carta stanca | 3 carte con somma 15 | ricarica 2 |
+| Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |
 | Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3 |
 | Checca | 2 | **La vetrina della collezione** | Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici | 123 | ricarica 2 |
 | Donatina | 1 | **Scaffale** | Prendi 2 carte numero scoperte dal tavolo | 2 carte con somma 5 | ricarica 1 |
 | Donatina | 2 | **Ce l'ho io!** | Cerchi nel mazzo numeri la carta che vuoi e la prendi | Scala da 3 | ricarica 2 |
 | Zio Salvatore | 3 | **Anima della festa** | 3 mosse in più, poi 1 in meno nei 2 turni successivi | 88 + una coppia qualsiasi | ricarica 3, gratis |
 | Generoso | 1 | 🔵 **Un caffè** | Fai sempre 4 mosse per turno | 2 carte con somma 4 | blu |
-| Generoso | 2 | **Colazione** | Peschi 1 personaggio e 1 carta numero | 3 carte con somma 10 | ricarica 2 |
+| Generoso | 2 | **Colazione** | Peschi 1 personaggio e 2 carte numero | 3 carte con somma 10 | ricarica 2 |
 | Generoso | 3 | **Offre la casa** | Scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio) | 4 carte con somma 16 | ricarica 3 |
-| Francesco | 1 | **Lezione di padel** | Scambi 1 carta numero della tua mano con 1 scoperta sul tavolo | 2 carte con somma 12 | ricarica 1 |
+| Francesco | 1 | 🔵 **Lezione di padel** | Una volta per turno scambi 1 carta numero della tua mano con 1 scoperta sul tavolo | 2 carte con somma 12 | blu |
 | Marika | 3 | **Doppio turno** | Finito il tuo turno ne fai subito un altro, con 2 mosse | Scala da 5 | ricarica 3 |
 | Giuseppe | 1 | 🔵 **Studia il fascicolo** | Una volta per turno guardi le carte in mano a un avversario | 2 carte con somma 13 | blu |
 | Sara e Giuseppe | 1 | 🔵 **Sono due etti e mezzo, lascio?** | Se la prima mossa del turno è una pescata, la rifai gratis | 25 | blu |
 | Nonno Antonio | 1 | 🔵 **Ne ho viste tante** | Vedi le prime 2 carte del mazzo personaggi e, pescando, scegli quale prendere | 12 | blu |
-| Nonna Maddalena | 1 | **Ogni cosa al suo posto** | Guardi le prime 5 carte del mazzo numeri e le rimetti nell'ordine che vuoi | 2 carte pari | ricarica 1 |
-| Nonna Maddalena | 3 | **Patate al forno** | Scopri una carta numero in meno dei giocatori; ne prendi una per prima, poi gli altri a turno; l'ultimo resta senza | Scala da 5 | ricarica 3 |
+| Nonna Maddalena | 1 | **Ogni cosa al suo posto** | Guardi le prime 5 carte del mazzo numeri, ne prendi 1 e rimetti le altre nell'ordine che vuoi | 2 carte pari | ricarica 1 |
+| Nonna Maddalena | 3 | **Patate al forno** | Scopri tante carte numero quanti i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza | Scala da 5 | ricarica 3 |
 | Claudia | 1 | 🔵 **Prosecco** | Una volta per turno attivi un personaggio col codice di un'altra tua carta | 2 carte con somma 15 | blu |
 | Squacqualacchione | 2 | **Giacca al rovescio** | Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca) | 3 carte dispari | ricarica 2 |
-| Christian | 1 | **Ho tanta fame** | Peschi 2 carte numero | Coppia | ricarica 2 |
+| Christian | 1 | **Ho tanta fame** | Peschi 3 carte numero | Coppia | ricarica 2 |
 | Alessia | 2 | **Mangia mangia mangia** | 4 carte numero alla cieca; poi per 2 turni scarti 1 carta in più | 3 carte pari | ricarica 2, gratis |
 | Vincenzo | 1 | **Frutta e verdura!** | Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 2 carte con somma 8 | ricarica 1 |
 | Dottor Racioppi | 1 | **Ricetta** | Ricarichi subito una carta stanca di chi vuoi | 2 carte con somma 10 | ricarica 1 |
