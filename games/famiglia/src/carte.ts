@@ -108,8 +108,8 @@ const ADULTI: Carta[] = [
     { codice: doppiaCoppia, poteri: [difesa("È colpa di qualcun altro", "L'attacco va a un altro giocatore a tua scelta, che non può difendersi")] },
   ]),
   ...persona("Nonno Salvatore", [
-    { codice: coppia, poteri: [aiuto("Te l'ho già detto?", "1 mossa in più, uguale all'ultima che hai fatto")] },
-    { codice: tris, poteri: [aiuto("L'ho già detto", "2 mosse in più, uguali all'ultima che hai fatto")] },
+    { codice: coppia, poteri: [aiuto("Te l'ho già detto?", "Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto")] },
+    { codice: tris, poteri: [aiuto("L'ho già detto", "Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto")] },
     { codice: poker, poteri: [aiuto("Sempre la stessa storia", "Copi l'ultimo potere giocato al tavolo da chiunque")] },
   ]),
   ...persona("Nonna Dina", [
@@ -169,7 +169,7 @@ const ADULTI: Carta[] = [
     { codice: piuCoppia(8, 8), poteri: [aiuto("Anima della festa", "3 mosse in più (poi si addormenta con gli occhiali da sole)")] },
   ]),
   ...persona("Generoso", [
-    { codice: somma(2, 4), poteri: [aiuto("Un caffè", "1 mossa in più")] },
+    { codice: somma(2, 4), poteri: [aiuto("Un caffè", "Gratis (non usa mosse): 1 mossa in più")] },
     { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 1 carta numero")] },
     {
       codice: somma(4, 16),
@@ -268,7 +268,7 @@ const ADULTI: Carta[] = [
     { codice: poker, poteri: [attacco("Sparecchio", "Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva")] },
   ]),
   ...persona("Claudia", [
-    { codice: dispari(2), poteri: [aiuto("Prosecco", "1 mossa in più e peschi 1 carta numero")] },
+    { codice: dispari(2), poteri: [aiuto("Prosecco", "Gratis (non usa mosse): 1 mossa in più e peschi 1 carta numero")] },
     { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
     {
       codice: doppiaCoppia,

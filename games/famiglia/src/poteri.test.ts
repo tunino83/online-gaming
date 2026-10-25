@@ -84,12 +84,19 @@ describe("usare un potere", () => {
 /* ---------------- mosse in più ---------------- */
 
 describe("mosse in più", () => {
-  it("Un caffè (+1), Anima della festa (+3), Prosecco (+1 e una carta)", () => {
-    expect(usa(conCarta("generoso-1"), "generoso-1").turno.mosseRimaste).toBe(3);
+  it("Un caffè (+1) e Prosecco (+1 e una carta) sono gratis; Anima della festa costa una mossa e ne dà 3", () => {
+    expect(usa(conCarta("generoso-1"), "generoso-1").turno.mosseRimaste).toBe(4);
     expect(usa(conCarta("zio-salvatore-3"), "zio-salvatore-3").turno.mosseRimaste).toBe(5);
     const s = usa(conCarta("claudia-1"), "claudia-1");
-    expect(s.turno.mosseRimaste).toBe(3);
+    expect(s.turno.mosseRimaste).toBe(4);
     expect(anna(s).mano).toHaveLength(1);
+  });
+
+  it("i poteri gratis si possono usare anche a mosse finite", () => {
+    const s = conCarta("generoso-1");
+    s.turno.mosseRimaste = 0;
+    expect(mosseValide(s, "anna")).toContainEqual(potere("generoso-1"));
+    expect(usa(s, "generoso-1").turno.mosseRimaste).toBe(1);
   });
 
   it("Ci penso domani: 1 mossa ora, 2 in più nel prossimo turno", () => {
@@ -104,15 +111,17 @@ describe("mosse in più", () => {
     expect(anna(s).mosseProssimoTurno).toBe(0);
   });
 
-  it("Te l'ho già detto? / L'ho già detto: mosse in più solo uguali all'ultima", () => {
+  it("Te l'ho già detto? / L'ho già detto: gratis, mosse in più solo uguali all'ultima", () => {
     let s = conCarta("nonno-salvatore-2");
     expect(rifiutata(s, "anna", potere("nonno-salvatore-2"))).toMatch(/mossa da ripetere/);
     s = fai(s, "anna", { tipo: "pescaNumero" });
     s = usa(s, "nonno-salvatore-2");
+    expect(s.turno.mosseRimaste).toBe(2); // non costa mosse
     expect(s.turno.mosseUguali).toEqual({ tipo: "pescaNumero", quante: 2 });
     s = fai(s, "anna", { tipo: "pescaNumero" }); // usa una mossa "uguale"
-    expect(s.turno.mosseRimaste).toBe(1);
-    s = fai(s, "anna", { tipo: "brucia" }); // l'ultima mossa normale
+    expect(s.turno.mosseRimaste).toBe(2);
+    s = fai(s, "anna", { tipo: "brucia" });
+    s = fai(s, "anna", { tipo: "brucia" }); // finite le mosse normali
     expect(s.turno.mosseRimaste).toBe(0);
     expect(mosseValide(s, "anna").every((m) => m.tipo === "pescaNumero" || m.tipo === "fineTurno")).toBe(true);
     expect(rifiutata(s, "anna", { tipo: "brucia" })).toMatch(/finito le mosse/);
@@ -394,6 +403,14 @@ describe("carte numero in mano", () => {
     // fuori dal limite: 7 in mano + 1 in vetrina, niente da scartare
     anna(s).mano = Array.from({ length: 7 }, (_, i) => num(1, `m${i}`));
     s.turno.mosseRimaste = 0;
+    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "fineTurno", scarta: [] });
+  });
+
+  it("finché c'è un potere gratis carico (es. Un caffè) il turno non si chiude da solo", () => {
+    const s = conCarta("generoso-1");
+    s.turno.mosseRimaste = 0;
+    expect(mossaAutomatica(s)).toBeNull();
+    anna(s).attivati[0]!.stanca = 1;
     expect(mossaAutomatica(s)).not.toBeNull();
   });
 

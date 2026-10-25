@@ -28,8 +28,11 @@ type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
 /** Poteri che copiano un altro potere (Sempre la stessa storia, Giacca al rovescio). */
 export const POTERI_COPIA = new Set(["sempre-la-stessa-storia", "giacca-al-rovescio"]);
 
-/** Poteri che non costano mosse (Non sbaglio mai: la pescata sbagliata non conta). */
-export const POTERI_GRATIS = new Set(["non-sbaglio-mai"]);
+/**
+ * Poteri che non costano mosse: Non sbaglio mai (la pescata sbagliata non conta) e quelli che danno mosse in più
+ * (altrimenti spendere una mossa per averne una non servirebbe a niente: deciso il 2026-10-25).
+ */
+export const POTERI_GRATIS = new Set(["non-sbaglio-mai", "un-caffe", "prosecco", "te-l-ho-gia-detto", "l-ho-gia-detto"]);
 
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;

@@ -181,3 +181,11 @@ Si ricarica in 2 turni invece di 1, così non si può bloccare sempre la stessa 
 
 **Una fetta di torta?** (difesa, al posto di *Zeppata difensiva*): Claudia fa sempre torte, muffin e pancake. Annulla l'attacco
 e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.
+
+## Poteri gratis (2026-10-25)
+
+Usare un potere costa una mossa, ma alcuni poteri **non costano mosse**: altrimenti spendere una mossa per riaverla non
+servirebbe a niente. Sono: *Non sbaglio mai* (Maddalena 1), *Un caffè* (Generoso 1), *Prosecco* (Claudia 1),
+*Te l'ho già detto?* (Nonno Salvatore 1) e *L'ho già detto* (Nonno Salvatore 2). Si possono usare anche a mosse finite;
+la carta si stanca come le altre. Gli altri poteri che danno mosse in più ne danno almeno 2 oltre a quella spesa
+(*Anima della festa*, *Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
