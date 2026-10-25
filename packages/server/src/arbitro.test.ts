@@ -564,7 +564,7 @@ describe("gioco La Famiglia", () => {
     s.turno.giocatore = A;
     s.turno.mosseRimaste = 3;
     s.giocatori[A]!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 });
-    s.giocatori[B]!.attivati.push({ copia: { id: "christian#1", carta: "christian" }, stanca: 0 });
+    s.giocatori[B]!.attivati.push({ copia: { id: "gerardina-1#1", carta: "gerardina-1" }, stanca: 0 });
     expect(await chiedi(A, { azione: "mossa", partitaId, mossa: { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: B } })).toMatchObject({ ok: true });
     expect((archivio.dati.stati.get(partitaId)!.stato as StatoFamiglia).turno.attesa).toEqual({ tipo: "difesa", giocatore: B });
 

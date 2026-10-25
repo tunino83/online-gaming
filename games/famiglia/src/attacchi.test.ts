@@ -42,24 +42,24 @@ describe("come funziona un attacco", () => {
   });
 
   it("se l'attaccato ha una difesa, il gioco aspetta la sua risposta", () => {
-    let s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "christian");
+    let s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
     s = attacca(s, "toto-1", { giocatore: "bruno" });
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
     expect(rifiutata(s, "anna", { tipo: "pescaNumero" })).toMatch(/altro giocatore/);
     expect(vistaGiocatore(s, "carla").attacco).toMatchObject({ attaccante: "anna", potere: "si-incanta", bersaglio: "bruno" });
-    expect(mosseValide(s, "bruno")).toEqual([{ tipo: "subisci" }, { tipo: "difendi", carta: "christian#1", potere: "che-paura" }]);
+    expect(mosseValide(s, "bruno")).toEqual([{ tipo: "subisci" }, { tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma" }]);
     s = subisci(s, "bruno");
     expect(g(s, "bruno").mosseProssimoTurno).toBe(-1);
     expect(s.turno.attesa).toBeNull();
   });
 
   it("una difesa riuscita annulla l'attacco e la carta di difesa si stanca", () => {
-    let s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "christian");
+    let s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
     s = attacca(s, "toto-1", { giocatore: "bruno" });
-    s = difendi(s, "bruno", "christian", { potere: "che-paura" });
+    s = difendi(s, "bruno", "gerardina-1", { potere: "sempre-calma" });
     expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
-    expect(g(s, "bruno").attivati[0]!.stanca).toBe(2);
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "difesa", giocatore: "bruno", potere: "che-paura", riuscita: true });
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1); // Gerardina 1 si ricarica in 1 turno
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "difesa", giocatore: "bruno", potere: "sempre-calma", riuscita: true });
   });
 
   it("regola del livello: una difesa di livello 1 non ferma un attacco di livello 2", () => {
@@ -434,7 +434,7 @@ describe("difese", () => {
   });
 
   it("Non è colpa mia: l'attacco va a un altro giocatore, che può difendersi", () => {
-    let s = attivata(bruno_si_difende("maddalena-2"), "carla", "christian");
+    let s = attivata(bruno_si_difende("maddalena-2"), "carla", "gerardina-1");
     s = difendi(s, "bruno", "maddalena-2", { giocatore: "carla" });
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
     s = subisci(s, "carla");

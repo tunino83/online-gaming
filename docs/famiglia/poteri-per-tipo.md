@@ -37,7 +37,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Simone | 3 | **Invasione di campo** | 2 avversari a scelta fanno stancare una loro carta carica (scelgono loro); per ogni colpito peschi 1 carta numero | 4 carte con somma 22 | ricarica 3 |
 | Vento (carta attacco) | 1 | **Vento** | Un avversario scarta tutte le carte numero e ne ripesca altrettante dal mazzo | 1 carta qualsiasi | si usa una volta |
 
-### 🛡️ DIFESA (29)
+### 🛡️ DIFESA (28)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -57,7 +57,6 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Maddalena | 2 | **Ho appena lavato a terra** | Annulli un attacco e chi ti ha attaccato fa 1 mossa in meno nel suo prossimo turno | 3 carte con somma 9 | ricarica 2 |
 | Roberta | 2 | **Chiusa in camera** | Annulli un attacco e fino al tuo prossimo turno nessuno può guardare o prendere i tuoi personaggi nascosti | Tris | ricarica 2 |
 | Claudia | 3 | **Una fetta di torta?** | Annulli l'attacco e fate pace con i dolci: tu peschi 2 carte numero, chi ti ha attaccato 1 | Doppia coppia | ricarica 3 |
-| Christian | 1 | **Che paura!** | Annulli un attacco contro di te | Coppia | ricarica 2 |
 | Donato | 2 | **Non ti sento, sto suonando** | Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro | Scala da 3 | ricarica 2 |
 | Don Pasquale | 2 | **Benedizione** | Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato | Tris | ricarica 2, anche nel tuo turno |
 | Zia Diana | 2 | **Guardia medica** | Dopo che un attacco ti ha colpito, le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche | 3 carte con somma 12 | ricarica 2 |

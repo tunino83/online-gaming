@@ -596,7 +596,7 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       break;
     }
     // Le altre difese annullano soltanto: Ho sempre ragione io, Non sa perdere, Sempre calma, Forse c'è,
-    // Non c'è ha il turno, Che paura!, Paesano, Aglianico, Sono a un matrimonio.
+    // Non c'è ha il turno, Paesano, Aglianico, Sono a un matrimonio.
   }
   avanza(s);
   return null;

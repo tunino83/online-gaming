@@ -81,7 +81,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 | **Zia Diana** (la guardia medica) | 2 | 🛡️ *Guardia medica*: dopo che un attacco ti ha colpito, curi i danni: le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche | 2 |
 | **Donato** (musicista) | 2 | 🛡️ *Non ti sento, sto suonando*: annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro | 2 |
 | **Nicole** | 2 | ⚔️ *Parla parla parla*: un avversario è così frastornato che nel suo prossimo turno non può usare poteri | 2 |
-| **Christian** | 1 | Scegli tu: ✨ *Ho tanta fame*: peschi 3 carte numero; oppure 🛡️ *Che paura!*: annulla un attacco contro di te | 2 |
+| **Christian** | 1 | ✨ *Ho tanta fame*: peschi 3 carte numero | 2 |
 | **Alessia** | 2 | ✨ *Mangia mangia mangia* (gratis): peschi 4 carte numero alla cieca; poi l'indigestione: nei 2 turni successivi, a fine turno, scarti sempre 1 carta in più | 2 |
 | **Greta** | 2 | ⚔️ *Risata contagiosa*: tutti ridono così tanto che ogni avversario fa cadere 1 carta numero a caso (la scarta) | 2 |
 

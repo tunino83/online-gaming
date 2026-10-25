@@ -378,13 +378,7 @@ const ADULTI: Carta[] = [
 
 const SINGOLE: Carta[] = [
   singola("Nicole", 2, somma(3, 11), [attacco("Parla parla parla", "Un avversario nel suo prossimo turno non può usare poteri")]),
-  singola(
-    "Christian",
-    1,
-    coppia,
-    [aiuto("Ho tanta fame", "Peschi 3 carte numero"), difesa("Che paura!", "Annulli un attacco contro di te")],
-    2,
-  ),
+  singola("Christian", 1, coppia, [aiuto("Ho tanta fame", "Peschi 3 carte numero")], 2),
   singola("Alessia", 2, pari(3), [
     aiuto(
       "Mangia mangia mangia",

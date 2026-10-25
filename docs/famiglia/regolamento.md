@@ -227,7 +227,7 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
 - **Ogni cosa al suo posto** (Nonna Maddalena 1): delle prime 5 carte numero ne prendi 1, le altre le riordini.
 - **Patate al forno** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
 - **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
-- **Ho tanta fame** (Christian): 3 carte numero. **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
+- **Ho tanta fame** (Christian): 3 carte numero; Christian non ha più la difesa *Che paura!* (2026-10-25). **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
 - Restano come sono: *Frigge di tutto* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
 
 ## Simone e Annalisa (2026-10-25)
