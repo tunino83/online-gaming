@@ -205,4 +205,6 @@ Carte blu decise finora:
 
 Altre proposte in discussione:
 - **Anima della festa** (Zio Salvatore 3): gratis, 3 mosse in più ora e 1 in meno nei 2 turni successivi.
-- **Mangia mangia mangia** (Alessia): 4 carte, poi per 2 turni il limite della mano scende di 1 (indigestione).
+- **Mangia mangia mangia** (Alessia): 4 carte, poi l'indigestione: nei 2 turni successivi, a fine turno, scarti
+  **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8 carte ne scarti 2; con 5 carte ne scarti
+  comunque 1).
