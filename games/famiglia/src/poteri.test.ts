@@ -368,18 +368,18 @@ describe("carte numero in mano", () => {
 
   it("La vetrina della collezione: fino a 3 carte, visibili, fuori dal limite della mano, buone per i codici", () => {
     let s = conCarta("checca-2");
-    anna(s).mano = [num(2, "a"), num(2, "b"), num(5, "c"), num(6, "d")];
+    anna(s).mano = [num(2, "a"), num(3, "b"), num(5, "c"), num(6, "d")];
     s = usa(s, "checca-2", { carte: ["a", "b", "c"] });
     expect(anna(s).vetrina.map((c) => c.id)).toEqual(["a", "b", "c"]);
     expect(vistaGiocatore(s, "bruno").giocatori.anna!.vetrina).toHaveLength(MAX_VETRINA);
     // codice con carte in vetrina
-    anna(s).nascosti = [copia("generoso-1")]; // 2 carte con somma 4
+    anna(s).nascosti = [copia("donatina-1")]; // 2 carte con somma 5
     s = fai(s, "anna", {
       tipo: "attiva",
-      carta: "generoso-1#1",
+      carta: "donatina-1#1",
       combinazione: [
         { tipo: "numero", id: "a", valore: 2 },
-        { tipo: "numero", id: "b", valore: 2 },
+        { tipo: "numero", id: "b", valore: 3 },
       ],
     });
     expect(anna(s).vetrina.map((c) => c.id)).toEqual(["c"]);
@@ -421,6 +421,7 @@ describe("ricarica e informazioni", () => {
     anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 }, { copia: copia("generoso-2"), stanca: 1 });
     s = usa(s, "toto-3");
     expect(anna(s).attivati.map((a) => a.stanca)).toEqual([3, 0, 0]);
+    expect(s.turno.mosseRimaste).toBe(3); // gratis
   });
 
   it("Ricetta: ricarica una carta stanca di chiunque, anche di un avversario", () => {
@@ -428,6 +429,7 @@ describe("ricarica e informazioni", () => {
     s.giocatori.bruno!.attivati.push({ copia: copia("generoso-3"), stanca: 2 });
     s = usa(s, "dottor-racioppi", { bersaglio: "generoso-3#1" });
     expect(s.giocatori.bruno!.attivati[0]!.stanca).toBe(0);
+    expect(anna(s).mano).toHaveLength(1); // e peschi 1 carta numero
     expect(s.registro.at(-1)).toMatchObject({ bersaglio: "bruno" });
   });
 
@@ -489,23 +491,29 @@ describe("carte blu", () => {
     expect(anna(s).mano).toHaveLength(1);
   });
 
-  it("Prosecco: una volta per turno attivi un personaggio con il codice di un'altra tua carta", () => {
+  it("Prosecco: una volta per turno attivi un personaggio col codice di un'altra tua carta, al massimo 1 livello di differenza", () => {
     let s = conCarta("claudia-1");
-    anna(s).nascosti = [copia("antonio-3"), copia("generoso-1")]; // Antonio 3: 4 carte con somma 20; Generoso 1: 2 carte con somma 4
-    anna(s).mano = [num(1, "a"), num(3, "b"), num(2, "c"), num(2, "d")];
-    const conIlCodiceDiGeneroso = (a: string, b: string, va: number, vb: number): Mossa => ({
+    // Nonna Dina 1: 2 carte con somma 7 (livello 1); Antonio 2: livello 2; Antonio 3: livello 3
+    anna(s).nascosti = [copia("antonio-2"), copia("antonio-3"), copia("nonna-dina-1")];
+    anna(s).mano = [num(3, "a"), num(4, "b"), num(2, "c"), num(5, "d")];
+    const colCodiceDiDina = (cartaDaAttivare: string, a: string, b: string, va: number, vb: number): Mossa => ({
       tipo: "attiva",
-      carta: "antonio-3#1",
-      codiceDi: "generoso-1#1",
+      carta: cartaDaAttivare,
+      codiceDi: "nonna-dina-1#1",
       combinazione: [
         { tipo: "numero", id: a, valore: va },
         { tipo: "numero", id: b, valore: vb },
       ],
     });
-    expect(mosseValide(s, "anna")).toContainEqual(expect.objectContaining({ carta: "antonio-3#1", codiceDi: "generoso-1#1" }));
-    s = fai(s, "anna", conIlCodiceDiGeneroso("a", "b", 1, 3));
-    expect(anna(s).attivati.map((x) => x.copia.carta)).toContain("antonio-3");
-    expect(rifiutata(s, "anna", { ...conIlCodiceDiGeneroso("c", "d", 2, 2), carta: "generoso-1#1", codiceDi: "antonio-3#1" } as Mossa)).toMatch(/Prosecco/);
+    // livello 3 col codice di un livello 1: 2 livelli di differenza, no
+    expect(mosseValide(s, "anna")).not.toContainEqual(expect.objectContaining({ carta: "antonio-3#1", codiceDi: "nonna-dina-1#1" }));
+    expect(rifiutata(s, "anna", colCodiceDiDina("antonio-3#1", "a", "b", 3, 4))).toMatch(/1 livello di differenza/);
+    // livello 2 col codice di un livello 1: sì
+    expect(mosseValide(s, "anna")).toContainEqual(expect.objectContaining({ carta: "antonio-2#1", codiceDi: "nonna-dina-1#1" }));
+    s = fai(s, "anna", colCodiceDiDina("antonio-2#1", "a", "b", 3, 4));
+    expect(anna(s).attivati.map((x) => x.copia.carta)).toContain("antonio-2");
+    // una volta per turno
+    expect(rifiutata(s, "anna", { ...colCodiceDiDina("antonio-3#1", "c", "d", 2, 5), codiceDi: "antonio-2#1" } as Mossa)).toMatch(/Prosecco/);
   });
 
   it("Sono due etti e mezzo, lascio?: se la prima mossa è una pescata, la rifai gratis", () => {

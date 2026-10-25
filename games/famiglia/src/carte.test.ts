@@ -95,9 +95,10 @@ describe("regole sui dati delle carte", () => {
     }
   });
 
-  it("codici dei personaggi: livello 1 = 2 carte, livello 2 = 3 carte, livello 3 = 4 o 5 carte", () => {
+  it("codici dei personaggi: livello 1 = 2 carte, livello 2 = 3 carte, livello 3 = 4 o 5 carte (Un caffè: 88 + coppia)", () => {
     const attese = { 1: [2], 2: [3], 3: [4, 5] } as const;
     for (const c of CARTE.filter((x) => x.categoria === "personaggio")) {
+      if (c.id === "generoso-1") continue; // Un caffè: codice difficile apposta (deciso dopo la simulazione)
       expect(attese[c.livello], c.id).toContain(numeroCarte(c.codice));
     }
   });

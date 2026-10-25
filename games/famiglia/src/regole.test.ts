@@ -140,23 +140,23 @@ describe("attivare", () => {
   it("un personaggio nascosto: le carte vanno negli scarti e il personaggio tra gli attivati, carico", () => {
     let s = partita();
     const g = s.giocatori.anna!;
-    g.nascosti = [copia("generoso-1")]; // 2 carte con somma 4
-    g.mano = [num(1, "a"), num(3, "b"), num(6, "c")];
+    g.nascosti = [copia("donatina-1")]; // 2 carte con somma 5
+    g.mano = [num(1, "a"), num(4, "b"), num(6, "c")];
     s = fai(s, "anna", {
       tipo: "attiva",
-      carta: "generoso-1#1",
+      carta: "donatina-1#1",
       combinazione: [
         { tipo: "numero", id: "a", valore: 1 },
-        { tipo: "numero", id: "b", valore: 3 },
+        { tipo: "numero", id: "b", valore: 4 },
       ],
     });
     const a = s.giocatori.anna!;
     expect(a.nascosti).toEqual([]);
-    expect(a.attivati).toEqual([{ copia: copia("generoso-1"), stanca: 0 }]);
+    expect(a.attivati).toEqual([{ copia: copia("donatina-1"), stanca: 0 }]);
     expect(a.mano.map((c) => c.id)).toEqual(["c"]);
     expect(s.scarti.numeri.map((c) => c.id)).toEqual(["a", "b"]);
     expect(puntiDi(a)).toBe(1);
-    expect(s.turno.mosseRimaste).toBe(3); // 3 − 1 per attivare + 1 di Un caffè (blu, vale da subito)
+    expect(s.turno.mosseRimaste).toBe(2);
   });
 
   it("un personaggio di attacco in attesa", () => {
@@ -188,14 +188,14 @@ describe("attivare", () => {
 
   it("serve il codice giusto, con carte proprie", () => {
     const s = partita();
-    s.giocatori.anna!.nascosti = [copia("generoso-1")];
-    s.giocatori.anna!.mano = [num(2, "a"), num(3, "b")];
+    s.giocatori.anna!.nascosti = [copia("donatina-1")];
+    s.giocatori.anna!.mano = [num(2, "a"), num(2, "b")];
     const err = rifiutata(s, "anna", {
       tipo: "attiva",
-      carta: "generoso-1#1",
+      carta: "donatina-1#1",
       combinazione: [
         { tipo: "numero", id: "a", valore: 2 },
-        { tipo: "numero", id: "b", valore: 3 },
+        { tipo: "numero", id: "b", valore: 2 },
       ],
     });
     expect(err).toMatch(/non soddisfano/);
@@ -203,8 +203,8 @@ describe("attivare", () => {
 
   it("le mosse valide propongono le attivazioni possibili", () => {
     const s = partita();
-    s.giocatori.anna!.nascosti = [copia("generoso-1")];
-    s.giocatori.anna!.mano = [num(2, "a"), num(2, "b")];
+    s.giocatori.anna!.nascosti = [copia("donatina-1")];
+    s.giocatori.anna!.mano = [num(2, "a"), num(3, "b")];
     expect(mosseValide(s, "anna").filter((m) => m.tipo === "attiva")).toHaveLength(1);
   });
 });
@@ -212,15 +212,15 @@ describe("attivare", () => {
 describe("mancia dei nonni e caffè", () => {
   it("una banconota vale come carta numero nel codice e poi va negli scarti mancia", () => {
     let s = partita();
-    s.giocatori.anna!.nascosti = [copia("generoso-1")];
+    s.giocatori.anna!.nascosti = [copia("donatina-1")];
     s.giocatori.anna!.mano = [num(1, "a")];
-    s.giocatori.anna!.mancia = [banconota(3, "m")];
+    s.giocatori.anna!.mancia = [banconota(4, "m")];
     s = fai(s, "anna", {
       tipo: "attiva",
-      carta: "generoso-1#1",
+      carta: "donatina-1#1",
       combinazione: [
         { tipo: "numero", id: "a", valore: 1 },
-        { tipo: "mancia", id: "m", valore: 3 },
+        { tipo: "mancia", id: "m", valore: 4 },
       ],
     });
     expect(s.giocatori.anna!.mancia).toEqual([]);
@@ -242,15 +242,15 @@ describe("mancia dei nonni e caffè", () => {
 
   it("un caffè fa +1 a una carta", () => {
     let s = partita();
-    s.giocatori.anna!.nascosti = [copia("generoso-1")];
-    s.giocatori.anna!.mano = [num(1, "a"), num(2, "b")];
+    s.giocatori.anna!.nascosti = [copia("donatina-1")];
+    s.giocatori.anna!.mano = [num(1, "a"), num(3, "b")];
     s.giocatori.anna!.mancia = [caffe("c")];
     s = fai(s, "anna", {
       tipo: "attiva",
-      carta: "generoso-1#1",
+      carta: "donatina-1#1",
       combinazione: [
         { tipo: "numero", id: "a", valore: 1 },
-        { tipo: "numero", id: "b", valore: 3, modifica: { mancia: "c" } },
+        { tipo: "numero", id: "b", valore: 4, modifica: { mancia: "c" } },
       ],
     });
     expect(s.giocatori.anna!.attivati).toHaveLength(1);

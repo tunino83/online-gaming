@@ -150,9 +150,9 @@ const ADULTI: Carta[] = [
     { codice: doppiaCoppia, poteri: [difesa("Permalosa", "L'attacco torna a chi l'ha fatto")] },
   ]),
   ...persona("Totò", [
-    { codice: somma(2, 11), poteri: [attacco("Si incanta", "Un avversario fa 1 mossa in meno nel suo prossimo turno")] },
+    { codice: somma(2, 11), poteri: [attacco("Si incanta", "Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero")] },
     { codice: somma(3, 15), poteri: [aiuto("Brace accesa", "Ricarichi subito 2 altre tue carte stanche")] },
-    { codice: pari(4), poteri: [aiuto("Grigliata", "Ricarichi subito tutte le tue carte stanche")] },
+    { codice: pari(4), poteri: [aiuto("Grigliata", "Gratis (non usa mosse): ricarichi subito tutte le tue carte stanche")] },
   ]),
   ...persona("Checca", [
     { codice: somma(2, 6), poteri: [attacco("Schietta", "Un avversario mostra a tutti i personaggi nascosti in mano")] },
@@ -165,7 +165,7 @@ const ADULTI: Carta[] = [
         ),
       ],
     },
-    { codice: somma(4, 24), poteri: [attacco("Allergica al finocchietto", "Scegli un personaggio nascosto in mano a un avversario e lo fai scartare")] },
+    { codice: somma(4, 24), poteri: [attacco("Allergica al finocchietto", "Scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi tu peschi 2 carte numero")] },
   ]),
   ...persona("Donatina", [
     { codice: somma(2, 5), poteri: [aiuto("Scaffale", "Prendi 2 carte numero scoperte dal tavolo")] },
@@ -174,14 +174,14 @@ const ADULTI: Carta[] = [
   ]),
   ...persona("Zio Salvatore", [
     { codice: esatto(7, 7), poteri: [attacco("Si canta!", "Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno")] },
-    { codice: somma(3, 14), poteri: [attacco("Versa il vino", "Una carta carica di un avversario si addormenta (diventa stanca)")] },
+    { codice: somma(3, 14), poteri: [attacco("Versa il vino", "Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi")] },
     {
       codice: piuCoppia(8, 8),
       poteri: [aiuto("Anima della festa", "Gratis: 3 mosse in più adesso, poi si addormenta con gli occhiali da sole: 1 mossa in meno nei tuoi 2 turni successivi")],
     },
   ]),
   ...persona("Generoso", [
-    { codice: somma(2, 4), poteri: [aiutoBlu("Un caffè", "Sempre attiva: fai 4 mosse per turno invece di 3")], ricarica: 0 },
+    { codice: piuCoppia(8, 8), poteri: [aiutoBlu("Un caffè", "Sempre attiva: fai 4 mosse per turno invece di 3")], ricarica: 0 },
     { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 2 carte numero")] },
     {
       codice: somma(4, 16),
@@ -302,7 +302,10 @@ const ADULTI: Carta[] = [
   ...persona("Claudia", [
     {
       codice: somma(2, 15),
-      poteri: [aiutoBlu("Prosecco", "Sempre attiva, una volta per turno: attivi un personaggio pagando il codice di un'altra tua carta (sei brilla e ti confondi)")],
+      poteri: [aiutoBlu(
+          "Prosecco",
+          "Sempre attiva, una volta per turno: attivi un personaggio pagando il codice di un'altra tua carta con al massimo 1 livello di differenza (sei brilla e ti confondi)",
+        )],
       ricarica: 0,
     },
     { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
@@ -314,7 +317,7 @@ const ADULTI: Carta[] = [
   ...persona(
     "Squacqualacchione",
     [
-      { codice: somma(2, 9), poteri: [attacco("Burla", "Prendi 1 carta numero a caso a un avversario e gli dai una tua a scelta")] },
+      { codice: somma(2, 9), poteri: [attacco("Burla", "Prendi 2 carte numero a caso a un avversario e gli dai una tua a scelta")] },
       {
         codice: dispari(3),
         poteri: [aiuto("Giacca al rovescio", "Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca)")],
@@ -398,7 +401,7 @@ const SINGOLE: Carta[] = [
   ),
   singola("Vincenzo", 1, somma(2, 8), [aiuto("Frutta e verdura!", "Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti")]),
   singola("Don Pasquale", 2, tris, [difesa("Benedizione", "Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato")]),
-  singola("Dottor Racioppi", 1, somma(2, 10), [aiuto("Ricetta", "Ricarichi subito una carta stanca di chi vuoi")]),
+  singola("Dottor Racioppi", 1, somma(2, 10), [aiuto("Ricetta", "Ricarichi subito una carta stanca di chi vuoi e peschi 1 carta numero")]),
   singola("Zia Diana", 2, somma(3, 12), [
     difesa("Guardia medica", "Dopo che un attacco ti ha colpito, le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche"),
   ]),

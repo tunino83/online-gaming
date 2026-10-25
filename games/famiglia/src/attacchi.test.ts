@@ -168,9 +168,10 @@ describe("attacchi a un avversario", () => {
     expect(t.scarti.personaggi.map((c) => c.carta)).toEqual(["giro-aperto"]);
   });
 
-  it("Si incanta e Rospe per tutti: 1 mossa in meno nel prossimo turno (mai sotto zero)", () => {
+  it("Si incanta e Rospe per tutti: 1 mossa in meno nel prossimo turno (mai sotto zero); con Si incanta peschi 1 carta", () => {
     let s = attivata(partita(), "anna", "toto-1");
     s = attacca(s, "toto-1", { giocatore: "bruno" });
+    expect(g(s, "anna").mano).toHaveLength(1);
     g(s, "bruno").mosseProssimoTurno = -5;
     s.turno.mosseRimaste = 0;
     s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
@@ -191,6 +192,7 @@ describe("attacchi a un avversario", () => {
     g(s, "bruno").nascosti = [copia("chicca-1"), copia("generoso-2")];
     s = attacca(s, "checca-3", { giocatore: "bruno", posizioni: [1] });
     expect(g(s, "bruno").nascosti.map((c) => c.carta)).toEqual(["chicca-1"]);
+    expect(g(s, "anna").mano).toHaveLength(2); // poi peschi 2 carte numero
   });
 
   it("Gli occhi 'nguoll: una carta nascosta a caso", () => {
@@ -214,7 +216,7 @@ describe("attacchi a un avversario", () => {
     let s = attivata(attivata(attivata(partita(), "anna", "zio-salvatore-2"), "bruno", "generoso-3"), "bruno", "francesco-1");
     expect(rifiutata(s, "anna", { tipo: "potere", carta: "zio-salvatore-2#1", potere: "versa-il-vino", giocatore: "bruno", bersaglio: "francesco-1#1" })).toMatch(/carica/);
     s = attacca(s, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "generoso-3#1" });
-    expect(g(s, "bruno").attivati.map((a) => a.stanca)).toEqual([3, 0]);
+    expect(g(s, "bruno").attivati.map((a) => a.stanca)).toEqual([4, 0]); // ricarica 3 + 1 turno in più
   });
 
   it("Smash e Il bastone: una carta si stanca e si scartano 1 o 2 carte a caso", () => {
@@ -234,13 +236,15 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["anna0"]);
   });
 
-  it("Burla: prendi una carta a caso e ne dai una tua a scelta", () => {
+  it("Burla: prendi 2 carte a caso e ne dai una tua a scelta", () => {
     let s = attivata(partita(), "anna", "squacqualacchione-1");
     manoDi(s, "anna", 1, 8);
-    manoDi(s, "bruno", 5);
+    manoDi(s, "bruno", 5, 6, 7);
     s = attacca(s, "squacqualacchione-1", { giocatore: "bruno", carte: ["anna1"] });
-    expect(g(s, "anna").mano.map((c) => c.id).sort()).toEqual(["anna0", "bruno0"]);
-    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["anna1"]);
+    expect(g(s, "anna").mano).toHaveLength(3);
+    expect(g(s, "anna").mano.map((c) => c.id)).toContain("anna0");
+    expect(g(s, "bruno").mano).toHaveLength(2);
+    expect(g(s, "bruno").mano.map((c) => c.id)).toContain("anna1");
   });
 
   it("Vertenza: prendi un personaggio attivato di livello 1 o 2, con i suoi punti", () => {

@@ -47,6 +47,7 @@ export const POTERI_GRATIS = new Set([
   "lezione-di-padel",
   "sposta-i-mobili",
   "medico-in-famiglia",
+  "grigliata",
 ]);
 
 /** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
@@ -374,6 +375,7 @@ function applicaAiuto(
         const x = s.giocatori[giocatore]!.attivati.find((y) => y.copia.id === m.bersaglio && y.stanca > 0);
         if (x) {
           x.stanca = 0;
+          peschiNumeri(s, id, 1);
           return giocatore === id ? undefined : giocatore;
         }
       }

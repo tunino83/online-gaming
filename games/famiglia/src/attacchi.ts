@@ -251,9 +251,10 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       // Prima si dà la propria carta (scelta, se c'è ancora), poi si prende
       const dono = (p.carte?.[0] && A.mano.find((c) => c.id === p.carte![0])) || aCaso(s, A.mano);
       if (a.potere === "burla") {
-        const c = rubaACaso();
+        // Burla: si prendono 2 carte a caso e se ne dà 1 a scelta
+        const prese = [rubaACaso(), rubaACaso()].filter((c): c is CartaNumero => c !== undefined);
         if (dono) V.mano.push(togliNumero(A, dono.id)!);
-        if (c) A.mano.push(c);
+        A.mano.push(...prese);
       } else if (!V.nascostiProtetti && V.nascosti.length > 0) {
         if (dono) V.mano.push(togliNumero(A, dono.id)!);
         const preso = V.nascosti.splice(interoTra(s.rng, 0, V.nascosti.length - 1), 1)[0]!;
@@ -275,6 +276,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "si-incanta":
     case "rospe-per-tutti":
       V.mosseProssimoTurno -= 1;
+      if (a.potere === "si-incanta" && !suSeStesso) peschiNumeri(s, a.attaccante, 1);
       break;
     case "parla-parla-parla":
       V.zittoProssimoTurno = true;
@@ -296,13 +298,17 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       const voluta = a.potere === "allergica-al-finocchietto" && v === p.giocatore ? p.posizioni?.[0] : undefined;
       const i = voluta !== undefined && voluta < V.nascosti.length ? voluta : interoTra(s.rng, 0, V.nascosti.length - 1);
       s.scarti.personaggi.push(...V.nascosti.splice(i, 1));
+      if (a.potere === "allergica-al-finocchietto" && !suSeStesso) peschiNumeri(s, a.attaccante, 2);
       break;
     }
     case "versa-il-vino":
     case "la-tomacella":
-    case "volo-infuocato":
-      stanca(a.potere === "volo-infuocato" ? aCaso(s, caricheColpibili(V, a.potere)) : originale(caricheColpibili(V, a.potere)));
+    case "volo-infuocato": {
+      const x = a.potere === "volo-infuocato" ? aCaso(s, caricheColpibili(V, a.potere)) : originale(caricheColpibili(V, a.potere));
+      // Versa il vino: la carta si addormenta e ci mette 1 turno in più a ricaricarsi
+      stancaCarta(s, x, a.potere === "versa-il-vino" ? 1 : 0);
       break;
+    }
     case "smash":
     case "il-bastone":
       stanca(originale(caricheColpibili(V, a.potere)));

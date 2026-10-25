@@ -363,9 +363,15 @@ function attivabili(g: StatoGiocatore): CopiaCarta[] {
   return [...g.nascosti, ...g.attacchi].filter((c) => carta(c.carta).categoria === "personaggio");
 }
 
-/** Le carte del giocatore di cui Prosecco può usare il codice: le sue altre carte personaggio (in mano, in attesa, attivate). */
-function altreCarte(g: StatoGiocatore, tranne: string): CopiaCarta[] {
-  return [...g.nascosti, ...g.attacchi, ...g.attivati.map((a) => a.copia)].filter((c) => c.id !== tranne && carta(c.carta).categoria === "personaggio");
+/**
+ * Le carte del giocatore di cui Prosecco può usare il codice per attivare `tranne`: le sue altre carte personaggio
+ * (in mano, in attesa, attivate) con al massimo 1 livello di differenza.
+ */
+function altreCarte(g: StatoGiocatore, tranne: CopiaCarta): CopiaCarta[] {
+  const livello = carta(tranne.carta).livello;
+  return [...g.nascosti, ...g.attacchi, ...g.attivati.map((a) => a.copia)].filter(
+    (c) => c.id !== tranne.id && carta(c.carta).categoria === "personaggio" && Math.abs(carta(c.carta).livello - livello) <= 1,
+  );
 }
 
 function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "attiva" }>): void {
@@ -378,8 +384,8 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   let codice = c.codice;
   if (m.codiceDi !== undefined) {
     if (quantiBlu(g, "prosecco") === 0 || s.turno.bluUsati.includes("prosecco")) rifiuta("Serve il Prosecco di Claudia (una volta per turno)");
-    const altra = altreCarte(g, copia!.id).find((x) => x.id === m.codiceDi);
-    if (!altra) rifiuta("Scegli un'altra tua carta di cui usare il codice");
+    const altra = altreCarte(g, copia!).find((x) => x.id === m.codiceDi);
+    if (!altra) rifiuta("Scegli un'altra tua carta di cui usare il codice, con al massimo 1 livello di differenza");
     codice = carta(altra!.carta).codice;
     s.turno.bluUsati.push("prosecco");
   }
@@ -525,7 +531,7 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
     }
     // Prosecco: con il codice di un'altra carta (una combinazione per carta)
     if (prosecco) {
-      for (const altra of altreCarte(g, copia.id)) {
+      for (const altra of altreCarte(g, copia)) {
         const [combinazione] = trovaCombinazioni(risorse, carta(altra.carta).codice, 1);
         if (combinazione) mosse.push({ tipo: "attiva", carta: copia.id, combinazione, codiceDi: altra.id });
       }

@@ -250,3 +250,20 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
 Niente più testa o croce: chi si difende gira la prossima carta del mazzo numeri. Se è **dispari** la difesa vince
 (l'attacco è annullato), se è **pari** l'attacco colpisce. In tutti e due i casi la carta girata va in mano a chi si
 difende. Se il mazzo numeri e gli scarti sono vuoti la difesa vince.
+
+## Correzioni dopo la simulazione (2026-10-25)
+
+Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazione.md`):
+- **Prosecco** (Claudia 1): il codice usato deve essere di un'altra carta con **al massimo 1 livello di differenza**
+  (un livello 3 si attiva col codice di un livello 2 o 3, non di un livello 1).
+- **Un caffè** (Generoso 1): codice più difficile, **88 + una coppia qualsiasi** (prima 2 carte con somma 4).
+- **Vertenza** (Giuseppe 3): resta com'è (prende un personaggio di livello 1 o 2).
+- **Mangia mangia mangia** (Alessia): resta gratis, perché poi per 2 turni si scarta una carta in più.
+- Carte deboli rinforzate:
+  - **Si incanta** (Totò 1): in più l'attaccante pesca 1 carta numero.
+  - **Allergica al finocchietto** (Checca 3): dopo che l'avversario scarta il personaggio, l'attaccante pesca 2 carte numero.
+  - **Versa il vino** (Zio Salvatore 2): la carta colpita ci mette 1 turno in più a ricaricarsi.
+  - **Burla** (Squacqualacchione 1): si prendono 2 carte numero a caso (prima 1) e se ne dà 1 a scelta.
+  - **Grigliata** (Totò 3): diventa gratis (non usa mosse).
+  - **Ricetta** (Dottor Racioppi): in più si pesca 1 carta numero.
+  - Restano come sono *Schietta* (Checca 1) e Maddalena 1: sembrano deboli soprattutto perché i robot non le sanno sfruttare.

@@ -10,12 +10,12 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Nicola | 2 | **Solo per vedere comm sape** | Rubi 1 carta numero a caso dalla mano di un avversario | 3 carte con somma 12 | ricarica 2 |
 | Nonno Nicola | 3 | **Manca 'o sale** | Ogni avversario ti dà 1 carta numero (sceglie lui quale) | 66 + una coppia qualsiasi | ricarica 3 |
 | Nonna Patrizia | 3 | **Baratto** | Scambi una tua carta attivata con una attivata di un avversario (punti compresi), dello stesso livello o con un livello di differenza; tutte e due diventano stanche | 4 carte dispari | ricarica 3 |
-| Totò | 1 | **Si incanta** | Un avversario fa 1 mossa in meno nel suo prossimo turno | 2 carte con somma 11 | ricarica 1 |
+| Totò | 1 | **Si incanta** | Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero | 2 carte con somma 11 | ricarica 1 |
 | Checca | 1 | **Schietta** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
-| Checca | 3 | **Allergica al finocchietto** | Scegli un personaggio nascosto in mano a un avversario e lo fai scartare | 4 carte con somma 24 | ricarica 3 |
+| Checca | 3 | **Allergica al finocchietto** | Scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi peschi 2 carte numero | 4 carte con somma 24 | ricarica 3 |
 | Donatina | 3 | **Urla** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
 | Zio Salvatore | 1 | **Si canta!** | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
-| Zio Salvatore | 2 | **Versa il vino** | Una carta carica di un avversario si addormenta (diventa stanca) | 3 carte con somma 14 | ricarica 2 |
+| Zio Salvatore | 2 | **Versa il vino** | Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi | 3 carte con somma 14 | ricarica 2 |
 | Francesco | 2 | **Smash** | Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso | 3 carte con somma 20 | ricarica 2 |
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Rospe per tutti** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |
@@ -25,7 +25,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Roberta | 1 | **Ti chiamo un attimo…** | Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno | 2 carte con somma 7 | ricarica 2 |
 | Roberta | 3 | **Sparecchio** | Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva | Poker | ricarica 3 |
 | Claudia | 2 | **Zeppata sui social** | Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca | 3 carte con somma 16 | ricarica 2 |
-| Squacqualacchione | 1 | **Burla** | Prendi 1 carta numero a caso a un avversario e gli dai una tua a scelta | 2 carte con somma 9 | ricarica 1 |
+| Squacqualacchione | 1 | **Burla** | Prendi 2 carte numero a caso a un avversario e gli dai una tua a scelta | 2 carte con somma 9 | ricarica 1 |
 | Squacqualacchione | 3 | **Volo infuocato** | Una carta carica di ogni avversario diventa stanca | 88 + una coppia qualsiasi | ricarica 3 |
 | Nicole | 2 | **Parla parla parla** | Un avversario nel suo prossimo turno non può usare poteri | 3 carte con somma 11 | ricarica 2 |
 | Greta | 2 | **Risata contagiosa** | Ogni avversario scarta 1 carta numero a caso | 3 carte dispari | ricarica 2 |
@@ -87,12 +87,12 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Patrizia | 1 | 🔵 **Mercatino** | Una volta per turno scambi una carta in mano con una degli scarti | 2 carte con somma 10 | blu |
 | Chicca | 1 | **Vende la carne** | Scarti un personaggio nascosto dalla mano e peschi 3 carte numero | 2 carte con somma 8 | ricarica 1 |
 | Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |
-| Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3 |
+| Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3, gratis |
 | Checca | 2 | **La vetrina della collezione** | Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici | 123 | ricarica 2 |
 | Donatina | 1 | **Scaffale** | Prendi 2 carte numero scoperte dal tavolo | 2 carte con somma 5 | ricarica 1 |
 | Donatina | 2 | **Ce l'ho io!** | Cerchi nel mazzo numeri la carta che vuoi e la prendi | Scala da 3 | ricarica 2 |
 | Zio Salvatore | 3 | **Anima della festa** | 3 mosse in più, poi 1 in meno nei 2 turni successivi | 88 + una coppia qualsiasi | ricarica 3, gratis |
-| Generoso | 1 | 🔵 **Un caffè** | Fai sempre 4 mosse per turno | 2 carte con somma 4 | blu |
+| Generoso | 1 | 🔵 **Un caffè** | Fai sempre 4 mosse per turno | 88 + una coppia qualsiasi | blu |
 | Generoso | 2 | **Colazione** | Peschi 1 personaggio e 2 carte numero | 3 carte con somma 10 | ricarica 2 |
 | Generoso | 3 | **Offre la casa** | Scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio) | 4 carte con somma 16 | ricarica 3 |
 | Francesco | 1 | 🔵 **Lezione di padel** | Una volta per turno scambi 1 carta numero della tua mano con 1 scoperta sul tavolo | 2 carte con somma 12 | blu |
@@ -102,7 +102,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Antonio | 1 | 🔵 **Ne ho viste tante** | Vedi le prime 2 carte del mazzo personaggi e, pescando, scegli quale prendere | 12 | blu |
 | Nonna Maddalena | 1 | **Ogni cosa al suo posto** | Guardi le prime 5 carte del mazzo numeri, ne prendi 1 e rimetti le altre nell'ordine che vuoi | 2 carte pari | ricarica 1 |
 | Nonna Maddalena | 3 | **Patate al forno** | Scopri tante carte numero quanti i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza | Scala da 5 | ricarica 3 |
-| Claudia | 1 | 🔵 **Prosecco** | Una volta per turno attivi un personaggio col codice di un'altra tua carta | 2 carte con somma 15 | blu |
+| Claudia | 1 | 🔵 **Prosecco** | Una volta per turno attivi un personaggio col codice di un'altra tua carta (al massimo 1 livello di differenza) | 2 carte con somma 15 | blu |
 | Squacqualacchione | 2 | **Giacca al rovescio** | Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca) | 3 carte dispari | ricarica 2 |
 | Christian | 1 | **Ho tanta fame** | Peschi 3 carte numero | Coppia | ricarica 2 |
 | Alessia | 2 | **Mangia mangia mangia** | 4 carte numero alla cieca; poi per 2 turni scarti 1 carta in più | 3 carte pari | ricarica 2, gratis |
@@ -110,4 +110,4 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Annalisa | 2 | 🔵 **Medico in famiglia** | Attivi Racioppi e Zia Diana senza codice; una volta per turno prendi uno dei due dagli scarti | 3 carte con somma 12 | blu |
 | Annalisa | 3 | **Il mio corpo che cambia** | Scambi una tua carta attivata con un personaggio in mano: quello si attiva senza codice ma stanco | Scala da 5 | ricarica 3 |
 | Vincenzo | 1 | **Frutta e verdura!** | Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 2 carte con somma 8 | ricarica 1 |
-| Dottor Racioppi | 1 | **Ricetta** | Ricarichi subito una carta stanca di chi vuoi | 2 carte con somma 10 | ricarica 1 |
+| Dottor Racioppi | 1 | **Ricetta** | Ricarichi subito una carta stanca di chi vuoi e peschi 1 carta numero | 2 carte con somma 10 | ricarica 1 |

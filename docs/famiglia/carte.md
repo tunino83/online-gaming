@@ -45,7 +45,7 @@ Regole usate:
 | Zio Salvatore | 1 | Si canta! | ⚔️ | 77 |
 | Zio Salvatore | 2 | Versa il vino | ⚔️ | 3 carte con somma 14 |
 | Zio Salvatore | 3 | Anima della festa | ✨ | 88 + una coppia qualsiasi |
-| Generoso | 1 | Un caffè | ✨ | 2 carte con somma 4 |
+| Generoso | 1 | Un caffè | ✨ | 88 + una coppia qualsiasi |
 | Generoso | 2 | Colazione | ✨ | 3 carte con somma 10 |
 | Generoso | 3 | Offre la casa | ✨ | 4 carte con somma 16 |
 | Francesco | 1 | Lezione di padel | ✨ | 2 carte con somma 12 |
