@@ -58,7 +58,7 @@ export interface VistaGiocatore {
   /** Numero di carte coperte rimaste in ogni mazzo e negli scarti. */
   mazzi: { numeri: number; personaggi: number; mancia: number };
   scarti: { numeri: number; personaggi: number; mancia: number };
-  /** La pila degli scarti numeri è scoperta (serve al Mercatino e agli Avanzi): l'ultima è in fondo. */
+  /** La pila degli scarti numeri è scoperta (serve al Mercatino): l'ultima è in fondo. */
   scartiNumeri: CartaNumero[];
   /** Carte numero scoperte tra cui qualcuno sta scegliendo (Vincenzo, Patate al forno). */
   offerta: CartaNumero[];

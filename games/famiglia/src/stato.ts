@@ -30,6 +30,8 @@ export interface StatoGiocatore {
   mosseProssimoTurno: number;
   /** Nel prossimo turno non può usare poteri (Parla parla parla). */
   zittoProssimoTurno: boolean;
+  /** Salta il prossimo turno: nessuna mossa (Ti chiamo un attimo…). */
+  saltaProssimoTurno: boolean;
   /* Protezioni che durano fino al prossimo turno del giocatore: */
   /** Nessuno può attaccarlo (Nuvola di fumo). */
   protetto: boolean;

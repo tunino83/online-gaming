@@ -247,9 +247,6 @@ function applicaAiuto(
       g.mano.push(...s.scarti.numeri.splice(i, 1));
       return;
     }
-    case "avanzi":
-      g.mano.push(...s.scarti.numeri.splice(-2));
-      return;
     case "ce-l-ho-io": {
       const v = m.valore;
       if (!Number.isInteger(v) || v! < 1 || v! > 8) rifiuta("Scegli un numero da 1 a 8");
@@ -486,8 +483,6 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       const perValore = new Map(s.scarti.numeri.map((c) => [c.valore, c.id]));
       return [...perValore.values()].map((bersaglio) => ({ bersaglio }));
     }
-    case "avanzi":
-      return s.scarti.numeri.length > 0 ? [{}] : [];
     case "scaffale":
       if (posizioniNumeri.length === 0) return [];
       return posizioniNumeri.length === 1 ? [{ posizioni: posizioniNumeri }] : coppie(posizioniNumeri).map((posizioni) => ({ posizioni }));

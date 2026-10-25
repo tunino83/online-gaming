@@ -170,3 +170,9 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - **Volo infuocato**: la carta che si stanca è scelta a caso. **Multa**: tra gli avversari; le 2 carte sono a caso.
   - **Tritacarne**: il legame con Chicca ricarica una sola carta di Chicca, appena si usa il Tritacarne.
   - **Guardia medica** rispetta la regola del livello; cura solo carte numero scartate e carte fatte stancare.
+
+## Roberta livello 1 (2026-10-25)
+
+**Ti chiamo un attimo…** (attacco, al posto di *Avanzi*): Roberta regala 2 carte numero (prese dal mazzo) a un avversario,
+ma lo tiene al telefono un'ora: salta il suo prossimo turno (nessuna mossa; le sue carte stanche si ricaricano lo stesso).
+Si ricarica in 2 turni invece di 1, così non si può bloccare sempre la stessa persona.

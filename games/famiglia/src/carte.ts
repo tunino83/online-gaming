@@ -43,6 +43,8 @@ const aiuto = potere("aiuto");
 interface Lato {
   codice: Codice;
   poteri: Potere[];
+  /** Turni di ricarica, se diversi dal livello (es. Roberta 1). */
+  ricarica?: number;
 }
 
 /** Una persona con 3 carte (livello 1, 2, 3): punti e ricarica uguali al livello. */
@@ -56,7 +58,7 @@ function persona(nome: string, lati: [Lato, Lato, Lato], nota?: string): Carta[]
     livello: (i + 1) as Livello,
     codice: l.codice,
     punti: i + 1,
-    ricarica: i + 1,
+    ricarica: l.ricarica ?? i + 1,
     poteri: l.poteri,
     ...(nota ? { nota } : {}),
     copie: 1,
@@ -257,7 +259,11 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Roberta", [
-    { codice: somma(2, 7), poteri: [aiuto("Avanzi", "Prendi le ultime 2 carte scartate nella pila numeri")] },
+    {
+      codice: somma(2, 7),
+      poteri: [attacco("Ti chiamo un attimo…", "Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno")],
+      ricarica: 2,
+    },
     { codice: tris, poteri: [difesa("Chiusa in camera", "Annulli un attacco e fino al tuo prossimo turno nessuno può guardare o prendere i tuoi personaggi nascosti")] },
     { codice: poker, poteri: [attacco("Sparecchio", "Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva")] },
   ]),

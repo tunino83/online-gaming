@@ -303,6 +303,28 @@ describe("attacchi a un avversario", () => {
     expect(rifiutata(s, "bruno", { tipo: "potere", carta: "generoso-1#1", potere: "un-caffe" })).toMatch(/Parla parla parla/);
   });
 
+  it("Ti chiamo un attimo…: l'avversario riceve 2 carte numero ma salta il suo prossimo turno", () => {
+    let s = attivata(partita(), "anna", "roberta-1");
+    s = attacca(s, "roberta-1", { giocatore: "bruno" });
+    expect(g(s, "bruno").mano).toHaveLength(2);
+    expect(g(s, "anna").attivati[0]!.stanca).toBe(2);
+    attivata(s, "bruno", "generoso-3", 2);
+    s.turno.mosseRimaste = 0;
+    s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
+    // Tocca a bruno: nessuna mossa (al telefono), ma le carte si ricaricano lo stesso; il turno si chiude da solo
+    expect(s.turno.giocatore).toBe("bruno");
+    expect(s.turno.mosseRimaste).toBe(0);
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1);
+    expect(mossaAutomatica(s)?.mossa.tipo).toBe("fineTurno");
+    s = fai(s, "bruno", { tipo: "fineTurno", scarta: [] });
+    for (const _ of [1, 2]) {
+      s.turno.mosseRimaste = 0;
+      s = fai(s, s.turno.giocatore, { tipo: "fineTurno", scarta: [] });
+    }
+    expect(s.turno.giocatore).toBe("bruno");
+    expect(s.turno.mosseRimaste).toBe(3); // il turno dopo gioca normalmente
+  });
+
   it("Vento: le carte numero volano via e si ripescano altrettante", () => {
     let s = partita();
     g(s, "anna").attacchi = [copia("vento")];
@@ -614,7 +636,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(27);
+    expect(attacchi.length).toBe(28);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);

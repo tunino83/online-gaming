@@ -74,6 +74,7 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
           attivati: [],
           mosseProssimoTurno: 0,
           zittoProssimoTurno: false,
+          saltaProssimoTurno: false,
           protetto: false,
           nonStancabile: false,
           nascostiProtetti: false,
@@ -119,8 +120,11 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
 function iniziaTurno(s: StatoPartita): void {
   const id = s.ordine[s.numeroTurno % s.ordine.length]!;
   const g = s.giocatori[id]!;
-  s.turno = nuovoTurno(id, Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno + mosseDaEvento(s, id)));
+  // Chi salta il turno (al telefono con Roberta) non ha mosse; le carte stanche si ricaricano lo stesso
+  const mosse = g.saltaProssimoTurno ? 0 : Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno + mosseDaEvento(s, id));
+  s.turno = nuovoTurno(id, mosse);
   s.turno.zitto = g.zittoProssimoTurno;
+  g.saltaProssimoTurno = false;
   g.mosseProssimoTurno = 0;
   g.zittoProssimoTurno = false;
   // Finiscono le protezioni che duravano "fino al tuo prossimo turno"

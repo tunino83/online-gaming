@@ -271,13 +271,11 @@ describe("tavolo e scarti", () => {
     expect(dopo.tavolo.numeri[1]!.id).toBe("mia");
   });
 
-  it("Mercatino: una carta a scelta dagli scarti; Avanzi: le ultime 2 scartate", () => {
+  it("Mercatino: una carta a scelta dagli scarti", () => {
     let s = conCarta("nonna-patrizia-1");
     s.scarti.numeri = [num(1, "a"), num(2, "b"), num(3, "c")];
     s = usa(s, "nonna-patrizia-1", { bersaglio: "a" });
     expect(anna(s).mano.map((c) => c.id)).toEqual(["a"]);
-    s = usa(conCarta("roberta-1", s), "roberta-1");
-    expect(anna(s).mano.map((c) => c.id)).toEqual(["a", "b", "c"]);
   });
 
   it("Ce l'ho io!: cerchi nel mazzo il numero che vuoi; se non c'è, niente", () => {

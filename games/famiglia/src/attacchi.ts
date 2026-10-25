@@ -267,6 +267,14 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "parla-parla-parla":
       V.zittoProssimoTurno = true;
       break;
+    case "ti-chiamo-un-attimo":
+      // Il regalo (2 carte numero dal mazzo) e un'ora al telefono: salta il prossimo turno
+      for (let i = 0; i < 2; i++) {
+        const c = pesca(s, "numeri");
+        if (c) V.mano.push(c);
+      }
+      V.saltaProssimoTurno = true;
+      break;
     case "schietta":
       if (!V.nascostiProtetti) s.turno.rivelati.push({ giocatore: v, mano: [], nascosti: structuredClone(V.nascosti) });
       break;
