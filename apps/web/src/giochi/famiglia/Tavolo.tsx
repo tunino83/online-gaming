@@ -14,6 +14,7 @@ import { Caricamento, Errore, Pulsante } from "../../ui";
 import { CartaFamiglia, CartaNumeroGrafica, Mancia, SchedaCarta } from "./carte";
 import { cartaDiCopia, descriviFatto, descriviMossa, nomeCarta, nomePotere } from "./descrivi";
 import { GuidaFamiglia } from "./Guida";
+import { type Avviso, avvisoTraViste } from "./avvisi";
 
 /** Pausa prima della mossa di un giocatore del computer. */
 const PAUSA_COMPUTER_MS = 2500;
@@ -51,6 +52,20 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   }, [giocatori, io]);
   const avatarDi = useMemo(() => new Map(giocatori.map((g) => [g.utente_id, g.avatar])), [giocatori]);
   const bot = useMemo(() => new Set(giocatori.filter((g) => g.bot).map((g) => g.utente_id)), [giocatori]);
+
+  // Avvisi bloccanti per ciò che ti riguarda (attacchi, carte perse o ricevute, eventi…): restano finché non tocchi OK.
+  // Se ne arrivano altri mentre uno è aperto, si aggiungono allo stesso avviso.
+  const [avviso, setAvviso] = useState<Avviso | null>(null);
+  const vistaPrima = useRef<VistaGiocatore | null>(null);
+  useEffect(() => {
+    if (!riga) return;
+    const prima = vistaPrima.current;
+    vistaPrima.current = riga.vista;
+    if (!prima) return; // primo caricamento: niente avvisi per il passato
+    const nuovo = avvisoTraViste(prima, riga.vista, io, nick);
+    if (!nuovo) return;
+    setAvviso((vecchio) => (vecchio ? { n: nuovo.n, titolo: vecchio.titolo, righe: [...vecchio.righe, "—", nuovo.titolo, ...nuovo.righe] } : nuovo));
+  }, [riga, io, nick]);
 
   // Fumetto con l'ultima cosa fatta dagli altri
   const ultimoFatto = useRef<number | null>(null);
@@ -321,6 +336,19 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         </div>
       )}
 
+      {avviso && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 p-4" role="alertdialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-2xl border-2 border-oro bg-gradient-to-b from-[#fbf3df] to-[#f1e2bf] p-4 text-inchiostro shadow-2xl">
+            <h2 className="mb-2 font-titolo text-lg font-bold">{avviso.titolo}</h2>
+            <ul className="space-y-1.5 text-sm">
+              {avviso.righe.map((r, i) => (r === "—" ? <li key={i}><hr className="border-inchiostro/20" /></li> : <li key={i}>{r}</li>))}
+            </ul>
+            <Pulsante className="mt-4" onClick={() => setAvviso(null)}>
+              OK
+            </Pulsante>
+          </div>
+        </div>
+      )}
       {fumetto && (
         <div key={fumetto.chiave} className="fixed inset-x-3 top-3 z-40 mx-auto max-w-md rounded-xl border-2 border-oro bg-[#fbf3df] px-3 py-2 text-center text-sm font-semibold text-inchiostro shadow-xl">
           {fumetto.testo}
