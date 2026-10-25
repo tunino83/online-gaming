@@ -377,7 +377,12 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "vertenza": {
       if (suSeStesso) break;
       const presa = originale(V.attivati.filter((x) => carta(x.copia.carta).livello <= 2));
-      if (presa) A.attivati.push(...V.attivati.splice(V.attivati.indexOf(presa), 1));
+      if (presa) {
+        A.attivati.push(...V.attivati.splice(V.attivati.indexOf(presa), 1));
+        // La carta di Vertenza ci mette in più tanti turni quanto il livello della carta presa (3 + 1 o 2)
+        const giuseppe = A.attivati.find((x) => x.copia.id === a.copia);
+        if (giuseppe) giuseppe.stanca += carta(presa.copia.carta).livello;
+      }
       break;
     }
     case "sparecchio": {

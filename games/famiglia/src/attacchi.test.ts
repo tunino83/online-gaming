@@ -264,6 +264,8 @@ describe("attacchi a un avversario", () => {
     expect(puntiDi(g(s, "anna"))).toBe(5);
     expect(puntiDi(g(s, "bruno"))).toBe(3);
     expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["anna3"]);
+    // la carta di Giuseppe si ricarica in 3 turni + 2 (il livello di Generoso 2)
+    expect(g(s, "anna").attivati.find((x) => x.copia.carta === "giuseppe-3")!.stanca).toBe(5);
     // senza carte per pagare, Vertenza non si può usare
     const t = attivata(attivata(partita(), "anna", "giuseppe-3"), "bruno", "generoso-2");
     expect(mosseValide(t, "anna").some((m) => m.tipo === "potere" && m.potere === "vertenza")).toBe(false);

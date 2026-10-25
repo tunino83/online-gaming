@@ -19,7 +19,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Francesco | 2 | **Smash** | Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso | 3 carte con somma 20 | ricarica 2 |
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Rospe per tutti** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |
-| Giuseppe | 3 | **Vertenza** | Paghi con le tue carte il codice di un personaggio attivato di livello 1 o 2 di un avversario e lo prendi, con i suoi punti | 4 carte con somma 18 | ricarica 3 |
+| Giuseppe | 3 | **Vertenza** | Paghi con le tue carte il codice di un personaggio attivato di livello 1 o 2 di un avversario e lo prendi, con i suoi punti | 4 carte con somma 18 | ricarica 3 + livello della carta presa |
 | Sara e Giuseppe | 3 | **Tritacarne** | Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno. Se hai una carta di Chicca stanca, si ricarica | 4 carte con somma 12 | ricarica 3 |
 | Nonno Antonio | 3 | **Il bastone** | Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso | Poker dispari | ricarica 3 |
 | Roberta | 1 | **Ti chiamo un attimo…** | Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno | 2 carte con somma 7 | ricarica 2 |
@@ -92,7 +92,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Donatina | 1 | **Scaffale** | Prendi 2 carte numero scoperte dal tavolo | 2 carte con somma 5 | ricarica 1 |
 | Donatina | 2 | **Ce l'ho io!** | Cerchi nel mazzo numeri la carta che vuoi e la prendi | Scala da 3 | ricarica 2 |
 | Zio Salvatore | 3 | **Anima della festa** | 3 mosse in più, poi 1 in meno nei 2 turni successivi | 88 + una coppia qualsiasi | ricarica 3, gratis |
-| Generoso | 1 | 🔵 **Un caffè** | Fai sempre 4 mosse per turno | 88 + una coppia qualsiasi | blu |
+| Generoso | 1 | 🔵 **Un caffè** | Per 3 turni fai 4 mosse, poi un turno 2 (4, 4, 4, 2…) | 88 + una coppia qualsiasi | blu |
 | Generoso | 2 | **Colazione** | Peschi 1 personaggio e 2 carte numero | 3 carte con somma 10 | ricarica 2 |
 | Generoso | 3 | **Offre la casa** | Scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio) | 4 carte con somma 16 | ricarica 3 |
 | Francesco | 1 | 🔵 **Lezione di padel** | Una volta per turno scambi 1 carta numero della tua mano con 1 scoperta sul tavolo | 2 carte con somma 12 | blu |

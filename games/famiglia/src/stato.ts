@@ -36,6 +36,8 @@ export interface StatoGiocatore {
   dopoLaFesta: number;
   /** Turni di indigestione: a fine turno scarta 1 carta in più (Alessia). */
   indigestione: number;
+  /** Un caffè: turni di fila con la mossa in più (dopo 3 se ne fa uno con 1 mossa in meno, poi si ricomincia). */
+  caffe: number;
   /* Protezioni che durano fino al prossimo turno del giocatore: */
   /** Nessuno può attaccarlo (Nuvola di fumo). */
   protetto: boolean;

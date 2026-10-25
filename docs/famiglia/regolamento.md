@@ -275,3 +275,7 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
   e non riceve); solo dopo averle prese tutte scegli quale carta della tua mano dare a ciascuno (1 a testa).
 - **Punti tolti alle carte più forti**: Nonno Nicola 1 (L'orto) e Claudia 1 (Prosecco) valgono **0 punti**,
   Alessia vale **1 punto** (invece di 2).
+- **Vertenza** (Giuseppe 3): dopo aver preso una carta, Giuseppe 3 si ricarica in 3 turni **più il livello della carta
+  presa** (4 o 5 turni). Se l'attacco viene fermato, resta la ricarica normale di 3 turni.
+- **Un caffè** (Generoso 1): 3 turni con 4 mosse, poi 1 turno con 2 mosse (troppi caffè!), e si ricomincia:
+  4, 4, 4, 2, 4, 4, 4, 2… Il turno in cui si attiva la carta conta come il primo dei 3.

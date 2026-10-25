@@ -184,7 +184,7 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Generoso", [
-    { codice: piuCoppia(8, 8), poteri: [aiutoBlu("Un caffè", "Sempre attiva: fai 4 mosse per turno invece di 3")], ricarica: 0 },
+    { codice: piuCoppia(8, 8), poteri: [aiutoBlu("Un caffè", "Sempre attiva: per 3 turni fai 4 mosse invece di 3, poi un turno ne fai solo 2 (troppi caffè!); e si ricomincia")], ricarica: 0 },
     { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 2 carte numero")] },
     {
       codice: somma(4, 16),
@@ -231,7 +231,7 @@ const ADULTI: Carta[] = [
       },
       { codice: somma(4, 18), poteri: [attacco(
           "Vertenza",
-          "Fai causa a un avversario: paghi con le tue carte il codice di un suo personaggio attivato di livello 1 o 2 e lo prendi, con i suoi punti",
+          "Fai causa a un avversario: paghi con le tue carte il codice di un suo personaggio attivato di livello 1 o 2 e lo prendi, con i suoi punti; la carta si ricarica in 3 turni più il livello della carta presa",
         )] },
     ],
     "Avvocato",

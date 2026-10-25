@@ -51,7 +51,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 | **Checca** | ⚔️ *Schietta*: un avversario mostra a tutti i personaggi nascosti in mano | ✨ *La vetrina della collezione* (costruzioni, miniature, collezionismo; meticolosa e paziente): metti in vetrina, davanti a te, fino a 3 tue carte numero. In vetrina sono al sicuro (nessun attacco può rubarle o farle scartare) e valgono per i tuoi codici come se fossero in mano | ⚔️ *Allergica al finocchietto*: scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi tu peschi 2 carte numero |
 | **Donatina** | ✨ *Scaffale*: prendi 2 carte numero scoperte dal tavolo | ✨ *Ce l'ho io!*: cerchi nel mazzo il numero che vuoi e lo prendi | ⚔️ *Urla*: ogni avversario scarta 2 carte numero (sceglie lui quali) |
 | **Zio Salvatore** | ⚔️ *Si canta!*: prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte scegli quale carta dare a ciascuno | ⚔️ *Versa il vino*: una carta carica di un avversario si addormenta (diventa stanca), e ci mette 1 turno in più a ricaricarsi | ✨ *Anima della festa* (gratis): 3 mosse in più, poi si addormenta con gli occhiali da sole: 1 mossa in meno nei 2 turni successivi |
-| **Generoso** | 🔵 *Un caffè* (blu): fai sempre 4 mosse per turno | ✨ *Colazione*: peschi 1 personaggio e 2 carte numero | ✨ *Offre la casa*: scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio) |
+| **Generoso** | 🔵 *Un caffè* (blu): per 3 turni fai 4 mosse, poi un turno solo 2 (troppi caffè!), e si ricomincia | ✨ *Colazione*: peschi 1 personaggio e 2 carte numero | ✨ *Offre la casa*: scegli 2 tra caffè (2 mosse in più), birra (2 carte numero), colazione (1 personaggio) |
 
 ### Altri adulti (aggiunti il 2026-10-24)
 

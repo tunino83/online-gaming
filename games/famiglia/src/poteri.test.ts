@@ -476,12 +476,39 @@ describe("carte blu", () => {
     expect(rifiutata(s, "bruno", { tipo: "potere", carta: "zio-salvatore-2#1", potere: "versa-il-vino", giocatore: "anna", bersaglio: "generoso-1#1" })).toMatch(/carica/);
   });
 
-  it("Un caffè: si fanno sempre 4 mosse per turno (e una in più già nel turno in cui si attiva)", () => {
+  it("Un caffè: 3 turni con 4 mosse, poi 1 turno con 2 mosse, e si ricomincia (4, 4, 4, 2, 4…)", () => {
     let s = conCarta("generoso-1");
     expect(rifiutata(s, "anna", potere("generoso-1"))).toMatch(/sempre attiva/);
-    s = giro(s);
-    expect(s.turno.giocatore).toBe("anna");
-    expect(s.turno.mosseRimaste).toBe(4);
+    const mosse: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      s = giro(s);
+      expect(s.turno.giocatore).toBe("anna");
+      mosse.push(s.turno.mosseRimaste);
+    }
+    expect(mosse).toEqual([4, 4, 4, 2, 4]);
+  });
+
+  it("Un caffè: il turno in cui si attiva conta come il primo dei 3 con la mossa in più", () => {
+    let s = partita();
+    anna(s).nascosti = [copia("generoso-1")];
+    anna(s).mano = [num(8, "a"), num(8, "b"), num(3, "c"), num(3, "d")]; // 88 + una coppia
+    s = fai(s, "anna", {
+      tipo: "attiva",
+      carta: "generoso-1#1",
+      combinazione: [
+        { tipo: "numero", id: "a", valore: 8 },
+        { tipo: "numero", id: "b", valore: 8 },
+        { tipo: "numero", id: "c", valore: 3 },
+        { tipo: "numero", id: "d", valore: 3 },
+      ],
+    });
+    expect(s.turno.mosseRimaste).toBe(3);
+    const mosse: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      s = giro(s);
+      mosse.push(s.turno.mosseRimaste);
+    }
+    expect(mosse).toEqual([4, 4, 2]);
   });
 
   it("L'orto: a inizio di ogni tuo turno peschi 1 carta numero", () => {

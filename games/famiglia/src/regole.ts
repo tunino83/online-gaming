@@ -80,6 +80,7 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
           zittoProssimoTurno: false,
           saltaProssimoTurno: false,
           dopoLaFesta: 0,
+          caffe: 0,
           indigestione: 0,
           protetto: false,
           nonStancabile: false,
@@ -130,11 +131,18 @@ function iniziaTurno(s: StatoPartita): void {
   const id = s.ordine[s.numeroTurno % s.ordine.length]!;
   const g = s.giocatori[id]!;
   // Chi salta il turno (al telefono con Roberta) non ha mosse; le carte stanche si ricaricano lo stesso.
-  // Un caffè (blu): 1 mossa in più a ogni turno. Dopo la festa (Zio Salvatore): 1 mossa in meno.
+  // Un caffè (blu): 3 turni con 1 mossa in più, poi 1 turno con 1 mossa in meno (4, 4, 4, 2…).
+  // Dopo la festa (Zio Salvatore): 1 mossa in meno.
   const festa = g.dopoLaFesta > 0 ? 1 : 0;
+  let caffe = 0;
+  if (quantiBlu(g, "un-caffe") > 0) {
+    const bevuti = g.caffe ?? 0; // partite iniziate prima di questa regola: il contatore non c'è
+    caffe = bevuti >= 3 ? -1 : 1;
+    g.caffe = bevuti >= 3 ? 0 : bevuti + 1;
+  }
   const mosse = g.saltaProssimoTurno
     ? 0
-    : Math.max(0, s.opzioni.mossePerTurno + quantiBlu(g, "un-caffe") + g.mosseProssimoTurno + mosseDaEvento(s, id) - festa);
+    : Math.max(0, s.opzioni.mossePerTurno + caffe + g.mosseProssimoTurno + mosseDaEvento(s, id) - festa);
   s.turno = nuovoTurno(id, mosse);
   s.turno.zitto = g.zittoProssimoTurno;
   s.turno.indigestione = g.indigestione > 0;
@@ -411,7 +419,10 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   g[zona].splice(g[zona].findIndex((x) => x.id === copia!.id), 1);
   g.attivati.push({ copia: copia!, stanca: 0 });
   // Un caffè (blu) vale già dal turno in cui si attiva
-  if (c.poteri.some((p) => p.blu && p.id === "un-caffe")) s.turno.mosseRimaste += 1;
+  if (c.poteri.some((p) => p.blu && p.id === "un-caffe")) {
+    s.turno.mosseRimaste += 1;
+    g.caffe = 1; // il turno in cui si attiva è il primo dei 3 con la mossa in più
+  }
   // Premio dei nonni: chi attiva un personaggio di livello 3 riceve 1 mancia (se ce n'è ancora)
   const mancia = c.livello === 3 ? pesca(s, "mancia") : null;
   if (mancia) g.mancia.push(mancia);
