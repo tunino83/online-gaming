@@ -37,6 +37,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   Da rifare a ogni modifica delle regole o dell'arbitro, poi `pnpm test:supabase`.
 - Prova a due giocatori in locale: `pnpm --filter @og/web build`, poi anteprima "web" su `localhost:4173` (giocatore 1)
   e `bruno.localhost:4173` (giocatore 2: indirizzo diverso = sessione separata).
+- `pnpm matrice:famiglia` – rigenera `docs/famiglia/matrice-attacchi-difese.md` (attacchi contro difese della Famiglia).
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 - Secondo gioco "Ufficio": `pnpm simula:ufficio [n]` e `pnpm carte:ufficio` (scrivono in `docs/ufficio/`).
 
