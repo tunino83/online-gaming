@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { banconota, contaCarte, copia, fai, num, partita, rifiutata } from "./aiuti-test";
 import { CARTE, carta } from "./carte";
 import { BLU_DA_SOLI, MAX_VETRINA, POTERI_COPIA } from "./poteri";
-import { mossaAutomatica, mosseValide } from "./regole";
+import { mossaAutomatica, mosseValide, puntiDi } from "./regole";
 import type { Mossa, ParametriPotere, StatoPartita } from "./stato";
 import { vistaGiocatore } from "./vista";
 
@@ -75,9 +75,10 @@ describe("usare un potere", () => {
       // un po' di tutto, perché ogni potere trovi qualcosa da fare
       const g = anna(s);
       g.mano = [num(1, "h1"), num(2, "h2"), num(5, "h5")];
-      g.nascosti = [copia("paesano")];
+      g.nascosti = [copia("paesano"), copia("antonio-1")];
       g.attivati.push({ copia: copia("toto-2"), stanca: 2 });
       s.scarti.numeri = [num(4, "s4"), num(6, "s6")];
+      s.scarti.personaggi = [copia("zia-diana")];
       s.turno.ultimaMossa = "pescaNumero";
       s.turno.appenaPescata = { mazzo: "numeri", id: "h2" };
       s.turno.primaPescata = "numeri";
@@ -582,5 +583,67 @@ describe("carte blu", () => {
     s.turno.mosseRimaste = 0;
     expect(mosseValide(s, "anna").find((m) => m.tipo === "fineTurno")).toMatchObject({ scarta: [expect.any(String)] });
     expect(mossaAutomatica(s)).toBeNull();
+  });
+});
+
+describe("Simone e Annalisa (aiuti)", () => {
+  it("Pranzo a domicilio: 2 carte numero, poi se vuoi scambi 1 carta della mano con una del tavolo", () => {
+    let s = conCarta("simone-1");
+    s = usa(s, "simone-1");
+    expect(anna(s).mano).toHaveLength(2);
+    expect(s.turno.attesa).toEqual({ tipo: "scambiaTavolo", giocatore: "anna" });
+    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "scegli", carte: [] });
+    const scambio = mosseValide(s, "anna").find((m) => m.tipo === "scegli" && m.carte.length === 2) as Extract<Mossa, { tipo: "scegli" }>;
+    const [mia, delTavolo] = scambio.carte;
+    s = fai(s, "anna", scambio);
+    expect(anna(s).mano.map((c) => c.id)).toContain(delTavolo);
+    expect(anna(s).mano.map((c) => c.id)).not.toContain(mia);
+    expect(s.tavolo.numeri.some((c) => c?.id === mia)).toBe(true);
+    expect(s.turno.attesa).toBeNull();
+
+    let t = usa(conCarta("simone-1"), "simone-1");
+    const mano = anna(t).mano;
+    t = fai(t, "anna", { tipo: "scegli", carte: [] });
+    expect(anna(t).mano).toEqual(mano);
+  });
+
+  it("Medico in famiglia: Racioppi e Zia Diana si attivano senza codice (con la mossa); gli altri no", () => {
+    let s = conCarta("annalisa-2");
+    anna(s).nascosti = [copia("zia-diana"), copia("antonio-1")];
+    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "attiva", carta: "zia-diana#1", combinazione: [] });
+    expect(rifiutata(s, "anna", { tipo: "attiva", carta: "antonio-1#1", combinazione: [] })).toBeTruthy();
+    s = fai(s, "anna", { tipo: "attiva", carta: "zia-diana#1", combinazione: [] });
+    expect(anna(s).attivati.map((a) => a.copia.carta)).toContain("zia-diana");
+    expect(s.turno.mosseRimaste).toBe(2);
+    // senza Annalisa 2 serve il codice
+    const t = partita();
+    anna(t).nascosti = [copia("zia-diana")];
+    expect(rifiutata(t, "anna", { tipo: "attiva", carta: "zia-diana#1", combinazione: [] })).toBeTruthy();
+  });
+
+  it("Medico in famiglia: una volta per turno, gratis, prendi Racioppi o Zia Diana dalla pila degli scarti", () => {
+    let s = conCarta("annalisa-2");
+    s.scarti.personaggi = [copia("dottor-racioppi"), copia("paesano")];
+    expect(rifiutata(s, "anna", potere("annalisa-2", { bersaglio: "paesano#1" }))).toMatch(/Racioppi/);
+    s = usa(s, "annalisa-2", { bersaglio: "dottor-racioppi#1" });
+    expect(anna(s).nascosti.map((c) => c.carta)).toEqual(["dottor-racioppi"]);
+    expect(s.turno.mosseRimaste).toBe(3);
+    s.scarti.personaggi.push(copia("zia-diana"));
+    expect(rifiutata(s, "anna", potere("annalisa-2", { bersaglio: "zia-diana#1" }))).toMatch(/una volta per turno/);
+  });
+
+  it("Il mio corpo che cambia: una tua carta attivata torna in mano e al suo posto si attiva, stanca, un personaggio della mano", () => {
+    let s = conCarta("annalisa-3");
+    anna(s).attivati.push({ copia: copia("antonio-1"), stanca: 0 });
+    anna(s).nascosti = [copia("antonio-3")];
+    expect(puntiDi(anna(s))).toBe(4);
+    expect(rifiutata(s, "anna", potere("annalisa-3", { propria: "annalisa-3#1", bersaglio: "antonio-3#1" }))).toMatch(/altra/);
+    s = usa(s, "annalisa-3", { propria: "antonio-1#1", bersaglio: "antonio-3#1" });
+    expect(anna(s).attivati.map((a) => [a.copia.carta, a.stanca])).toEqual([
+      ["annalisa-3", 3],
+      ["antonio-3", 3],
+    ]);
+    expect(anna(s).nascosti.map((c) => c.carta)).toEqual(["antonio-1"]);
+    expect(puntiDi(anna(s))).toBe(6);
   });
 });

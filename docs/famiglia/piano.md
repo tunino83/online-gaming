@@ -48,6 +48,6 @@ L'elenco esatto dei nomi file sarà in `games/famiglia/immagini/LEGGIMI.md`.
 
 ## Da decidere prima o durante
 
-- Simone e Annalisa (poteri), Pranzo della domenica e Ferragosto (effetti): finché non sono definiti
+- Pranzo della domenica e Ferragosto (effetti): finché non sono definiti
   restano **fuori dal mazzo**; si aggiungono dopo con una riga nel file dei dati.
 - Durante la Fase A potranno emergere dubbi sui singoli poteri: li annoto in fondo a `regolamento.md` e te li chiedo.

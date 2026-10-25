@@ -17,9 +17,10 @@ import {
   scartaNumeri,
   stancaCarta,
   togliNumero,
+  zonaDi,
 } from "./base";
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
-import { carta } from "./carte";
+import { MEDICI, carta } from "./carte";
 import { poteriBloccati } from "./effetti-eventi";
 import type { Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
 import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
@@ -45,6 +46,7 @@ export const POTERI_GRATIS = new Set([
   "studia-il-fascicolo",
   "lezione-di-padel",
   "sposta-i-mobili",
+  "medico-in-famiglia",
 ]);
 
 /** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
@@ -168,6 +170,11 @@ function applicaAiuto(
         const c = pesca(s, "numeri");
         if (c) s.giocatori[altro]!.mano.push(c);
       }
+      return;
+    case "pranzo-a-domicilio":
+      peschiNumeri(s, id, 2);
+      // Poi, se vuole, scambia 1 carta numero con una del tavolo
+      if (g.mano.some((c) => !c.unite) && s.tavolo.numeri.some((c) => c !== null)) t.attesa = { tipo: "scambiaTavolo", giocatore: id };
       return;
     case "colazione":
       peschiNumeri(s, id, 2);
@@ -341,6 +348,24 @@ function applicaAiuto(
       for (const x of ricaricate) x.stanca = 0;
       return;
     }
+    case "medico-in-famiglia": {
+      const i = s.scarti.personaggi.findIndex((c) => c.id === m.bersaglio && MEDICI.has(c.carta));
+      if (i < 0) rifiuta("Scegli Dottor Racioppi o Zia Diana dalla pila degli scarti");
+      riceviCarta(s, id, s.scarti.personaggi.splice(i, 1)[0]!);
+      return;
+    }
+    case "il-mio-corpo-che-cambia": {
+      const vecchia = g.attivati.find((x) => x.copia.id === m.propria && x !== questa);
+      if (!vecchia) rifiuta("Scegli un'altra tua carta attivata");
+      const nuova = [...g.nascosti, ...g.attacchi].find((c) => c.id === m.bersaglio && carta(c.carta).categoria === "personaggio");
+      if (!nuova) rifiuta("Scegli un personaggio da attivare che hai in mano");
+      // La nuova si attiva senza codice ma stanca; la vecchia torna in mano
+      const zona = zonaDi(nuova!);
+      g[zona].splice(g[zona].indexOf(nuova!), 1);
+      g.attivati[g.attivati.indexOf(vecchia!)] = { copia: nuova!, stanca: carta(nuova!.carta).ricarica };
+      riceviCarta(s, id, vecchia!.copia);
+      return;
+    }
     case "grigliata":
       for (const x of g.attivati) if (x !== questa) x.stanca = 0;
       return;
@@ -425,6 +450,17 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
     riceviCarta(s, id, scelta!);
     return;
   }
+  if (a?.tipo === "scambiaTavolo" && m.tipo === "scegli") {
+    if (m.carte.length > 0) {
+      const mia = m.carte.length === 2 ? g.mano.find((c) => c.id === m.carte[0] && !c.unite) : undefined;
+      const pos = s.tavolo.numeri.findIndex((c) => c !== null && c.id === m.carte[1]);
+      if (!mia || pos < 0) rifiuta("Scegli una tua carta numero e una del tavolo");
+      g.mano.push(s.tavolo.numeri[pos]!);
+      s.tavolo.numeri[pos] = togliNumero(g, mia!.id)!;
+    }
+    s.turno.attesa = null;
+    return;
+  }
   if (a?.tipo === "riordina" && m.tipo === "riordina") {
     const ids = a.carte.map((c) => c.id);
     if (m.ordine.length !== ids.length || [...m.ordine].sort().join() !== [...ids].sort().join()) rifiuta("Rimetti tutte le carte, ognuna una volta");
@@ -445,6 +481,16 @@ export function mosseDiScelta(s: StatoPartita): Mossa[] {
     return quante === 1 ? ids.map((x) => ({ tipo: "scegli", carte: [x] })) : coppie(ids).map((carte) => ({ tipo: "scegli", carte }));
   }
   if (a?.tipo === "scegliPersonaggio") return a.carte.map((c) => ({ tipo: "scegli", carte: [c.id] }));
+  if (a?.tipo === "scambiaTavolo") {
+    // Niente scambio, oppure una carta per valore della mano con una del tavolo di valore diverso
+    const g = s.giocatori[a.giocatore]!;
+    const perValore = [...new Map(g.mano.filter((c) => !c.unite).map((c) => [c.valore, c])).values()];
+    const tavolo = s.tavolo.numeri.filter((c): c is CartaNumero => c !== null);
+    return [
+      { tipo: "scegli", carte: [] },
+      ...perValore.flatMap((c) => tavolo.filter((x) => x.valore !== c.valore).map((x): Mossa => ({ tipo: "scegli", carte: [c.id, x.id] }))),
+    ];
+  }
   if (a?.tipo === "riordina") {
     const ids = a.carte.map((c) => c.id);
     return [{ tipo: "riordina", ordine: ids }, { tipo: "riordina", ordine: [...ids].reverse() }];
@@ -550,6 +596,16 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     }
     case "ce-l-ho-io":
       return [1, 2, 3, 4, 5, 6, 7, 8].map((valore) => ({ valore }));
+    case "pranzo-a-domicilio":
+      return puoPescare(s, "numeri") ? [{}] : [];
+    case "medico-in-famiglia":
+      return [...new Map(s.scarti.personaggi.filter((c) => MEDICI.has(c.carta)).map((c) => [c.carta, c])).values()].map((c) => ({ bersaglio: c.id }));
+    case "il-mio-corpo-che-cambia": {
+      const daAttivare = [...g.nascosti, ...g.attacchi].filter((c) => carta(c.carta).categoria === "personaggio");
+      return g.attivati
+        .filter((x) => x !== questa)
+        .flatMap((x) => daAttivare.map((c) => ({ propria: x.copia.id, bersaglio: c.id })));
+    }
     case "fatto-in-casa": {
       const somme = coppie(mano).filter(([a, b]) => valoreDi(g, a!) + valoreDi(g, b!) <= 8);
       return somme.slice(0, 6).map((carte) => ({ carte }));

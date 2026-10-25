@@ -78,8 +78,12 @@ Regole usate:
 | Squacqualacchione | 1 | Burla | ⚔️ | 2 carte con somma 9 |
 | Squacqualacchione | 2 | Giacca al rovescio | ✨ | 3 carte dispari |
 | Squacqualacchione | 3 | Volo infuocato | ⚔️ | 88 + una coppia qualsiasi |
-| Simone | 1–3 | da definire | | |
-| Annalisa | 1–3 | da definire | | |
+| Simone | 1 | Pranzo a domicilio | ✨ | 2 carte con somma 6 |
+| Simone | 2 | Scudo da gladiatore | 🛡️ | 3 carte dispari |
+| Simone | 3 | Invasione di campo | ⚔️ | 4 carte con somma 22 |
+| Annalisa | 1 | Tyrion nella borsa | 🛡️ | 2 carte con somma 11 |
+| Annalisa | 2 | Medico in famiglia | ✨ | 3 carte con somma 12 |
+| Annalisa | 3 | Il mio corpo che cambia | ✨ | Scala da 5 |
 
 ## Carte singole
 

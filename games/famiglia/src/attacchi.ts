@@ -81,6 +81,7 @@ function serveScelta(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore): boolea
   const n = carteDaScegliere(a.potere);
   if (n > 0) return g.mano.length > n;
   if (a.potere === "zeppata-sui-social") return g.mano.length > 0 && caricheColpibili(g, a.potere).length > 0;
+  if (a.potere === "invasione-di-campo") return caricheColpibili(g, a.potere).length > 1;
   return false;
 }
 
@@ -103,6 +104,15 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
       bersagli = max === 0 ? [] : bersagli.filter((x) => s.giocatori[x]!.mano.length === max);
     }
     if (bersagli.length === 0) rifiuta("Nessun avversario può essere colpito");
+  } else if (potere === "invasione-di-campo") {
+    // 2 avversari a scelta (o l'unico che si può colpire), colpiti nell'ordine di turno
+    const possibili = avversariDopo(s, id).filter((x) => attaccabile(s, id, x));
+    const scelti = p.giocatori ?? [];
+    if (possibili.length === 0) rifiuta("Nessun avversario può essere colpito");
+    if (new Set(scelti).size !== scelti.length || scelti.length !== Math.min(2, possibili.length) || !scelti.every((x) => possibili.includes(x))) {
+      rifiuta(possibili.length === 1 ? "Scegli l'avversario da attaccare" : "Scegli 2 avversari da attaccare");
+    }
+    bersagli = possibili.filter((x) => scelti.includes(x));
   } else {
     const v = p.giocatore;
     if (!v || v === id || !s.ordine.includes(v)) rifiuta("Scegli l'avversario da attaccare");
@@ -337,6 +347,15 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       else stanca(aCaso(s, caricheColpibili(V, a.potere)));
       break;
     }
+    case "invasione-di-campo": {
+      // L'avversario sceglie quale sua carta carica far stancare; l'attaccante pesca 1 carta per ogni colpito
+      const cariche = caricheColpibili(V, a.potere);
+      const voluta = scelta.bersaglio ? cariche.find((x) => x.copia.id === scelta.bersaglio) : undefined;
+      if (scelta.bersaglio && !voluta) rifiuta("Scegli una tua carta carica");
+      stanca(voluta ?? aCaso(s, cariche));
+      if (!suSeStesso) peschiNumeri(s, a.attaccante, 1);
+      break;
+    }
     case "vertenza": {
       if (suSeStesso) break;
       const presa = originale(V.attivati.filter((x) => carta(x.copia.carta).livello <= 2));
@@ -532,6 +551,13 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
     case "campari":
       peschiNumeri(s, v, 1);
       break;
+    case "scudo-da-gladiatore":
+      if (a.livello === 1 && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
+      break;
+    case "tyrion-nella-borsa":
+      // Tyrion porta via a chi ti ha attaccato 1 carta numero a caso
+      if (mittente !== v && A.mano.length > 0) V.mano.push(...A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
+      break;
     case "sono-andato-a-lioni-a-fa-a-spesa":
       peschiNumeri(s, v, 2);
       break;
@@ -617,6 +643,7 @@ function scelteDaSubire(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore): { c
     const ids = g.mano.map((c) => c.id);
     return n === 1 ? ids.slice(0, 5).map((x) => ({ carte: [x] })) : [{ carte: ids.slice(0, 2) }, { carte: ids.slice(-2) }];
   }
+  if (a.potere === "invasione-di-campo" && serveScelta(s, a, v)) return caricheColpibili(g, a.potere).map((x) => ({ bersaglio: x.copia.id }));
   if (a.potere === "zeppata-sui-social" && serveScelta(s, a, v)) {
     return [{ carte: [g.mano[0]!.id] }, ...caricheColpibili(g, a.potere).map((x) => ({ bersaglio: x.copia.id }))];
   }
@@ -635,6 +662,10 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
     if (potere === "multa" && avversari.every((x) => s.giocatori[x]!.mano.length === 0)) return [];
     if (avversari.length === 0) return [];
     return potere === "si-canta" ? [{ carte: g.mano.slice(0, avversariDopo(s, id).length).map((c) => c.id) }] : [{}];
+  }
+  if (potere === "invasione-di-campo") {
+    if (avversari.length <= 1) return avversari.map((x) => ({ giocatori: [x] }));
+    return avversari.flatMap((x, i) => avversari.slice(i + 1).map((y) => ({ giocatori: [x, y] })));
   }
   return avversari.flatMap((giocatore): ParametriPotere[] => {
     const o = s.giocatori[giocatore]!;

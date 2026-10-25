@@ -229,3 +229,18 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
 - **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
 - **Ho tanta fame** (Christian): 3 carte numero. **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
 - Restano come sono: *Frigge di tutto* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
+
+## Simone e Annalisa (2026-10-25)
+
+- **Pranzo a domicilio** (Simone 1): peschi 2 carte numero, poi puoi scambiare 1 carta numero della tua mano
+  (non una fatta in casa) con una scoperta sul tavolo, oppure non scambiare niente.
+- **Scudo da gladiatore** (Simone 2): annulla un attacco fino al livello 2; se l'attacco era di livello 1, chi l'ha mandato
+  scarta 1 carta numero a caso.
+- **Invasione di campo** (Simone 3): 2 avversari a scelta (1 se ce n'è uno solo da colpire). Ognuno può difendersi; chi
+  è colpito sceglie quale sua carta carica far stancare (le blu no). Simone pesca 1 carta numero per ogni colpito.
+- **Tyrion nella borsa** (Annalisa 1): difesa di livello 1; annulla l'attacco e porta via 1 carta numero a caso a chi l'ha mandato.
+- **Medico in famiglia** (Annalisa 2, blu): Dottor Racioppi e Zia Diana si attivano senza pagare il codice (la mossa
+  costa lo stesso); una volta per turno, gratis, prendi uno dei due dalla pila degli scarti.
+- **Il mio corpo che cambia** (Annalisa 3): scambi una tua carta attivata (non Annalisa 3) con un personaggio che hai
+  in mano, di qualsiasi livello. Quello si attiva senza codice ma arriva stanco (per il suo tempo di ricarica, niente
+  mancia dei nonni); l'altro torna in mano.

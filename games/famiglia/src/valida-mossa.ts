@@ -28,7 +28,7 @@ function elementoValido(e: unknown): boolean {
 const combinazioneValida = (x: unknown) => Array.isArray(x) && x.length >= 1 && x.length <= 20 && x.every(elementoValido);
 
 /** Parametri facoltativi dei poteri (vedi ParametriPotere in stato.ts). */
-const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "bersagli", "scelte", "propria", "fonte", "potereCopiato"];
+const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "bersagli", "giocatori", "scelte", "propria", "fonte", "potereCopiato"];
 
 function parametriValidi(m: Oggetto): boolean {
   return (
@@ -37,6 +37,7 @@ function parametriValidi(m: Oggetto): boolean {
     (m.valore === undefined || isIntero(m.valore)) &&
     (m.scelte === undefined || listaTesti(m.scelte)) &&
     (m.bersagli === undefined || listaTesti(m.bersagli)) &&
+    (m.giocatori === undefined || listaTesti(m.giocatori)) &&
     ["giocatore", "bersaglio", "propria", "fonte", "potereCopiato"].every((k) => m[k] === undefined || isTesto(m[k]))
   );
 }
@@ -83,7 +84,8 @@ export function validaMossa(m: unknown): m is Mossa {
       return (
         campi(m, ["carta", "combinazione"], ["codiceDi"]) &&
         isTesto(m.carta) &&
-        combinazioneValida(m.combinazione) &&
+        // vuota: attivazione senza codice (Medico in famiglia)
+        (combinazioneValida(m.combinazione) || (Array.isArray(m.combinazione) && m.combinazione.length === 0)) &&
         (m.codiceDi === undefined || isTesto(m.codiceDi))
       );
     default:

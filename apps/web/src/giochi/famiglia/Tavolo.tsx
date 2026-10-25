@@ -801,6 +801,38 @@ function SceltaInSospeso({
     );
   }
 
+  if (a.tipo === "scambiaTavolo") {
+    // Pranzo a domicilio: una carta della mano (prima scelta) e una del tavolo (seconda), oppure niente
+    const mia = scelte.find((id) => v.mano.some((c) => c.id === id));
+    const delTavolo = scelte.find((id) => v.tavolo.numeri.some((c) => c?.id === id));
+    const tocca = (id: string, mano: boolean) =>
+      setScelte((s) => [...s.filter((x) => (mano ? !v.mano.some((c) => c.id === x) : !v.tavolo.numeri.some((c) => c?.id === x))), id]);
+    return (
+      <Foglio titolo="🍝 Pranzo a domicilio: vuoi scambiare una carta con il tavolo?">
+        <p className="mb-1 text-sm">La tua carta:</p>
+        <div className="flex flex-wrap gap-2">
+          {v.mano
+            .filter((c) => !c.unite)
+            .map((c) => (
+              <CartaNumeroGrafica key={c.id} c={c} piccola selezionata={c.id === mia} onClick={() => tocca(c.id, true)} />
+            ))}
+        </div>
+        <p className="mb-1 mt-3 text-sm">Quella del tavolo:</p>
+        <div className="flex flex-wrap gap-2">
+          {v.tavolo.numeri.map((c) => (c ? <CartaNumeroGrafica key={c.id} c={c} piccola selezionata={c.id === delTavolo} onClick={() => tocca(c.id, false)} /> : null))}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Pulsante variante="vuoto" disabled={bloccato} onClick={() => gioca({ tipo: "scegli", carte: [] })}>
+            Nessuno scambio
+          </Pulsante>
+          <Pulsante disabled={bloccato || !mia || !delTavolo} onClick={() => gioca({ tipo: "scegli", carte: [mia!, delTavolo!] })}>
+            Scambia
+          </Pulsante>
+        </div>
+      </Foglio>
+    );
+  }
+
   if (a.tipo === "scegliPersonaggio") {
     return (
       <Foglio titolo="👴 Ne ho viste tante: scegli un personaggio">

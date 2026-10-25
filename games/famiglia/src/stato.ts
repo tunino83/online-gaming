@@ -67,6 +67,11 @@ export type Attesa =
   | { tipo: "scegliPersonaggio"; giocatore: IdGiocatore; carte: CopiaCarta[] }
   /** Ogni cosa al suo posto: le prime carte del mazzo numeri, da rimettere nell'ordine voluto. */
   | { tipo: "riordina"; giocatore: IdGiocatore; carte: CartaNumero[] }
+  /**
+   * Pranzo a domicilio: dopo aver pescato, scambio facoltativo di una carta numero della mano con una del tavolo.
+   * Si risponde con "scegli": nessuna carta (niente scambio) oppure [carta della mano, carta del tavolo].
+   */
+  | { tipo: "scambiaTavolo"; giocatore: IdGiocatore }
   /** Il giocatore è attaccato (vedi StatoPartita.attacco): si difende o subisce (e sceglie, se l'attacco lo chiede). */
   | { tipo: "difesa"; giocatore: IdGiocatore }
   /** La Resurrezione: chi ha Totò ha pescato una carta in più e sceglie a chi darla. */
@@ -219,13 +224,15 @@ export interface ParametriPotere {
   valore?: number;
   /** Giocatore scelto (Studia il fascicolo). */
   giocatore?: IdGiocatore;
+  /** Più giocatori scelti (Invasione di campo: 2 avversari). */
+  giocatori?: IdGiocatore[];
   /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vende la carne, Ricetta, Mercatino). */
   bersaglio?: string;
   /** Più carte attivate scelte (Brace accesa: le carte stanche da ricaricare). */
   bersagli?: string[];
   /** Voci del menu (Offre la casa): due tra "caffe", "birra", "colazione". */
   scelte?: string[];
-  /** Propria carta attivata da scambiare (Baratto). */
+  /** Propria carta attivata da scambiare (Baratto, Il mio corpo che cambia). */
   propria?: string;
   /** Carta attivata e carica di un avversario di cui usare il potere (Giacca al rovescio). */
   fonte?: string;

@@ -44,6 +44,8 @@ circa **5:6** (es. **1000 × 1200 pixel**), con il soggetto al centro. Usa solo 
 | Roberta | `roberta` | `roberta-1`, `roberta-2`, `roberta-3` |
 | Claudia | `claudia` | `claudia-1`, `claudia-2`, `claudia-3` |
 | Squacqualacchione | `squacqualacchione` | `squacqualacchione-1`, `squacqualacchione-2`, `squacqualacchione-3` |
+| Simone | `simone` | `simone-1`, `simone-2`, `simone-3` |
+| Annalisa | `annalisa` | `annalisa-1`, `annalisa-2`, `annalisa-3` |
 | Nicole | `nicole` | — |
 | Christian | `christian` | — |
 | Alessia | `alessia` | — |

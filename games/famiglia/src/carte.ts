@@ -4,8 +4,6 @@
  * Per aggiungere una persona o una carta basta aggiungere una voce a queste liste.
  * Nome, livello, nome del potere, tipo e codice devono restare uguali alle tabelle di
  * docs/famiglia/carte.md: un test li confronta automaticamente.
- *
- * Non ancora nel mazzo (poteri da definire): Simone, Annalisa.
  */
 import type { Carta, Codice, Livello, Potere, TipoPotere, Valore } from "./tipi-carte";
 
@@ -325,6 +323,55 @@ const ADULTI: Carta[] = [
     ],
     "Maschera del Carnevale di Teora",
   ),
+  ...persona(
+    "Simone",
+    [
+      {
+        codice: somma(2, 6),
+        poteri: [aiuto("Pranzo a domicilio", "Peschi 2 carte numero e poi, se vuoi, scambi 1 carta numero della tua mano con 1 scoperta sul tavolo")],
+      },
+      { codice: dispari(3), poteri: [difesa("Scudo da gladiatore", "Annulli un attacco; se era di livello 1, chi ti ha attaccato scarta 1 carta numero a caso")] },
+      {
+        codice: somma(4, 22),
+        poteri: [
+          attacco(
+            "Invasione di campo",
+            "2 avversari a scelta fanno stancare una loro carta carica (scelgono loro quale); per ogni avversario colpito peschi 1 carta numero",
+          ),
+        ],
+      },
+    ],
+    "Gladiatore, tifosissimo di calcio; porta il pranzo a domicilio ed è un gran cuoco",
+  ),
+  ...persona(
+    "Annalisa",
+    [
+      {
+        codice: somma(2, 11),
+        poteri: [difesa("Tyrion nella borsa", "Annulli un attacco: Tyrion salta fuori dalla borsa e porta via 1 carta numero a caso a chi ti ha attaccato")],
+      },
+      {
+        codice: somma(3, 12),
+        poteri: [
+          aiutoBlu(
+            "Medico in famiglia",
+            "Sempre attiva: attivi Dottor Racioppi e Zia Diana senza pagare il codice; una volta per turno, gratis, prendi uno dei due dalla pila degli scarti",
+          ),
+        ],
+        ricarica: 0,
+      },
+      {
+        codice: scala(5),
+        poteri: [
+          aiuto(
+            "Il mio corpo che cambia",
+            "Scambi una tua carta attivata con un personaggio che hai in mano: quello si attiva senza pagare il codice ma arriva stanco, l'altro torna in mano",
+          ),
+        ],
+      },
+    ],
+    "Fan di Piero Pelù e di Un medico in famiglia",
+  ),
 ];
 
 /* ---------------- carte singole ---------------- */
@@ -397,6 +444,9 @@ export function carta(id: string): Carta {
  * Maddalena 1 ha Non sbaglio mai (blu) e Fatto in casa (normale), quindi si stanca usando Fatto in casa.
  */
 export const eBlu = (idCarta: string): boolean => carta(idCarta).poteri.every((p) => p.blu);
+
+/** Le carte di Medico in famiglia (Annalisa 2): si attivano senza codice e si possono riprendere dagli scarti. */
+export const MEDICI: ReadonlySet<string> = new Set(["dottor-racioppi", "zia-diana"]);
 
 /** Quel potere della carta è blu? */
 export const potereBlu = (idCarta: string, potere: string): boolean => !!carta(idCarta).poteri.find((p) => p.id === potere)?.blu;

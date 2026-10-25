@@ -23,7 +23,7 @@ describe("preparazione", () => {
       expect(g.mano.length + g.nascosti.length + g.attacchi.length + g.attivati.length + g.mancia.length).toBe(0);
     }
     expect(s.turno.mosseRimaste).toBe(3);
-    expect(contaCarte(s)).toEqual({ numeri: 56, personaggi: 95, mancia: 20 });
+    expect(contaCarte(s)).toEqual({ numeri: 56, personaggi: 101, mancia: 20 });
   });
 
   it("parametri di base: 20 punti, 7 carte in mano, 3 nascosti, 3 attacchi, fine a punti, 30 secondi per difendersi", () => {

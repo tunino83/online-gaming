@@ -20,7 +20,7 @@ import {
   togliNumero,
   zonaDi,
 } from "./base";
-import { carta, eBlu, potereBlu } from "./carte";
+import { MEDICI, carta, eBlu, potereBlu } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { fineTurnoEvento, inizioTurnoConEvento, mosseDaEvento, pescaEvento, puoPescareEvento, regala } from "./effetti-eventi";
 import { creaMazzoEventi, creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
@@ -384,8 +384,12 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
     s.turno.bluUsati.push("prosecco");
   }
 
-  const esito = verificaCombinazione(risorseGiocatore(g), codice, m.combinazione);
-  if (!esito.ok) rifiuta(esito.errore);
+  // Medico in famiglia (blu): Dottor Racioppi e Zia Diana si attivano senza pagare il codice
+  const gratis = m.combinazione.length === 0 && m.codiceDi === undefined && MEDICI.has(c.id) && quantiBlu(g, "medico-in-famiglia") > 0;
+  if (!gratis) {
+    const esito = verificaCombinazione(risorseGiocatore(g), codice, m.combinazione);
+    if (!esito.ok) rifiuta(esito.errore);
+  }
 
   // Carte usate (anche quelle in vetrina, mance e caffè per il +1): vanno negli scarti.
   const usate = m.combinazione.flatMap((el) => [el.id, ...(el.modifica ? [el.modifica.mancia] : [])]);
@@ -510,7 +514,12 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   if (puoPescareEvento(s)) mosse.push({ tipo: "pescaEvento" });
   const risorse = risorseGiocatore(g);
   const prosecco = quantiBlu(g, "prosecco") > 0 && !s.turno.bluUsati.includes("prosecco");
+  const medico = quantiBlu(g, "medico-in-famiglia") > 0;
   for (const copia of attivabili(g)) {
+    if (medico && MEDICI.has(copia.carta)) {
+      mosse.push({ tipo: "attiva", carta: copia.id, combinazione: [] });
+      continue;
+    }
     for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {
       mosse.push({ tipo: "attiva", carta: copia.id, combinazione });
     }

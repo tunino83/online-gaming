@@ -48,6 +48,11 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
   const parametri = (p: ParametriPotere) => {
     const parti: string[] = [];
     if (typeof p.giocatore === "string") parti.push(`contro ${nick(p.giocatore)}`);
+    if (p.giocatori && p.giocatori.length > 0) parti.push(`contro ${elenco(p.giocatori.map(nick))}`);
+    // Il mio corpo che cambia: una carta torna in mano, l'altra si attiva
+    if (m.tipo === "potere" && m.potere === "il-mio-corpo-che-cambia" && typeof p.propria === "string" && typeof p.bersaglio === "string") {
+      return ` – ${nomeCopia(p.propria)} torna in mano, attivi ${nomeCopia(p.bersaglio)}`;
+    }
     if (typeof p.fonte === "string") parti.push(`usando ${nomeCopia(p.fonte)}`);
     if (typeof p.propria === "string") {
       const n = numeri.get(p.propria);
@@ -55,7 +60,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     }
     if (typeof p.bersaglio === "string") {
       const n = numeri.get(p.bersaglio);
-      const mercatino = m.tipo === "potere" && m.potere === "mercatino";
+      const mercatino = m.tipo === "potere" && (m.potere === "mercatino" || m.potere === "medico-in-famiglia");
       parti.push(n ? `prendi il ${n.valore}` : `${mercatino ? "prendi" : "su"} ${nomeCopia(p.bersaglio)}`);
     }
     if (p.bersagli && p.bersagli.length > 0) parti.push(`ricarichi ${elenco(p.bersagli.map(nomeCopia))}`);
@@ -92,6 +97,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     case "pescaEvento":
       return "Pesca un evento";
     case "attiva": {
+      if (m.combinazione.length === 0) return `Attiva ${nomeCopia(m.carta)} senza codice (Medico in famiglia)`;
       const prosecco = m.codiceDi ? ` 🥂 col codice di ${nomeCopia(m.codiceDi)}` : "";
       return `Attiva ${nomeCopia(m.carta)}${prosecco} con ${elenco(m.combinazione.map((el) => (el.modifica ? `${el.valore} (+1)` : String(el.valore))))}`;
     }
@@ -107,6 +113,11 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     case "scartaCarta":
       return `Scarta ${nomeCopia(m.carta)}`;
     case "scegli": {
+      if (v.turno.attesa?.tipo === "scambiaTavolo") {
+        if (m.carte.length === 0) return "Nessuno scambio";
+        const tavolo = v.tavolo.numeri.find((c) => c?.id === m.carte[1]);
+        return `Dai il ${numeri.get(m.carte[0]!)?.valore ?? "?"} e prendi il ${tavolo?.valore ?? "?"} dal tavolo`;
+      }
       const n = m.carte.map((id) => numeri.get(id)?.valore);
       return n.every((x) => x !== undefined) ? `Prendi il ${elenco(n.map(String))}` : `Prendi ${elenco(m.carte.map(nomeCopia))}`;
     }

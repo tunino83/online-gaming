@@ -108,7 +108,8 @@ Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi de
 vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (20) o "mazzo".
 Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide descritte in `descrivi.ts`; `TavoloSpettatore.tsx`).
 Immagini in `games/famiglia/immagini/classica/` (anche `.svg`; prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
-Ancora da fare: simulazione di 1000 partite (`pnpm simula:famiglia`), poteri di Simone e Annalisa, effetti di Pranzo della domenica e Ferragosto.
+Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una carta non si stanca mai solo se tutti i suoi poteri sono blu (`eBlu`).
+Ancora da fare: simulazione di 1000 partite (`pnpm simula:famiglia`), effetti di Pranzo della domenica e Ferragosto.
 
 ## Secondo gioco: Ufficio (in costruzione)
 

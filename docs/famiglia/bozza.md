@@ -66,8 +66,8 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 | **Nonna Maddalena** | ✨ *Ogni cosa al suo posto*: guardi le prime 5 carte del mazzo numeri, ne prendi 1 e rimetti le altre nell'ordine che vuoi | 🛡️ *Ho appena lavato a terra*: annulli un attacco e chi ti ha attaccato scivola: 1 mossa in meno nel suo prossimo turno | ✨ *Patate al forno (sempre poche)*: scopri tante carte numero quanti sono i giocatori; tu ne prendi 2 per prima, poi gli altri a turno; l'ultimo resta senza |
 | **Roberta** | ⚔️ *Ti chiamo un attimo…*: regali 2 carte numero a un avversario, ma lo tieni al telefono un'ora: salta il suo prossimo turno (si ricarica in 2 turni) | 🛡️ *Chiusa in camera*: annulli un attacco e fino al tuo prossimo turno nessuno può guardare o prendere i tuoi personaggi nascosti | ⚔️ *Sparecchio*: una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva |
 | **Claudia** | 🔵 *Prosecco* (blu): una volta per turno attivi un personaggio pagando il codice di un'altra tua carta | ⚔️ *Zeppata sui social*: ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca | 🛡️ *Una fetta di torta?* (fa sempre torte, muffin e pancake): annulli l'attacco e fate pace: tu peschi 2 carte numero, chi ti ha attaccato 1 |
-| **Simone** | da definire | da definire | da definire |
-| **Annalisa** | da definire | da definire | da definire |
+| **Simone** (gladiatore, tifosissimo di calcio, porta il pranzo a domicilio, gran cuoco) | ✨ *Pranzo a domicilio*: peschi 2 carte numero e poi, se vuoi, scambi 1 carta numero della tua mano con 1 del tavolo | 🛡️ *Scudo da gladiatore*: annulli un attacco; se era di livello 1, chi ti ha attaccato scarta 1 carta numero a caso | ⚔️ *Invasione di campo*: 2 avversari a scelta fanno stancare una loro carta carica (scelgono loro quale); per ogni colpito peschi 1 carta numero |
+| **Annalisa** (fan di Piero Pelù e di Un medico in famiglia; il suo cagnolino Tyrion sta nella borsa) | 🛡️ *Tyrion nella borsa*: annulli un attacco e Tyrion porta via 1 carta numero a caso a chi ti ha attaccato | 🔵 *Medico in famiglia* (blu): attivi Dottor Racioppi e Zia Diana senza codice; una volta per turno, gratis, prendi uno dei due dagli scarti | ✨ *Il mio corpo che cambia*: scambi una tua carta attivata con un personaggio che hai in mano: quello si attiva senza codice ma stanco, l'altro torna in mano |
 
 ### Carte singole (bambini e altri, una carta ciascuno)
 
@@ -99,7 +99,7 @@ Riepilogo per tipo (adulti): 11 attacchi ⚔️, 6 difese 🛡️, 19 aiuti ✨ 
 Con i bambini, lo Squacqualacchione, Francesco, Gerardina, Marika, Giuseppe, Donato e la macelleria (3 carte): 58 carte.
 Con Nonno Antonio, Nonna Maddalena, Roberta e Claudia: 70 carte.
 Con Franchino, Vincenzo, il parroco, il medico e Zia Diana: 75 carte personaggio.
-Con Simone e Annalisa (3 carte ciascuno, poteri da definire) e Greta: 82 carte personaggio.
+Con Simone e Annalisa (3 carte ciascuno) e Greta: 82 carte personaggio.
 
 ## Carte difesa (oggetti e scuse)
 

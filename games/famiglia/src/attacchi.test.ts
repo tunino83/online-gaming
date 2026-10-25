@@ -652,7 +652,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(29);
+    expect(attacchi.length).toBe(30);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);
@@ -677,5 +677,58 @@ describe("tutti gli attacchi", () => {
         expect(contaCarte(dopo), c.id).toEqual(prima);
       }
     }
+  });
+});
+
+describe("Simone e Annalisa", () => {
+  it("Invasione di campo: 2 avversari a scelta; ognuno sceglie quale carta far stancare; Simone pesca 1 carta per ogni colpito", () => {
+    let s = attivata(partita(), "anna", "simone-3");
+    attivata(attivata(s, "bruno", "toto-1"), "bruno", "nonna-dina-1");
+    attivata(s, "carla", "toto-2");
+    expect(rifiutata(s, "anna", { tipo: "potere", carta: "simone-3#1", potere: "invasione-di-campo", giocatori: ["bruno"] })).toMatch(/2 avversari/);
+    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "potere", carta: "simone-3#1", potere: "invasione-di-campo", giocatori: ["bruno", "carla"] });
+    s = attacca(s, "simone-3", { giocatori: ["bruno", "carla"] });
+    // Bruno ha 2 carte cariche: sceglie lui quale far stancare
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    s = subisci(s, "bruno", { bersaglio: "nonna-dina-1#1" });
+    expect(g(s, "bruno").attivati.map((x) => x.stanca)).toEqual([0, 1]);
+    // Carla ne ha una sola: colpita subito
+    expect(g(s, "carla").attivati[0]!.stanca).toBe(2);
+    expect(s.turno.attesa).toBeNull();
+    expect(g(s, "anna").mano).toHaveLength(2);
+  });
+
+  it("Invasione di campo in due giocatori: un avversario solo", () => {
+    let s = attivata(attivata(partita(2), "anna", "simone-3"), "bruno", "toto-1");
+    s = attacca(s, "simone-3", { giocatori: ["bruno"] });
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1);
+    expect(g(s, "anna").mano).toHaveLength(1);
+  });
+
+  it("Scudo da gladiatore: annulla; se l'attacco era di livello 1 chi ha attaccato scarta 1 carta a caso", () => {
+    let s = bruno_si_difende("simone-2");
+    manoDi(s, "anna", 5);
+    s = difendi(s, "bruno", "simone-2");
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "anna").mano).toHaveLength(0);
+    expect(s.scarti.numeri.map((c) => c.valore)).toEqual([5]);
+
+    let t = attivata(attivata(partita(), "anna", "zio-salvatore-2"), "bruno", "simone-2");
+    manoDi(t, "anna", 5);
+    t = attacca(t, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "simone-2#1" });
+    t = difendi(t, "bruno", "simone-2");
+    expect(g(t, "anna").mano).toHaveLength(1);
+  });
+
+  it("Tyrion nella borsa: annulla un attacco di livello 1 e porta via 1 carta numero a chi ha attaccato", () => {
+    let s = bruno_si_difende("annalisa-1");
+    manoDi(s, "anna", 7);
+    s = difendi(s, "bruno", "annalisa-1");
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "anna").mano).toHaveLength(0);
+    expect(g(s, "bruno").mano.map((c) => c.valore)).toEqual([7]);
+    // difesa di livello 1: non ferma un attacco di livello 3
+    const t = bruno_si_difende("annalisa-1", 3);
+    expect(mosseValide(t, "bruno").some((m) => m.tipo === "difendi" && m.carta === "annalisa-1#1")).toBe(false);
   });
 });
