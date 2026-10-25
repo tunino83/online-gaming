@@ -193,8 +193,11 @@ export type DatiFatto =
   | { tipo: "sceglie"; quante: number }
   /** Inizio di un attacco: `bersagli` sono i giocatori colpiti (in ordine). */
   | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[] }
-  /** Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Forse c'è, forse no andato male. */
-  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore }
+  /**
+   * Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Forse c'è, forse no andato male;
+   * `girata` = valore della carta numero girata da Forse c'è, forse no.
+   */
+  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number }
   /** L'attacco ha colpito il giocatore. */
   | { tipo: "colpito"; potere: string }
   /** L'attacco non ha effetto sul giocatore (protetto o non c'era niente da colpire). */

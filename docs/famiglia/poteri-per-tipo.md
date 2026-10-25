@@ -49,7 +49,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Chicca | 3 | **Permalosa** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
 | Francesco | 3 | **Si arrabbia** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
 | Gerardina | 1 | **Sempre calma** | Annulli un attacco di livello 1 | Coppia | ricarica 1 |
-| Marika | 1 | **Forse c'è, forse no** | Annulli un attacco, ma solo 1 volta su 2 (testa o croce) | Coppia | ricarica 1 |
+| Marika | 1 | **Forse c'è, forse no** | Giri la prossima carta numero: dispari annulli l'attacco, pari ti colpisce; la carta va in mano a te | Coppia | ricarica 1 |
 | Marika | 2 | **Non c'è, ha il turno** | Annulli un attacco contro di te | Scala da 3 | ricarica 2 |
 | Giuseppe | 2 | **Ricorso** | Annulli un attacco, ma scarti tante carte numero quanto il livello dell'attacco (se non bastano, tutte) | 3 carte pari | ricarica 2 |
 | Sara e Giuseppe | 2 | **Cella frigorifera** | Annulli un attacco; la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi | 3 carte dispari | ricarica 2 |

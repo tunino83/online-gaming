@@ -167,8 +167,8 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
       return `⚔️ ${chi}: ${nomePotere(f.carta, f.potere)} contro ${elenco(f.bersagli.map(nick))}`;
     case "difesa":
       return f.riuscita
-        ? `🛡️ ${chi}: si difende con ${nomePotere(f.carta, f.potere)}${f.devia ? ` e passa l'attacco a ${nick(f.devia)}` : ""}`
-        : `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)}… ma non funziona!`;
+        ? `🛡️ ${chi}: si difende con ${nomePotere(f.carta, f.potere)}${f.girata ? ` (gira un ${f.girata}: dispari!)` : ""}${f.devia ? ` e passa l'attacco a ${nick(f.devia)}` : ""}`
+        : `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)}${f.girata ? `, gira un ${f.girata}: pari` : ""}… ma non funziona!`;
     case "colpito":
       return `💥 ${chi}: colpito`;
     case "protetto":

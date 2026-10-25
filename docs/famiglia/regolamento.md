@@ -244,3 +244,9 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
 - **Il mio corpo che cambia** (Annalisa 3): scambi una tua carta attivata (non Annalisa 3) con un personaggio che hai
   in mano, di qualsiasi livello. Quello si attiva senza codice ma arriva stanco (per il suo tempo di ricarica, niente
   mancia dei nonni); l'altro torna in mano.
+
+## Forse c'è, forse no (Marika 1, 2026-10-25)
+
+Niente più testa o croce: chi si difende gira la prossima carta del mazzo numeri. Se è **dispari** la difesa vince
+(l'attacco è annullato), se è **pari** l'attacco colpisce. In tutti e due i casi la carta girata va in mano a chi si
+difende. Se il mazzo numeri e gli scarti sono vuoti la difesa vince.

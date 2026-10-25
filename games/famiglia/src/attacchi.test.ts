@@ -468,15 +468,20 @@ describe("difese", () => {
     expect(g(s, "bruno").attivati[0]!.stanca).toBe(0);
   });
 
-  it("Forse c'è, forse no: funziona solo 1 volta su 2", () => {
-    const esiti = new Set<boolean>();
-    for (let k = 0; k < 20; k++) {
-      const s = bruno_si_difende("marika-1");
-      for (let i = 0; i < k; i++) interoTra(s.rng, 0, 1); // si fa avanzare il caso: ogni prova è diversa
-      const dopo = difendi(s, "bruno", "marika-1");
-      esiti.add(g(dopo, "bruno").mosseProssimoTurno === 0);
-    }
-    expect(esiti).toEqual(new Set([true, false]));
+  it("Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce; la carta va in mano", () => {
+    const s = bruno_si_difende("marika-1");
+    s.mazzi.numeri.push(num(3, "dispari"));
+    const vinta = difendi(s, "bruno", "marika-1");
+    expect(g(vinta, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(vinta, "bruno").mano.map((c) => c.id)).toEqual(["dispari"]);
+    expect(vinta.registro.find((f) => f.tipo === "difesa")).toMatchObject({ riuscita: true, girata: 3 });
+
+    const t = bruno_si_difende("marika-1");
+    t.mazzi.numeri.push(num(4, "pari"));
+    const persa = difendi(t, "bruno", "marika-1");
+    expect(g(persa, "bruno").mosseProssimoTurno).toBe(-1);
+    expect(g(persa, "bruno").mano.map((c) => c.id)).toEqual(["pari"]);
+    expect(persa.registro.find((f) => f.tipo === "difesa")).toMatchObject({ riuscita: false, girata: 4 });
   });
 
   it("Ricorso: annulli l'attacco ma paghi tante carte quanto il livello dell'attacco", () => {

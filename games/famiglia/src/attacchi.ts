@@ -480,10 +480,21 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
   a.difesi.push(id);
   s.turno.attesa = null;
 
-  const riuscita = d!.potere !== "forse-c-e-forse-no" || interoTra(s.rng, 0, 1) === 1;
+  // Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce.
+  // La carta girata va in mano a chi si difende (senza carte nel mazzo la difesa vince).
+  let riuscita = true;
+  let girata: number | undefined;
+  if (d!.potere === "forse-c-e-forse-no") {
+    const c = pesca(s, "numeri");
+    if (c) {
+      girata = c.valore;
+      riuscita = c.valore % 2 === 1;
+      g.mano.push(c);
+    }
+  }
   const devia = DEVIANO.has(d!.potere) ? mossa.giocatore : undefined;
   if (DEVIANO.has(d!.potere) && (devia === undefined || devia === id || !s.ordine.includes(devia))) rifiuta("Scegli a chi passare l'attacco");
-  registra(s, id, { tipo: "difesa", carta: c.id, potere: d!.potere, riuscita, ...(devia ? { devia } : {}) });
+  registra(s, id, { tipo: "difesa", carta: c.id, potere: d!.potere, riuscita, ...(devia ? { devia } : {}), ...(girata ? { girata } : {}) });
 
   let dopo: Attesa | null = null;
   if (!riuscita) {
@@ -626,7 +637,15 @@ export function mosseDiDifesa(s: StatoPartita, v: IdGiocatore): Mossa[] {
         const pagate = new Set(m.combinazione?.map((el) => el.id) ?? []);
         mosse.push({ ...m, carte: g.mano.filter((c) => !pagate.has(c.id)).slice(0, a.livello).map((c) => c.id) });
       } else if (d.potere === "guardia-medica") {
-        mosse.push({ ...m, ...scelte[0] });
+        // Le carte da scartare (se l'attacco le chiede) si scelgono tra quelle che restano dopo aver pagato la difesa
+        const pagate = new Set(m.combinazione?.map((el) => el.id) ?? []);
+        const scelta = scelte[0] ?? {};
+        if (scelta.carte && scelta.carte.some((x) => pagate.has(x))) {
+          const libere = g.mano.filter((c) => !pagate.has(c.id)).map((c) => c.id);
+          mosse.push({ ...m, carte: libere.slice(0, Math.min(scelta.carte.length, libere.length)) });
+        } else {
+          mosse.push({ ...m, ...scelta });
+        }
       } else {
         mosse.push(m);
       }

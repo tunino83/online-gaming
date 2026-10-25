@@ -57,8 +57,8 @@ function righeDaFatti(
           titolo ||= "🛡️ Si sono difesi dal tuo attacco";
           righe.push(
             f.riuscita
-              ? `${nick(f.giocatore)} si difende con ${nomePotere(f.carta, f.potere)}${f.devia ? ` e passa l'attacco a ${f.devia === io ? "te" : nick(f.devia)}` : ""}.`
-              : `${nick(f.giocatore)} prova ${nomePotere(f.carta, f.potere)}, ma non funziona!`,
+              ? `${nick(f.giocatore)} si difende con ${nomePotere(f.carta, f.potere)}${f.girata ? ` (gira un ${f.girata}: dispari)` : ""}${f.devia ? ` e passa l'attacco a ${f.devia === io ? "te" : nick(f.devia)}` : ""}.`
+              : `${nick(f.giocatore)} prova ${nomePotere(f.carta, f.potere)}${f.girata ? ` e gira un ${f.girata}: pari` : ""}, ma non funziona!`,
           );
         } else if (f.devia === io && f.giocatore !== io) {
           titolo ||= "⚔️ L'attacco passa a te!";

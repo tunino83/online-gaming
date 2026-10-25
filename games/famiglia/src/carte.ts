@@ -210,7 +210,7 @@ const ADULTI: Carta[] = [
     { codice: somma(4, 22), poteri: [attacco("Rospe per tutti", "Ogni avversario nel suo prossimo turno fa 1 mossa in meno")] },
   ]),
   ...persona("Marika", [
-    { codice: coppia, poteri: [difesa("Forse c'è, forse no", "Annulli un attacco, ma solo 1 volta su 2 (testa o croce)")] },
+    { codice: coppia, poteri: [difesa("Forse c'è, forse no", "Giri la prossima carta numero: se è dispari annulli l'attacco, se è pari l'attacco ti colpisce; poi la carta va in mano a te")] },
     { codice: scala(3), poteri: [difesa("Non c'è, ha il turno", "Annulli un attacco contro di te")] },
     { codice: scala(5), poteri: [aiuto("Doppio turno", "Finito il tuo turno ne fai subito un altro, con 2 mosse")] },
   ]),

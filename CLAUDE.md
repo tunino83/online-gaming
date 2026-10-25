@@ -39,6 +39,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   e `bruno.localhost:4173` (giocatore 2: indirizzo diverso = sessione separata).
 - `pnpm matrice:famiglia` – rigenera `docs/famiglia/matrice-attacchi-difese.md` (attacchi contro difese della Famiglia).
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
+- La Famiglia: `pnpm simula:famiglia [n] [mazzo]` (resoconto in `docs/famiglia/`).
 - Secondo gioco "Ufficio": `pnpm simula:ufficio [n]` e `pnpm carte:ufficio` (scrivono in `docs/ufficio/`).
 
 ## Architettura
@@ -112,7 +113,9 @@ carte numero come piastrelle di maiolica, tovaglia a quadretti; i colori del tem
 e sul `body` con la classe `sfondo-famiglia` (messa da `useSfondoFamiglia` mentre si gioca).
 Immagini in `games/famiglia/immagini/classica/` (anche `.svg`; prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
 Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una carta non si stanca mai solo se tutti i suoi poteri sono blu (`eBlu`).
-Ancora da fare: simulazione di 1000 partite (`pnpm simula:famiglia`), effetti di Pranzo della domenica e Ferragosto.
+Simulazione: `pnpm simula:famiglia [n] [mazzo]` (`src/simulazione.ts`) scrive `docs/famiglia/statistiche-simulazione.md`
+(o `statistiche-simulazione-mazzo.md`): durata, vantaggio di chi comincia, carte forti/deboli rispetto al loro livello, attacchi e difese.
+Ancora da fare: effetti di Pranzo della domenica e Ferragosto.
 
 ## Secondo gioco: Ufficio (in costruzione)
 
