@@ -99,7 +99,7 @@ export function CartaFamiglia({
       {/* poteri e codice */}
       <div className="border-t border-black/10 bg-white/70 px-1 py-0.5 leading-tight" style={{ fontSize: px(8, 14) }}>
         <div className="truncate font-semibold">
-          {c.poteri.map((p) => `${EMOJI_TIPO[p.tipo]} ${p.nome}`).join(" / ")}
+          {c.poteri.map((p) => `${p.blu ? "🔵" : EMOJI_TIPO[p.tipo]} ${p.nome}`).join(" / ")}
         </div>
         <div className="truncate text-tenue">🔑 {descriviCodice(c.codice)}</div>
       </div>
@@ -118,18 +118,23 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
         {c.poteri.map((p) => (
           <p key={p.id}>
             <b>
-              {EMOJI_TIPO[p.tipo]} {p.nome}:
+              {p.blu ? "🔵" : EMOJI_TIPO[p.tipo]} {p.nome}:
             </b>{" "}
             {p.testo}
           </p>
         ))}
+        {c.poteri.some((p) => p.blu) && (
+          <p className="rounded-lg bg-[#2f6fb3]/15 px-2 py-1">
+            🔵 <b>Carta blu</b>: dopo averla attivata è sempre attiva, non si stanca mai (nemmeno con gli attacchi) e non costa mosse.
+          </p>
+        )}
         <p className="text-tenue">
           🔑 Codice: <b>{descriviCodice(c.codice)}</b> · Livello {c.livello} · {c.punti} punti
           {c.ricarica > 0 && ` · si ricarica in ${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`}
           {c.categoria === "difesa" && " · si usa solo quando ti attaccano, poi si scarta"}
           {c.categoria === "attacco" && " · si usa una volta, poi si scarta"}
         </p>
-        {stanca !== undefined && <p className="font-semibold">{stanca === 0 ? "⚡ Carica: il potere si può usare" : `😴 Stanca: torna carica tra ${stanca} turni`}</p>}
+        {stanca !== undefined && !c.poteri.some((p) => p.blu) && <p className="font-semibold">{stanca === 0 ? "⚡ Carica: il potere si può usare" : `😴 Stanca: torna carica tra ${stanca} turni`}</p>}
       </div>
     </div>
   );

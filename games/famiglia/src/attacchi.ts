@@ -20,7 +20,7 @@ import {
   togliNumero,
   zonaDi,
 } from "./base";
-import { carta, cartePersona } from "./carte";
+import { carta, cartePersona, eBlu } from "./carte";
 import { type Combinazione, trovaCombinazioni, verificaCombinazione } from "./codici";
 import type { Attesa, AttaccoInCorso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
 import type { Carta, CartaNumero } from "./tipi-carte";
@@ -57,7 +57,9 @@ export function attaccabile(s: StatoPartita, attaccante: IdGiocatore, bersaglio:
 /** Carte attivate e cariche che un attacco può far stancare (Versa il vino non tocca le carte di Francesco). */
 function caricheColpibili(g: StatoGiocatore, potere: string): Attivato[] {
   if (g.nonStancabile) return [];
-  return g.attivati.filter((a) => a.stanca === 0 && !(potere === "versa-il-vino" && carta(a.copia.carta).persona === "francesco"));
+  return g.attivati.filter(
+    (a) => a.stanca === 0 && !eBlu(a.copia.carta) && !(potere === "versa-il-vino" && carta(a.copia.carta).persona === "francesco"),
+  );
 }
 
 /** Livello massimo di una carta attivata che Baratto può prendere in cambio di `propria`. */

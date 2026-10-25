@@ -258,6 +258,27 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
             <Mazzo testo="🔥 Brucia" onClick={azione(trova((m) => m.tipo === "brucia"))} />
           </div>
         </div>
+        {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
+          <div className="mt-3 text-center">
+            <p className="mb-1 text-xs text-white/70">👀 Ne ho viste tante: le prime carte del mazzo personaggi</p>
+            <div className="flex justify-center gap-2">
+              {v.cimaPersonaggi.map((c, i) => (
+                <CartaFamiglia
+                  key={c.id}
+                  idCarta={c.carta}
+                  dimensione="piccola"
+                  onClick={() =>
+                    apriCarta(
+                      c.id,
+                      undefined,
+                      mosse.filter((m) => m.tipo === "pescaPersonaggio" && !!m.seconda === (i === 1)),
+                    )
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        )}
         {v.scartiNumeri.length > 0 && <p className="mt-2 text-center text-xs text-white/60">Scarti numeri: ultima carta {v.scartiNumeri.at(-1)!.valore}</p>}
       </div>
 
@@ -270,7 +291,6 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
           onCarta={(c, stanca) => apriCarta(c.id, stanca)}
           onMancia={(id) => (caffe && caffe.tipo === "caffe" && caffe.mancia === id ? () => gioca(caffe) : undefined)}
           selezione={selezioneScarti ? { scelte, onTocca: (id) => setScelte((s) => alterna(s, id, daScartare)) } : undefined}
-          intoccabili={v.turno.intoccabili}
         />
       </Zona>
 
@@ -298,6 +318,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
               <>
                 <span className="flex-1 text-sm">
                   Scegli {daScartare} {daScartare === 1 ? "carta" : "carte"} da scartare ({scelte.length}/{daScartare})
+                  {v.turno.indigestione && " 🤢 indigestione: 1 in più"}
                 </span>
                 <BottoneBarra disabled={scelte.length !== daScartare || bloccato} onClick={() => gioca({ tipo: "fineTurno", scarta: scelte })}>
                   Scarta e chiudi
@@ -513,7 +534,6 @@ export function AreaGiocatore({
   onCarta,
   onMancia,
   selezione,
-  intoccabili = [],
 }: {
   v: VistaGiocatore;
   id: string;
@@ -521,7 +541,6 @@ export function AreaGiocatore({
   onCarta: (c: CopiaCarta, stanca?: number) => void;
   onMancia?: (id: string) => (() => void) | undefined;
   selezione?: { scelte: string[]; onTocca: (id: string) => void };
-  intoccabili?: string[];
 }) {
   const g = v.giocatori[id]!;
   const mio = id === io;
@@ -570,8 +589,7 @@ export function AreaGiocatore({
                   key={c.id}
                   c={c}
                   selezionata={selezione?.scelte.includes(c.id)}
-                  onClick={selezione && !intoccabili.includes(c.id) ? () => selezione.onTocca(c.id) : undefined}
-                  nota={intoccabili.includes(c.id) ? <span className="absolute -bottom-1 text-[9px]">🔒</span> : undefined}
+                  onClick={selezione ? () => selezione.onTocca(c.id) : undefined}
                 />
               )),
             v.mano.length === 0,

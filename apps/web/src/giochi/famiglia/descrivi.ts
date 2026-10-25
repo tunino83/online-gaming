@@ -49,10 +49,14 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     const parti: string[] = [];
     if (typeof p.giocatore === "string") parti.push(`contro ${nick(p.giocatore)}`);
     if (typeof p.fonte === "string") parti.push(`usando ${nomeCopia(p.fonte)}`);
-    if (typeof p.propria === "string") parti.push(`dai ${nomeCopia(p.propria)}`);
+    if (typeof p.propria === "string") {
+      const n = numeri.get(p.propria);
+      parti.push(n ? `dai il ${n.valore}` : `dai ${nomeCopia(p.propria)}`);
+    }
     if (typeof p.bersaglio === "string") {
       const n = numeri.get(p.bersaglio);
-      parti.push(n ? `prendi il ${n.valore}` : `su ${nomeCopia(p.bersaglio)}`);
+      const mercatino = m.tipo === "potere" && m.potere === "mercatino";
+      parti.push(n ? `prendi il ${n.valore}` : `${mercatino ? "prendi" : "su"} ${nomeCopia(p.bersaglio)}`);
     }
     if (p.carte && p.carte.length > 0) parti.push(`carte ${valori(p.carte)}`);
     if (p.posizioni && p.posizioni.length > 0) {
@@ -76,14 +80,20 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     }
     case "pescaNumero":
       return "Pesca una carta numero";
-    case "pescaPersonaggio":
-      return "Pesca un personaggio";
+    case "pescaPersonaggio": {
+      // Con Ne ho viste tante si vedono le prime 2 carte del mazzo
+      const c = v.cimaPersonaggi?.[m.seconda ? 1 : 0];
+      if (m.seconda) return `👀 Pesca la seconda carta del mazzo${c ? `: ${nomeCopia(c.id)}` : ""}`;
+      return c ? `Pesca ${nomeCopia(c.id)}` : "Pesca un personaggio";
+    }
     case "brucia":
       return "Brucia le carte numero del tavolo";
     case "pescaEvento":
       return "Pesca un evento";
-    case "attiva":
-      return `Attiva ${nomeCopia(m.carta)} con ${elenco(m.combinazione.map((el) => (el.modifica ? `${el.valore} (+1)` : String(el.valore))))}`;
+    case "attiva": {
+      const prosecco = m.codiceDi ? ` 🥂 col codice di ${nomeCopia(m.codiceDi)}` : "";
+      return `Attiva ${nomeCopia(m.carta)}${prosecco} con ${elenco(m.combinazione.map((el) => (el.modifica ? `${el.valore} (+1)` : String(el.valore))))}`;
+    }
     case "potere": {
       const idCarta = cartaDiCopia(m.carta);
       const copiato = m.potereCopiato && m.fonte ? `: ${nomePotere(cartaDiCopia(m.fonte), m.potereCopiato)}` : "";

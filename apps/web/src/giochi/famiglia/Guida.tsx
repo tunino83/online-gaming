@@ -71,7 +71,11 @@ export function GuidaFamiglia() {
         </p>
         <p>
           Dopo aver usato un potere la carta <strong>si stanca</strong> 😴 e si ricarica in tanti turni quanto il suo livello (a ogni
-          inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne <em>Non sbaglio mai</em>).
+          inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne quelli gratis, come <em>Non sbaglio mai</em>).
+        </p>
+        <p>
+          🔵 <strong>Carte blu</strong>: alcune carte aiuto, dopo averle attivate, sono <strong>sempre attive</strong>: non si
+          stancano mai e non costano mosse. Ogni effetto vale una volta per turno (es. <em>Un caffè</em>: fai sempre 4 mosse).
         </p>
         <p>
           <strong>Famiglia al completo</strong>: se attivi tutte e 3 le carte della stessa persona prendi <strong>+2 punti</strong>.

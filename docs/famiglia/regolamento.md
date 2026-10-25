@@ -185,26 +185,35 @@ e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.
 ## Poteri gratis (2026-10-25)
 
 Usare un potere costa una mossa, ma alcuni poteri **non costano mosse**: altrimenti spendere una mossa per riaverla non
-servirebbe a niente. Sono: *Non sbaglio mai* (Maddalena 1), *Un caffè* (Generoso 1), *Prosecco* (Claudia 1),
-*Te l'ho già detto?* (Nonno Salvatore 1) e *L'ho già detto* (Nonno Salvatore 2). Si possono usare anche a mosse finite;
-la carta si stanca come le altre. Gli altri poteri che danno mosse in più ne danno almeno 2 oltre a quella spesa
-(*Anima della festa*, *Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
+servirebbe a niente. Sono: *Non sbaglio mai* (Maddalena 1), *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto*
+(Nonno Salvatore 2), *Anima della festa* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
+Si possono usare anche a mosse finite; la carta si stanca come le altre (le blu no). Gli altri poteri che danno mosse in
+più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
 
-## Carte aiuto "blu" (in progettazione, 2026-10-25 – non ancora nel gioco)
+## Carte aiuto "blu" (decise il 2026-10-25)
 
-Idea: alcune carte aiuto diventano come le carte blu di Il Portale.
-- **Sempre attive** dopo l'attivazione: non si stancano e non costano mosse.
-- Ogni effetto si usa **una volta per turno**, salvo eccezioni scritte sulla carta.
+Alcune carte aiuto sono come le carte blu di Il Portale (sulla carta hanno il simbolo 🔵):
+- **Sempre attive** dopo l'attivazione: non si stancano mai (nemmeno con gli attacchi che fanno stancare) e non costano mosse.
+- Ogni effetto vale **una volta per turno**, salvo eccezioni scritte sulla carta.
 
-Carte blu decise finora:
-- **Mercatino** (Nonna Patrizia 1): scambi una carta che hai in mano con una a scelta dalla pila degli scarti (numeri o personaggi).
-- **Prosecco** (Claudia 1): quando attivi un personaggio puoi usare il codice di un'altra carta che hai ("sei brilla e sbagli").
-- **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): la prima mossa del turno la puoi rifare gratis (es. peschi un numero: ne peschi un altro).
-- **Studia il fascicolo** (Giuseppe 1): a ogni turno scegli un avversario e vedi le sue carte.
-- **Ne ho viste tante** (Nonno Antonio 1): vedi sempre le prime 2 carte del mazzo personaggi e, pescando, scegli quale prendere.
+Le carte blu:
+- **L'orto** (Nonno Nicola 1): a inizio di ogni tuo turno peschi 1 carta numero.
+- **Mercatino** (Nonna Patrizia 1): scambi una carta che hai in mano con una a scelta dalla pila degli scarti dello stesso
+  tipo (carta numero con carta numero, personaggio nascosto con personaggio).
+- **Un caffè** (Generoso 1): fai sempre 4 mosse per turno invece di 3 (anche nel turno in cui la attivi).
+- **Studia il fascicolo** (Giuseppe 1): scegli un avversario e per tutto il turno vedi le sue carte in mano.
+- **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): se la prima mossa del turno è una pescata, la rifai gratis
+  (peschi un'altra carta dallo stesso mazzo).
+- **Ne ho viste tante** (Nonno Antonio 1): nel tuo turno vedi le prime 2 carte del mazzo personaggi e, una volta per turno,
+  pescando puoi prendere la seconda invece della prima.
+- **Prosecco** (Claudia 1): quando attivi un personaggio puoi pagare il codice di un'altra carta che hai (attivata o in mano)
+  invece del suo ("sei brilla e ti confondi"). Codice più difficile: 2 carte con somma 15.
 
-Altre proposte in discussione:
-- **Anima della festa** (Zio Salvatore 3): gratis, 3 mosse in più ora e 1 in meno nei 2 turni successivi.
-- **Mangia mangia mangia** (Alessia): 4 carte, poi l'indigestione: nei 2 turni successivi, a fine turno, scarti
-  **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8 carte ne scarti 2; con 5 carte ne scarti
-  comunque 1).
+Cambiate insieme alle blu (non blu, si stancano come le altre):
+- **Anima della festa** (Zio Salvatore 3): gratis, 3 mosse in più adesso; poi si addormenta con gli occhiali da sole:
+  1 mossa in meno nei tuoi 2 turni successivi.
+- **Mangia mangia mangia** (Alessia): gratis, peschi 4 carte numero alla cieca dal mazzo; poi l'indigestione: nei tuoi
+  2 turni successivi, a fine turno, scarti **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8
+  carte ne scarti 2; con 5 carte ne scarti comunque 1).
+
+Gli altri aiuti si analizzeranno più avanti.

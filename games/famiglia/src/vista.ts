@@ -9,7 +9,7 @@
  * - Schietta: le carte mostrate le vedono tutti per il resto del turno.
  */
 import type { IdGiocatore } from "@og/engine";
-import { puntiDi, risorseGiocatore } from "./base";
+import { puntiDi, quantiBlu, risorseGiocatore } from "./base";
 import type { Risorse } from "./codici";
 import type { AttaccoInCorso, Attesa, Attivato, Fatto, StatoPartita, StatoTurno } from "./stato";
 import type { CartaMancia, CartaNumero, CopiaCarta } from "./tipi-carte";
@@ -31,13 +31,15 @@ export interface VistaGiocatore {
   ultimoTurno: number | null;
   finita: boolean;
   opzioni: StatoPartita["opzioni"];
-  turno: Pick<StatoTurno, "giocatore" | "mosseRimaste" | "mosseUguali" | "pescaDoppia" | "doppioTurno"> & {
+  turno: Pick<StatoTurno, "giocatore" | "mosseRimaste" | "mosseUguali" | "doppioTurno"> & {
     /** Solo per chi deve fare la scelta. */
     attesa: Attesa | null;
     /** Chi deve fare una scelta adesso (visibile a tutti), se qualcuno. */
     sceglie: IdGiocatore | null;
-    /** Carte prese con Alessia: solo per chi è di turno. */
-    intoccabili: string[];
+    /** Poteri blu già usati in questo turno (solo per chi è di turno). */
+    bluUsati: string[];
+    /** Indigestione (Alessia): a fine turno si scarta 1 carta in più. */
+    indigestione: boolean;
     /** Chi è di turno non può usare poteri (Parla parla parla). */
     zitto: boolean;
     /** Carte mostrate a tutti in questo turno (Schietta). */
@@ -60,6 +62,10 @@ export interface VistaGiocatore {
   scarti: { numeri: number; personaggi: number; mancia: number };
   /** La pila degli scarti numeri è scoperta (serve al Mercatino): l'ultima è in fondo. */
   scartiNumeri: CartaNumero[];
+  /** La pila degli scarti personaggi è scoperta (serve al Mercatino): l'ultima è in fondo. */
+  scartiPersonaggi: CopiaCarta[];
+  /** Ne ho viste tante (blu): le prime 2 carte del mazzo personaggi, solo nel proprio turno (la prima è in cima). */
+  cimaPersonaggi?: CopiaCarta[];
   /** Carte numero scoperte tra cui qualcuno sta scegliendo (Vincenzo, Patate al forno). */
   offerta: CartaNumero[];
   /** Le proprie carte numero e i propri personaggi nascosti. */
@@ -89,11 +95,11 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
       giocatore: t.giocatore,
       mosseRimaste: t.mosseRimaste,
       mosseUguali: t.mosseUguali ? { ...t.mosseUguali } : null,
-      pescaDoppia: t.pescaDoppia,
       doppioTurno: t.doppioTurno,
       attesa: !s.finita && t.attesa?.giocatore === id ? structuredClone(t.attesa) : null,
       sceglie: s.finita ? null : (t.attesa?.giocatore ?? null),
-      intoccabili: mioTurno ? [...t.intoccabili] : [],
+      bluUsati: mioTurno ? [...t.bluUsati] : [],
+      indigestione: t.indigestione,
       zitto: t.zitto,
       rivelati: structuredClone(t.rivelati),
     },
@@ -118,6 +124,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
     mazzi: { numeri: s.mazzi.numeri.length, personaggi: s.mazzi.personaggi.length, mancia: s.mazzi.mancia.length },
     scarti: { numeri: s.scarti.numeri.length, personaggi: s.scarti.personaggi.length, mancia: s.scarti.mancia.length },
     scartiNumeri: structuredClone(s.scarti.numeri),
+    scartiPersonaggi: structuredClone(s.scarti.personaggi),
     offerta: t.attesa?.tipo === "scegliNumeri" ? structuredClone(t.attesa.carte) : [],
     mano: structuredClone(g.mano),
     nascosti: structuredClone(g.nascosti),
@@ -138,6 +145,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
       }),
     ),
   };
+  if (mioTurno && quantiBlu(g, "ne-ho-viste-tante") > 0) vista.cimaPersonaggi = structuredClone(s.mazzi.personaggi.slice(-2).reverse());
   if (mioTurno && t.fascicolo) {
     const o = s.giocatori[t.fascicolo]!;
     vista.fascicolo = { giocatore: t.fascicolo, mano: structuredClone(o.mano), nascosti: structuredClone(o.nascosti) };
@@ -151,7 +159,8 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
  */
 export function vistaPubblica(s: StatoPartita): VistaGiocatore {
   const { fascicolo: _privato, ...v } = vistaGiocatore(s, s.ordine[0]!);
-  return { ...v, io: "", turno: { ...v.turno, attesa: null, intoccabili: [] }, mano: [], nascosti: [] };
+  const { cimaPersonaggi: _cima, ...pubblica } = v;
+  return { ...pubblica, io: "", turno: { ...v.turno, attesa: null, bluUsati: [] }, mano: [], nascosti: [] };
 }
 
 /** Le proprie risorse per i codici, ricavate dalla propria vista (le usa il browser). */

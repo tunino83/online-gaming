@@ -72,7 +72,7 @@ Regole usate:
 | Roberta | 1 | Ti chiamo un attimo… | ⚔️ | 2 carte con somma 7 |
 | Roberta | 2 | Chiusa in camera | 🛡️ | Tris |
 | Roberta | 3 | Sparecchio | ⚔️ | Poker |
-| Claudia | 1 | Prosecco | ✨ | 2 carte dispari |
+| Claudia | 1 | Prosecco | ✨ | 2 carte con somma 15 |
 | Claudia | 2 | Zeppata sui social | ⚔️ | 3 carte con somma 16 |
 | Claudia | 3 | Una fetta di torta? | 🛡️ | Doppia coppia |
 | Squacqualacchione | 1 | Burla | ⚔️ | 2 carte con somma 9 |

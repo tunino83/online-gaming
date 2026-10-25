@@ -38,6 +38,11 @@ export interface Potere {
   tipo: TipoPotere;
   /** Cosa fa, in breve (per l'interfaccia). */
   testo: string;
+  /**
+   * Carta "blu" (come in Il Portale): dopo l'attivazione è sempre attiva, non si stanca mai e non costa mosse;
+   * ogni effetto vale una volta per turno (salvo eccezioni scritte sulla carta).
+   */
+  blu?: true;
 }
 
 /**

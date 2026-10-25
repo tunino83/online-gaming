@@ -156,7 +156,7 @@ describe("attivare", () => {
     expect(a.mano.map((c) => c.id)).toEqual(["c"]);
     expect(s.scarti.numeri.map((c) => c.id)).toEqual(["a", "b"]);
     expect(puntiDi(a)).toBe(1);
-    expect(s.turno.mosseRimaste).toBe(2);
+    expect(s.turno.mosseRimaste).toBe(3); // 3 − 1 per attivare + 1 di Un caffè (blu, vale da subito)
   });
 
   it("un personaggio di attacco in attesa", () => {

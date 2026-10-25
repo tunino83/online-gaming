@@ -3,7 +3,7 @@
  * errori, registro, mazzi, tavolo, zone e carte dei giocatori.
  */
 import { type IdGiocatore, mescola } from "@og/engine";
-import { carta, cartePersona, eAttacco } from "./carte";
+import { carta, cartePersona, eAttacco, eBlu } from "./carte";
 import type { Risorse } from "./codici";
 import { type Attivato, type DatiFatto, LUNGHEZZA_REGISTRO, type Mazzi, type StatoGiocatore, type StatoPartita, type Zona } from "./stato";
 import type { CartaNumero, CopiaCarta } from "./tipi-carte";
@@ -89,13 +89,11 @@ export function togliNumero(g: StatoGiocatore, id: string): CartaNumero | null {
 }
 
 /**
- * Il giocatore pesca carte numero dal mazzo. Se è di turno e ha usato "Sono due etti e mezzo, lascio?",
- * ogni carta pescata ne fa pescare una in più. Restituisce le carte pescate.
+ * Il giocatore pesca carte numero dal mazzo. Restituisce le carte pescate.
  */
 export function peschiNumeri(s: StatoPartita, id: IdGiocatore, quante: number): CartaNumero[] {
-  const doppia = s.turno.giocatore === id && s.turno.pescaDoppia;
   const prese: CartaNumero[] = [];
-  for (let i = 0; i < quante * (doppia ? 2 : 1); i++) {
+  for (let i = 0; i < quante; i++) {
     const c = pesca(s, "numeri");
     if (c) prese.push(c);
   }
@@ -123,6 +121,10 @@ export function famiglieComplete(g: Pick<StatoGiocatore, "attivati">): string[] 
 export const puntiDi = (g: Pick<StatoGiocatore, "attivati">): number =>
   g.attivati.reduce((tot, a) => tot + carta(a.copia.carta).punti, 0) + famiglieComplete(g).length * PUNTI_FAMIGLIA_AL_COMPLETO;
 
+/** Quante carte attivate del giocatore hanno questo potere blu (sempre attivo). */
+export const quantiBlu = (g: Pick<StatoGiocatore, "attivati">, potere: string): number =>
+  g.attivati.filter((a) => carta(a.copia.carta).poteri.some((p) => p.blu && p.id === potere)).length;
+
 /** Il giocatore ha almeno una carta attivata di questa persona? ("Chi ha Totò" negli eventi.) */
 export const haPersona = (g: Pick<StatoGiocatore, "attivati">, persona: string): boolean =>
   g.attivati.some((a) => carta(a.copia.carta).persona === persona);
@@ -141,7 +143,7 @@ export const sempreCarica = (s: StatoPartita, a: Attivato): boolean =>
 
 /** Fa stancare una carta attivata per il suo tempo di ricarica (più `inPiu` turni), salvo eventi che la tengono carica. */
 export function stancaCarta(s: StatoPartita, a: Attivato | undefined, inPiu = 0): void {
-  if (!a || sempreCarica(s, a)) return;
+  if (!a || sempreCarica(s, a) || eBlu(a.copia.carta)) return; // le carte blu non si stancano mai
   a.stanca = (a.stanca === 0 ? carta(a.copia.carta).ricarica : a.stanca) + inPiu;
 }
 

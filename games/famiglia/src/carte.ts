@@ -39,6 +39,8 @@ const potere = (tipo: TipoPotere) => (nome: string, testo: string): Potere => ({
 const attacco = potere("attacco");
 const difesa = potere("difesa");
 const aiuto = potere("aiuto");
+/** Aiuto "blu": sempre attivo dopo l'attivazione, non si stanca, una volta per turno. */
+const aiutoBlu = (nome: string, testo: string): Potere => ({ ...aiuto(nome, testo), blu: true });
 
 interface Lato {
   codice: Codice;
@@ -118,12 +120,21 @@ const ADULTI: Carta[] = [
     { codice: scala(5), poteri: [aiuto("Cucina per 200", "Tu peschi 4 carte numero, ogni avversario 1")] },
   ]),
   ...persona("Nonno Nicola", [
-    { codice: dispari(2), poteri: [aiuto("L'orto", "Peschi 2 carte numero")] },
+    { codice: dispari(2), poteri: [aiutoBlu("L'orto", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero")], ricarica: 0 },
     { codice: somma(3, 12), poteri: [attacco("Solo per vedere comm sape", "Rubi 1 carta numero a caso dalla mano di un avversario")] },
     { codice: piuCoppia(6, 6), poteri: [attacco("Manca 'o sale", "Ogni avversario ti dà 1 carta numero (sceglie lui quale)")] },
   ]),
   ...persona("Nonna Patrizia", [
-    { codice: somma(2, 10), poteri: [aiuto("Mercatino", "Prendi una carta a scelta dagli scarti numeri")] },
+    {
+      codice: somma(2, 10),
+      poteri: [
+        aiutoBlu(
+          "Mercatino",
+          "Sempre attiva, una volta per turno: scambi una carta che hai in mano (numero o personaggio nascosto) con una a scelta dalla pila degli scarti dello stesso tipo",
+        ),
+      ],
+      ricarica: 0,
+    },
     { codice: scala(3), poteri: [difesa("Nuvola di fumo", "Fino al tuo prossimo turno nessuno può attaccarti")] },
     {
       codice: dispari(4),
@@ -166,10 +177,13 @@ const ADULTI: Carta[] = [
   ...persona("Zio Salvatore", [
     { codice: esatto(7, 7), poteri: [attacco("Si canta!", "Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno")] },
     { codice: somma(3, 14), poteri: [attacco("Versa il vino", "Una carta carica di un avversario si addormenta (diventa stanca)")] },
-    { codice: piuCoppia(8, 8), poteri: [aiuto("Anima della festa", "3 mosse in più (poi si addormenta con gli occhiali da sole)")] },
+    {
+      codice: piuCoppia(8, 8),
+      poteri: [aiuto("Anima della festa", "Gratis: 3 mosse in più adesso, poi si addormenta con gli occhiali da sole: 1 mossa in meno nei tuoi 2 turni successivi")],
+    },
   ]),
   ...persona("Generoso", [
-    { codice: somma(2, 4), poteri: [aiuto("Un caffè", "Gratis (non usa mosse): 1 mossa in più")] },
+    { codice: somma(2, 4), poteri: [aiutoBlu("Un caffè", "Sempre attiva: fai 4 mosse per turno invece di 3")], ricarica: 0 },
     { codice: somma(3, 10), poteri: [aiuto("Colazione", "Peschi 1 personaggio e 1 carta numero")] },
     {
       codice: somma(4, 16),
@@ -201,7 +215,11 @@ const ADULTI: Carta[] = [
   ...persona(
     "Giuseppe",
     [
-      { codice: somma(2, 13), poteri: [aiuto("Studia il fascicolo", "Guardi tutte le carte in mano a un avversario")] },
+      {
+        codice: somma(2, 13),
+        poteri: [aiutoBlu("Studia il fascicolo", "Sempre attiva, una volta per turno: scegli un avversario e vedi tutte le sue carte in mano")],
+        ricarica: 0,
+      },
       {
         codice: pari(3),
         poteri: [difesa("Ricorso", "Annulli un attacco, ma scarti tante carte numero quanto il livello dell'attacco (se non bastano, tutte)")],
@@ -215,7 +233,13 @@ const ADULTI: Carta[] = [
     [
       {
         codice: esatto(2, 5),
-        poteri: [aiuto("Sono due etti e mezzo, lascio?", "Per il resto del turno, ogni volta che peschi una carta numero ne prendi una in più")],
+        poteri: [
+          aiutoBlu(
+            "Sono due etti e mezzo, lascio?",
+            "Sempre attiva, una volta per turno: se la prima mossa del turno è una pescata, la rifai gratis (peschi un'altra carta dallo stesso mazzo)",
+          ),
+        ],
+        ricarica: 0,
       },
       {
         codice: dispari(3),
@@ -236,7 +260,13 @@ const ADULTI: Carta[] = [
   ...persona(
     "Nonno Antonio",
     [
-      { codice: esatto(1, 2), poteri: [aiuto("Ne ho viste tante", "Guardi le prime 3 carte del mazzo personaggi e ne prendi una")] },
+      {
+        codice: esatto(1, 2),
+        poteri: [
+          aiutoBlu("Ne ho viste tante", "Sempre attiva: nel tuo turno vedi le prime 2 carte del mazzo personaggi e, una volta per turno, pescando scegli quale prendere"),
+        ],
+        ricarica: 0,
+      },
       {
         codice: dispari(3),
         poteri: [difesa("Mutandoni di lana", "Annulli un attacco e fino al tuo prossimo turno nessuna tua carta può essere fatta stancare")],
@@ -268,7 +298,11 @@ const ADULTI: Carta[] = [
     { codice: poker, poteri: [attacco("Sparecchio", "Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva")] },
   ]),
   ...persona("Claudia", [
-    { codice: dispari(2), poteri: [aiuto("Prosecco", "Gratis (non usa mosse): 1 mossa in più e peschi 1 carta numero")] },
+    {
+      codice: somma(2, 15),
+      poteri: [aiutoBlu("Prosecco", "Sempre attiva, una volta per turno: attivi un personaggio pagando il codice di un'altra tua carta (sei brilla e ti confondi)")],
+      ricarica: 0,
+    },
     { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
     {
       codice: doppiaCoppia,
@@ -301,7 +335,10 @@ const SINGOLE: Carta[] = [
     2,
   ),
   singola("Alessia", 2, pari(3), [
-    aiuto("Mangia mangia mangia", "Prendi le 4 carte numero scoperte sul tavolo; fino a fine turno non puoi scartarle"),
+    aiuto(
+      "Mangia mangia mangia",
+      "Gratis: peschi 4 carte numero alla cieca; poi l'indigestione: nei tuoi 2 turni successivi, a fine turno, scarti sempre 1 carta in più",
+    ),
   ]),
   singola("Greta", 2, dispari(3), [attacco("Risata contagiosa", "Ogni avversario scarta 1 carta numero a caso")]),
   singola("Donato", 2, scala(3), [difesa("Non ti sento, sto suonando", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro")]),
@@ -350,6 +387,9 @@ export function carta(id: string): Carta {
   if (!c) throw new Error(`Carta sconosciuta: ${id}`);
   return c;
 }
+
+/** La carta è "blu" (sempre attiva, non si stanca)? */
+export const eBlu = (idCarta: string): boolean => carta(idCarta).poteri.some((p) => p.blu);
 
 /** La carta ha almeno un potere di attacco? Allora si tiene scoperta negli attacchi in attesa. */
 export const eAttacco = (c: Carta): boolean => c.poteri.some((p) => p.tipo === "attacco");

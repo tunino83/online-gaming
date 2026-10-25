@@ -32,7 +32,20 @@ export const POTERI_COPIA = new Set(["sempre-la-stessa-storia", "giacca-al-roves
  * Poteri che non costano mosse: Non sbaglio mai (la pescata sbagliata non conta) e quelli che danno mosse in più
  * (altrimenti spendere una mossa per averne una non servirebbe a niente: deciso il 2026-10-25).
  */
-export const POTERI_GRATIS = new Set(["non-sbaglio-mai", "un-caffe", "prosecco", "te-l-ho-gia-detto", "l-ho-gia-detto"]);
+export const POTERI_GRATIS = new Set([
+  "non-sbaglio-mai",
+  "te-l-ho-gia-detto",
+  "l-ho-gia-detto",
+  "anima-della-festa",
+  "mangia-mangia-mangia",
+  // blu che si usano (una volta per turno)
+  "mercatino",
+  "sono-due-etti-e-mezzo-lascio",
+  "studia-il-fascicolo",
+]);
+
+/** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
+export const BLU_DA_SOLI = new Set(["un-caffe", "l-orto", "prosecco", "ne-ho-viste-tante"]);
 
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;
@@ -47,7 +60,7 @@ export const MAX_VETRINA = 3;
 /** Un potere si può copiare? Aiuti, attacchi e difese da usare nel proprio turno, ma non gli altri poteri che copiano. */
 function copiabile(c: Carta, potere: string): boolean {
   const p = c.poteri.find((x) => x.id === potere);
-  if (!p || POTERI_COPIA.has(potere)) return false;
+  if (!p || p.blu || POTERI_COPIA.has(potere)) return false;
   return p.tipo !== "difesa" || DIFESE_ANCHE_PROATTIVE.has(potere);
 }
 
@@ -87,6 +100,11 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   if (a!.stanca > 0) rifiuta("Questa carta è stanca: deve ricaricarsi");
   if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
   if (poteriBloccati(s, c.id)) rifiuta("Durante questo evento Totò non può usare i suoi poteri");
+  if (p!.blu) {
+    if (BLU_DA_SOLI.has(p!.id)) rifiuta("Questa carta è sempre attiva: funziona da sola");
+    if (s.turno.bluUsati.includes(p!.id)) rifiuta("Questo potere si usa una volta per turno");
+    s.turno.bluUsati.push(p!.id);
+  }
   if (p!.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p!.id)) rifiuta("Questa difesa si usa quando ti attaccano");
 
   const { origine, potere } = potereDaUsare(s, id, c, p!.id, m);
@@ -120,15 +138,10 @@ function applicaAiuto(
     case "ci-penso-domani":
       g.mosseProssimoTurno += 2;
       return;
-    case "un-caffe":
-      t.mosseRimaste += 1;
-      return;
     case "anima-della-festa":
+      // La festa: 3 mosse in più adesso, poi nei 2 turni dopo 1 mossa in meno
       t.mosseRimaste += 3;
-      return;
-    case "prosecco":
-      t.mosseRimaste += 1;
-      peschiNumeri(s, id, 1);
+      g.dopoLaFesta = 2;
       return;
     case "doppio-turno":
       t.doppioTurno = true;
@@ -143,7 +156,6 @@ function applicaAiuto(
     }
 
     /* ---------------- pescare ---------------- */
-    case "l-orto":
     case "ho-tanta-fame":
       peschiNumeri(s, id, 2);
       return;
@@ -171,7 +183,14 @@ function applicaAiuto(
       return;
     }
     case "sono-due-etti-e-mezzo-lascio":
-      t.pescaDoppia = true;
+      // La prima mossa del turno era una pescata: si rifà gratis dallo stesso mazzo
+      if (!t.primaPescata) rifiuta("Si usa solo se la prima mossa del turno è stata una pescata");
+      if (t.primaPescata === "numeri") {
+        if (peschiNumeri(s, id, 1).length === 0) rifiuta("Il mazzo numeri è vuoto");
+      } else {
+        if (!puoPescare(s, "personaggi")) rifiuta("Il mazzo personaggi è vuoto");
+        pescaPersonaggio(s, id);
+      }
       return;
     case "frigge-di-tutto": {
       const carte = carteDallaMano(g, m.carte, 1, Infinity);
@@ -227,12 +246,9 @@ function applicaAiuto(
       return;
     }
     case "mangia-mangia-mangia":
-      for (const [i, c] of s.tavolo.numeri.entries()) {
-        if (!c) continue;
-        g.mano.push(c);
-        t.intoccabili.push(c.id);
-        s.tavolo.numeri[i] = null;
-      }
+      // Mangia alla cieca: 4 carte dal mazzo, poi 2 turni di indigestione
+      peschiNumeri(s, id, 4);
+      g.indigestione = 2;
       return;
     case "lezione-di-padel": {
       const [mia] = carteDallaMano(g, m.carte, 1, 1);
@@ -245,9 +261,24 @@ function applicaAiuto(
       return;
     }
     case "mercatino": {
-      const i = s.scarti.numeri.findIndex((c) => c.id === m.bersaglio);
-      if (i < 0) rifiuta("Scegli una carta dagli scarti numeri");
-      g.mano.push(...s.scarti.numeri.splice(i, 1));
+      // Scambio con la pila degli scarti: carta numero con carta numero, personaggio nascosto con personaggio
+      const iNumero = g.mano.findIndex((c) => c.id === m.propria);
+      const iNascosto = g.nascosti.findIndex((c) => c.id === m.propria);
+      if (iNumero >= 0) {
+        const j = s.scarti.numeri.findIndex((c) => c.id === m.bersaglio);
+        if (j < 0) rifiuta("Scegli una carta dagli scarti numeri");
+        const [presa] = s.scarti.numeri.splice(j, 1);
+        scartaNumeri(s, g.mano.splice(iNumero, 1));
+        g.mano.push(presa!);
+      } else if (iNascosto >= 0) {
+        const j = s.scarti.personaggi.findIndex((c) => c.id === m.bersaglio);
+        if (j < 0) rifiuta("Scegli una carta dagli scarti personaggi");
+        const [presa] = s.scarti.personaggi.splice(j, 1);
+        s.scarti.personaggi.push(...g.nascosti.splice(iNascosto, 1));
+        riceviCarta(s, id, presa!);
+      } else {
+        rifiuta("Scegli una carta della tua mano da scambiare");
+      }
       return;
     }
     case "ce-l-ho-io": {
@@ -270,15 +301,6 @@ function applicaAiuto(
     case "patate-al-forno": {
       const carte = pescaFinoA(s, s.ordine.length - 1);
       if (carte.length > 0) t.attesa = { tipo: "scegliNumeri", giocatore: id, motivo: "patate", carte, quante: 1, coda: avversariDopo(s, id) };
-      return;
-    }
-    case "ne-ho-viste-tante": {
-      const carte: CopiaCarta[] = [];
-      for (let i = 0; i < 3; i++) {
-        const c = pesca(s, "personaggi");
-        if (c) carte.push(c);
-      }
-      if (carte.length > 0) t.attesa = { tipo: "scegliPersonaggio", giocatore: id, carte };
       return;
     }
     case "ogni-cosa-al-suo-posto": {
@@ -431,6 +453,7 @@ export function mosseDiPotere(s: StatoPartita, id: IdGiocatore): Mossa[] {
     const c = carta(a.copia.carta);
     for (const p of c.poteri) {
       if (p.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p.id)) continue;
+      if (p.blu && (BLU_DA_SOLI.has(p.id) || s.turno.bluUsati.includes(p.id))) continue;
       const base = { tipo: "potere" as const, carta: a.copia.id, potere: p.id };
       for (const parametri of usiPossibili(s, id, g, a, c, p.id)) mosse.push({ ...base, ...parametri });
     }
@@ -483,14 +506,27 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     case "vende-la-carne":
       return g.nascosti.map((c) => ({ bersaglio: c.id }));
     case "mercatino": {
-      const perValore = new Map(s.scarti.numeri.map((c) => [c.valore, c.id]));
-      return [...perValore.values()].map((bersaglio) => ({ bersaglio }));
+      // Scambi possibili: una tua carta numero con un valore diverso degli scarti; un tuo nascosto con un personaggio scartato.
+      // Carte uguali danno lo stesso scambio: se ne propone uno solo.
+      const unaPer = <T, K>(lista: T[], chiave: (x: T) => K) => [...new Map(lista.map((x) => [chiave(x), x])).values()];
+      const scartiNumeri = unaPer(s.scarti.numeri, (c) => c.valore);
+      const numeri = unaPer(
+        g.mano.filter((c) => !c.unite),
+        (c) => c.valore,
+      ).flatMap((c) => scartiNumeri.filter((x) => x.valore !== c.valore).map((x) => ({ propria: c.id, bersaglio: x.id })));
+      const scartiPersonaggi = unaPer(s.scarti.personaggi, (c) => c.carta);
+      const personaggi = unaPer(g.nascosti, (c) => c.carta).flatMap((c) =>
+        scartiPersonaggi.filter((x) => x.carta !== c.carta).map((x) => ({ propria: c.id, bersaglio: x.id })),
+      );
+      return [...numeri, ...personaggi];
     }
     case "scaffale":
       if (posizioniNumeri.length === 0) return [];
       return posizioniNumeri.length === 1 ? [{ posizioni: posizioniNumeri }] : coppie(posizioniNumeri).map((posizioni) => ({ posizioni }));
     case "mangia-mangia-mangia":
-      return posizioniNumeri.length > 0 ? [{}] : [];
+      return puoPescare(s, "numeri") ? [{}] : [];
+    case "sono-due-etti-e-mezzo-lascio":
+      return t.primaPescata && puoPescare(s, t.primaPescata) ? [{}] : [];
     case "lezione-di-padel":
       return g.mano
         .filter((c) => !c.unite)
@@ -513,8 +549,6 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       return s.ordine.flatMap((x) => s.giocatori[x]!.attivati.filter((y) => y.stanca > 0).map((y) => ({ bersaglio: y.copia.id })));
     case "studia-il-fascicolo":
       return avversariDopo(s, id).map((giocatore) => ({ giocatore }));
-    case "ne-ho-viste-tante":
-      return puoPescare(s, "personaggi") ? [{}] : [];
     case "ogni-cosa-al-suo-posto":
     case "frutta-e-verdura":
     case "patate-al-forno":

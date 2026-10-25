@@ -32,6 +32,10 @@ export interface StatoGiocatore {
   zittoProssimoTurno: boolean;
   /** Salta il prossimo turno: nessuna mossa (Ti chiamo un attimo…). */
   saltaProssimoTurno: boolean;
+  /** Turni in cui fa 1 mossa in meno dopo la festa (Anima della festa). */
+  dopoLaFesta: number;
+  /** Turni di indigestione: a fine turno scarta 1 carta in più (Alessia). */
+  indigestione: number;
   /* Protezioni che durano fino al prossimo turno del giocatore: */
   /** Nessuno può attaccarlo (Nuvola di fumo). */
   protetto: boolean;
@@ -104,10 +108,14 @@ export interface StatoTurno {
   mosseUguali: { tipo: TipoMossaNormale; quante: number } | null;
   /** Carta appena pescata, se l'ultima mossa è stata una pescata (Non sbaglio mai). */
   appenaPescata: { mazzo: "numeri" | "personaggi"; id: string } | null;
-  /** Ogni carta numero pescata ne fa pescare una in più (Sono due etti e mezzo, lascio?). */
-  pescaDoppia: boolean;
-  /** Carte che non si possono scartare a fine turno (Alessia). */
-  intoccabili: string[];
+  /** Poteri blu già usati in questo turno (ognuno una volta per turno). */
+  bluUsati: string[];
+  /** Mazzo della prima pescata, se la prima mossa del turno è stata una pescata (Sono due etti e mezzo, lascio?). */
+  primaPescata: "numeri" | "personaggi" | null;
+  /** È già stata fatta una mossa che costa in questo turno. */
+  mossaFatta: boolean;
+  /** Indigestione: a fine turno si scarta 1 carta in più (Alessia). */
+  indigestione: boolean;
   /** Avversario di cui si vedono le carte in mano per tutto il turno (Studia il fascicolo). */
   fascicolo: IdGiocatore | null;
   /** Finito questo turno se ne fa subito un altro con 2 mosse (Doppio turno). */
@@ -229,12 +237,14 @@ export type Mossa =
   | { tipo: "prendiNumero"; posizione: number }
   | { tipo: "prendiPersonaggio"; posizione: number }
   | { tipo: "pescaNumero" }
-  | { tipo: "pescaPersonaggio" }
+  /** `seconda`: prende la seconda carta del mazzo invece della prima (Ne ho viste tante). */
+  | { tipo: "pescaPersonaggio"; seconda?: true }
   | { tipo: "brucia" }
   /** Pesca un evento (solo se non ce n'è uno in corso). */
   | { tipo: "pescaEvento" }
   /** Attiva un personaggio nascosto in mano o in attesa tra gli attacchi. */
-  | { tipo: "attiva"; carta: string; combinazione: Combinazione }
+  /** `codiceDi`: paga il codice di un'altra propria carta invece del suo (Prosecco). */
+  | { tipo: "attiva"; carta: string; combinazione: Combinazione; codiceDi?: string }
   /** Usa il potere `potere` del personaggio attivato `carta` (id della copia). */
   | ({ tipo: "potere"; carta: string; potere: string } & ParametriPotere)
   /** Usa una carta attacco (tomacella, giro aperto, occhi 'nguoll, vento) pagandone il codice; poi si scarta. */

@@ -46,8 +46,9 @@ export function validaMossa(m: unknown): m is Mossa {
     case "prendiNumero":
     case "prendiPersonaggio":
       return campi(m, ["posizione"]) && isPosizione(m.posizione);
-    case "pescaNumero":
     case "pescaPersonaggio":
+      return campi(m, [], ["seconda"]) && (m.seconda === undefined || m.seconda === true);
+    case "pescaNumero":
     case "brucia":
     case "pescaEvento":
       return campi(m, []);
@@ -78,7 +79,12 @@ export function validaMossa(m: unknown): m is Mossa {
     case "fineTurno":
       return campi(m, ["scarta"]) && Array.isArray(m.scarta) && m.scarta.length <= 30 && m.scarta.every(isTesto);
     case "attiva":
-      return campi(m, ["carta", "combinazione"]) && isTesto(m.carta) && combinazioneValida(m.combinazione);
+      return (
+        campi(m, ["carta", "combinazione"], ["codiceDi"]) &&
+        isTesto(m.carta) &&
+        combinazioneValida(m.combinazione) &&
+        (m.codiceDi === undefined || isTesto(m.codiceDi))
+      );
     default:
       return false;
   }

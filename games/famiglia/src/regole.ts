@@ -9,6 +9,7 @@ import {
   pesca,
   peschiNumeri,
   puntiDi,
+  quantiBlu,
   puoPescare,
   registra,
   riceviCarta,
@@ -19,7 +20,7 @@ import {
   togliNumero,
   zonaDi,
 } from "./base";
-import { carta } from "./carte";
+import { carta, eBlu } from "./carte";
 import { trovaCombinazioni, verificaCombinazione } from "./codici";
 import { fineTurnoEvento, inizioTurnoConEvento, mosseDaEvento, pescaEvento, puoPescareEvento, regala } from "./effetti-eventi";
 import { creaMazzoEventi, creaMazzoMancia, creaMazzoNumeri, creaMazzoPersonaggi } from "./mazzi";
@@ -31,6 +32,9 @@ import type { CopiaCarta } from "./tipi-carte";
 import { validaMossa } from "./valida-mossa";
 
 export { PUNTI_FAMIGLIA_AL_COMPLETO, famiglieComplete, puntiDi, risorseGiocatore, zonaDi } from "./base";
+
+/** Id della carta da quello della copia ("mercatino#1" → "mercatino"). */
+const cartaDiCopia = (idCopia: string) => idCopia.split("#")[0]!;
 
 /** Mosse in un turno in più (Doppio turno di Marika). */
 const MOSSE_DOPPIO_TURNO = 2;
@@ -75,6 +79,8 @@ export function setup(giocatori: IdGiocatore[], opzioni: Partial<OpzioniPartita>
           mosseProssimoTurno: 0,
           zittoProssimoTurno: false,
           saltaProssimoTurno: false,
+          dopoLaFesta: 0,
+          indigestione: 0,
           protetto: false,
           nonStancabile: false,
           nascostiProtetti: false,
@@ -108,8 +114,10 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
     ultimaMossa: null,
     mosseUguali: null,
     appenaPescata: null,
-    pescaDoppia: false,
-    intoccabili: [],
+    bluUsati: [],
+    primaPescata: null,
+    mossaFatta: false,
+    indigestione: false,
     fascicolo: null,
     doppioTurno: false,
     zitto: false,
@@ -120,10 +128,17 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
 function iniziaTurno(s: StatoPartita): void {
   const id = s.ordine[s.numeroTurno % s.ordine.length]!;
   const g = s.giocatori[id]!;
-  // Chi salta il turno (al telefono con Roberta) non ha mosse; le carte stanche si ricaricano lo stesso
-  const mosse = g.saltaProssimoTurno ? 0 : Math.max(0, s.opzioni.mossePerTurno + g.mosseProssimoTurno + mosseDaEvento(s, id));
+  // Chi salta il turno (al telefono con Roberta) non ha mosse; le carte stanche si ricaricano lo stesso.
+  // Un caffè (blu): 1 mossa in più a ogni turno. Dopo la festa (Zio Salvatore): 1 mossa in meno.
+  const festa = g.dopoLaFesta > 0 ? 1 : 0;
+  const mosse = g.saltaProssimoTurno
+    ? 0
+    : Math.max(0, s.opzioni.mossePerTurno + quantiBlu(g, "un-caffe") + g.mosseProssimoTurno + mosseDaEvento(s, id) - festa);
   s.turno = nuovoTurno(id, mosse);
   s.turno.zitto = g.zittoProssimoTurno;
+  s.turno.indigestione = g.indigestione > 0;
+  if (g.dopoLaFesta > 0) g.dopoLaFesta -= 1;
+  if (g.indigestione > 0) g.indigestione -= 1;
   g.saltaProssimoTurno = false;
   g.mosseProssimoTurno = 0;
   g.zittoProssimoTurno = false;
@@ -137,6 +152,8 @@ function iniziaTurno(s: StatoPartita): void {
   inizioTurnoConEvento(s, id);
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
   for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
+  // L'orto (blu): a inizio turno 1 carta numero
+  peschiNumeri(s, id, quantiBlu(g, "l-orto"));
 }
 
 /**
@@ -167,11 +184,12 @@ function haMossePossibili(s: StatoPartita): boolean {
 /** Chi deve decidere adesso: chi ha una scelta in sospeso, altrimenti chi è di turno. */
 export const chiDeveMuovere = (s: StatoPartita): IdGiocatore => s.turno.attesa?.giocatore ?? s.turno.giocatore;
 
-/** Carte numero che il giocatore può scartare a fine turno (non quelle prese con Alessia). */
-const scartabili = (s: StatoPartita, g: StatoGiocatore) => g.mano.filter((c) => !s.turno.intoccabili.includes(c.id));
-
-/** Quante carte numero deve scartare a fine turno (vetrina esclusa, mai più di quelle scartabili). */
-const daScartare = (s: StatoPartita, g: StatoGiocatore) => Math.min(Math.max(0, g.mano.length - s.opzioni.limiteMano), scartabili(s, g).length);
+/**
+ * Quante carte numero deve scartare a fine turno (la vetrina non conta). Con l'indigestione di Alessia
+ * se ne scarta sempre 1 in più, anche sotto il limite (ma non più di quelle che si hanno).
+ */
+const daScartare = (s: StatoPartita, g: StatoGiocatore) =>
+  Math.min(Math.max(0, g.mano.length - s.opzioni.limiteMano) + (s.turno.indigestione ? 1 : 0), g.mano.length);
 
 /* ------------------------------------------------------------------ */
 /* Applicazione delle mosse                                            */
@@ -263,6 +281,8 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
   }
   const appenaPescata = t.appenaPescata;
   t.appenaPescata = null;
+  const primaMossa = !t.mossaFatta;
+  t.mossaFatta = true;
 
   switch (m.tipo) {
     case "prendiNumero": {
@@ -285,12 +305,23 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       const prese = peschiNumeri(s, id, 1);
       if (prese.length === 0) rifiuta("Il mazzo numeri è vuoto");
       t.appenaPescata = { mazzo: "numeri", id: prese.at(-1)!.id };
+      if (primaMossa) t.primaPescata = "numeri";
       registra(s, id, { tipo: "pescaNumero" });
       break;
     }
     case "pescaPersonaggio": {
-      const c = pesca(s, "personaggi");
+      let c: CopiaCarta | null;
+      if (m.seconda) {
+        // Ne ho viste tante (blu): una volta per turno si prende la seconda carta del mazzo
+        if (quantiBlu(g, "ne-ho-viste-tante") === 0 || t.bluUsati.includes("ne-ho-viste-tante")) rifiuta("Puoi prendere solo la prima carta");
+        if (s.mazzi.personaggi.length < 2) rifiuta("Nel mazzo non ci sono due carte");
+        t.bluUsati.push("ne-ho-viste-tante");
+        c = s.mazzi.personaggi.splice(s.mazzi.personaggi.length - 2, 1)[0]!;
+      } else {
+        c = pesca(s, "personaggi");
+      }
       if (!c) rifiuta("Il mazzo personaggi è vuoto");
+      if (primaMossa) t.primaPescata = "personaggi";
       // Un attacco va scoperto, quindi tutti sanno quale; una carta nascosta resta segreta
       registra(s, id, { tipo: "pescaPersonaggio", ...(zonaDi(c!) === "attacchi" ? { carta: c!.carta } : {}) });
       t.appenaPescata = { mazzo: "personaggi", id: c!.id };
@@ -332,13 +363,28 @@ function attivabili(g: StatoGiocatore): CopiaCarta[] {
   return [...g.nascosti, ...g.attacchi].filter((c) => carta(c.carta).categoria === "personaggio");
 }
 
+/** Le carte del giocatore di cui Prosecco può usare il codice: le sue altre carte personaggio (in mano, in attesa, attivate). */
+function altreCarte(g: StatoGiocatore, tranne: string): CopiaCarta[] {
+  return [...g.nascosti, ...g.attacchi, ...g.attivati.map((a) => a.copia)].filter((c) => c.id !== tranne && carta(c.carta).categoria === "personaggio");
+}
+
 function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "attiva" }>): void {
   const g = s.giocatori[id]!;
   const copia = attivabili(g).find((c) => c.id === m.carta);
   if (!copia) rifiuta("Non puoi attivare questa carta");
   const c = carta(copia!.carta);
 
-  const esito = verificaCombinazione(risorseGiocatore(g), c.codice, m.combinazione);
+  // Prosecco (blu): una volta per turno si paga il codice di un'altra propria carta
+  let codice = c.codice;
+  if (m.codiceDi !== undefined) {
+    if (quantiBlu(g, "prosecco") === 0 || s.turno.bluUsati.includes("prosecco")) rifiuta("Serve il Prosecco di Claudia (una volta per turno)");
+    const altra = altreCarte(g, copia!.id).find((x) => x.id === m.codiceDi);
+    if (!altra) rifiuta("Scegli un'altra tua carta di cui usare il codice");
+    codice = carta(altra!.carta).codice;
+    s.turno.bluUsati.push("prosecco");
+  }
+
+  const esito = verificaCombinazione(risorseGiocatore(g), codice, m.combinazione);
   if (!esito.ok) rifiuta(esito.errore);
 
   // Carte usate (anche quelle in vetrina, mance e caffè per il +1): vanno negli scarti.
@@ -353,6 +399,8 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   const zona = zonaDi(copia!);
   g[zona].splice(g[zona].findIndex((x) => x.id === copia!.id), 1);
   g.attivati.push({ copia: copia!, stanca: 0 });
+  // Un caffè (blu) vale già dal turno in cui si attiva
+  if (c.poteri.some((p) => p.blu && p.id === "un-caffe")) s.turno.mosseRimaste += 1;
   // Premio dei nonni: chi attiva un personaggio di livello 3 riceve 1 mancia (se ce n'è ancora)
   const mancia = c.livello === 3 ? pesca(s, "mancia") : null;
   if (mancia) g.mancia.push(mancia);
@@ -385,7 +433,6 @@ function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[]): void {
   if (new Set(scarta).size !== scarta.length) rifiuta("Carta da scartare ripetuta");
   if (scarta.length !== quante) rifiuta(`Devi scartare esattamente ${quante} carte`);
   for (const idCarta of scarta) {
-    if (t.intoccabili.includes(idCarta)) rifiuta("Le carte prese con Alessia non si scartano in questo turno");
     const i = g.mano.findIndex((c) => c.id === idCarta);
     if (i < 0) rifiuta("Puoi scartare solo carte che hai in mano");
     scartaNumeri(s, g.mano.splice(i, 1));
@@ -456,12 +503,23 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   s.tavolo.personaggi.forEach((c, posizione) => c && mosse.push({ tipo: "prendiPersonaggio", posizione }));
   if (puoPescare(s, "numeri")) mosse.push({ tipo: "pescaNumero" });
   if (puoPescare(s, "personaggi")) mosse.push({ tipo: "pescaPersonaggio" });
+  if (quantiBlu(g, "ne-ho-viste-tante") > 0 && !s.turno.bluUsati.includes("ne-ho-viste-tante") && s.mazzi.personaggi.length >= 2) {
+    mosse.push({ tipo: "pescaPersonaggio", seconda: true });
+  }
   if (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri")) mosse.push({ tipo: "brucia" });
   if (puoPescareEvento(s)) mosse.push({ tipo: "pescaEvento" });
   const risorse = risorseGiocatore(g);
+  const prosecco = quantiBlu(g, "prosecco") > 0 && !s.turno.bluUsati.includes("prosecco");
   for (const copia of attivabili(g)) {
     for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {
       mosse.push({ tipo: "attiva", carta: copia.id, combinazione });
+    }
+    // Prosecco: con il codice di un'altra carta (una combinazione per carta)
+    if (prosecco) {
+      for (const altra of altreCarte(g, copia.id)) {
+        const [combinazione] = trovaCombinazioni(risorse, carta(altra.carta).codice, 1);
+        if (combinazione) mosse.push({ tipo: "attiva", carta: copia.id, combinazione, codiceDi: altra.id });
+      }
     }
   }
   return mosse;
@@ -487,7 +545,7 @@ function mosseDiCarteAttacco(s: StatoPartita, id: IdGiocatore): Mossa[] {
 
 function mosseDiFineTurno(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   return sottoinsiemi(
-    scartabili(s, g).map((c) => c.id),
+    g.mano.map((c) => c.id),
     daScartare(s, g),
     10,
   ).map((scarta): Mossa => ({ tipo: "fineTurno", scarta }));
@@ -516,7 +574,9 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
-  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere))) return null; // es. Non sbaglio mai
+  // Un potere gratis carico (es. Non sbaglio mai, Un caffè di prima…): il giocatore può ancora usarlo.
+  // I poteri blu che si usano ogni turno (Mercatino, Studia il fascicolo…) non fermano la chiusura del turno.
+  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && !eBlu(cartaDiCopia(m.carta)))) return null;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
   if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare
