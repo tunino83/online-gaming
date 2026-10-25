@@ -245,7 +245,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                 onClick={trova((m) => m.tipo === "prendiNumero" && m.posizione === i) ? () => gioca({ tipo: "prendiNumero", posizione: i }) : undefined}
               />
             ) : (
-              <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-white/20" />
+              <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
             ),
           )}
         </div>
@@ -258,7 +258,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                 onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "prendiPersonaggio" && m.posizione === i))}
               />
             ) : (
-              <div key={`vuotop-${i}`} className="h-[123px] w-[88px] rounded-lg border-2 border-dashed border-white/20" />
+              <div key={`vuotop-${i}`} className="h-[123px] w-[88px] rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
             ),
           )}
           <div className="flex flex-col gap-1.5">
@@ -270,7 +270,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         </div>
         {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
           <div className="mt-3 text-center">
-            <p className="mb-1 text-xs text-white/70">👀 Ne ho viste tante: le prime carte del mazzo personaggi</p>
+            <p className="fm-scritta-tavolo mb-1">👀 Ne ho viste tante: le prime carte del mazzo personaggi</p>
             <div className="flex justify-center gap-2">
               {v.cimaPersonaggi.map((c, i) => (
                 <CartaFamiglia
@@ -289,7 +289,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
             </div>
           </div>
         )}
-        {v.scartiNumeri.length > 0 && <p className="mt-2 text-center text-xs text-white/60">Scarti numeri: ultima carta {v.scartiNumeri.at(-1)!.valore}</p>}
+        {v.scartiNumeri.length > 0 && <p className="mt-2 text-center"><span className="fm-scritta-tavolo">Scarti numeri: ultima carta {v.scartiNumeri.at(-1)!.valore}</span></p>}
       </div>
 
       {/* le mie carte */}
@@ -632,7 +632,7 @@ function Mazzo({ testo, quante, onClick }: { testo: string; quante?: number; onC
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className="fm-mazzo px-2 py-1 text-left text-xs font-bold disabled:opacity-45"
+      className="fm-mazzo px-2 py-1 text-left text-xs font-bold disabled:opacity-60"
     >
       {testo}
       {quante !== undefined && <span className="ml-1 font-normal opacity-70">{quante}</span>}
