@@ -68,7 +68,7 @@ function soddisfa(c: Codice, v: number[]): boolean {
     case "esatto":
       return ordina(v).join() === ordina(c.valori).join();
     case "uguali":
-      return v.every((x) => x === v[0]);
+      return v.every((x) => x === v[0]) && (c.parita === undefined || v.every((x) => (x % 2 === 0) === (c.parita === "pari")));
     case "somma":
       return v.reduce((s, x) => s + x, 0) === c.totale;
     case "scala": {
@@ -113,7 +113,7 @@ function completabile(c: Codice, v: number[]): boolean {
       return true;
     }
     case "uguali":
-      return v.every((x) => x === v[0]);
+      return v.every((x) => x === v[0]) && (c.parita === undefined || v.every((x) => (x % 2 === 0) === (c.parita === "pari")));
     case "somma": {
       const somma = v.reduce((s, x) => s + x, 0);
       const mancano = c.carte - v.length;
@@ -313,7 +313,7 @@ export function descriviCodice(c: Codice): string {
     case "esatto":
       return c.valori.join("");
     case "uguali":
-      return c.carte === 2 ? "Coppia" : c.carte === 3 ? "Tris" : "Poker";
+      return `${c.carte === 2 ? "Coppia" : c.carte === 3 ? "Tris" : "Poker"}${c.parita ? ` ${c.parita}` : ""}`;
     case "somma":
       return `${c.carte} carte con somma ${c.totale}`;
     case "scala":

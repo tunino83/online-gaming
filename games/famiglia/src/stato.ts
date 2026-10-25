@@ -241,6 +241,8 @@ export interface ParametriPotere {
   fonte?: string;
   /** Potere della carta da copiare, se ne ha due (Giacca al rovescio). */
   potereCopiato?: string;
+  /** Carte con cui si paga un codice (Vertenza: il codice del personaggio che si prende). */
+  combinazione?: Combinazione;
 }
 
 /** Tutte le mosse e azioni che un giocatore può inviare. */

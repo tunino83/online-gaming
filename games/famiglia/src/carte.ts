@@ -13,6 +13,7 @@ const esatto = (...valori: Valore[]): Codice => ({ tipo: "esatto", valori });
 const coppia: Codice = { tipo: "uguali", carte: 2 };
 const tris: Codice = { tipo: "uguali", carte: 3 };
 const poker: Codice = { tipo: "uguali", carte: 4 };
+const pokerDispari: Codice = { tipo: "uguali", carte: 4, parita: "dispari" };
 const doppiaCoppia: Codice = { tipo: "doppiaCoppia" };
 const somma = (carte: number, totale: number): Codice => ({ tipo: "somma", carte, totale });
 const pari = (carte: number): Codice => ({ tipo: "parita", carte, parita: "pari" });
@@ -226,7 +227,10 @@ const ADULTI: Carta[] = [
         codice: pari(3),
         poteri: [difesa("Ricorso", "Annulli un attacco, ma scarti tante carte numero quanto il livello dell'attacco (se non bastano, tutte)")],
       },
-      { codice: somma(4, 18), poteri: [attacco("Vertenza", "Prendi a un avversario un personaggio attivato di livello 1 o 2, con i suoi punti")] },
+      { codice: somma(4, 18), poteri: [attacco(
+          "Vertenza",
+          "Fai causa a un avversario: paghi con le tue carte il codice di un suo personaggio attivato di livello 1 o 2 e lo prendi, con i suoi punti",
+        )] },
     ],
     "Avvocato",
   ),
@@ -273,7 +277,7 @@ const ADULTI: Carta[] = [
         codice: dispari(3),
         poteri: [difesa("Mutandoni di lana", "Annulli un attacco e fino al tuo prossimo turno nessuna tua carta può essere fatta stancare")],
       },
-      { codice: esatto(1, 1, 1, 1), poteri: [attacco("Il bastone", "Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso")] },
+      { codice: pokerDispari, poteri: [attacco("Il bastone", "Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso")] },
     ],
     "102 anni",
   ),

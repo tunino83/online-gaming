@@ -150,7 +150,10 @@ function controllaScelteAttacco(s: StatoPartita, id: IdGiocatore, potere: string
   if (STANCANO_UNA_CARTA.has(potere)) {
     if (!caricheColpibili(o, potere).some((a) => a.copia.id === p.bersaglio)) rifiuta("Scegli una carta carica dell'avversario");
   } else if (potere === "vertenza") {
-    if (!o.attivati.some((a) => a.copia.id === p.bersaglio && carta(a.copia.carta).livello <= 2)) rifiuta("Scegli un personaggio attivato di livello 1 o 2");
+    const sua = o.attivati.find((a) => a.copia.id === p.bersaglio && carta(a.copia.carta).livello <= 2);
+    if (!sua) rifiuta("Scegli un personaggio attivato di livello 1 o 2");
+    // Per prenderlo si paga il suo codice di attivazione con le proprie carte (anche se poi l'avversario si difende)
+    paga(s, g, carta(sua!.copia.carta), p.combinazione);
   } else if (potere === "sparecchio") {
     if (!o.attivati.some((a) => a.copia.id === p.bersaglio)) rifiuta("Scegli un personaggio attivato dell'avversario");
   } else if (potere === "baratto") {
@@ -695,7 +698,13 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
   return avversari.flatMap((giocatore): ParametriPotere[] => {
     const o = s.giocatori[giocatore]!;
     if (STANCANO_UNA_CARTA.has(potere)) return caricheColpibili(o, potere).map((x) => ({ giocatore, bersaglio: x.copia.id }));
-    if (potere === "vertenza") return o.attivati.filter((x) => carta(x.copia.carta).livello <= 2).map((x) => ({ giocatore, bersaglio: x.copia.id }));
+    if (potere === "vertenza") {
+      // Solo le carte di cui si può pagare il codice (una combinazione per carta)
+      const risorse = risorseGiocatore(g);
+      return o.attivati
+        .filter((x) => carta(x.copia.carta).livello <= 2)
+        .flatMap((x) => trovaCombinazioni(risorse, carta(x.copia.carta).codice, 1).map((combinazione) => ({ giocatore, bersaglio: x.copia.id, combinazione })));
+    }
     if (potere === "sparecchio") return o.attivati.map((x) => ({ giocatore, bersaglio: x.copia.id }));
     if (potere === "baratto") {
       return g.attivati

@@ -19,9 +19,9 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Francesco | 2 | **Smash** | Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso | 3 carte con somma 20 | ricarica 2 |
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Rospe per tutti** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |
-| Giuseppe | 3 | **Vertenza** | Prendi a un avversario un personaggio attivato di livello 1 o 2, con i suoi punti | 4 carte con somma 18 | ricarica 3 |
+| Giuseppe | 3 | **Vertenza** | Paghi con le tue carte il codice di un personaggio attivato di livello 1 o 2 di un avversario e lo prendi, con i suoi punti | 4 carte con somma 18 | ricarica 3 |
 | Sara e Giuseppe | 3 | **Tritacarne** | Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno. Se hai una carta di Chicca stanca, si ricarica | 4 carte con somma 12 | ricarica 3 |
-| Nonno Antonio | 3 | **Il bastone** | Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso | 1111 | ricarica 3 |
+| Nonno Antonio | 3 | **Il bastone** | Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso | Poker dispari | ricarica 3 |
 | Roberta | 1 | **Ti chiamo un attimo…** | Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno | 2 carte con somma 7 | ricarica 2 |
 | Roberta | 3 | **Sparecchio** | Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva | Poker | ricarica 3 |
 | Claudia | 2 | **Zeppata sui social** | Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca | 3 carte con somma 16 | ricarica 2 |

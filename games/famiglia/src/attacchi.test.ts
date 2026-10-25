@@ -247,12 +247,26 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toContain("anna1");
   });
 
-  it("Vertenza: prendi un personaggio attivato di livello 1 o 2, con i suoi punti", () => {
+  it("Vertenza: paghi il codice di un personaggio attivato di livello 1 o 2 dell'avversario e lo prendi, con i suoi punti", () => {
     let s = attivata(attivata(attivata(partita(), "anna", "giuseppe-3"), "bruno", "generoso-2"), "bruno", "generoso-3");
-    expect(rifiutata(s, "anna", { tipo: "potere", carta: "giuseppe-3#1", potere: "vertenza", giocatore: "bruno", bersaglio: "generoso-3#1" })).toMatch(/livello 1 o 2/);
-    s = attacca(s, "giuseppe-3", { giocatore: "bruno", bersaglio: "generoso-2#1" });
+    manoDi(s, "anna", 2, 3, 5, 8); // Generoso 2: 3 carte con somma 10
+    const paga = (...ids: [string, number][]) => ids.map(([id, valore]) => ({ tipo: "numero" as const, id, valore }));
+    expect(
+      rifiutata(s, "anna", { tipo: "potere", carta: "giuseppe-3#1", potere: "vertenza", giocatore: "bruno", bersaglio: "generoso-3#1", combinazione: paga(["anna0", 2], ["anna1", 3], ["anna2", 5]) }),
+    ).toMatch(/livello 1 o 2/);
+    // senza pagare il codice, o con le carte sbagliate, no
+    expect(rifiutata(s, "anna", { tipo: "potere", carta: "giuseppe-3#1", potere: "vertenza", giocatore: "bruno", bersaglio: "generoso-2#1" })).toMatch(/codice/);
+    expect(
+      rifiutata(s, "anna", { tipo: "potere", carta: "giuseppe-3#1", potere: "vertenza", giocatore: "bruno", bersaglio: "generoso-2#1", combinazione: paga(["anna0", 2], ["anna1", 3], ["anna3", 8]) }),
+    ).toMatch(/non soddisfano/);
+    expect(mosseValide(s, "anna")).toContainEqual(expect.objectContaining({ potere: "vertenza", bersaglio: "generoso-2#1" }));
+    s = attacca(s, "giuseppe-3", { giocatore: "bruno", bersaglio: "generoso-2#1", combinazione: paga(["anna0", 2], ["anna1", 3], ["anna2", 5]) });
     expect(puntiDi(g(s, "anna"))).toBe(5);
     expect(puntiDi(g(s, "bruno"))).toBe(3);
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["anna3"]);
+    // senza carte per pagare, Vertenza non si può usare
+    const t = attivata(attivata(partita(), "anna", "giuseppe-3"), "bruno", "generoso-2");
+    expect(mosseValide(t, "anna").some((m) => m.tipo === "potere" && m.potere === "vertenza")).toBe(false);
   });
 
   it("Sparecchio: un personaggio attivato torna nella mano dell'avversario (e perde i punti)", () => {

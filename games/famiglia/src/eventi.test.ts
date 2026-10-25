@@ -172,7 +172,19 @@ describe("fine partita", () => {
     let s = attivata(partita(), "anna", "giuseppe-3");
     for (const id of ["antonio-3", "maddalena-3", "chicca-3", "toto-3", "checca-3"]) attivata(s, "anna", id); // 18 punti
     attivata(s, "bruno", "generoso-2");
-    s = fai(s, "anna", { tipo: "potere", carta: "giuseppe-3#1", potere: "vertenza", giocatore: "bruno", bersaglio: "generoso-2#1" });
+    s.giocatori.anna!.mano = [num(2, "a"), num(3, "b"), num(5, "c")]; // il codice di Generoso 2: 3 carte con somma 10
+    s = fai(s, "anna", {
+      tipo: "potere",
+      carta: "giuseppe-3#1",
+      potere: "vertenza",
+      giocatore: "bruno",
+      bersaglio: "generoso-2#1",
+      combinazione: [
+        { tipo: "numero", id: "a", valore: 2 },
+        { tipo: "numero", id: "b", valore: 3 },
+        { tipo: "numero", id: "c", valore: 5 },
+      ],
+    });
     expect(puntiDi(s.giocatori.anna!)).toBe(20);
     expect(s.ultimoTurno).not.toBeNull();
   });

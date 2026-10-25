@@ -65,7 +65,7 @@ Regole usate:
 | Sara e Giuseppe | 3 | Tritacarne | ⚔️ | 4 carte con somma 12 |
 | Nonno Antonio | 1 | Ne ho viste tante | ✨ | 12 |
 | Nonno Antonio | 2 | Mutandoni di lana | 🛡️ | 3 carte dispari |
-| Nonno Antonio | 3 | Il bastone | ⚔️ | 1111 |
+| Nonno Antonio | 3 | Il bastone | ⚔️ | Poker dispari |
 | Nonna Maddalena | 1 | Ogni cosa al suo posto | ✨ | 2 carte pari |
 | Nonna Maddalena | 2 | Ho appena lavato a terra | 🛡️ | 3 carte con somma 9 |
 | Nonna Maddalena | 3 | Patate al forno | ✨ | Scala da 5 |

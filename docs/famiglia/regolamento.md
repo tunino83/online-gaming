@@ -257,7 +257,6 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Prosecco** (Claudia 1): il codice usato deve essere di un'altra carta con **al massimo 1 livello di differenza**
   (un livello 3 si attiva col codice di un livello 2 o 3, non di un livello 1).
 - **Un caffè** (Generoso 1): codice più difficile, **88 + una coppia qualsiasi** (prima 2 carte con somma 4).
-- **Vertenza** (Giuseppe 3): resta com'è (prende un personaggio di livello 1 o 2).
 - **Mangia mangia mangia** (Alessia): resta gratis, perché poi per 2 turni si scarta una carta in più.
 - Carte deboli rinforzate:
   - **Si incanta** (Totò 1): in più l'attaccante pesca 1 carta numero.
@@ -267,3 +266,8 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
   - **Grigliata** (Totò 3): diventa gratis (non usa mosse).
   - **Ricetta** (Dottor Racioppi): in più si pesca 1 carta numero.
   - Restano come sono *Schietta* (Checca 1) e Maddalena 1: sembrano deboli soprattutto perché i robot non le sanno sfruttare.
+- **Il bastone** (Nonno Antonio 3): codice più facile, **poker dispari** (4 carte uguali di valore dispari: 1111, 3333, 5555
+  o 7777; prima solo 1111).
+- **Vertenza** (Giuseppe 3): prende solo personaggi di livello 1 o 2, mai di livello 3; e per prenderlo si deve
+  **pagare con le proprie carte il codice di attivazione** di quel personaggio. Il codice si paga quando si lancia
+  l'attacco: se l'avversario si difende, le carte pagate sono perse.

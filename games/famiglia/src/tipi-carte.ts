@@ -10,8 +10,8 @@ export type Valore = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 export type Codice =
   /** Esattamente quei valori, in qualsiasi ordine (es. 25). */
   | { tipo: "esatto"; valori: Valore[] }
-  /** Coppia, tris o poker: 2, 3 o 4 carte dello stesso valore. */
-  | { tipo: "uguali"; carte: 2 | 3 | 4 }
+  /** Coppia, tris o poker: 2, 3 o 4 carte dello stesso valore (`parita`: solo di un valore pari o dispari, es. poker dispari). */
+  | { tipo: "uguali"; carte: 2 | 3 | 4; parita?: "pari" | "dispari" }
   /** `carte` carte la cui somma è `totale`. */
   | { tipo: "somma"; totale: number; carte: number }
   /** Valori consecutivi (scala da 3 o da 5). */

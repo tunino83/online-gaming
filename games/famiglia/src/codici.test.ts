@@ -27,6 +27,15 @@ describe("tipi di codice", () => {
     expect(puo({ tipo: "uguali", carte: 4 }, 6, 6, 6, 6)).toBe(true);
   });
 
+  it("poker dispari: 4 carte uguali di valore dispari (Nonno Antonio 3)", () => {
+    const pokerDispari: Codice = { tipo: "uguali", carte: 4, parita: "dispari" };
+    expect(puo(pokerDispari, 3, 3, 3, 3)).toBe(true);
+    expect(puo(pokerDispari, 7, 7, 7, 7, 2)).toBe(true);
+    expect(puo(pokerDispari, 6, 6, 6, 6)).toBe(false);
+    expect(puo(pokerDispari, 3, 3, 3, 5)).toBe(false);
+    expect(descriviCodice(pokerDispari)).toBe("Poker dispari");
+  });
+
   it("somma con un numero preciso di carte", () => {
     expect(puo({ tipo: "somma", carte: 3, totale: 20 }, 8, 7, 5)).toBe(true);
     expect(puo({ tipo: "somma", carte: 2, totale: 9 }, 8, 7, 5)).toBe(false);
