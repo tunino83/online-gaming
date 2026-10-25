@@ -144,18 +144,25 @@ export function GuidaFamiglia() {
 }
 
 const GRUPPI: { titolo: string; filtro: (c: Carta) => boolean }[] = [
-  { titolo: "Adulti (3 carte ciascuno)", filtro: (c) => c.categoria === "personaggio" && c.id !== c.persona },
+  { titolo: "Adulti (3 carte ciascuno: girale con le frecce)", filtro: (c) => c.categoria === "personaggio" && c.id !== c.persona },
   { titolo: "Carte singole", filtro: (c) => c.categoria === "personaggio" && c.id === c.persona },
   { titolo: "Carte difesa (si usano una volta, quando ti attaccano)", filtro: (c) => c.categoria === "difesa" },
   { titolo: "Carte attacco (si usano una volta)", filtro: (c) => c.categoria === "attacco" },
 ];
 
-/** Ordine per sfogliare le carte in grande: lo stesso dell'elenco. */
-const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => CARTE.filter(g.filtro));
+/** Le carte di un gruppo, raccolte per persona (gli adulti hanno 3 carte, le altre una). */
+function perPersona(filtro: (c: Carta) => boolean): Carta[][] {
+  const persone = new Map<string, Carta[]>();
+  for (const c of CARTE.filter(filtro)) persone.set(c.persona, [...(persone.get(c.persona) ?? []), c]);
+  return [...persone.values()];
+}
+
+/** Ordine per sfogliare le carte a tutto schermo: lo stesso dell'elenco. */
+const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).flat());
 
 /**
- * Elenco di tutte le carte (come "Tutte le carte" di Il Portale): carta grande con la foto, codice, punti e poteri.
- * Toccando una carta si apre in grande e si possono sfogliare tutte.
+ * Elenco di tutte le carte: una persona per riga, con la carta grande. Per gli adulti le frecce (o il dito)
+ * fanno girare le 3 carte dei vari livelli. Toccando la carta si apre a tutto schermo.
  */
 export function CatalogoFamiglia() {
   const [aperta, setAperta] = useState<number | null>(null);
@@ -163,37 +170,92 @@ export function CatalogoFamiglia() {
   return (
     <div>
       <p className="mb-2 text-sm">
-        {CARTE.length} carte diverse, {copie} nel mazzo. Tocca una carta per vederla in grande e sfogliarle tutte.
+        {CARTE.length} carte diverse, {copie} nel mazzo. Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo.
       </p>
       {GRUPPI.map((g) => (
-        <div key={g.titolo} className="mb-4">
+        <div key={g.titolo} className="mb-5">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {CARTE.filter(g.filtro).map((c) => (
-              <li key={c.id} className="flex flex-col items-center gap-1 rounded-xl border border-inchiostro/15 bg-white/50 p-2 text-center">
-                <CartaFamiglia idCarta={c.id} dimensione={130} onClick={() => setAperta(IN_ORDINE.indexOf(c))} />
-                <p className="font-titolo text-sm font-bold leading-tight">
-                  {c.nome}
-                  {c.categoria === "personaggio" && <span className="text-oro"> {"★".repeat(c.livello)}</span>}
-                </p>
-                <p className="text-xs">
-                  <strong>Si attiva con:</strong> {descriviCodice(c.codice)}
-                </p>
-                <p className="text-xs">
-                  <strong>{c.punti > 0 ? `${c.punti} ${c.punti === 1 ? "punto" : "punti"}` : "Niente punti"}</strong>
-                  {c.copie > 1 && ` · ${c.copie} copie`}
-                </p>
-                {c.poteri.map((p) => (
-                  <p key={p.id} className="text-xs text-tenue">
-                    {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
-                  </p>
-                ))}
+          <ul className="space-y-3">
+            {perPersona(g.filtro).map((carte) => (
+              <li key={carte[0]!.persona}>
+                <Carosello carte={carte} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
               </li>
             ))}
           </ul>
         </div>
       ))}
       {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
+    </div>
+  );
+}
+
+/** Le carte di una persona, una alla volta: frecce, pallini dei livelli e scorrimento del dito. */
+function Carosello({ carte, onApri }: { carte: Carta[]; onApri: (c: Carta) => void }) {
+  const [i, setI] = useState(0);
+  const inizio = useRef<number | null>(null);
+  const c = carte[i]!;
+  const piu = carte.length > 1;
+  const vai = (passo: number) => setI((x) => (x + passo + carte.length) % carte.length);
+  return (
+    <div
+      className="flex flex-col items-center gap-2 rounded-xl border border-inchiostro/15 bg-white/50 p-3 text-center"
+      onTouchStart={(e) => {
+        inizio.current = e.touches[0]?.clientX ?? null;
+      }}
+      onTouchEnd={(e) => {
+        const fine = e.changedTouches[0]?.clientX;
+        if (piu && inizio.current !== null && fine !== undefined && Math.abs(fine - inizio.current) > 50) vai(fine < inizio.current ? 1 : -1);
+        inizio.current = null;
+      }}
+    >
+      <p className="font-titolo text-lg font-bold leading-tight">
+        {c.nome}
+        {c.categoria === "personaggio" && <span className="text-oro"> {"★".repeat(c.livello)}</span>}
+      </p>
+      <div className="flex items-center gap-2">
+        {piu && (
+          <button type="button" onClick={() => vai(-1)} className="rounded-full bg-inchiostro/10 px-3 py-2 text-2xl" aria-label="Livello precedente">
+            ‹
+          </button>
+        )}
+        {/* sul telefono la carta si stringe quanto basta per lasciare posto alle frecce */}
+        <CartaFamiglia idCarta={c.id} dimensione={Math.min(220, Math.max(140, window.innerWidth - 180))} onClick={() => onApri(c)} />
+        {piu && (
+          <button type="button" onClick={() => vai(1)} className="rounded-full bg-inchiostro/10 px-3 py-2 text-2xl" aria-label="Livello successivo">
+            ›
+          </button>
+        )}
+      </div>
+      {piu && (
+        <div className="flex gap-1.5" role="tablist" aria-label="Livelli">
+          {carte.map((x, n) => (
+            <button
+              key={x.id}
+              type="button"
+              role="tab"
+              aria-selected={n === i}
+              onClick={() => setI(n)}
+              className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${n === i ? "bg-oro text-[#2b1a05]" : "bg-inchiostro/10"}`}
+            >
+              Livello {x.livello}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="max-w-sm space-y-1 text-sm">
+        {c.poteri.map((p) => (
+          <p key={p.id}>
+            {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
+          </p>
+        ))}
+        <p className="text-xs text-tenue">
+          🔑 Si attiva con: <strong>{descriviCodice(c.codice)}</strong> ·{" "}
+          {c.punti > 0 ? `${c.punti} ${c.punti === 1 ? "punto" : "punti"}` : "niente punti"}
+          {c.ricarica > 0 && ` · si ricarica in ${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`}
+          {c.copie > 1 && ` · ${c.copie} copie`}
+        </p>
+        {c.nota && <p className="text-xs italic text-tenue">{c.nota}</p>}
+      </div>
     </div>
   );
 }
