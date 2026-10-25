@@ -76,8 +76,8 @@ describe("regole sui dati delle carte", () => {
     expect(new Set(CARTE.map((c) => c.id)).size).toBe(CARTE.length);
   });
 
-  it("94 carte nel mazzo (100 meno le 6 di Simone e Annalisa, ancora da definire)", () => {
-    expect(CARTE.reduce((s, c) => s + c.copie, 0)).toBe(94);
+  it("95 carte nel mazzo (101 meno le 6 di Simone e Annalisa, ancora da definire)", () => {
+    expect(CARTE.reduce((s, c) => s + c.copie, 0)).toBe(95);
   });
 
   it("personaggi: punti uguali al livello, ricarica uguale al livello (Christian e Roberta 1: 2)", () => {

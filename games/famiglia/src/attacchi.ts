@@ -299,6 +299,21 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "risata-contagiosa":
       scartaACaso(1);
       break;
+    case "bisiniss": {
+      // La carta numero più alta viene tagliata a metà: si scarta e al suo posto arriva una carta che vale la metà
+      if (V.mano.length === 0) break;
+      const alta = V.mano.reduce((max, c) => (c.valore > max.valore ? c : max));
+      scartaNumeri(s, [togliNumero(V, alta.id)!]);
+      const meta = Math.max(1, Math.floor(alta.valore / 2));
+      for (const mazzo of [s.mazzi.numeri, s.scarti.numeri]) {
+        const i = mazzo.findIndex((c) => c.valore === meta && !c.unite);
+        if (i >= 0) {
+          V.mano.push(...mazzo.splice(i, 1));
+          break;
+        }
+      }
+      break;
+    }
     case "multa":
       scartaACaso(2);
       break;

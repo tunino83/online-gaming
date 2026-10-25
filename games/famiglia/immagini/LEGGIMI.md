@@ -50,6 +50,7 @@ circa **5:6** (es. **1000 × 1200 pixel**), con il soggetto al centro. Usa solo 
 | Greta | `greta` | — |
 | Donato | `donato` | — |
 | Franchino (vigile) | `franchino` | — |
+| Rocky (barbiere) | `rocky` | — |
 | Vincenzo (fruttivendolo) | `vincenzo` | — |
 | Don Pasquale (parroco) | `don-pasquale` | — |
 | Dottor Racioppi (medico) | `dottor-racioppi` | — |

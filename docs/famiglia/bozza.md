@@ -73,6 +73,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 
 | Persona | Livello | Potere | Ricarica |
 | --- | --- | --- | --- |
+| **Rocky** (il barbiere) | 2 | ⚔️ *Bisiniss*: la carta numero più alta di un avversario viene tagliata a metà: la scarta e al suo posto riceve una carta che vale la metà (un 8 diventa un 4) | 2 |
 | **Franchino** (il vigile) | 2 | ⚔️ *Multa*: chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti) | 2 |
 | **Vincenzo** (il fruttivendolo con l'Ape) | 1 | ✨ *Frutta e verdura!*: scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 1 |
 | **Don Pasquale** (il parroco) | 2 | 🛡️ *Benedizione*: nel tuo turno (costa una mossa), fino al tuo prossimo turno nessun giocatore può essere attaccato | 2 |

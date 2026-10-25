@@ -8,7 +8,7 @@ import { CARTE, type Carta, DIFESE_PROATTIVE, descriviCodice } from "../src";
 /** Attacchi contro tutti (non si possono deviare). */
 const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa"]);
 /** Attacchi che fanno scartare carte numero o stancare carte: gli unici danni che la Guardia medica cura. */
-const CURABILI = new Set(["forno-a-legna", "urla", "smash", "il-bastone", "risata-contagiosa", "multa", "vento", "versa-il-vino", "la-tomacella", "volo-infuocato", "zeppata-sui-social"]);
+const CURABILI = new Set(["bisiniss", "forno-a-legna", "urla", "smash", "il-bastone", "risata-contagiosa", "multa", "vento", "versa-il-vino", "la-tomacella", "volo-infuocato", "zeppata-sui-social"]);
 const DEVIANO = new Set(["non-e-colpa-mia", "e-colpa-di-qualcun-altro"]);
 
 interface Voce {

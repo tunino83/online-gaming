@@ -325,6 +325,21 @@ describe("attacchi a un avversario", () => {
     expect(s.turno.mosseRimaste).toBe(3); // il turno dopo gioca normalmente
   });
 
+  it("Bisiniss (Rocky): la carta più alta dell'avversario diventa una carta che vale la metà", () => {
+    let s = attivata(partita(), "anna", "rocky");
+    manoDi(s, "bruno", 3, 8, 5);
+    s = attacca(s, "rocky", { giocatore: "bruno" });
+    expect(g(s, "bruno").mano.map((c) => c.valore).sort()).toEqual([3, 4, 5]);
+    expect(s.scarti.numeri.map((c) => c.id)).toEqual(["bruno1"]);
+  });
+
+  it("Bisiniss: un 1 resta un 1 (la metà non scende sotto 1)", () => {
+    let s = attivata(partita(), "anna", "rocky");
+    manoDi(s, "bruno", 1);
+    s = attacca(s, "rocky", { giocatore: "bruno" });
+    expect(g(s, "bruno").mano.map((c) => c.valore)).toEqual([1]);
+  });
+
   it("Vento: le carte numero volano via e si ripescano altrettante", () => {
     let s = partita();
     g(s, "anna").attacchi = [copia("vento")];
@@ -637,7 +652,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(28);
+    expect(attacchi.length).toBe(29);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);

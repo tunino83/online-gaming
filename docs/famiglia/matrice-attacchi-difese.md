@@ -66,6 +66,7 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | Parla parla parla (Nicole) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
 | Risata contagiosa (Greta) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 19 |
 | Multa (Franchino) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 19 |
+| Bisiniss (Rocky) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
 | La tomacella (La tomacella) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
 | Giro aperto (Giro aperto) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
 | Gli occhi 'nguoll (Gli occhi 'nguoll) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
@@ -76,11 +77,11 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | Livello attacco | Attacchi | Difese che li fermano (✓ ↪ 🔁) |
 | --- | --- | --- |
 | 1 | 6 | da 22 a 24 su 26 |
-| 2 | 12 | da 19 a 21 su 26 |
+| 2 | 13 | da 19 a 21 su 26 |
 | 3 | 10 | da 5 a 6 su 26 |
 
 | Livello difesa | Difese | Attacchi che possono fermare |
 | --- | --- | --- |
-| 1 | 4 | da 0 a 6 su 28 |
-| 2 | 16 | da 0 a 18 su 28 |
-| 3 | 6 | da 20 a 28 su 28 |
+| 1 | 4 | da 0 a 6 su 29 |
+| 2 | 16 | da 0 a 19 su 29 |
+| 3 | 6 | da 21 a 29 su 29 |

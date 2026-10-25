@@ -66,9 +66,9 @@ function persona(nome: string, lati: [Lato, Lato, Lato], nota?: string): Carta[]
 }
 
 /** Una persona con una carta sola (bambini e gente del paese). */
-function singola(nome: string, livello: Livello, codice: Codice, poteri: Potere[], ricarica: number = livello): Carta {
+function singola(nome: string, livello: Livello, codice: Codice, poteri: Potere[], ricarica: number = livello, nota?: string): Carta {
   const id = slug(nome);
-  return { id, persona: id, nome, categoria: "personaggio", livello, codice, punti: livello, ricarica, poteri, copie: 1 };
+  return { id, persona: id, nome, categoria: "personaggio", livello, codice, punti: livello, ricarica, poteri, ...(nota ? { nota } : {}), copie: 1 };
 }
 
 /** Carta difesa o attacco: si usa una volta sola e non dà punti. */
@@ -306,6 +306,14 @@ const SINGOLE: Carta[] = [
   singola("Greta", 2, dispari(3), [attacco("Risata contagiosa", "Ogni avversario scarta 1 carta numero a caso")]),
   singola("Donato", 2, scala(3), [difesa("Non ti sento, sto suonando", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro")]),
   singola("Franchino", 2, somma(3, 15), [attacco("Multa", "Chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti)")]),
+  singola(
+    "Rocky",
+    2,
+    somma(3, 14),
+    [attacco("Bisiniss", "Tagli a metà la carta numero più alta di un avversario: la scarta e al suo posto riceve una carta che vale la metà (es. un 8 diventa un 4)")],
+    2,
+    "Il barbiere del paese",
+  ),
   singola("Vincenzo", 1, somma(2, 8), [aiuto("Frutta e verdura!", "Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti")]),
   singola("Don Pasquale", 2, tris, [difesa("Benedizione", "Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato")]),
   singola("Dottor Racioppi", 1, somma(2, 10), [aiuto("Ricetta", "Ricarichi subito una carta stanca di chi vuoi")]),

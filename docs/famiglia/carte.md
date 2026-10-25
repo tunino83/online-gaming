@@ -91,6 +91,7 @@ Regole usate:
 | Greta | 2 | Risata contagiosa | ⚔️ | 3 carte dispari |
 | Donato | 2 | Non ti sento, sto suonando | 🛡️ | Scala da 3 |
 | Franchino | 2 | Multa | ⚔️ | 3 carte con somma 15 |
+| Rocky | 2 | Bisiniss | ⚔️ | 3 carte con somma 14 |
 | Vincenzo | 1 | Frutta e verdura! | ✨ | 2 carte con somma 8 |
 | Don Pasquale (parroco) | 2 | Benedizione | 🛡️ | Tris |
 | Dottor Racioppi (medico) | 1 | Ricetta | ✨ | 2 carte con somma 10 |
