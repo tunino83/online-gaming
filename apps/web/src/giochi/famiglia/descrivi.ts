@@ -93,7 +93,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
       return c ? `Pesca ${nomeCopia(c.id)}` : "Pesca un personaggio";
     }
     case "brucia":
-      return "Brucia le carte numero del tavolo";
+      return "🔥 Butta nel camino le carte numero del tavolo";
     case "pescaEvento":
       return "Pesca un evento";
     case "attiva": {

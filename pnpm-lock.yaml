@@ -44,8 +44,14 @@ importers:
       '@dicebear/core':
         specifier: 9.2.2
         version: 9.2.2
+      '@fontsource/caveat':
+        specifier: '5'
+        version: 5.3.0
       '@fontsource/cinzel':
         specifier: ^5.1.0
+        version: 5.3.0
+      '@fontsource/fredoka':
+        specifier: '5'
         version: 5.3.0
       '@og/engine':
         specifier: workspace:^
@@ -861,8 +867,14 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@fontsource/caveat@5.3.0':
+    resolution: {integrity: sha512-eHTfzQxFSW9ABERRLNruHoNJmKed2J7pqTUc5lp4a4POMgXGKpxmWj3d9Hz10kmAg6iuTTLe6UagbA4bnsmfQw==}
+
   '@fontsource/cinzel@5.3.0':
     resolution: {integrity: sha512-KEOYTsrRppW0uRIPWBDPrQgunCS6f8u4nzZxYRBfo9SCknKojLYjK7B0ZoVmJhyVLefz271ZQRF9EOpHZlfhRw==}
+
+  '@fontsource/fredoka@5.3.0':
+    resolution: {integrity: sha512-s2IhjQ50wDnKkkaKmjhtL0rxQg6ITsVusiipM3m7zUwVZZbbCKsscNDkngwp28xVzfIt7neWrkgU1qKqyTycQg==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -2188,7 +2200,11 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
+  '@fontsource/caveat@5.3.0': {}
+
   '@fontsource/cinzel@5.3.0': {}
+
+  '@fontsource/fredoka@5.3.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:

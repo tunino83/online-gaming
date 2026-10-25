@@ -6,9 +6,10 @@ import { useVistaPubblica } from "../../lib/useVistaPubblica";
 import { Caricamento, Errore } from "../../ui";
 import { CartaFamiglia, CartaNumeroGrafica } from "./carte";
 import { descriviFatto } from "./descrivi";
-import { AreaGiocatore, BarraStato, Esito, Evento, Protezioni, Zona } from "./Tavolo";
+import { AreaGiocatore, BarraStato, Esito, Evento, Protezioni, Zona, useSfondoFamiglia } from "./Tavolo";
 
 export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; giocatori: GiocatorePartita[] }) {
+  useSfondoFamiglia();
   const { riga, errore } = useVistaPubblica<VistaGiocatore>(partita.id);
   const nick = useMemo(() => {
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
@@ -18,7 +19,7 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
   if (!riga) return <Caricamento testo="Apro il tavolo…" />;
   const v = riga.vista;
   return (
-    <div className="mx-auto max-w-6xl space-y-3 px-3 py-3 text-luce">
+    <div className="gioco-famiglia mx-auto max-w-6xl space-y-3 px-3 py-3 text-luce">
       <BarraStato v={v} io="" nick={nick} secondi={null} difesa={false} />
       {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
       <Protezioni v={v} nick={nick} />

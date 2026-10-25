@@ -1,19 +1,57 @@
 /**
- * Disegno delle carte della Famiglia: personaggi (immagine o nome), carte numero e mancia dei nonni.
- * Colore della cornice secondo il tipo: attacco rosso, difesa blu, aiuto verde; carte difesa/attacco più scure.
+ * Disegno delle carte della Famiglia (stile in famiglia.css): cartoncini "di casa" con la cornice cucita,
+ * il nastro col nome, lo stemma del tipo e l'etichetta del potere; carte numero come piastrelle di maiolica.
  */
+import "@fontsource/caveat/700.css";
+import "@fontsource/fredoka/500.css";
+import "@fontsource/fredoka/600.css";
+import "@fontsource/fredoka/700.css";
 import { type Carta, type CartaMancia, type CartaNumero, carta, descriviCodice } from "@og/famiglia";
-import type { ReactNode } from "react";
-import { EMOJI_TIPO } from "./descrivi";
+import type { CSSProperties, ReactNode } from "react";
+import "./famiglia.css";
 import { immagineCarta } from "./immagini";
 
-const COLORE_TIPO = { attacco: "#b3261e", difesa: "#2f6fb3", aiuto: "#2e7d4f" } as const;
+/** Tipologie di potere, ognuna col suo stemma: le blu sono aiuti sempre attivi. */
+export const TIPOLOGIE = {
+  attacco: { nome: "Attacco", icona: "⚔️", colore: "#c63d2f", scuro: "#8e2219" },
+  difesa: { nome: "Difesa", icona: "🛡️", colore: "#2d5f9a", scuro: "#1b3d66" },
+  aiuto: { nome: "Aiuto", icona: "✨", colore: "#3e8a4f", scuro: "#25603a" },
+  blu: { nome: "Aiuto blu (sempre attivo)", icona: "✨", colore: "#1f9fc9", scuro: "#14708f" },
+} as const;
+export type Tipologia = keyof typeof TIPOLOGIE;
 
-function coloreCarta(c: Carta): string {
-  const tipi = new Set(c.poteri.map((p) => p.tipo));
-  if (tipi.has("attacco")) return COLORE_TIPO.attacco;
-  if (tipi.has("difesa") && !tipi.has("aiuto")) return COLORE_TIPO.difesa;
-  return COLORE_TIPO.aiuto;
+/** Le tipologie dei poteri di una carta, senza ripetizioni (al massimo 2). */
+export function tipologieCarta(c: Carta): Tipologia[] {
+  return [...new Set(c.poteri.map((p): Tipologia => (p.blu ? "blu" : p.tipo)))];
+}
+
+/** Colore principale della carta: attacco, poi difesa (se non ha aiuti), poi aiuto. */
+function tipologiaPrincipale(c: Carta): Tipologia {
+  const tipi = tipologieCarta(c);
+  if (tipi.includes("attacco")) return "attacco";
+  if (tipi.includes("difesa") && !tipi.includes("aiuto") && !tipi.includes("blu")) return "difesa";
+  return tipi.includes("aiuto") ? "aiuto" : (tipi[0] ?? "aiuto");
+}
+
+/** Stemma a scudo del tipo di potere, con la cucitura e il simbolo. */
+export function Stemma({ tipo, dimensione = 22 }: { tipo: Tipologia; dimensione?: number }) {
+  const t = TIPOLOGIE[tipo];
+  const scudo = "M20 2 L37 7 V22 C37 33 29 40 20 44 C11 40 3 33 3 22 V7 Z";
+  return (
+    <svg viewBox="0 0 40 46" width={dimensione} height={(dimensione * 46) / 40} role="img" aria-label={t.nome}>
+      <defs>
+        <linearGradient id={`stemma-${tipo}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={t.colore} />
+          <stop offset="1" stopColor={t.scuro} />
+        </linearGradient>
+      </defs>
+      <path d={scudo} fill={`url(#stemma-${tipo})`} stroke="#fff4dc" strokeWidth="2.5" />
+      <path d={scudo} fill="none" stroke="#fff4dc" strokeWidth="1.2" strokeDasharray="2.2 2" opacity="0.75" transform="translate(20 23) scale(0.78) translate(-20 -23)" />
+      <text x="20" y="25" textAnchor="middle" dominantBaseline="middle" fontSize="17">
+        {t.icona}
+      </text>
+    </svg>
+  );
 }
 
 /** Carta del mazzo personaggi. `stanca`: turni alla ricarica (0 = carica); undefined = non attivata. */
@@ -35,74 +73,54 @@ export function CartaFamiglia({
   coperta?: boolean;
 }) {
   const larghezza = typeof dimensione === "number" ? dimensione : dimensione === "piccola" ? 64 : dimensione === "media" ? 88 : 220;
-  // I testi crescono con la carta (la misura "media" è quella di riferimento)
+  // I testi e i bordi crescono con la carta (la misura "media" è quella di riferimento)
   const s = larghezza / 88;
-  const px = (base: number, max = Number.POSITIVE_INFINITY) => Math.min(base * s, max);
-  const stile = { width: larghezza, height: Math.round(larghezza * 1.4) };
+  const misura = { width: larghezza, height: Math.round(larghezza * 1.4) };
   if (coperta) {
     return (
-      <div
-        style={stile}
-        className="grid shrink-0 place-items-center rounded-lg border-2 border-oro bg-gradient-to-br from-[#5b3a8c] to-[#2b1a4a] text-2xl shadow"
-        aria-label="carta coperta"
-      >
-        👨‍👩‍👧
+      <div style={misura} className="cf-dorso shrink-0" aria-label="carta coperta">
+        <span>🏡</span>
       </div>
     );
   }
   const c = carta(idCarta);
-  const colore = coloreCarta(c);
+  const principale = TIPOLOGIE[tipologiaPrincipale(c)];
   const immagine = immagineCarta(idCarta);
   const Contenitore = onClick ? "button" : "div";
+  const stile = { ...misura, "--s": s, "--cf-colore": principale.colore, "--cf-scuro": principale.scuro } as CSSProperties;
   return (
     <Contenitore
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      style={{ ...stile, borderColor: colore }}
-      className={`relative flex shrink-0 flex-col overflow-hidden rounded-lg border-[3px] bg-[#fbf3df] text-left text-inchiostro shadow transition ${
-        evidenziata ? "ring-4 ring-oro-chiaro" : ""
-      } ${onClick ? "hover:-translate-y-0.5 active:translate-y-0" : ""}`}
+      style={stile}
+      className={`cf ${s >= 2 ? "cf-grande" : ""} ${c.categoria !== "personaggio" ? "cf-oggetto" : ""} ${onClick ? "cf-cliccabile" : ""} ${evidenziata ? "cf-evidenziata" : ""}`}
       aria-label={`${c.nome}, livello ${c.livello}`}
     >
-      {/* titolo */}
-      <div className="truncate px-1 text-center font-bold leading-tight text-white" style={{ background: colore, fontSize: px(10, 20) }}>
-        {c.nome}
-      </div>
-      {/* immagine, oppure il nome scritto in grande */}
-      <div className="relative min-h-0 flex-1">
-        {immagine ? (
-          <img src={immagine} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_30%]" draggable={false} />
-        ) : (
-          <div className="grid h-full place-items-center px-1 text-center font-titolo font-bold leading-tight" style={{ fontSize: px(11, 28), color: colore }}>
-            {c.nome}
-          </div>
-        )}
-        {c.categoria === "personaggio" && (
-          <span className="absolute left-0.5 top-0.5 rounded bg-black/60 px-1 font-bold text-white" style={{ fontSize: px(9, 16) }}>
-            {"★".repeat(c.livello)}
-          </span>
-        )}
-        {c.punti > 0 && (
-          <span
-            className="absolute right-0.5 top-0.5 grid place-items-center rounded-full bg-oro font-bold text-[#2b1a05]"
-            style={{ width: px(20, 34), height: px(20, 34), fontSize: px(10, 17) }}
-          >
-            {c.punti}
-          </span>
-        )}
-        {stanca !== undefined && stanca > 0 && (
-          <div className="absolute inset-0 grid place-items-center bg-black/45 text-center font-bold text-white" style={{ fontSize: px(11, 24) }}>
-            😴 {stanca}
-          </div>
-        )}
-      </div>
-      {/* poteri e codice */}
-      <div className="border-t border-black/10 bg-white/70 px-1 py-0.5 leading-tight" style={{ fontSize: px(8, 14) }}>
-        <div className="truncate font-semibold">
-          {c.poteri.map((p) => `${p.blu ? "🔵" : EMOJI_TIPO[p.tipo]} ${p.nome}`).join(" / ")}
+      <div className="cf-cornice">
+        <div className="cf-titolo">{c.nome}</div>
+        <div className="cf-foto">
+          {immagine ? (
+            <img src={immagine} alt="" draggable={false} />
+          ) : (
+            <div className="cf-segnaposto">
+              <b>{c.nome.charAt(0)}</b>
+              <span>{c.categoria === "personaggio" ? c.nota ?? "" : c.categoria === "difesa" ? "carta difesa" : "carta attacco"}</span>
+            </div>
+          )}
+          {c.categoria === "personaggio" && <span className="cf-livello">{"★".repeat(c.livello)}</span>}
+          {stanca !== undefined && stanca > 0 && <div className="cf-stanca">😴 {stanca}</div>}
         </div>
-        <div className="truncate text-tenue">🔑 {descriviCodice(c.codice)}</div>
+        <div className="cf-etichetta">
+          <div className="cf-potere">{c.poteri.map((p) => p.nome).join(" / ")}</div>
+          <div className="cf-codice">🔑 {descriviCodice(c.codice)}</div>
+        </div>
       </div>
+      <div className="cf-stemmi">
+        {tipologieCarta(c).map((tipo) => (
+          <Stemma key={tipo} tipo={tipo} dimensione={Math.round(19 * s)} />
+        ))}
+      </div>
+      {c.punti > 0 && <span className="cf-punti">{c.punti}</span>}
     </Contenitore>
   );
 }
@@ -117,9 +135,10 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
         {c.nota && <p className="italic text-tenue">{c.nota}</p>}
         {c.poteri.map((p) => (
           <p key={p.id}>
-            <b>
-              {p.blu ? "🔵" : EMOJI_TIPO[p.tipo]} {p.nome}:
-            </b>{" "}
+            <span className="mr-1 inline-block align-middle">
+              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={18} />
+            </span>
+            <b>{p.nome}:</b>{" "}
             {p.testo}
           </p>
         ))}
@@ -161,16 +180,12 @@ export function CartaNumeroGrafica({
     <Contenitore
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      className={`relative grid shrink-0 place-items-center rounded-lg border-2 font-titolo font-bold shadow transition ${
-        piccola ? "h-11 w-8 text-lg" : "h-16 w-12 text-2xl"
-      } ${c.unite ? "border-[#8a5a2b] bg-[#f6dcb5] text-[#5a3410]" : "border-oro bg-[#fbf3df] text-inchiostro"} ${
-        selezionata ? "-translate-y-2 ring-4 ring-oro-chiaro" : ""
-      }`}
+      className={`cf-num ${c.unite ? "cf-num-casa" : ""} ${selezionata ? "cf-num-scelta" : ""} ${piccola ? "h-11 w-8 text-base" : "h-16 w-12 text-2xl"}`}
       aria-label={`carta ${c.valore}${c.unite ? " fatta in casa" : ""}`}
     >
-      {c.valore}
-      {c.campanello && <span className="absolute right-0.5 top-0 text-[10px]">🔔</span>}
-      {c.unite && <span className="absolute bottom-0 text-[8px] font-sans">🏠</span>}
+      <b>{c.valore}</b>
+      {c.campanello && <span className="absolute -right-1 -top-1 text-[11px]">🔔</span>}
+      {c.unite && <span className="absolute -bottom-1 text-[9px]">🏠</span>}
       {nota}
     </Contenitore>
   );

@@ -10,8 +10,9 @@ import { suonoTuoTurno } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
-import { Caricamento, Errore, Pulsante } from "../../ui";
+import { Caricamento, Errore, Pulsante as PulsanteBase } from "../../ui";
 import { CartaFamiglia, CartaNumeroGrafica, Mancia, SchedaCarta } from "./carte";
+import "./famiglia.css";
 import { cartaDiCopia, descriviFatto, descriviMossa, nomeCarta, nomePotere } from "./descrivi";
 import { GuidaFamiglia } from "./Guida";
 import { type Avviso, avvisoTraViste } from "./avvisi";
@@ -24,7 +25,16 @@ const RIPROVA_MS = 4000;
 
 type Scheda = { titolo: string; idCarta?: string; stanca?: number; mosse: Mossa[] } | null;
 
+/** Mentre si gioca alla Famiglia la pagina ha lo sfondo e i colori "di casa" (famiglia.css). */
+export function useSfondoFamiglia(): void {
+  useEffect(() => {
+    document.body.classList.add("sfondo-famiglia");
+    return () => document.body.classList.remove("sfondo-famiglia");
+  }, []);
+}
+
 export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; giocatori: GiocatorePartita[]; io: string }) {
+  useSfondoFamiglia();
   const { riga, errore: erroreLettura, ricarica } = useVista<VistaGiocatore, Mossa>(partita.id, true);
   const [invio, setInvio] = useState(false);
   const [aspettoOltre, setAspettoOltre] = useState<number | null>(null);
@@ -190,7 +200,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const finito = v.finita;
 
   return (
-    <div className="space-y-3 pb-28 pt-2 text-luce">
+    <div className="gioco-famiglia space-y-3 pb-28 pt-2 text-luce">
       {/* stato della partita */}
       <BarraStato v={v} io={io} nick={nick} secondi={secondiRimasti} difesa={!!scadenza?.difesa} />
       {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
@@ -252,10 +262,10 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
             ),
           )}
           <div className="flex flex-col gap-1.5">
-            <Mazzo testo="🃏 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
+            <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
             <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
             <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
-            <Mazzo testo="🔥 Brucia" onClick={azione(trova((m) => m.tipo === "brucia"))} />
+            <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
           </div>
         </div>
         {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
@@ -448,9 +458,9 @@ export function BarraStato({ v, io, nick, secondi, difesa }: { v: VistaGiocatore
 export function Evento({ id, turni }: { id: string; turni: number }) {
   const e = evento(id);
   return (
-    <div className="rounded-xl border-2 border-[#ff7ad9] bg-[#3a1d5c] px-3 py-2 text-sm">
-      <b>🎉 {e.nome}</b> <span className="text-xs text-white/70">(ancora {turni} {turni === 1 ? "turno" : "turni"})</span>
-      <p className="text-xs text-white/85">{e.testo}</p>
+    <div className="fm-evento rounded-xl px-3 py-2 text-sm">
+      <b>🎉 {e.nome}</b> <span className="text-xs opacity-70">(ancora {turni} {turni === 1 ? "turno" : "turni"})</span>
+      <p className="text-xs opacity-85">{e.testo}</p>
     </div>
   );
 }
@@ -516,7 +526,7 @@ export function SchedaGiocatore({
 
 export function Zona({ titolo, children, onTitolo }: { titolo: string; children: ReactNode; onTitolo?: () => void }) {
   return (
-    <section className="rounded-2xl border border-white/15 bg-black/15 p-2">
+    <section className="fm-zona rounded-2xl p-2">
       <button type="button" onClick={onTitolo} disabled={!onTitolo} className="mb-1 text-xs font-bold uppercase tracking-wide text-oro-chiaro/90">
         {titolo}
         {onTitolo && " ▾"}
@@ -622,12 +632,17 @@ function Mazzo({ testo, quante, onClick }: { testo: string; quante?: number; onC
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className="rounded-lg border-2 border-oro bg-[#2b1a4a] px-2 py-1 text-left text-xs font-bold text-white enabled:hover:brightness-125 disabled:opacity-45"
+      className="fm-mazzo px-2 py-1 text-left text-xs font-bold disabled:opacity-45"
     >
       {testo}
-      {quante !== undefined && <span className="ml-1 font-normal text-white/70">{quante}</span>}
+      {quante !== undefined && <span className="ml-1 font-normal opacity-70">{quante}</span>}
     </button>
   );
+}
+
+/** Pulsante comune, col colore rame della Famiglia (famiglia.css). */
+function Pulsante({ className = "", ...props }: Parameters<typeof PulsanteBase>[0]) {
+  return <PulsanteBase className={`${props.variante === "vuoto" ? "" : "fm-pulsante"} ${className}`} {...props} />;
 }
 
 function BottoneBarra({ children, onClick, disabled, variante = "pieno" }: { children: ReactNode; onClick: () => void; disabled?: boolean; variante?: "pieno" | "vuoto" }) {
@@ -637,7 +652,7 @@ function BottoneBarra({ children, onClick, disabled, variante = "pieno" }: { chi
       onClick={onClick}
       disabled={disabled}
       className={`shrink-0 rounded-xl px-3 py-2 text-sm font-bold disabled:opacity-40 ${
-        variante === "pieno" ? "bg-gradient-to-b from-[#e3c06a] to-[#b8892b] text-[#2b1a05]" : "border-2 border-oro text-oro-chiaro"
+        variante === "pieno" ? "bg-gradient-to-b from-[#f0a35e] to-[#c0612b] text-white shadow-[0_2px_0_#7a3d1d]" : "border-2 border-oro text-oro-chiaro"
       }`}
     >
       {children}
@@ -649,7 +664,7 @@ function Foglio({ titolo, onChiudi, children }: { titolo: string; onChiudi?: () 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={onChiudi}>
       <div
-        className="max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl border-2 border-oro bg-gradient-to-b from-[#fbf3df] to-[#f1e2bf] p-4 text-inchiostro sm:rounded-2xl"
+        className="fm-foglio max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl border-2 border-oro bg-gradient-to-b from-[#fbf3df] to-[#f1e2bf] p-4 text-inchiostro sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between gap-2">

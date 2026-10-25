@@ -1,8 +1,7 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
 import { CARTE, type Carta, EVENTI, descriviCodice } from "@og/famiglia";
 import { type ReactNode, useRef, useState } from "react";
-import { CartaFamiglia } from "./carte";
-import { EMOJI_TIPO } from "./descrivi";
+import { CartaFamiglia, Stemma } from "./carte";
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
   return (
@@ -249,7 +248,10 @@ function Carosello({ carte, onApri }: { carte: Carta[]; onApri: (c: Carta) => vo
       <div className="max-w-sm space-y-1 text-sm">
         {c.poteri.map((p) => (
           <p key={p.id}>
-            {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
+            <span className="mr-1 inline-block align-middle">
+              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={16} />
+            </span>
+            <strong>{p.nome}</strong>: {p.testo}
           </p>
         ))}
         <p className="text-xs text-tenue">
@@ -294,7 +296,10 @@ function CartaInGrande({ indice, onCambia, onChiudi }: { indice: number; onCambi
       <div className="max-w-sm text-center text-sm text-white" onClick={(e) => e.stopPropagation()}>
         {c.poteri.map((p) => (
           <p key={p.id}>
-            {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
+            <span className="mr-1 inline-block align-middle">
+              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={16} />
+            </span>
+            <strong>{p.nome}</strong>: {p.testo}
           </p>
         ))}
         <p className="mt-1 text-white/70">

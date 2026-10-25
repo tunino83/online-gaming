@@ -107,6 +107,9 @@ Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi de
 (opzione `secondiDifesa`, di base 30) lo fa rispettare l'arbitro con `attesaMassimaMs` del gioco (azione `alPosto`,
 vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (20) o "mazzo".
 Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide descritte in `descrivi.ts`; `TavoloSpettatore.tsx`).
+Grafica "di casa" in `famiglia.css` (caratteri Fredoka e Caveat): carte con stemma del tipo (`Stemma` in `carte.tsx`),
+carte numero come piastrelle di maiolica, tovaglia a quadretti; i colori del tema cambiano solo dentro `.gioco-famiglia`
+e sul `body` con la classe `sfondo-famiglia` (messa da `useSfondoFamiglia` mentre si gioca).
 Immagini in `games/famiglia/immagini/classica/` (anche `.svg`; prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
 Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una carta non si stanca mai solo se tutti i suoi poteri sono blu (`eBlu`).
 Ancora da fare: simulazione di 1000 partite (`pnpm simula:famiglia`), effetti di Pranzo della domenica e Ferragosto.
