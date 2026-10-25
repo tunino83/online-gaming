@@ -40,7 +40,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 
 | Persona | Liv. 1 | Liv. 2 | Liv. 3 |
 | --- | --- | --- | --- |
-| **Antonio** | ✨ *Ci penso domani*: una mossa non fatta la tieni per il prossimo turno | ⚔️ *Forno a legna* (fa le pizze): un avversario mette le sue carte numero nel forno e ne scarta 2 (sceglie lui quali) | 🛡️ *Ho sempre ragione io*: annulla qualsiasi potere appena giocato da chiunque |
+| **Antonio** | ✨ *Ci penso domani*: usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | ⚔️ *Forno a legna* (fa le pizze): un avversario mette le sue carte numero nel forno e ne scarta 2 (sceglie lui quali) | 🛡️ *Ho sempre ragione io*: annulla qualsiasi attacco contro di te, anche di livello 3 |
 | **Maddalena** | Scegli tu: ✨ *Non sbaglio mai*: subito dopo una pescata cambi la carta con un'altra, senza usare mosse; oppure ✨ *Fatto in casa* (torte, artigianato): unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 🛡️ *Non è colpa mia*: l'attacco va a un altro giocatore a tua scelta | 🛡️ *È colpa di qualcun altro*: come il liv. 2, e chi lo riceve non può difendersi |
 | **Nonno Salvatore** | ✨ *Te l'ho già detto?* (gratis): 1 mossa in più, uguale all'ultima che hai fatto | ✨ *L'ho già detto* (gratis): 2 mosse in più, uguali all'ultima | ✨ *Sempre la stessa storia*: copi l'ultimo potere giocato al tavolo da chiunque |
 | **Nonna Dina** | ✨ *Sposta i mobili*: cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | ✨ *Frigge di tutto*: scarti le carte numero che vuoi e ne peschi altrettante più una | ✨ *Cucina per 200*: tu peschi 4 carte numero, ogni avversario 1 |

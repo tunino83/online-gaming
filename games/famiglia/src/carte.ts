@@ -92,9 +92,9 @@ function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello
 
 const ADULTI: Carta[] = [
   ...persona("Antonio", [
-    { codice: somma(2, 9), poteri: [aiuto("Ci penso domani", "Una mossa non fatta la tieni per il prossimo turno")] },
+    { codice: somma(2, 9), poteri: [aiuto("Ci penso domani", "Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più")] },
     { codice: somma(3, 18), poteri: [attacco("Forno a legna", "Un avversario scarta 2 carte numero (sceglie lui quali)")] },
-    { codice: somma(4, 20), poteri: [difesa("Ho sempre ragione io", "Annulli qualsiasi potere appena giocato da chiunque")] },
+    { codice: somma(4, 20), poteri: [difesa("Ho sempre ragione io", "Annulli qualsiasi attacco contro di te, anche di livello 3")] },
   ]),
   ...persona("Maddalena", [
     {
