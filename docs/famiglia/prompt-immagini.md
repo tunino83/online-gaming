@@ -36,6 +36,15 @@ blocco di ghiaccio con i baffi pieni di brina.
 un enorme tritacarne magico: da una parte entrano carte da gioco numerate, dall'altra escono tutte mescolate e
 volano in aria.
 
+**`marika-1`** – Marika, lavora al supermercato e fa i turni. [ASPETTO: …]. Metà del corpo dietro la cassa del supermercato
+e metà che svanisce in una nuvoletta magica: non si capisce se c'è o non c'è; una moneta "testa o croce" gira in aria.
+
+**`marika-2`** – Marika, in divisa da cassiera. [ASPETTO: …]. Davanti alla porta di casa c'è un cartello "Non c'è, ha il turno!";
+qualcuno bussa invano mentre lei, al supermercato in lontananza, sistema gli scaffali.
+
+**`marika-3`** – Marika, cassiera. [ASPETTO: …]. Fa il doppio turno: due Marike identiche lavorano insieme, una alla cassa e una
+agli scaffali, con un grande orologio che segna le ore che volano.
+
 ## Carte singole
 
 **`nicole`** – Nicole, bambina chiacchierona. [ASPETTO: …]. Parla senza fermarsi mai: intorno a lei decine di nuvolette
