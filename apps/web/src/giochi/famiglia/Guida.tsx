@@ -1,9 +1,8 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
 import { CARTE, type Carta, EVENTI, descriviCodice } from "@og/famiglia";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { CartaFamiglia } from "./carte";
 import { EMOJI_TIPO } from "./descrivi";
-import { immagineCarta } from "./immagini";
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
   return (
@@ -151,55 +150,94 @@ const GRUPPI: { titolo: string; filtro: (c: Carta) => boolean }[] = [
   { titolo: "Carte attacco (si usano una volta)", filtro: (c) => c.categoria === "attacco" },
 ];
 
-/** Foto (o, se non c'è, il nome) della carta, piccola, accanto alla sua descrizione. */
-function Foto({ idCarta }: { idCarta: string }) {
-  const url = immagineCarta(idCarta);
-  if (url) return <img src={url} alt="" loading="lazy" className="h-[78px] w-14 shrink-0 rounded-md border border-oro/60 object-cover object-[50%_25%]" />;
-  return <CartaFamiglia idCarta={idCarta} dimensione="piccola" />;
-}
+/** Ordine per sfogliare le carte in grande: lo stesso dell'elenco. */
+const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => CARTE.filter(g.filtro));
 
-/** Elenco di tutte le carte, con foto, poteri e codici (toccandone una si vede la carta intera). */
+/**
+ * Elenco di tutte le carte (come "Tutte le carte" di Il Portale): carta grande con la foto, codice, punti e poteri.
+ * Toccando una carta si apre in grande e si possono sfogliare tutte.
+ */
 export function CatalogoFamiglia() {
-  const [aperta, setAperta] = useState<string | null>(null);
+  const [aperta, setAperta] = useState<number | null>(null);
+  const copie = CARTE.reduce((n, c) => n + c.copie, 0);
   return (
-    <div className="space-y-4">
+    <div>
+      <p className="mb-2 text-sm">
+        {CARTE.length} carte diverse, {copie} nel mazzo. Tocca una carta per vederla in grande e sfogliarle tutte.
+      </p>
       {GRUPPI.map((g) => (
-        <div key={g.titolo}>
-          <h4 className="mb-1 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
-          <ul className="space-y-1.5">
+        <div key={g.titolo} className="mb-4">
+          <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {CARTE.filter(g.filtro).map((c) => (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => setAperta(aperta === c.id ? null : c.id)}
-                  className="flex w-full items-start gap-2 rounded-lg border border-oro/40 bg-white/50 p-1.5 text-left"
-                >
-                  {aperta === c.id ? (
-                    <CartaFamiglia idCarta={c.id} dimensione="media" />
-                  ) : (
-                    <Foto idCarta={c.id} />
-                  )}
-                  <span className="text-xs leading-snug">
-                    <strong className="text-sm">
-                      {c.nome}
-                      {c.categoria === "personaggio" ? ` ${"★".repeat(c.livello)}` : ""}
-                    </strong>
-                    {c.punti > 0 && ` · ${c.punti} ${c.punti === 1 ? "punto" : "punti"}`}
-                    {c.copie > 1 && ` · ${c.copie} copie`}
-                    <br />
-                    {c.poteri.map((p) => (
-                      <span key={p.id} className="block">
-                        {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
-                      </span>
-                    ))}
-                    <span className="text-tenue">🔑 {descriviCodice(c.codice)}</span>
-                  </span>
-                </button>
+              <li key={c.id} className="flex flex-col items-center gap-1 rounded-xl border border-inchiostro/15 bg-white/50 p-2 text-center">
+                <CartaFamiglia idCarta={c.id} dimensione={130} onClick={() => setAperta(IN_ORDINE.indexOf(c))} />
+                <p className="font-titolo text-sm font-bold leading-tight">
+                  {c.nome}
+                  {c.categoria === "personaggio" && <span className="text-oro"> {"★".repeat(c.livello)}</span>}
+                </p>
+                <p className="text-xs">
+                  <strong>Si attiva con:</strong> {descriviCodice(c.codice)}
+                </p>
+                <p className="text-xs">
+                  <strong>{c.punti > 0 ? `${c.punti} ${c.punti === 1 ? "punto" : "punti"}` : "Niente punti"}</strong>
+                  {c.copie > 1 && ` · ${c.copie} copie`}
+                </p>
+                {c.poteri.map((p) => (
+                  <p key={p.id} className="text-xs text-tenue">
+                    {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
+                  </p>
+                ))}
               </li>
             ))}
           </ul>
         </div>
       ))}
+      {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
+    </div>
+  );
+}
+
+/** Una carta a tutto schermo, con le frecce (o lo scorrimento del dito) per passare alle altre. */
+function CartaInGrande({ indice, onCambia, onChiudi }: { indice: number; onCambia: (i: number) => void; onChiudi: () => void }) {
+  const inizio = useRef<number | null>(null);
+  const vai = (passo: number) => onCambia((indice + passo + IN_ORDINE.length) % IN_ORDINE.length);
+  const c = IN_ORDINE[indice]!;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/80 p-4"
+      onClick={onChiudi}
+      onTouchStart={(e) => {
+        inizio.current = e.touches[0]?.clientX ?? null;
+      }}
+      onTouchEnd={(e) => {
+        const fine = e.changedTouches[0]?.clientX;
+        if (inizio.current !== null && fine !== undefined && Math.abs(fine - inizio.current) > 50) vai(fine < inizio.current ? 1 : -1);
+        inizio.current = null;
+      }}
+    >
+      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <button type="button" onClick={() => vai(-1)} className="rounded-full bg-white/15 px-3 py-2 text-2xl text-white" aria-label="Carta precedente">
+          ‹
+        </button>
+        <CartaFamiglia idCarta={c.id} dimensione={Math.min(300, window.innerWidth - 120)} />
+        <button type="button" onClick={() => vai(1)} className="rounded-full bg-white/15 px-3 py-2 text-2xl text-white" aria-label="Carta successiva">
+          ›
+        </button>
+      </div>
+      <div className="max-w-sm text-center text-sm text-white" onClick={(e) => e.stopPropagation()}>
+        {c.poteri.map((p) => (
+          <p key={p.id}>
+            {EMOJI_TIPO[p.tipo]} <strong>{p.nome}</strong>: {p.testo}
+          </p>
+        ))}
+        <p className="mt-1 text-white/70">
+          🔑 {descriviCodice(c.codice)} · {indice + 1} di {IN_ORDINE.length}
+        </p>
+      </div>
+      <button type="button" onClick={onChiudi} className="rounded-xl border-2 border-oro px-4 py-2 font-bold text-oro-chiaro">
+        Chiudi
+      </button>
     </div>
   );
 }

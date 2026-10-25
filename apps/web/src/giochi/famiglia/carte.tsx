@@ -27,13 +27,17 @@ export function CartaFamiglia({
 }: {
   idCarta: string;
   stanca?: number;
-  dimensione?: "piccola" | "media" | "grande";
+  /** Misura della carta: una delle tre di base, oppure la larghezza in pixel. */
+  dimensione?: "piccola" | "media" | "grande" | number;
   onClick?: () => void;
   evidenziata?: boolean;
   /** Carta nascosta di un altro giocatore: si vede solo il dorso. */
   coperta?: boolean;
 }) {
-  const larghezza = dimensione === "piccola" ? 64 : dimensione === "media" ? 88 : 220;
+  const larghezza = typeof dimensione === "number" ? dimensione : dimensione === "piccola" ? 64 : dimensione === "media" ? 88 : 220;
+  // I testi crescono con la carta (la misura "media" è quella di riferimento)
+  const s = larghezza / 88;
+  const px = (base: number, max = Number.POSITIVE_INFINITY) => Math.min(base * s, max);
   const stile = { width: larghezza, height: Math.round(larghezza * 1.4) };
   if (coperta) {
     return (
@@ -49,7 +53,6 @@ export function CartaFamiglia({
   const c = carta(idCarta);
   const colore = coloreCarta(c);
   const immagine = immagineCarta(idCarta);
-  const grande = dimensione === "grande";
   const Contenitore = onClick ? "button" : "div";
   return (
     <Contenitore
@@ -62,7 +65,7 @@ export function CartaFamiglia({
       aria-label={`${c.nome}, livello ${c.livello}`}
     >
       {/* titolo */}
-      <div className="truncate px-1 text-center font-bold leading-tight text-white" style={{ background: colore, fontSize: grande ? 18 : 10 }}>
+      <div className="truncate px-1 text-center font-bold leading-tight text-white" style={{ background: colore, fontSize: px(10, 20) }}>
         {c.nome}
       </div>
       {/* immagine, oppure il nome scritto in grande */}
@@ -70,31 +73,31 @@ export function CartaFamiglia({
         {immagine ? (
           <img src={immagine} alt="" className="absolute inset-0 h-full w-full object-cover object-[50%_30%]" draggable={false} />
         ) : (
-          <div className="grid h-full place-items-center px-1 text-center font-titolo font-bold leading-tight" style={{ fontSize: grande ? 26 : 11, color: colore }}>
+          <div className="grid h-full place-items-center px-1 text-center font-titolo font-bold leading-tight" style={{ fontSize: px(11, 28), color: colore }}>
             {c.nome}
           </div>
         )}
         {c.categoria === "personaggio" && (
-          <span className="absolute left-0.5 top-0.5 rounded bg-black/60 px-1 text-[9px] font-bold text-white" style={grande ? { fontSize: 14 } : undefined}>
+          <span className="absolute left-0.5 top-0.5 rounded bg-black/60 px-1 font-bold text-white" style={{ fontSize: px(9, 16) }}>
             {"★".repeat(c.livello)}
           </span>
         )}
         {c.punti > 0 && (
           <span
-            className="absolute right-0.5 top-0.5 grid h-5 w-5 place-items-center rounded-full bg-oro text-[10px] font-bold text-[#2b1a05]"
-            style={grande ? { width: 32, height: 32, fontSize: 16 } : undefined}
+            className="absolute right-0.5 top-0.5 grid place-items-center rounded-full bg-oro font-bold text-[#2b1a05]"
+            style={{ width: px(20, 34), height: px(20, 34), fontSize: px(10, 17) }}
           >
             {c.punti}
           </span>
         )}
         {stanca !== undefined && stanca > 0 && (
-          <div className="absolute inset-0 grid place-items-center bg-black/45 text-center font-bold text-white" style={{ fontSize: grande ? 22 : 11 }}>
+          <div className="absolute inset-0 grid place-items-center bg-black/45 text-center font-bold text-white" style={{ fontSize: px(11, 24) }}>
             😴 {stanca}
           </div>
         )}
       </div>
       {/* poteri e codice */}
-      <div className="border-t border-black/10 bg-white/70 px-1 py-0.5 leading-tight" style={{ fontSize: grande ? 13 : 8 }}>
+      <div className="border-t border-black/10 bg-white/70 px-1 py-0.5 leading-tight" style={{ fontSize: px(8, 14) }}>
         <div className="truncate font-semibold">
           {c.poteri.map((p) => `${EMOJI_TIPO[p.tipo]} ${p.nome}`).join(" / ")}
         </div>
