@@ -29,61 +29,65 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | D16 | Una fetta di torta? | Claudia 3 | 3 | Doppia coppia |
 | D17 | Scudo da gladiatore | Simone 2 | 2 | 3 carte dispari |
 | D18 | Tyrion nella borsa | Annalisa 1 | 1 | 2 carte con somma 11 |
-| D19 | Non ti sento, sto suonando | Donato | 2 | Scala da 3 |
-| D20 | Guardia medica | Zia Diana | 2 | 3 carte con somma 12 |
-| D21 | Paesano | Paesano | 1 | 1 carta qualsiasi |
-| D22 | Aglianico | Aglianico | 2 | Coppia |
-| D23 | Taurasi | Taurasi | 3 | Tris |
-| D24 | Campari | Campari | 2 | 2 carte qualsiasi |
-| D25 | Sono a un matrimonio | Sono a un matrimonio | 2 | 2 carte qualsiasi |
-| D26 | Nevicava, non è potuto venire | Nevicava, non è potuto venire | 2 | 2 carte qualsiasi |
-| D27 | Sono andato a Lioni a fa' a spesa | Sono andato a Lioni a fa' a spesa | 2 | 2 carte qualsiasi |
+| D19 | Bracciali d'oro | Nonna Maria 3 | 3 | 4 carte dispari |
+| D20 | Tiro su un muro | Nonno Rafiluccio 1 | 1 | 2 carte con somma 10 |
+| D21 | Non ti sento, sto suonando | Donato | 2 | Scala da 3 |
+| D22 | Guardia medica | Zia Diana | 2 | 3 carte con somma 12 |
+| D23 | Paesano | Paesano | 1 | 1 carta qualsiasi |
+| D24 | Aglianico | Aglianico | 2 | Coppia |
+| D25 | Taurasi | Taurasi | 3 | Tris |
+| D26 | Campari | Campari | 2 | 2 carte qualsiasi |
+| D27 | Sono a un matrimonio | Sono a un matrimonio | 2 | 2 carte qualsiasi |
+| D28 | Nevicava, non è potuto venire | Nevicava, non è potuto venire | 2 | 2 carte qualsiasi |
+| D29 | Sono andato a Lioni a fa' a spesa | Sono andato a Lioni a fa' a spesa | 2 | 2 carte qualsiasi |
 
 ## Matrice
 
-| Attacco | Liv. | Contro | D1 | D2 | D3 | D4 | D5 | D6 | D7 | D8 | D9 | D10 | D11 | D12 | D13 | D14 | D15 | D16 | D17 | D18 | D19 | D20 | D21 | D22 | D23 | D24 | D25 | D26 | D27 | Fermano |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Forno a legna (Antonio 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Solo per vedere comm sape (Nonno Nicola 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Manca 'o sale (Nonno Nicola 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 5 |
-| Baratto (Nonna Patrizia 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Si incanta (Totò 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
-| Schietta (Checca 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
-| Allergica al finocchietto (Checca 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Urla (Donatina 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 5 |
-| Si canta! (Zio Salvatore 1) | 1 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
-| Versa il vino (Zio Salvatore 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Smash (Francesco 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Una rospa? (Gerardina 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Rospe per tutti (Gerardina 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 5 |
-| Vertenza (Giuseppe 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Tritacarne (Sara e Giuseppe 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Il bastone (Nonno Antonio 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Ti chiamo un attimo… (Roberta 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
-| Sparecchio (Roberta 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Zeppata sui social (Claudia 2) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 20 |
-| Burla (Squacqualacchione 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
-| Volo infuocato (Squacqualacchione 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 5 |
-| Invasione di campo (Simone 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | · | · | · | · | ✓ | · | · | · | · | 6 |
-| Parla parla parla (Nicole) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Risata contagiosa (Greta) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 20 |
-| Multa (Franchino) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 20 |
-| Bisiniss (Rocky) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| La tomacella (La tomacella) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Giro aperto (Giro aperto) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Gli occhi 'nguoll (Gli occhi 'nguoll) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 22 |
-| Vento (Vento) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🩹 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
+| Attacco | Liv. | Contro | D1 | D2 | D3 | D4 | D5 | D6 | D7 | D8 | D9 | D10 | D11 | D12 | D13 | D14 | D15 | D16 | D17 | D18 | D19 | D20 | D21 | D22 | D23 | D24 | D25 | D26 | D27 | D28 | D29 | Fermano |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Forno a legna (Antonio 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Solo per vedere comm sape (Nonno Nicola 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Manca 'o sale (Nonno Nicola 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
+| Baratto (Nonna Patrizia 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Si incanta (Totò 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
+| Schietta (Checca 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
+| Allergica al finocchietto (Checca 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Urla (Donatina 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
+| Si canta! (Zio Salvatore 1) | 1 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 25 |
+| Versa il vino (Zio Salvatore 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Smash (Francesco 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Una rospa? (Gerardina 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Rospe per tutti (Gerardina 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
+| Vertenza (Giuseppe 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Tritacarne (Sara e Giuseppe 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Il bastone (Nonno Antonio 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Ti chiamo un attimo… (Roberta 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
+| Sparecchio (Roberta 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Zeppata sui social (Claudia 2) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
+| Burla (Squacqualacchione 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
+| Volo infuocato (Squacqualacchione 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
+| Invasione di campo (Simone 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Una sigaretta fuori al bar (Nonna Maria 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Brontola tutto il giorno (Nonno Rafiluccio 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
+| Parla parla parla (Nicole) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Risata contagiosa (Greta) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
+| Multa (Franchino) | 2 | tutti | ✓ | · | · | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 21 |
+| Bisiniss (Rocky) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| La tomacella (La tomacella) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Giro aperto (Giro aperto) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Gli occhi 'nguoll (Gli occhi 'nguoll) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Vento (Vento) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 🩹 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
 
 ## Riepilogo
 
 | Livello attacco | Attacchi | Difese che li fermano (✓ ↪ 🔁) |
 | --- | --- | --- |
-| 1 | 6 | da 23 a 25 su 27 |
-| 2 | 13 | da 20 a 22 su 27 |
-| 3 | 11 | da 5 a 6 su 27 |
+| 1 | 6 | da 25 a 27 su 29 |
+| 2 | 14 | da 21 a 23 su 29 |
+| 3 | 12 | da 6 a 7 su 29 |
 
 | Livello difesa | Difese | Attacchi che possono fermare |
 | --- | --- | --- |
-| 1 | 4 | da 0 a 6 su 30 |
-| 2 | 17 | da 0 a 19 su 30 |
-| 3 | 6 | da 22 a 30 su 30 |
+| 1 | 5 | da 0 a 6 su 32 |
+| 2 | 17 | da 0 a 20 su 32 |
+| 3 | 7 | da 24 a 32 su 32 |

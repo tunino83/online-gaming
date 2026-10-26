@@ -42,6 +42,8 @@ export interface VistaGiocatore {
     indigestione: boolean;
     /** Chi è di turno non può usare poteri (Parla parla parla). */
     zitto: boolean;
+    /** Chi è di turno non può attivare personaggi (Una sigaretta fuori al bar). */
+    senzaAttivare: boolean;
     /** Carte mostrate a tutti in questo turno (Schietta). */
     rivelati: StatoTurno["rivelati"];
   };
@@ -101,6 +103,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
       bluUsati: mioTurno ? [...t.bluUsati] : [],
       indigestione: t.indigestione,
       zitto: t.zitto,
+      senzaAttivare: !!t.senzaAttivare,
       rivelati: structuredClone(t.rivelati),
     },
     attacco: s.attacco

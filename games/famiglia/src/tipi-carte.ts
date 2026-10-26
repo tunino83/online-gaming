@@ -79,6 +79,8 @@ export interface CartaNumero {
   campanello?: true;
   /** Carta "fatta in casa" (Maddalena): le 2 carte unite; `valore` è la loro somma. Si scartano tutte e due. */
   unite?: [CartaNumero, CartaNumero];
+  /** Carta "truccata" (Nonna Maria): il valore vero; `valore` è quello truccato (1 in più o in meno). Scartata torna vera. */
+  valoreVero?: Valore;
 }
 
 /** Mancia dei nonni: banconota con valore, oppure caffè (una mossa in più o +1 a una carta). */

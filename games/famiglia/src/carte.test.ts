@@ -76,8 +76,8 @@ describe("regole sui dati delle carte", () => {
     expect(new Set(CARTE.map((c) => c.id)).size).toBe(CARTE.length);
   });
 
-  it("101 carte nel mazzo personaggi", () => {
-    expect(CARTE.reduce((s, c) => s + c.copie, 0)).toBe(101);
+  it("107 carte nel mazzo personaggi", () => {
+    expect(CARTE.reduce((s, c) => s + c.copie, 0)).toBe(107);
   });
 
   it("personaggi: punti uguali al livello (Nonno Nicola 1 e Claudia 1: 0; Alessia: 1), ricarica uguale al livello (Christian e Roberta 1: 2; carte blu: 0)", () => {

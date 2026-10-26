@@ -82,6 +82,7 @@ function serveScelta(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore): boolea
   if (n > 0) return g.mano.length > n;
   if (a.potere === "zeppata-sui-social") return g.mano.length > 0 && caricheColpibili(g, a.potere).length > 0;
   if (a.potere === "invasione-di-campo") return caricheColpibili(g, a.potere).length > 1;
+  if (a.potere === "brontola-tutto-il-giorno") return g.mano.length >= 2;
   return false;
 }
 
@@ -179,7 +180,8 @@ function prosegui(s: StatoPartita): void {
   while (s.attacco) {
     const a = s.attacco;
     const v = a.bersaglio;
-    const colpibile = v === a.attaccante || attaccabile(s, a.attaccante, v);
+    // Tiro su un muro: fino al suo prossimo turno gli attacchi di livello 1 non lo colpiscono
+    const colpibile = v === a.attaccante || (attaccabile(s, a.attaccante, v) && !(s.giocatori[v]!.muro && a.livello <= 1));
     if (!colpibile) {
       registra(s, v, { tipo: "protetto", potere: a.potere });
     } else if ((!a.indifendibile && !a.difesi.includes(v) && difeseDisponibili(s, v).length > 0) || serveScelta(s, a, v)) {
@@ -363,6 +365,24 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       if (carica) stanca(carica);
       else if (V.mano.length > 0 && !suSeStesso) A.mano.push(togliNumero(V, scelta.carte?.[0] ?? aCaso(s, V.mano)!.id)!);
       else stanca(aCaso(s, caricheColpibili(V, a.potere)));
+      break;
+    }
+    case "una-sigaretta-fuori-al-bar":
+      V.senzaAttivareProssimoTurno = true;
+      break;
+    case "brontola-tutto-il-giorno": {
+      // L'avversario sceglie: dare 2 carte numero (scelte da lui) oppure saltare il prossimo turno
+      const scelte = scelta.carte ?? [];
+      if (scelte.length > 0) {
+        if (scelte.length !== 2 || new Set(scelte).size !== 2 || !scelte.every((x) => V.mano.some((c) => c.id === x))) {
+          rifiuta("Scegli 2 carte numero da dare");
+        }
+        const carte = scelte.map((x) => togliNumero(V, x)!);
+        if (suSeStesso) scartaNumeri(s, carte);
+        else A.mano.push(...carte);
+      } else {
+        V.saltaProssimoTurno = true;
+      }
       break;
     }
     case "invasione-di-campo": {
@@ -585,6 +605,12 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
     case "campari":
       peschiNumeri(s, v, 1);
       break;
+    case "bracciali-d-oro":
+      if (mittente !== v && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
+      break;
+    case "tiro-su-un-muro":
+      V.muro = true;
+      break;
     case "scudo-da-gladiatore":
       if (a.livello === 1 && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
       break;
@@ -688,6 +714,7 @@ function scelteDaSubire(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore): { c
     return n === 1 ? ids.slice(0, 5).map((x) => ({ carte: [x] })) : [{ carte: ids.slice(0, 2) }, { carte: ids.slice(-2) }];
   }
   if (a.potere === "invasione-di-campo" && serveScelta(s, a, v)) return caricheColpibili(g, a.potere).map((x) => ({ bersaglio: x.copia.id }));
+  if (a.potere === "brontola-tutto-il-giorno") return serveScelta(s, a, v) ? [{ carte: g.mano.slice(0, 2).map((c) => c.id) }, {}] : [{}];
   if (a.potere === "zeppata-sui-social" && serveScelta(s, a, v)) {
     return [{ carte: [g.mano[0]!.id] }, ...caricheColpibili(g, a.potere).map((x) => ({ bersaglio: x.copia.id }))];
   }

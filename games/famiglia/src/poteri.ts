@@ -7,6 +7,7 @@
 import { type IdGiocatore, mescola } from "@og/engine";
 import {
   avversariDopo,
+  cartaVera,
   pesca,
   peschiNumeri,
   puoPescare,
@@ -48,6 +49,7 @@ export const POTERI_GRATIS = new Set([
   "sposta-i-mobili",
   "medico-in-famiglia",
   "grigliata",
+  "straordinario",
 ]);
 
 /** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
@@ -261,13 +263,29 @@ function applicaAiuto(
       peschiNumeri(s, id, 4);
       g.indigestione = 2;
       return;
+    case "un-filo-di-trucco": {
+      // La carta resta la stessa ma vale 1 in più o in meno (quando lascia la mano torna vera)
+      const [c] = carteDallaMano(g, m.carte, 1, 1);
+      if (c!.unite) rifiuta("Una carta fatta in casa non si trucca");
+      const nuovo = m.valore ?? 0;
+      if (Math.abs(nuovo - c!.valore) !== 1 || nuovo < 1 || nuovo > 8) rifiuta("La carta truccata vale 1 in più o 1 in meno (da 1 a 8)");
+      const vero = c!.valoreVero ?? c!.valore;
+      const { valoreVero: _vecchio, ...normale } = c!;
+      g.mano.push(nuovo === vero ? { ...normale, valore: vero } : { ...normale, valore: nuovo as CartaNumero["valore"], valoreVero: vero });
+      return;
+    }
+    case "straordinario":
+      // Gratis: 1 mossa in più adesso e 1 nel prossimo turno
+      t.mosseRimaste += 1;
+      g.mosseProssimoTurno += 1;
+      return;
     case "lezione-di-padel": {
       const [mia] = carteDallaMano(g, m.carte, 1, 1);
       if (mia!.unite) rifiuta("Una carta fatta in casa non va sul tavolo"); // la mossa rifiutata non cambia niente
       const pos = m.posizioni?.length === 1 ? m.posizioni[0]! : -1;
       const dalTavolo = s.tavolo.numeri[pos];
       if (!dalTavolo) rifiuta("Scegli una carta numero del tavolo");
-      s.tavolo.numeri[pos] = mia!;
+      s.tavolo.numeri[pos] = cartaVera(mia!);
       g.mano.push(dalTavolo!);
       return;
     }
@@ -472,7 +490,7 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
       const pos = s.tavolo.numeri.findIndex((c) => c !== null && c.id === m.carte[1]);
       if (!mia || pos < 0) rifiuta("Scegli una tua carta numero e una del tavolo");
       g.mano.push(s.tavolo.numeri[pos]!);
-      s.tavolo.numeri[pos] = togliNumero(g, mia!.id)!;
+      s.tavolo.numeri[pos] = cartaVera(togliNumero(g, mia!.id)!);
     }
     s.turno.attesa = null;
     return;
@@ -621,6 +639,11 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     }
     case "ce-l-ho-io":
       return [1, 2, 3, 4, 5, 6, 7, 8].map((valore) => ({ valore }));
+    case "un-filo-di-trucco": {
+      // Per ogni valore in mano (non fatte in casa): 1 in più o 1 in meno
+      const perValore = [...new Map(g.mano.filter((c) => !c.unite).map((c) => [c.valore, c])).values()];
+      return perValore.flatMap((c) => [c.valore - 1, c.valore + 1].filter((x) => x >= 1 && x <= 8).map((valore) => ({ carte: [c.id], valore })));
+    }
     case "pranzo-a-domicilio":
       return puoPescare(s, "numeri") ? [{}] : [];
     case "medico-in-famiglia":

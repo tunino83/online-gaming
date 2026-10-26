@@ -682,3 +682,27 @@ describe("Simone e Annalisa (aiuti)", () => {
     expect(puntiDi(anna(s))).toBe(6);
   });
 });
+
+describe("Nonna Maria e Nonno Rafiluccio (aiuti)", () => {
+  it("Un filo di trucco: una carta vale 1 in più o in meno; quando lascia la mano torna vera", () => {
+    let s = conCarta("nonna-maria-1");
+    anna(s).mano = [num(5, "c")];
+    expect(rifiutata(s, "anna", potere("nonna-maria-1", { carte: ["c"], valore: 7 }))).toMatch(/1 in più o 1 in meno/);
+    expect(mosseValide(s, "anna")).toContainEqual(potere("nonna-maria-1", { carte: ["c"], valore: 6 }));
+    s = usa(s, "nonna-maria-1", { carte: ["c"], valore: 6 });
+    expect(anna(s).mano).toEqual([{ id: "c", valore: 6, valoreVero: 5 }]);
+    expect(vistaGiocatore(s, "bruno").giocatori.anna!.carteInMano).toBe(1);
+    // scartata torna un 5
+    s.turno.mosseRimaste = 0;
+    anna(s).mano.push(...Array.from({ length: 7 }, (_, i) => num(1, `u${i}`)));
+    s = fai(s, "anna", { tipo: "fineTurno", scarta: ["c"] });
+    expect(s.scarti.numeri.at(-1)).toEqual({ id: "c", valore: 5 });
+  });
+
+  it("Straordinario: gratis, 1 mossa in più adesso e 1 nel prossimo turno", () => {
+    let s = conCarta("nonno-rafiluccio-2");
+    s = usa(s, "nonno-rafiluccio-2");
+    expect(s.turno.mosseRimaste).toBe(4);
+    expect(anna(s).mosseProssimoTurno).toBe(1);
+  });
+});

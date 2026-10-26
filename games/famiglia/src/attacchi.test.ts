@@ -699,7 +699,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(30);
+    expect(attacchi.length).toBe(32);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);
@@ -777,5 +777,69 @@ describe("Simone e Annalisa", () => {
     // difesa di livello 1: non ferma un attacco di livello 3
     const t = bruno_si_difende("annalisa-1", 3);
     expect(mosseValide(t, "bruno").some((m) => m.tipo === "difendi" && m.carta === "annalisa-1#1")).toBe(false);
+  });
+});
+
+describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
+  it("Una sigaretta fuori al bar: nel suo prossimo turno l'avversario non può attivare personaggi", () => {
+    let s = attivata(partita(2), "anna", "nonna-maria-2");
+    s = attacca(s, "nonna-maria-2", { giocatore: "bruno" });
+    g(s, "bruno").nascosti = [copia("donatina-1")]; // 2 carte con somma 5
+    manoDi(s, "bruno", 2, 3);
+    s.turno.mosseRimaste = 0;
+    s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
+    expect(s.turno.giocatore).toBe("bruno");
+    expect(vistaGiocatore(s, "bruno").turno.senzaAttivare).toBe(true);
+    expect(mosseValide(s, "bruno").some((m) => m.tipo === "attiva")).toBe(false);
+    expect(
+      rifiutata(s, "bruno", {
+        tipo: "attiva",
+        carta: "donatina-1#1",
+        combinazione: [
+          { tipo: "numero", id: "bruno0", valore: 2 },
+          { tipo: "numero", id: "bruno1", valore: 3 },
+        ],
+      }),
+    ).toMatch(/sigaretta/);
+  });
+
+  it("Bracciali d'oro: ferma anche un attacco di livello 3 e chi attacca scarta 1 carta a caso", () => {
+    let s = bruno_si_difende("nonna-maria-3", 3);
+    manoDi(s, "anna", 4);
+    s = difendi(s, "bruno", "nonna-maria-3");
+    expect(g(s, "bruno").mano).toHaveLength(3); // Il bastone fermato: non scarta niente
+    expect(g(s, "anna").mano).toHaveLength(0);
+  });
+
+  it("Tiro su un muro: ferma un attacco di livello 1 e fino al suo prossimo turno nessun attacco di livello 1 lo colpisce", () => {
+    let s = bruno_si_difende("nonno-rafiluccio-1");
+    s = difendi(s, "bruno", "nonno-rafiluccio-1");
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "bruno").muro).toBe(true);
+    // un altro attacco di livello 1 non ha effetto
+    attivata(s, "anna", "checca-1"); // Schietta, livello 1
+    g(s, "bruno").nascosti = [copia("chicca-1")];
+    s = attacca(s, "checca-1", { giocatore: "bruno" });
+    expect(s.turno.rivelati).toEqual([]);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "protetto", giocatore: "bruno" });
+  });
+
+  it("Brontola tutto il giorno: l'avversario sceglie se dare 2 carte numero o saltare il prossimo turno", () => {
+    let s = attivata(partita(), "anna", "nonno-rafiluccio-3");
+    manoDi(s, "bruno", 4, 5, 6);
+    s = attacca(s, "nonno-rafiluccio-3", { giocatore: "bruno" });
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    expect(mosseValide(s, "bruno")).toEqual([{ tipo: "subisci", carte: ["bruno0", "bruno1"] }, { tipo: "subisci" }]);
+    const dando = subisci(s, "bruno", { carte: ["bruno1", "bruno2"] });
+    expect(g(dando, "anna").mano.map((c) => c.id).sort()).toEqual(["bruno1", "bruno2"]);
+    expect(g(dando, "bruno").saltaProssimoTurno).toBe(false);
+    const saltando = subisci(s, "bruno");
+    expect(g(saltando, "bruno").mano).toHaveLength(3);
+    expect(g(saltando, "bruno").saltaProssimoTurno).toBe(true);
+    // con meno di 2 carte salta il turno e basta
+    let t = attivata(partita(), "anna", "nonno-rafiluccio-3");
+    manoDi(t, "bruno", 4);
+    t = attacca(t, "nonno-rafiluccio-3", { giocatore: "bruno" });
+    expect(g(t, "bruno").saltaProssimoTurno).toBe(true);
   });
 });

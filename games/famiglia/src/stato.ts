@@ -45,6 +45,10 @@ export interface StatoGiocatore {
   nonStancabile: boolean;
   /** Nessuno può guardare o prendere i suoi personaggi nascosti (Chiusa in camera). */
   nascostiProtetti: boolean;
+  /** Nessun attacco di livello 1 lo colpisce (Tiro su un muro). */
+  muro?: boolean;
+  /** Nel prossimo turno non può attivare personaggi (Una sigaretta fuori al bar). */
+  senzaAttivareProssimoTurno?: boolean;
   /** Giocatori che non possono attaccarlo (Non ti sento, sto suonando). */
   vietati: IdGiocatore[];
 }
@@ -134,6 +138,8 @@ export interface StatoTurno {
   doppioTurno: boolean;
   /** In questo turno non si possono usare poteri (Parla parla parla). */
   zitto: boolean;
+  /** In questo turno non si possono attivare personaggi (Una sigaretta fuori al bar). */
+  senzaAttivare?: boolean;
   /** Si canta! in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
   canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */

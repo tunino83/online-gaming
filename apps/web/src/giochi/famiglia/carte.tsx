@@ -187,6 +187,11 @@ export function CartaNumeroGrafica({
       <b>{c.valore}</b>
       {c.campanello && <span className="absolute -right-1 -top-1 text-[11px]">🔔</span>}
       {c.unite && <span className="absolute -bottom-1 text-[9px]">🏠</span>}
+      {c.valoreVero !== undefined && (
+        <span className="absolute -left-1 -top-1 text-[11px]" title={`Truccata: in realtà vale ${c.valoreVero}`}>
+          💄
+        </span>
+      )}
       {nota}
     </Contenitore>
   );

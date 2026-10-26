@@ -2,7 +2,7 @@
 
 Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
-### ⚔️ ATTACCO (30)
+### ⚔️ ATTACCO (32)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -35,9 +35,11 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Giro aperto (carta attacco) | 2 | **Giro aperto** | Prendi 1 carta numero a caso dalla mano di un avversario | Coppia | si usa una volta |
 | Gli occhi 'nguoll (carta attacco) | 2 | **Gli occhi 'nguoll** | Un avversario scarta un personaggio nascosto a caso | Coppia | si usa una volta |
 | Simone | 3 | **Invasione di campo** | 2 avversari a scelta fanno stancare una loro carta carica (scelgono loro); per ogni colpito peschi 1 carta numero | 4 carte con somma 22 | ricarica 3 |
+| Nonna Maria | 2 | **Una sigaretta fuori al bar** | Un avversario nel suo prossimo turno non può attivare personaggi | 3 carte con somma 17 | ricarica 2 |
+| Nonno Rafiluccio | 3 | **Brontola tutto il giorno** | Un avversario sceglie: ti dà 2 carte numero oppure salta il prossimo turno | Scala da 5 | ricarica 3 |
 | Vento (carta attacco) | 1 | **Vento** | Un avversario scarta tutte le carte numero e ne ripesca altrettante dal mazzo | 1 carta qualsiasi | si usa una volta |
 
-### 🛡️ DIFESA (28)
+### 🛡️ DIFESA (30)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -65,12 +67,14 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Taurasi (carta difesa) | 3 | **Taurasi** | Annulli qualsiasi attacco; chi ti ha attaccato fa 1 mossa in meno nel suo prossimo turno | Tris | si usa una volta |
 | Simone | 2 | **Scudo da gladiatore** | Annulli un attacco; se era di livello 1, chi ti ha attaccato scarta 1 carta numero a caso | 3 carte dispari | ricarica 2 |
 | Annalisa | 1 | **Tyrion nella borsa** | Annulli un attacco e Tyrion porta via 1 carta numero a caso a chi ti ha attaccato | 2 carte con somma 11 | ricarica 1 |
+| Nonna Maria | 3 | **Bracciali d'oro** | Annulli qualsiasi attacco e chi ti ha attaccato scarta 1 carta numero a caso | 4 carte dispari | ricarica 3 |
+| Nonno Rafiluccio | 1 | **Tiro su un muro** | Annulli un attacco di livello 1; fino al tuo prossimo turno nessun attacco di livello 1 ti colpisce | 2 carte con somma 10 | ricarica 1 |
 | Campari (carta difesa) | 2 | **Campari** | Annulli un attacco e peschi 1 carta numero | 2 carte qualsiasi | si usa una volta, 2 copie |
 | Sono a un matrimonio (carta difesa) | 2 | **Sono a un matrimonio** | Annulli un attacco; durante l'evento Matrimonio la carta torna in mano | 2 carte qualsiasi | si usa una volta, 2 copie |
 | Nevicava, non è potuto venire (carta difesa) | 2 | **Nevicava, non è potuto venire** | Annulli un attacco; per il resto del giro nessuno può più attaccare | 2 carte qualsiasi | si usa una volta, 2 copie |
 | Sono andato a Lioni a fa' a spesa (carta difesa) | 2 | **Sono andato a Lioni a fa' a spesa** | Annulli un attacco e peschi 2 carte numero | 2 carte qualsiasi | si usa una volta, 2 copie |
 
-### ✨ AIUTO (37)
+### ✨ AIUTO (39)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -109,5 +113,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Simone | 1 | **Pranzo a domicilio** | Peschi 2 carte numero e poi, se vuoi, scambi 1 carta della mano con 1 del tavolo | 2 carte con somma 6 | ricarica 1 |
 | Annalisa | 2 | 🔵 **Medico in famiglia** | Attivi Racioppi e Zia Diana senza codice; una volta per turno prendi uno dei due dagli scarti | 3 carte con somma 12 | blu |
 | Annalisa | 3 | **Il mio corpo che cambia** | Scambi una tua carta attivata con un personaggio in mano: quello si attiva senza codice ma stanco | Scala da 5 | ricarica 3 |
+| Nonna Maria | 1 | **Un filo di trucco** | Una tua carta numero vale 1 in più o 1 in meno | 2 carte con somma 13 | ricarica 1 |
+| Nonno Rafiluccio | 2 | **Straordinario** | Gratis: 1 mossa in più adesso e 1 nel prossimo turno | 3 carte pari | ricarica 2, gratis |
 | Vincenzo | 1 | **Frutta e verdura!** | Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti | 2 carte con somma 8 | ricarica 1 |
 | Dottor Racioppi | 1 | **Ricetta** | Ricarichi subito una carta stanca di chi vuoi e peschi 1 carta numero | 2 carte con somma 10 | ricarica 1 |

@@ -279,3 +279,18 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
   presa** (4 o 5 turni). Se l'attacco viene fermato, resta la ricarica normale di 3 turni.
 - **Un caffè** (Generoso 1): 3 turni con 4 mosse, poi 1 turno con 2 mosse (troppi caffè!), e si ricomincia:
   4, 4, 4, 2, 4, 4, 4, 2… Il turno in cui si attiva la carta conta come il primo dei 3.
+
+## Nonna Maria e Nonno Rafiluccio (2026-10-26)
+
+- **Un filo di trucco** (Nonna Maria 1): una tua carta numero diventa "truccata" (💄): vale 1 in più o 1 in meno
+  (sempre da 1 a 8) per i codici. Quando lascia la mano (scartata, data, messa sul tavolo) torna al suo valore vero.
+  Le carte fatte in casa non si truccano.
+- **Una sigaretta fuori al bar** (Nonna Maria 2): l'avversario colpito nel suo prossimo turno non può attivare
+  personaggi (può fare tutto il resto).
+- **Bracciali d'oro** (Nonna Maria 3): difesa di livello 3, annulla qualsiasi attacco; chi ha attaccato scarta 1 carta
+  numero a caso.
+- **Tiro su un muro** (Nonno Rafiluccio 1): difesa di livello 1; dopo averla usata, fino al tuo prossimo turno gli
+  attacchi di livello 1 non ti colpiscono (non serve difendersi).
+- **Straordinario** (Nonno Rafiluccio 2): gratis, 1 mossa in più adesso e 1 nel prossimo turno.
+- **Brontola tutto il giorno** (Nonno Rafiluccio 3): l'avversario sceglie se dare 2 carte numero (scelte da lui)
+  o saltare il suo prossimo turno; se ha meno di 2 carte salta il turno. Se non risponde in tempo, dà le carte.

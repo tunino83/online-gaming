@@ -593,6 +593,7 @@ export function Protezioni({ v, nick }: { v: VistaGiocatore; nick: (id: string) 
   if (v.benedizione) note.push(`🙏 Benedizione di ${nick(v.benedizione)}: nessuno può essere attaccato`);
   if (v.tregua !== null) note.push("❄️ Nevicava: niente attacchi fino alla fine del giro");
   if (v.turno.zitto) note.push(`🤐 ${nick(v.turno.giocatore)} non può usare poteri in questo turno`);
+  if (v.turno.senzaAttivare) note.push(`🚬 ${nick(v.turno.giocatore)} non può attivare personaggi in questo turno (Una sigaretta fuori al bar)`);
   for (const r of v.turno.rivelati) {
     note.push(
       `👀 Carte di ${nick(r.giocatore)}: ${[...r.mano.map((c) => String(c.valore)), ...r.nascosti.map((c) => nomeCarta(c.carta))].join(", ") || "nessuna"}`,

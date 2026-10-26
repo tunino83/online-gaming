@@ -145,6 +145,8 @@ function iniziaTurno(s: StatoPartita): void {
     : Math.max(0, s.opzioni.mossePerTurno + caffe + g.mosseProssimoTurno + mosseDaEvento(s, id) - festa);
   s.turno = nuovoTurno(id, mosse);
   s.turno.zitto = g.zittoProssimoTurno;
+  s.turno.senzaAttivare = !!g.senzaAttivareProssimoTurno;
+  g.senzaAttivareProssimoTurno = false;
   s.turno.indigestione = g.indigestione > 0;
   if (g.dopoLaFesta > 0) g.dopoLaFesta -= 1;
   if (g.indigestione > 0) g.indigestione -= 1;
@@ -153,6 +155,7 @@ function iniziaTurno(s: StatoPartita): void {
   g.zittoProssimoTurno = false;
   // Finiscono le protezioni che duravano "fino al tuo prossimo turno"
   g.protetto = false;
+  g.muro = false;
   g.nonStancabile = false;
   g.nascostiProtetti = false;
   g.vietati = [];
@@ -385,6 +388,7 @@ function altreCarte(g: StatoGiocatore, tranne: CopiaCarta): CopiaCarta[] {
 
 function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "attiva" }>): void {
   const g = s.giocatori[id]!;
+  if (s.turno.senzaAttivare) rifiuta("In questo turno non puoi attivare personaggi (Una sigaretta fuori al bar)");
   const copia = attivabili(g).find((c) => c.id === m.carta);
   if (!copia) rifiuta("Non puoi attivare questa carta");
   const c = carta(copia!.carta);
@@ -533,7 +537,8 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   const risorse = risorseGiocatore(g);
   const prosecco = quantiBlu(g, "prosecco") > 0 && !s.turno.bluUsati.includes("prosecco");
   const medico = quantiBlu(g, "medico-in-famiglia") > 0;
-  for (const copia of attivabili(g)) {
+  // Una sigaretta fuori al bar: in questo turno niente attivazioni
+  for (const copia of s.turno.senzaAttivare ? [] : attivabili(g)) {
     if (medico && MEDICI.has(copia.carta)) {
       mosse.push({ tipo: "attiva", carta: copia.id, combinazione: [] });
       continue;

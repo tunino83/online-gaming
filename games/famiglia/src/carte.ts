@@ -382,6 +382,48 @@ const ADULTI: Carta[] = [
     ],
     "Fan di Piero Pelù e di Un medico in famiglia",
   ),
+  ...persona(
+    "Nonna Maria",
+    [
+      {
+        codice: somma(2, 13),
+        poteri: [aiuto("Un filo di trucco", "Una tua carta numero diventa truccata: vale 1 in più o 1 in meno, a tua scelta")],
+      },
+      {
+        codice: somma(3, 17),
+        poteri: [
+          attacco(
+            "Una sigaretta fuori al bar",
+            "Donna emancipata, vai a fumare fuori al bar davanti a tutti: un avversario si scandalizza e nel suo prossimo turno non può attivare personaggi",
+          ),
+        ],
+      },
+      {
+        codice: dispari(4),
+        poteri: [difesa("Bracciali d'oro", "Annulli qualsiasi attacco, anche di livello 3, e sbattendo i bracciali chi ti ha attaccato scarta 1 carta numero a caso")],
+      },
+    ],
+    "Vanitosa, piena di bracciali, sempre truccata; fuma e dice le parolacce",
+  ),
+  ...persona(
+    "Nonno Rafiluccio",
+    [
+      {
+        codice: somma(2, 10),
+        poteri: [
+          difesa("Tiro su un muro", "Annulli un attacco di livello 1, e il muro resta: fino al tuo prossimo turno nessun attacco di livello 1 ti colpisce"),
+        ],
+      },
+      { codice: pari(3), poteri: [aiuto("Straordinario", "Gratis (non usa mosse): 1 mossa in più adesso e 1 nel tuo prossimo turno")] },
+      {
+        codice: scala(5),
+        poteri: [
+          attacco("Brontola tutto il giorno", "Un avversario, pur di non sentirti più, sceglie: ti dà 2 carte numero oppure salta il suo prossimo turno"),
+        ],
+      },
+    ],
+    "Muratore, gran lavoratore e brontolone",
+  ),
 ];
 
 /* ---------------- carte singole ---------------- */

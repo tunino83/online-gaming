@@ -75,8 +75,15 @@ export function riempiTavolo(s: StatoPartita): void {
 export function scartaNumeri(s: StatoPartita, carte: CartaNumero[]): void {
   for (const c of carte) {
     if (c.unite) scartaNumeri(s, c.unite);
-    else s.scarti.numeri.push(c);
+    else s.scarti.numeri.push(cartaVera(c));
   }
+}
+
+/** La carta numero col suo valore vero (una carta truccata da Nonna Maria torna normale quando lascia la mano). */
+export function cartaVera(c: CartaNumero): CartaNumero {
+  if (c.valoreVero === undefined) return c;
+  const { valoreVero, ...resto } = c;
+  return { ...resto, valore: valoreVero };
 }
 
 /** Toglie una carta numero dalla mano o dalla vetrina del giocatore; `null` se non c'è. */

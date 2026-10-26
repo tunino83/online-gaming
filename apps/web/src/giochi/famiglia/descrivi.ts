@@ -73,7 +73,10 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
           : `dal tavolo il ${elenco(p.posizioni.map((i) => String(v.tavolo.numeri[i]?.valore ?? "?")))}`,
       );
     }
-    if (typeof p.valore === "number") parti.push(`cerca un ${p.valore}`);
+    if (typeof p.valore === "number") {
+      const trucco = m.tipo === "potere" && m.potere === "un-filo-di-trucco";
+      parti.push(trucco ? `la fai diventare un ${p.valore}` : `cerca un ${p.valore}`);
+    }
     if (p.scelte) parti.push(elenco(p.scelte.map((x) => VOCI_MENU[x] ?? x)));
     return parti.length > 0 ? ` – ${parti.join(", ")}` : "";
   };
@@ -139,6 +142,9 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
       return `🛡️ ${nomePotere(idCarta, potere)} – ${nomeCarta(idCarta)}${emergenza}${devia}${paga}`;
     }
     case "subisci": {
+      if (v.attacco?.potere === "brontola-tutto-il-giorno") {
+        return m.carte && m.carte.length > 0 ? `Gli dai ${valori(m.carte)} (scegli tu quali)` : "Salti il tuo prossimo turno";
+      }
       if (m.bersaglio) return `Lascia passare: fai stancare ${nomeCopia(m.bersaglio)}`;
       if (m.carte && m.carte.length > 0) return `Lascia passare: carte ${valori(m.carte)}`;
       return "Lascia passare l'attacco";
