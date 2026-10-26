@@ -41,10 +41,10 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 - La Famiglia: `pnpm simula:famiglia [n] [mazzo]` (resoconto in `docs/famiglia/`).
   Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.
-  Carte da stampare: `pnpm stampa:famiglia` → `docs/famiglia/stampa/la-famiglia-carte.pdf` (A4, 9 carte formato poker per pagina, dorsi in fondo;
-  sempre identico a parità di carte e foto: data fissa, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
+  Carte da stampare: `pnpm stampa:famiglia` → `docs/famiglia/stampa/la-famiglia-carte_<data_ora>.pdf` (A4, 9 carte formato poker per pagina, dorsi in fondo;
+  contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
   Sulle carte solo il nome del potere; i testi sono nella tabella dei poteri all'inizio. Solo alcune carte:
-  `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).
+  `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta_<data_ora>.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).
   Voci delle carte: `pnpm vocali:famiglia` trasforma `games/famiglia/audio/_originali/*` (anche vocali WhatsApp) in .mp3 (serve ffmpeg, installato con winget).
   Vantaggio per posizione con partite nuove: `npx tsx games/famiglia/scripts/posizioni.ts [giocatori] [partite] [seme]`.
 - Secondo gioco "Ufficio": `pnpm simula:ufficio [n]` e `pnpm carte:ufficio` (scrivono in `docs/ufficio/`).

@@ -3,16 +3,17 @@
  * con le linee per ritagliare. Tutti i mazzi: personaggi (con difese e attacchi, una carta per copia), carte numero,
  * mancia dei nonni, eventi; in fondo una pagina di dorsi per ogni mazzo.
  *
- * Sempre uguale: stesse carte e stesse immagini danno lo stesso file (ordine fisso, data fissa nel PDF).
+ * Sempre uguale: stesse carte e stesse immagini danno lo stesso contenuto (ordine fisso, data fissa dentro il PDF);
+ * il nome del file ha la data e l'ora della stampa, così le stampe precedenti restano.
  * Le regole dei punti sono quelle di base del gioco (le carte solo aiuto valgono 0).
  *
- * Uso: pnpm stampa:famiglia   → docs/famiglia/stampa/la-famiglia-carte.pdf (tutto)
+ * Uso: pnpm stampa:famiglia   → docs/famiglia/stampa/la-famiglia-carte_<data_ora>.pdf (tutto)
  *
  * Solo alcune carte: si scrivono dopo il comando (separate da spazi) persone, carte e mazzi:
  *   pnpm stampa:famiglia antonio nonna-maria-2 rocky      → le 3 carte di Antonio, Nonna Maria 2 e Rocky
  *   pnpm stampa:famiglia simone numeri                    → le carte di Simone e le carte numero
  * Parole per i mazzi: numeri, mancia, eventi, dorsi, tabella (personaggi = tutti i personaggi).
- * Con una scelta il file è docs/famiglia/stampa/la-famiglia-scelta.pdf (il PDF completo non si tocca);
+ * Con una scelta il file è docs/famiglia/stampa/la-famiglia-scelta_<data_ora>.pdf;
  * con --una-copia le carte con più copie (vini, scuse…) si stampano una volta sola.
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
@@ -25,6 +26,7 @@ import { creaMazzoMancia, creaMazzoNumeri } from "../src/mazzi";
 import { OPZIONI_DEFAULT } from "../src/parametri";
 import { nomiImmagine } from "../src/carte";
 import { puntiCarta } from "../src/base";
+import { COLORI_NUMERI } from "../src/colori";
 import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src/tipi-carte";
 
 /* ---------------- misure (in punti tipografici: 1 mm = 2,8346 pt) ---------------- */
@@ -51,8 +53,15 @@ const FONT = {
   mano: radice("games/famiglia/stampa/font/Caveat-Bold.ttf"),
 };
 const CARTELLA_IMMAGINI = radice("games/famiglia/immagini/classica");
-const USCITA_TUTTO = radice("docs/famiglia/stampa/la-famiglia-carte.pdf");
-const USCITA_SCELTA = radice("docs/famiglia/stampa/la-famiglia-scelta.pdf");
+/** Data e ora nel nome del file (es. 2026-10-26_15-42-07), così ogni stampa resta e non si perde l'ultima. */
+function adesso(): string {
+  const d = new Date();
+  const due = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${due(d.getMonth() + 1)}-${due(d.getDate())}_${due(d.getHours())}-${due(d.getMinutes())}-${due(d.getSeconds())}`;
+}
+const quando = adesso();
+const USCITA_TUTTO = radice(`docs/famiglia/stampa/la-famiglia-carte_${quando}.pdf`);
+const USCITA_SCELTA = radice(`docs/famiglia/stampa/la-famiglia-scelta_${quando}.pdf`);
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
 function immagine(c: Carta): string | undefined {
@@ -213,8 +222,8 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
 }
 
 function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
-  const blu = "#2a63a8";
-  const giallo = "#f2b632";
+  // ogni valore ha il suo colore: numero, angoli e bordo (come nel gioco)
+  const { colore: blu, chiaro: giallo } = COLORI_NUMERI[c.valore];
   doc.save();
   doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).clip();
   doc.rect(x, y, L, A).fill("#fbf8f1");
@@ -229,14 +238,15 @@ function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
   }
   doc.restore();
   doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(blu);
-  doc.circle(x + L / 2, y + A / 2, 50).lineWidth(3).fillAndStroke("#ffffff", blu);
-  doc.font(FONT.nero).fontSize(64).fillColor("#1f4e8c").text(String(c.valore), x, y + A / 2 - 40, { width: L, align: "center" });
+  doc.circle(x + L / 2, y + A / 2, 60).lineWidth(3.5).fillAndStroke("#ffffff", blu);
+  doc.font(FONT.nero).fontSize(88).fillColor(blu).text(String(c.valore), x, y + A / 2 - 55, { width: L, align: "center" });
   for (const [cx, cy, ruota] of [
-    [x + 18, y + 22, 0],
-    [x + L - 18, y + A - 22, 180],
+    [x + 13, y + 15, 0],
+    [x + L - 13, y + A - 15, 180],
   ] as const) {
+    // il numero piccolo negli angoli, del suo colore, sul cerchio chiaro
     doc.save().rotate(ruota, { origin: [cx, cy] });
-    doc.font(FONT.nero).fontSize(15).fillColor("#ffffff").text(String(c.valore), cx - 10, cy - 9, { width: 20, align: "center" });
+    doc.font(FONT.nero).fontSize(16).fillColor(blu).text(String(c.valore), cx - 10, cy - 10, { width: 20, align: "center" });
     doc.restore();
   }
   if (c.campanello) {

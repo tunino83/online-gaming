@@ -474,24 +474,27 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
 
 /* ---------------- carte numero: piastrelle di maiolica ---------------- */
 
+/* ogni valore ha il suo colore (--num e --num-chiaro, da COLORI_NUMERI): numero, angoli e bordo */
 .cf-num {
+  --num: #2a63a8;
+  --num-chiaro: #c6d8f0;
   position: relative;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   border-radius: 6px;
   background:
-    radial-gradient(circle at 0 0, #f2b632 0 18%, transparent 19%),
-    radial-gradient(circle at 100% 0, #f2b632 0 18%, transparent 19%),
-    radial-gradient(circle at 0 100%, #f2b632 0 18%, transparent 19%),
-    radial-gradient(circle at 100% 100%, #f2b632 0 18%, transparent 19%),
-    radial-gradient(circle at 0 0, #2a63a8 0 30%, transparent 31%),
-    radial-gradient(circle at 100% 0, #2a63a8 0 30%, transparent 31%),
-    radial-gradient(circle at 0 100%, #2a63a8 0 30%, transparent 31%),
-    radial-gradient(circle at 100% 100%, #2a63a8 0 30%, transparent 31%),
+    radial-gradient(circle at 0 0, var(--num-chiaro) 0 18%, transparent 19%),
+    radial-gradient(circle at 100% 0, var(--num-chiaro) 0 18%, transparent 19%),
+    radial-gradient(circle at 0 100%, var(--num-chiaro) 0 18%, transparent 19%),
+    radial-gradient(circle at 100% 100%, var(--num-chiaro) 0 18%, transparent 19%),
+    radial-gradient(circle at 0 0, var(--num) 0 30%, transparent 31%),
+    radial-gradient(circle at 100% 0, var(--num) 0 30%, transparent 31%),
+    radial-gradient(circle at 0 100%, var(--num) 0 30%, transparent 31%),
+    radial-gradient(circle at 100% 100%, var(--num) 0 30%, transparent 31%),
     linear-gradient(160deg, #ffffff, #f3efe4);
-  box-shadow: 0 0 0 2px #2a63a8, 0 2px 4px rgb(0 0 0 / 0.35), inset 0 0 0 3px #fff;
-  color: #1f4e8c;
+  box-shadow: 0 0 0 2px var(--num), 0 2px 4px rgb(0 0 0 / 0.35), inset 0 0 0 3px #fff;
+  color: var(--num);
   font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
   font-weight: 700;
   transition: transform 0.15s;
@@ -499,11 +502,11 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
 .cf-num b {
   display: grid;
   place-items: center;
-  width: 62%;
+  width: 76%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 0 1.5px #2a63a8;
+  box-shadow: 0 0 0 1.5px var(--num);
   line-height: 1;
 }
 /* fatta in casa: piastrella di cotto */
@@ -520,5 +523,5 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
 }
 .cf-num-scelta {
   transform: translateY(-8px);
-  box-shadow: 0 0 0 2px #2a63a8, 0 0 0 5px #ffd59a, 0 6px 10px rgb(0 0 0 / 0.35);
+  box-shadow: 0 0 0 2px var(--num), 0 0 0 5px #ffd59a, 0 6px 10px rgb(0 0 0 / 0.35);
 }
