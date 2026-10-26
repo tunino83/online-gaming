@@ -472,42 +472,60 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
   font-size: 1.3rem;
 }
 
-/* ---------------- carte numero: piastrelle di maiolica ---------------- */
+/* ---------------- carte numero: gemme magiche su pergamena ---------------- */
 
-/* ogni valore ha il suo colore (--num e --num-chiaro, da COLORI_NUMERI): numero, angoli e bordo */
+/* ogni valore è una gemma (--num, --num-chiaro, --num-scuro da COLORI_NUMERI) incastonata in una carta di pergamena */
 .cf-num {
-  --num: #2a63a8;
-  --num-chiaro: #c6d8f0;
+  --num: #2547a8;
+  --num-chiaro: #a9c0ff;
+  --num-scuro: #0e1f57;
+  --oro: #c9a24a;
   position: relative;
   display: grid;
   place-items: center;
   flex-shrink: 0;
   border-radius: 6px;
   background:
-    radial-gradient(circle at 0 0, var(--num-chiaro) 0 18%, transparent 19%),
-    radial-gradient(circle at 100% 0, var(--num-chiaro) 0 18%, transparent 19%),
-    radial-gradient(circle at 0 100%, var(--num-chiaro) 0 18%, transparent 19%),
-    radial-gradient(circle at 100% 100%, var(--num-chiaro) 0 18%, transparent 19%),
-    radial-gradient(circle at 0 0, var(--num) 0 30%, transparent 31%),
-    radial-gradient(circle at 100% 0, var(--num) 0 30%, transparent 31%),
-    radial-gradient(circle at 0 100%, var(--num) 0 30%, transparent 31%),
-    radial-gradient(circle at 100% 100%, var(--num) 0 30%, transparent 31%),
-    linear-gradient(160deg, #ffffff, #f3efe4);
-  box-shadow: 0 0 0 2px var(--num), 0 2px 4px rgb(0 0 0 / 0.35), inset 0 0 0 3px #fff;
-  color: var(--num);
+    radial-gradient(circle at 50% 45%, #fffaf0 0 35%, #e6cf9f 100%);
+  box-shadow: 0 0 0 2px var(--oro), inset 0 0 0 2px #fffaf0, inset 0 0 0 3px #8a6328, 0 2px 4px rgb(0 0 0 / 0.35);
+  color: #fff;
   font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
   font-weight: 700;
   transition: transform 0.15s;
 }
+/* stelline dorate negli angoli */
+.cf-num::before,
+.cf-num::after {
+  content: "✦";
+  position: absolute;
+  font-size: 0.32em;
+  line-height: 1;
+  color: var(--oro);
+}
+.cf-num::before {
+  left: 12%;
+  top: 7%;
+}
+.cf-num::after {
+  right: 12%;
+  bottom: 7%;
+}
+/* la gemma: ottagono sfaccettato con riflesso */
 .cf-num b {
   display: grid;
   place-items: center;
-  width: 76%;
+  width: 84%;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 1.5px var(--num);
+  clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%);
+  background:
+    radial-gradient(ellipse 28% 14% at 34% 24%, rgb(255 255 255 / 0.75), transparent 70%),
+    radial-gradient(circle at 50% 50%, transparent 0 42%, rgb(0 0 0 / 0.12) 43% 100%),
+    radial-gradient(circle at 32% 28%, var(--num-chiaro), var(--num) 50%, var(--num-scuro));
   line-height: 1;
+  text-shadow:
+    1.5px 0 0 var(--num-scuro), -1.5px 0 0 var(--num-scuro), 0 1.5px 0 var(--num-scuro), 0 -1.5px 0 var(--num-scuro),
+    1px 1px 0 var(--num-scuro), -1px -1px 0 var(--num-scuro), 1px -1px 0 var(--num-scuro), -1px 1px 0 var(--num-scuro);
+  filter: drop-shadow(0 0 1.5px var(--oro));
 }
 /* fatta in casa: piastrella di cotto */
 .cf-num-casa {
@@ -515,13 +533,37 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
     radial-gradient(circle at 50% 50%, rgb(255 255 255 / 0.25), transparent 70%),
     linear-gradient(160deg, #d9895a, #b5643a);
   box-shadow: 0 0 0 2px #7a3d1d, 0 2px 4px rgb(0 0 0 / 0.35);
-  color: #5a2a10;
+}
+.cf-num-casa::before,
+.cf-num-casa::after {
+  content: none;
 }
 .cf-num-casa b {
+  clip-path: none;
+  border-radius: 50%;
+  width: 76%;
   background: #fff3e6;
   box-shadow: 0 0 0 1.5px #7a3d1d;
+  color: #5a2a10;
+  text-shadow: none;
+  filter: none;
+}
+/* carta coperta: il dorso, cielo di notte stellato */
+.cf-num-dorso {
+  background:
+    radial-gradient(circle at 25% 20%, #e8c56a 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 30%, #e8c56a 0 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 80%, #e8c56a 0 1px, transparent 1.5px),
+    radial-gradient(circle at 72% 85%, #e8c56a 0 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, #34407a, #121a3a);
+  box-shadow: 0 0 0 2px var(--oro), 0 2px 4px rgb(0 0 0 / 0.35);
+}
+.cf-num-dorso b {
+  background: #1b2550;
+  color: #e8c56a;
+  text-shadow: none;
 }
 .cf-num-scelta {
   transform: translateY(-8px);
-  box-shadow: 0 0 0 2px var(--num), 0 0 0 5px #ffd59a, 0 6px 10px rgb(0 0 0 / 0.35);
+  box-shadow: 0 0 0 2px var(--oro), 0 0 0 5px #ffd59a, 0 6px 10px rgb(0 0 0 / 0.35);
 }

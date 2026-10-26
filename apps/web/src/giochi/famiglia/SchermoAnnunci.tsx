@@ -77,7 +77,7 @@ export function AnnuncioCarta({ annuncio, onFine }: { annuncio: Annuncio; onFine
           </span>
         ) : (
           <span className="fm-annuncio-numero">
-            <span className="cf-num h-16 w-12 text-2xl">
+            <span className="cf-num cf-num-dorso h-16 w-12 text-2xl">
               <b>?</b>
             </span>
           </span>

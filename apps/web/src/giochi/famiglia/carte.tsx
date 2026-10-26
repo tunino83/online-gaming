@@ -204,7 +204,7 @@ export function CartaNumeroGrafica({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={`cf-num ${c.unite ? "cf-num-casa" : ""} ${selezionata ? "cf-num-scelta" : ""} ${piccola ? "h-11 w-8 text-lg" : "h-16 w-12 text-3xl"}`}
-      style={c.unite ? undefined : ({ "--num": COLORI_NUMERI[c.valore].colore, "--num-chiaro": COLORI_NUMERI[c.valore].chiaro } as CSSProperties)}
+      style={c.unite ? undefined : ({ "--num": COLORI_NUMERI[c.valore].colore, "--num-chiaro": COLORI_NUMERI[c.valore].chiaro, "--num-scuro": COLORI_NUMERI[c.valore].scuro } as CSSProperties)}
       aria-label={`carta ${c.valore}${c.unite ? " fatta in casa" : ""}`}
     >
       <b>{c.valore}</b>

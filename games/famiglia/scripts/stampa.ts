@@ -221,37 +221,93 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   rigaCheSta(doc, dx, tx + tw * 0.62, y + A - 19.5, tw * 0.38, FONT.normale, 6.5, MATITA, "right");
 }
 
+/** Ottagono centrato in (cx, cy): i suoi 8 vertici. */
+function ottagono(cx: number, cy: number, r: number): [number, number][] {
+  return Array.from({ length: 8 }, (_, i): [number, number] => {
+    const a = ((22.5 + i * 45) * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+}
+
+/** Stellina a 4 punte (scintilla) dorata. */
+function scintilla(doc: Doc, cx: number, cy: number, r: number, colore = "#c9a24a") {
+  const k = r * 0.28;
+  doc.polygon([cx, cy - r], [cx + k, cy - k], [cx + r, cy], [cx + k, cy + k], [cx, cy + r], [cx - k, cy + k], [cx - r, cy], [cx - k, cy - k]).fill(colore);
+}
+
+/** Carta numero fantasy: pergamena con cornice dorata e, al centro, una gemma sfaccettata col numero inciso. */
 function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
-  // ogni valore ha il suo colore: numero, angoli e bordo (come nel gioco)
-  const { colore: blu, chiaro: giallo } = COLORI_NUMERI[c.valore];
-  doc.save();
-  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).clip();
-  doc.rect(x, y, L, A).fill("#fbf8f1");
-  for (const [cx, cy] of [
-    [x, y],
-    [x + L, y],
-    [x, y + A],
-    [x + L, y + A],
-  ] as const) {
-    doc.circle(cx, cy, 52).fill(blu);
-    doc.circle(cx, cy, 30).fill(giallo);
+  const g = COLORI_NUMERI[c.valore];
+  const oro = "#c9a24a";
+  const bruno = "#5a3a1a";
+  const cx = x + L / 2;
+  const cy = y + A / 2;
+
+  // pergamena con un po' di luce al centro
+  const sfondo = doc.radialGradient(cx, cy - 10, 10, cx, cy, A * 0.62);
+  sfondo.stop(0, "#fffaf0").stop(1, "#e6cf9f");
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).fill(sfondo);
+  // cornice dorata doppia
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(oro);
+  doc.roundedRect(x + 7, y + 7, L - 14, A - 14, 6).lineWidth(0.9).stroke(bruno);
+  doc.roundedRect(x + 9.5, y + 9.5, L - 19, A - 19, 5).lineWidth(0.6).dash(1, { space: 2 }).stroke(oro).undash();
+
+  // anello di rune (puntini dorati) attorno alla gemma
+  doc.circle(cx, cy, 66).lineWidth(1.2).dash(1.5, { space: 4 }).stroke(oro).undash();
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4;
+    scintilla(doc, cx + 66 * Math.cos(a), cy + 66 * Math.sin(a), i % 2 === 0 ? 5 : 3);
   }
-  doc.restore();
-  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(blu);
-  doc.circle(x + L / 2, y + A / 2, 60).lineWidth(3.5).fillAndStroke("#ffffff", blu);
-  doc.font(FONT.nero).fontSize(88).fillColor(blu).text(String(c.valore), x, y + A / 2 - 55, { width: L, align: "center" });
-  for (const [cx, cy, ruota] of [
-    [x + 13, y + 15, 0],
-    [x + L - 13, y + A - 15, 180],
+
+  // la gemma: ottagono sfaccettato
+  const R = 50;
+  const fuori = ottagono(cx, cy, R);
+  const dentro = ottagono(cx, cy, R * 0.56);
+  const pietra = doc.radialGradient(cx - R * 0.35, cy - R * 0.4, 4, cx, cy, R * 1.1);
+  pietra.stop(0, g.chiaro).stop(0.45, g.colore).stop(1, g.scuro);
+  doc.polygon(...fuori).fill(pietra);
+  // faccette: triangoli tra il bordo e la tavola, più chiari in alto a sinistra
+  for (let i = 0; i < 8; i++) {
+    const j = (i + 1) % 8;
+    doc.fillOpacity(i >= 4 && i <= 6 ? 0.22 : 0.08);
+    doc.polygon(fuori[i]!, fuori[j]!, dentro[j]!, dentro[i]!).fill(i >= 4 && i <= 6 ? "#ffffff" : g.scuro);
+  }
+  doc.fillOpacity(1);
+  const tavola = doc.radialGradient(cx - 8, cy - 10, 2, cx, cy, R * 0.6);
+  tavola.stop(0, g.chiaro).stop(1, g.colore);
+  doc.polygon(...dentro).fill(tavola);
+  doc.lineWidth(0.6).strokeOpacity(0.55);
+  for (let i = 0; i < 8; i++) doc.moveTo(...fuori[i]!).lineTo(...dentro[i]!).stroke(g.scuro);
+  doc.strokeOpacity(1);
+  doc.polygon(...dentro).lineWidth(0.8).stroke(g.scuro);
+  // incastonatura d'oro e riflesso
+  doc.polygon(...fuori).lineWidth(3.2).stroke(oro);
+  doc.polygon(...fuori).lineWidth(0.8).stroke(bruno);
+  doc.fillOpacity(0.55).ellipse(cx - 18, cy - 24, 11, 5).fill("#ffffff").fillOpacity(1);
+
+  // il numero inciso nella gemma
+  // prima il contorno scuro (spesso), poi il bianco sopra: così non si vedono le linee interne della lettera
+  doc.font(FONT.nero).fontSize(64).lineWidth(5).lineJoin("round").strokeColor(g.scuro);
+  doc.text(String(c.valore), x, cy - 41, { width: L, align: "center", stroke: true, fill: false });
+  doc.fillColor("#ffffff").text(String(c.valore), x, cy - 41, { width: L, align: "center" });
+
+  // numeri piccoli negli angoli, su un rombo dorato
+  for (const [ax, ay, ruota] of [
+    [x + 21, y + 23, 0],
+    [x + L - 21, y + A - 23, 180],
   ] as const) {
-    // il numero piccolo negli angoli, del suo colore, sul cerchio chiaro
-    doc.save().rotate(ruota, { origin: [cx, cy] });
-    doc.font(FONT.nero).fontSize(16).fillColor(blu).text(String(c.valore), cx - 10, cy - 10, { width: 20, align: "center" });
+    doc.save().rotate(ruota, { origin: [ax, ay] });
+    doc.polygon([ax, ay - 12], [ax + 12, ay], [ax, ay + 12], [ax - 12, ay]).lineWidth(1).fillAndStroke(g.colore, oro);
+    doc.font(FONT.nero).fontSize(13).fillColor("#ffffff").text(String(c.valore), ax - 10, ay - 8, { width: 20, align: "center" });
     doc.restore();
   }
+  // stelline negli altri due angoli
+  scintilla(doc, x + L - 21, y + 23, 7);
+  scintilla(doc, x + 21, y + A - 23, 7);
+
   if (c.campanello) {
-    doc.roundedRect(x + L / 2 - 30, y + A - 50, 60, 15, 7).fill("#fffaf0");
-    doc.font(FONT.forte).fontSize(8).fillColor("#8a4f1d").text("campanello", x + L / 2 - 30, y + A - 46, { width: 60, align: "center" });
+    doc.roundedRect(cx - 32, y + A - 32, 64, 15, 7).lineWidth(1).fillAndStroke("#fff6dc", oro);
+    doc.font(FONT.forte).fontSize(8).fillColor(bruno).text("campanello", cx - 32, y + A - 28, { width: 64, align: "center" });
   }
 }
 
@@ -307,15 +363,32 @@ function dorso(doc: Doc, x: number, y: number, mazzo: Mazzo) {
       doc.rect(x, y + i * 12, L, 12).fill("#c4302b");
     }
     doc.fillOpacity(1);
+  } else if (mazzo === "numeri") {
+    // cielo di notte con stelline dorate (posizioni fisse: il PDF resta sempre uguale)
+    const notte = doc.radialGradient(x + L / 2, y + A / 2, 10, x + L / 2, y + A / 2, A * 0.7);
+    notte.stop(0, "#34407a").stop(1, "#121a3a");
+    doc.rect(x, y, L, A).fill(notte);
+    for (let i = 1; i <= 30; i++) {
+      // sequenza "R2": punti sparsi in modo uniforme ma sempre uguali
+      const sx = x + 12 + ((i * 0.7548777) % 1) * (L - 24);
+      const sy = y + 12 + ((i * 0.5698403) % 1) * (A - 24);
+      if (Math.hypot(sx - x - L / 2, sy - y - A / 2) < 58) continue;
+      scintilla(doc, sx, sy, i % 3 === 0 ? 4 : 2.2, "#e8c56a");
+    }
   } else {
-    const [fondo, righe] = mazzo === "numeri" ? ["#2a63a8", "#f2b632"] : mazzo === "mancia" ? ["#2e7d4f", "#d6f0dc"] : ["#d65a8f", "#fff0f6"];
+    const [fondo, righe] = mazzo === "mancia" ? ["#2e7d4f", "#d6f0dc"] : ["#d65a8f", "#fff0f6"];
     doc.rect(x, y, L, A).fill(fondo);
     doc.fillOpacity(0.25);
     for (let i = -A; i < L + A; i += 16) doc.polygon([x + i, y], [x + i + 8, y], [x + i + 8 + A, y + A], [x + i + A, y + A]).fill(righe);
     doc.fillOpacity(1);
   }
   doc.restore();
-  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke("#7a4a26");
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(mazzo === "numeri" ? "#c9a24a" : "#7a4a26");
+  if (mazzo === "numeri") {
+    doc.polygon(...ottagono(x + L / 2, y + A / 2, 50)).lineWidth(3).fillAndStroke("#1b2550", "#c9a24a");
+    rigaCheSta(doc, "Numeri", x + L / 2 - 40, y + A / 2 - 9, 80, FONT.nero, 17, "#e8c56a");
+    return;
+  }
   doc.circle(x + L / 2, y + A / 2, 48).lineWidth(3).fillAndStroke("#fffaf0", "#7a4a26");
   const titolo = { personaggi: "La Famiglia", numeri: "Numeri", mancia: "Mancia", eventi: "Eventi" }[mazzo];
   rigaCheSta(doc, titolo, x + L / 2 - 44, y + A / 2 - 9, 88, FONT.nero, 17, "#7a4a26");
