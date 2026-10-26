@@ -19,6 +19,7 @@ import {
   stancaCarta,
   togliNumero,
   zonaDi,
+  premioPotere,
 } from "./base";
 import { carta, cartePersona, eBlu } from "./carte";
 import { type Combinazione, trovaCombinazioni, verificaCombinazione } from "./codici";
@@ -236,6 +237,10 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
   const rubaACaso = (): CartaNumero | undefined => (V.mano.length > 0 ? V.mano.splice(interoTra(s.rng, 0, V.mano.length - 1), 1)[0] : undefined);
   let dopo: Attesa | null = null;
   registra(s, v, { tipo: "colpito", potere: a.potere });
+  if (!suSeStesso && !a.premiato) {
+    premioPotere(s, a.attaccante);
+    a.premiato = true;
+  }
 
   switch (a.potere) {
     case "forno-a-legna":
@@ -517,8 +522,8 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
     }
   } else {
     const x = g.attivati.find((y) => y.copia.id === d!.copia)!;
-    const ultimo = Math.min(...s.ordine.map((o) => puntiDi(s.giocatori[o]!)));
-    if (!(d!.potere === "non-sa-perdere" && puntiDi(g) <= ultimo)) stancaCarta(s, x);
+    const ultimo = Math.min(...s.ordine.map((o) => puntiDi(s.giocatori[o]!, s.opzioni)));
+    if (!(d!.potere === "non-sa-perdere" && puntiDi(g, s.opzioni) <= ultimo)) stancaCarta(s, x);
   }
   a.difesi.push(id);
   s.turno.attesa = null;
@@ -544,6 +549,7 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
     dopo = colpisci(s, a, id, mossa);
     avanza(s);
   } else {
+    premioPotere(s, id);
     dopo = effettoDifesa(s, a, id, d!.potere, mossa);
   }
   prosegui(s);

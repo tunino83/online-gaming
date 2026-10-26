@@ -19,6 +19,7 @@ import {
   stancaCarta,
   togliNumero,
   zonaDi,
+  premioPotere,
 } from "./base";
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { MEDICI, carta } from "./carte";
@@ -112,6 +113,11 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
     if (BLU_DA_SOLI.has(p!.id)) rifiuta("Questa carta è sempre attiva: funziona da sola");
     if (s.turno.bluUsati.includes(p!.id)) rifiuta("Questo potere si usa una volta per turno");
     s.turno.bluUsati.push(p!.id);
+  } else if (POTERI_GRATIS.has(p!.id)) {
+    // Un potere gratis si usa una volta per turno per carta (anche se la carta non si stanca, es. Totò alla Resurrezione)
+    const chiave = `gratis:${a!.copia.id}`;
+    if (s.turno.bluUsati.includes(chiave)) rifiuta("Questo potere gratis si usa una volta per turno");
+    s.turno.bluUsati.push(chiave);
   }
   if (p!.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p!.id)) rifiuta("Questa difesa si usa quando ti attaccano");
 
@@ -127,6 +133,10 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   if (potere === "nuvola-di-fumo") g.protetto = true;
   else if (potere === "benedizione") s.benedizione = id;
   else bersaglio = applicaAiuto(s, id, g, a!, potere, m, appenaPescata);
+  if (tipo === "aiuto" && !s.turno.premioAiuto) {
+    premioPotere(s, id);
+    s.turno.premioAiuto = true;
+  }
   registra(s, id, { tipo: "potere", carta: origine.id, potere, ...(bersaglio ? { bersaglio } : {}) });
 }
 
@@ -557,6 +567,7 @@ export function mosseDiPotere(s: StatoPartita, id: IdGiocatore): Mossa[] {
       if (a.stanca > 0 && !p.blu) continue;
       if (p.tipo === "difesa" && !DIFESE_ANCHE_PROATTIVE.has(p.id)) continue;
       if (p.blu && (BLU_DA_SOLI.has(p.id) || s.turno.bluUsati.includes(p.id))) continue;
+      if (!p.blu && POTERI_GRATIS.has(p.id) && s.turno.bluUsati.includes(`gratis:${a.copia.id}`)) continue;
       const base = { tipo: "potere" as const, carta: a.copia.id, potere: p.id };
       for (const parametri of usiPossibili(s, id, g, a, c, p.id)) mosse.push({ ...base, ...parametri });
     }

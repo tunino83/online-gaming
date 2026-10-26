@@ -706,3 +706,15 @@ describe("Nonna Maria e Nonno Rafiluccio (aiuti)", () => {
     expect(anna(s).mosseProssimoTurno).toBe(1);
   });
 });
+
+describe("poteri gratis", () => {
+  it("si usano una volta per turno per carta, anche se la carta non si stanca (Grigliata di Totò alla Resurrezione)", () => {
+    let s = conCarta("toto-3");
+    s.evento = { id: "la-resurrezione", turniRimasti: 2 };
+    anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 });
+    s = usa(s, "toto-3");
+    expect(anna(s).attivati[0]!.stanca).toBe(0); // alla Resurrezione le carte di Totò non si stancano
+    expect(rifiutata(s, "anna", potere("toto-3"))).toMatch(/una volta per turno/);
+    expect(mosseValide(s, "anna").some((m) => m.tipo === "potere" && m.potere === "grigliata")).toBe(false);
+  });
+});

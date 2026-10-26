@@ -49,6 +49,8 @@ export interface StatoGiocatore {
   muro?: boolean;
   /** Nel prossimo turno non può attivare personaggi (Una sigaretta fuori al bar). */
   senzaAttivareProssimoTurno?: boolean;
+  /** Punti guadagnati usando i poteri (variante "punti per i poteri"): restano anche se si perdono le carte. */
+  puntiPoteri?: number;
   /** Giocatori che non possono attaccarlo (Non ti sento, sto suonando). */
   vietati: IdGiocatore[];
 }
@@ -112,6 +114,8 @@ export interface AttaccoInCorso {
   controTutti: boolean;
   /** Copia della carta d'attacco (se è un personaggio attivato), per Cella frigorifera. */
   copia: string | null;
+  /** Il punto per l'attacco andato a segno è già stato dato (variante "punti per i poteri"). */
+  premiato?: boolean;
 }
 
 export interface StatoTurno {
@@ -140,6 +144,10 @@ export interface StatoTurno {
   zitto: boolean;
   /** In questo turno non si possono attivare personaggi (Una sigaretta fuori al bar). */
   senzaAttivare?: boolean;
+  /** Personaggi attivati in questo turno (variante "una attivazione per turno"). */
+  attivazioni?: number;
+  /** Il punto per il primo aiuto del turno è già stato dato (variante "punti per i poteri"). */
+  premioAiuto?: boolean;
   /** Si canta! in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
   canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */

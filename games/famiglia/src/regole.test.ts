@@ -35,6 +35,9 @@ describe("preparazione", () => {
       mossePerTurno: 3,
       modoFine: "punti",
       secondiDifesa: 30,
+      aiutiSenzaPunti: false,
+      puntiPerIPoteri: false,
+      unaAttivazionePerTurno: false,
     });
   });
 
@@ -413,5 +416,73 @@ describe("partite casuali (prova automatica)", () => {
 describe("dati usati dalle regole", () => {
   it("le carte di livello 3 valgono 3 punti", () => {
     expect(carta("roberta-3").punti).toBe(3);
+  });
+});
+
+/* ---------------- varianti in prova (spente di base) ---------------- */
+
+describe("varianti dei punti (in prova)", () => {
+  const attivazione = (id: string, a: [string, number], b: [string, number]): Mossa => ({
+    tipo: "attiva",
+    carta: `${id}#1`,
+    combinazione: [
+      { tipo: "numero", id: a[0], valore: a[1] },
+      { tipo: "numero", id: b[0], valore: b[1] },
+    ],
+  });
+
+  it("aiuti senza punti: le carte solo aiuto valgono 0, le altre come sempre", () => {
+    const s = setup(GIOCATORI, { aiutiSenzaPunti: true }, 1);
+    s.giocatori.anna!.attivati = [
+      { copia: copia("antonio-1"), stanca: 0 }, // aiuto: 0
+      { copia: copia("antonio-2"), stanca: 0 }, // attacco: 2
+      { copia: copia("antonio-3"), stanca: 0 }, // difesa: 3
+    ];
+    expect(puntiDi(s.giocatori.anna!, s.opzioni)).toBe(0 + 2 + 3 + 2); // + Famiglia al completo
+    expect(puntiDi(s.giocatori.anna!)).toBe(1 + 2 + 3 + 2); // regole di base
+  });
+
+  it("punti per i poteri: 1 punto al primo aiuto del turno, all'attacco a segno e alla difesa riuscita", () => {
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true }, 1);
+    s.ordine = ["anna", "bruno", "carla"];
+    s.turno.giocatore = "anna";
+    s.turno.mosseRimaste = 3;
+    s.giocatori.anna!.attivati = [
+      { copia: copia("nonna-dina-1"), stanca: 0 }, // Sposta i mobili (aiuto, gratis)
+      { copia: copia("christian"), stanca: 0 }, // Ho tanta fame (aiuto)
+      { copia: copia("toto-1"), stanca: 0 }, // Si incanta (attacco)
+    ];
+    s = fai(s, "anna", { tipo: "potere", carta: "nonna-dina-1#1", potere: "sposta-i-mobili" });
+    expect(s.giocatori.anna!.puntiPoteri).toBe(1);
+    s = fai(s, "anna", { tipo: "potere", carta: "christian#1", potere: "ho-tanta-fame" });
+    expect(s.giocatori.anna!.puntiPoteri).toBe(1); // solo il primo aiuto del turno
+    s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
+    expect(s.giocatori.anna!.puntiPoteri).toBe(2); // attacco a segno (bruno non ha difese)
+    expect(puntiDi(s.giocatori.anna!, s.opzioni)).toBe(1 + 1 + 1 + 2);
+  });
+
+  it("punti per i poteri: chi ferma un attacco con una difesa guadagna 1 punto", () => {
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true }, 1);
+    s.ordine = ["anna", "bruno", "carla"];
+    s.turno.giocatore = "anna";
+    s.turno.mosseRimaste = 3;
+    s.giocatori.anna!.attivati = [{ copia: copia("toto-1"), stanca: 0 }];
+    s.giocatori.bruno!.attivati = [{ copia: copia("gerardina-1"), stanca: 0 }]; // Sempre calma
+    s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
+    s = fai(s, "bruno", { tipo: "difendi", carta: "gerardina-1#1" });
+    expect(s.giocatori.bruno!.puntiPoteri).toBe(1);
+    expect(s.giocatori.anna!.puntiPoteri ?? 0).toBe(0);
+  });
+
+  it("una attivazione per turno: dopo il primo personaggio attivato, niente altre attivazioni", () => {
+    let s = setup(GIOCATORI, { unaAttivazionePerTurno: true }, 1);
+    s.ordine = ["anna", "bruno", "carla"];
+    s.turno.giocatore = "anna";
+    s.turno.mosseRimaste = 3;
+    s.giocatori.anna!.nascosti = [copia("donatina-1"), copia("nonna-dina-1")]; // somma 5, somma 7
+    s.giocatori.anna!.mano = [num(2, "a"), num(3, "b"), num(3, "c"), num(4, "d")];
+    s = fai(s, "anna", attivazione("donatina-1", ["a", 2], ["b", 3]));
+    expect(mosseValide(s, "anna").some((m) => m.tipo === "attiva")).toBe(false);
+    expect(rifiutata(s, "anna", attivazione("nonna-dina-1", ["c", 3], ["d", 4]))).toMatch(/un solo personaggio/);
   });
 });

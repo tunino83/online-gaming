@@ -175,7 +175,7 @@ function iniziaTurno(s: StatoPartita): void {
 function controllaTraguardo(s: StatoPartita): void {
   if (s.ultimoTurno !== null || s.finita) return;
   const aMazzo = s.opzioni.modoFine === "mazzo";
-  const arrivato = aMazzo ? s.mazzi.personaggi.length === 0 : Object.values(s.giocatori).some((g) => puntiDi(g) >= s.opzioni.puntiPerVincere);
+  const arrivato = aMazzo ? s.mazzi.personaggi.length === 0 : Object.values(s.giocatori).some((g) => puntiDi(g, s.opzioni) >= s.opzioni.puntiPerVincere);
   if (!arrivato) return;
   const n = s.ordine.length;
   const giro = Math.floor(s.numeroTurno / n);
@@ -389,6 +389,8 @@ function altreCarte(g: StatoGiocatore, tranne: CopiaCarta): CopiaCarta[] {
 function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "attiva" }>): void {
   const g = s.giocatori[id]!;
   if (s.turno.senzaAttivare) rifiuta("In questo turno non puoi attivare personaggi (Una sigaretta fuori al bar)");
+  if (s.opzioni.unaAttivazionePerTurno && (s.turno.attivazioni ?? 0) >= 1) rifiuta("Puoi attivare un solo personaggio per turno");
+  s.turno.attivazioni = (s.turno.attivazioni ?? 0) + 1;
   const copia = attivabili(g).find((c) => c.id === m.carta);
   if (!copia) rifiuta("Non puoi attivare questa carta");
   const c = carta(copia!.carta);
@@ -538,7 +540,8 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   const prosecco = quantiBlu(g, "prosecco") > 0 && !s.turno.bluUsati.includes("prosecco");
   const medico = quantiBlu(g, "medico-in-famiglia") > 0;
   // Una sigaretta fuori al bar: in questo turno niente attivazioni
-  for (const copia of s.turno.senzaAttivare ? [] : attivabili(g)) {
+  const limite = s.opzioni.unaAttivazionePerTurno && (s.turno.attivazioni ?? 0) >= 1;
+  for (const copia of s.turno.senzaAttivare || limite ? [] : attivabili(g)) {
     if (medico && MEDICI.has(copia.carta)) {
       mosse.push({ tipo: "attiva", carta: copia.id, combinazione: [] });
       continue;
@@ -622,7 +625,7 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
 
 export function finePartita(s: StatoPartita): EsitoPartita | null {
   if (!s.finita) return null;
-  const punti = Object.fromEntries(s.ordine.map((id) => [id, puntiDi(s.giocatori[id]!)]));
+  const punti = Object.fromEntries(s.ordine.map((id) => [id, puntiDi(s.giocatori[id]!, s.opzioni)]));
   const massimo = Math.max(...Object.values(punti));
   return { vincitori: s.ordine.filter((id) => punti[id] === massimo), punti };
 }

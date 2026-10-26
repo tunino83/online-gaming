@@ -12,6 +12,7 @@
     "simula:ufficio": "tsx games/ufficio/scripts/simula.ts",
     "simula:famiglia": "tsx games/famiglia/scripts/simula.ts",
     "vocali:famiglia": "tsx games/famiglia/scripts/vocali.ts",
+    "strategie:famiglia": "tsx games/famiglia/scripts/strategie.ts",
     "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts",
     "carte:ufficio": "tsx games/ufficio/scripts/anteprima-carte.ts",
     "matrice:famiglia": "tsx games/famiglia/scripts/matrice.ts",

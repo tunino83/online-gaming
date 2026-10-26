@@ -294,3 +294,18 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Straordinario** (Nonno Rafiluccio 2): gratis, 1 mossa in più adesso e 1 nel prossimo turno.
 - **Brontola tutto il giorno** (Nonno Rafiluccio 3): l'avversario sceglie se dare 2 carte numero (scelte da lui)
   o saltare il suo prossimo turno; se ha meno di 2 carte salta il turno. Se non risponde in tempo, dà le carte.
+
+## Poteri gratis: una volta per turno (2026-10-26)
+
+Un potere gratis (che non usa mosse) si usa al massimo **una volta per turno per ogni carta**. Di solito non cambia niente,
+perché la carta si stanca; serve quando la carta non si stanca (es. Grigliata di Totò durante La Resurrezione), altrimenti
+si potrebbe usare all'infinito e il turno non finirebbe mai.
+
+## Varianti dei punti in prova (2026-10-26)
+
+Opzioni della partita, spente di base, per far contare di più i poteri rispetto alle attivazioni
+(confronto con i robot in `docs/famiglia/confronto-strategie.md`):
+- **aiutiSenzaPunti**: le carte con solo poteri di aiuto (✨, anche blu) valgono 0 punti.
+- **puntiPerIPoteri**: 1 punto quando un tuo attacco colpisce (una volta per attacco), quando una tua difesa ferma un
+  attacco e al primo aiuto usato in ogni turno. Questi punti restano anche se poi si perdono le carte.
+- **unaAttivazionePerTurno**: al massimo 1 personaggio attivato per turno.

@@ -116,7 +116,7 @@ export function simulaPartita(seed: number, numeroGiocatori: number, opzioni: Pa
   const esito = finePartita(s);
   r.finita = esito !== null;
   r.turni = s.numeroTurno + 1;
-  r.punti = s.ordine.map((id) => puntiDi(s.giocatori[id]!));
+  r.punti = s.ordine.map((id) => puntiDi(s.giocatori[id]!, s.opzioni));
   r.posizioniVincitori = esito ? esito.vincitori.map((id) => s.ordine.indexOf(id)) : [];
   if (esito) {
     for (const id of s.ordine) {

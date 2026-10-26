@@ -40,6 +40,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
 - `pnpm matrice:famiglia` – rigenera `docs/famiglia/matrice-attacchi-difese.md` (attacchi contro difese della Famiglia).
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 - La Famiglia: `pnpm simula:famiglia [n] [mazzo]` (resoconto in `docs/famiglia/`).
+  Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.
   Voci delle carte: `pnpm vocali:famiglia` trasforma `games/famiglia/audio/_originali/*` (anche vocali WhatsApp) in .mp3 (serve ffmpeg, installato con winget).
   Vantaggio per posizione con partite nuove: `npx tsx games/famiglia/scripts/posizioni.ts [giocatori] [partite] [seme]`.
 - Secondo gioco "Ufficio": `pnpm simula:ufficio [n]` e `pnpm carte:ufficio` (scrivono in `docs/ufficio/`).

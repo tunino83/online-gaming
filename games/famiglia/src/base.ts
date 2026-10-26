@@ -5,6 +5,7 @@
 import { type IdGiocatore, mescola } from "@og/engine";
 import { carta, cartePersona, eAttacco, eBlu } from "./carte";
 import type { Risorse } from "./codici";
+import type { OpzioniPartita } from "./parametri";
 import { type Attivato, type DatiFatto, LUNGHEZZA_REGISTRO, type Mazzi, type StatoGiocatore, type StatoPartita, type Zona } from "./stato";
 import type { CartaNumero, CopiaCarta } from "./tipi-carte";
 
@@ -124,9 +125,28 @@ export function famiglieComplete(g: Pick<StatoGiocatore, "attivati">): string[] 
   return [...perPersona].filter(([persona, carte]) => carte.size === 3 && cartePersona(persona).length === 3).map(([persona]) => persona);
 }
 
-/** Punti di un giocatore: i punti dei personaggi attivati, più 2 per ogni "Famiglia al completo". */
-export const puntiDi = (g: Pick<StatoGiocatore, "attivati">): number =>
-  g.attivati.reduce((tot, a) => tot + carta(a.copia.carta).punti, 0) + famiglieComplete(g).length * PUNTI_FAMIGLIA_AL_COMPLETO;
+/** La carta ha solo poteri di aiuto (anche blu)? Con la variante "aiuti senza punti" non dà punti. */
+export const soloAiuto = (idCarta: string): boolean => carta(idCarta).poteri.every((p) => p.tipo === "aiuto");
+
+/** Punti di una carta attivata, secondo le opzioni della partita. */
+export const puntiCarta = (idCarta: string, opzioni?: Partial<OpzioniPartita>): number =>
+  opzioni?.aiutiSenzaPunti && soloAiuto(idCarta) ? 0 : carta(idCarta).punti;
+
+/**
+ * Punti di un giocatore: i punti dei personaggi attivati, più 2 per ogni "Famiglia al completo",
+ * più quelli guadagnati usando i poteri (variante). Senza opzioni valgono le regole di base.
+ */
+export const puntiDi = (g: Pick<StatoGiocatore, "attivati" | "puntiPoteri">, opzioni?: Partial<OpzioniPartita>): number =>
+  g.attivati.reduce((tot, a) => tot + puntiCarta(a.copia.carta, opzioni), 0) +
+  famiglieComplete(g).length * PUNTI_FAMIGLIA_AL_COMPLETO +
+  (g.puntiPoteri ?? 0);
+
+/** Variante "punti per i poteri": 1 punto in più al giocatore. */
+export function premioPotere(s: StatoPartita, id: IdGiocatore): void {
+  if (!s.opzioni.puntiPerIPoteri) return;
+  const g = s.giocatori[id]!;
+  g.puntiPoteri = (g.puntiPoteri ?? 0) + 1;
+}
 
 /** Quante carte attivate del giocatore hanno questo potere blu (sempre attivo). */
 export const quantiBlu = (g: Pick<StatoGiocatore, "attivati">, potere: string): number =>

@@ -142,7 +142,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
           mancia: structuredClone(o.mancia),
           attacchi: structuredClone(o.attacchi),
           attivati: structuredClone(o.attivati),
-          punti: puntiDi(o),
+          punti: puntiDi(o, s.opzioni),
         };
         return [x, v];
       }),
