@@ -139,15 +139,16 @@ export function confronta(nome: string, opzioni: Partial<OpzioniPartita>, giocat
 /** Le varianti da confrontare. */
 export const VARIANTI: { nome: string; opzioni: Partial<OpzioniPartita> }[] = [
   { nome: "Regole di adesso", opzioni: {} },
-  { nome: "Aiuti senza punti", opzioni: { aiutiSenzaPunti: true } },
-  { nome: "Aiuti senza punti + punti per i poteri", opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true } },
-  { nome: "Aiuti senza punti + punti per i poteri, a 15 punti", opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true, puntiPerVincere: 15 } },
-  { nome: "Punti per i poteri (aiuti con i punti)", opzioni: { puntiPerIPoteri: true } },
-  { nome: "Una attivazione per turno", opzioni: { unaAttivazionePerTurno: true } },
+  { nome: "Aiuti senza punti + punti per i poteri (anche aiuti)", opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true } },
   {
-    nome: "Aiuti senza punti + punti per i poteri + una attivazione",
-    opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true, unaAttivazionePerTurno: true },
+    nome: "C1: aiuti senza punti + punti solo per attacchi e difese",
+    opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true, puntiPerGliAiuti: false },
   },
+  {
+    nome: "C1 a 25 punti",
+    opzioni: { aiutiSenzaPunti: true, puntiPerIPoteri: true, puntiPerGliAiuti: false, puntiPerVincere: 25 },
+  },
+  { nome: "Punti solo per attacchi e difese (aiuti con i punti)", opzioni: { puntiPerIPoteri: true, puntiPerGliAiuti: false } },
 ];
 
 const n1 = (x: number) => x.toFixed(1).replace(".", ",");
@@ -174,7 +175,7 @@ export function rapportoConfronto(risultati: RisultatoVariante[], partite: numbe
   r.push("");
   r.push("- **Aiuti senza punti**: le carte che hanno solo poteri di aiuto (✨, anche blu) valgono 0 punti.");
   r.push("- **Punti per i poteri**: 1 punto quando un tuo attacco colpisce (una volta per attacco), quando una tua difesa");
-  r.push("  ferma un attacco, e al primo aiuto usato in ogni turno.");
+  r.push("  ferma un attacco, e (se non è detto \"solo attacchi e difese\") al primo aiuto usato in ogni turno.");
   r.push("- **Una attivazione per turno**: al massimo 1 personaggio attivato per turno.");
   r.push("");
   r.push("> I robot giocano molto peggio delle persone: contano le differenze tra le righe, non i numeri esatti.");

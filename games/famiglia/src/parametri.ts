@@ -24,6 +24,8 @@ export interface OpzioniPartita {
   puntiPerIPoteri: boolean;
   /** Al massimo 1 personaggio attivato per turno. */
   unaAttivazionePerTurno: boolean;
+  /** Con "punti per i poteri": anche il primo aiuto del turno dà 1 punto (se no, solo attacchi a segno e difese riuscite). */
+  puntiPerGliAiuti: boolean;
 }
 
 export const OPZIONI_DEFAULT: OpzioniPartita = {
@@ -37,6 +39,7 @@ export const OPZIONI_DEFAULT: OpzioniPartita = {
   aiutiSenzaPunti: false,
   puntiPerIPoteri: false,
   unaAttivazionePerTurno: false,
+  puntiPerGliAiuti: true,
 };
 
 export const MIN_GIOCATORI = 2;

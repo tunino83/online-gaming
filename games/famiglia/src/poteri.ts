@@ -133,7 +133,7 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   if (potere === "nuvola-di-fumo") g.protetto = true;
   else if (potere === "benedizione") s.benedizione = id;
   else bersaglio = applicaAiuto(s, id, g, a!, potere, m, appenaPescata);
-  if (tipo === "aiuto" && !s.turno.premioAiuto) {
+  if (tipo === "aiuto" && s.opzioni.puntiPerGliAiuti !== false && !s.turno.premioAiuto) {
     premioPotere(s, id);
     s.turno.premioAiuto = true;
   }

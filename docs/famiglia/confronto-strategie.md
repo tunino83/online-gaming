@@ -11,23 +11,19 @@ alternando chi comincia: 400 partite per ogni riga. Se le due strategie si equiv
 | --- | --- | --- | --- | --- | --- | --- |
 | Regole di adesso | 2 | **33%** | 66,3 | 18,2 | 15,0 | 0,0 |
 | Regole di adesso | 4 | **31%** | 119,2 | 16,4 | 13,0 | 0,0 |
-| Aiuti senza punti | 2 | **23%** | 97,1 | 18,7 | 12,8 | 0,0 |
-| Aiuti senza punti | 4 | **20%** | 164,9 | 16,1 | 10,8 | 0,0 |
-| Aiuti senza punti + punti per i poteri | 2 | **69%** | 35,7 | 15,7 | 20,8 | 14,3 |
-| Aiuti senza punti + punti per i poteri | 4 | **84%** | 66,0 | 13,5 | 18,6 | 13,1 |
-| Aiuti senza punti + punti per i poteri, a 15 punti | 2 | **68%** | 30,2 | 12,0 | 16,0 | 10,4 |
-| Aiuti senza punti + punti per i poteri, a 15 punti | 4 | **84%** | 55,9 | 10,3 | 14,2 | 9,5 |
-| Punti per i poteri (aiuti con i punti) | 2 | **68%** | 32,7 | 16,4 | 20,9 | 12,1 |
-| Punti per i poteri (aiuti con i punti) | 4 | **81%** | 60,7 | 14,3 | 18,7 | 11,2 |
-| Una attivazione per turno | 2 | **30%** | 69,3 | 18,5 | 15,0 | 0,0 |
-| Una attivazione per turno | 4 | **28%** | 121,3 | 16,5 | 13,1 | 0,0 |
-| Aiuti senza punti + punti per i poteri + una attivazione | 2 | **70%** | 36,0 | 15,6 | 20,8 | 14,3 |
-| Aiuti senza punti + punti per i poteri + una attivazione | 4 | **84%** | 65,9 | 13,4 | 18,6 | 13,1 |
+| Aiuti senza punti + punti per i poteri (anche aiuti) | 2 | **69%** | 35,7 | 15,7 | 20,8 | 14,3 |
+| Aiuti senza punti + punti per i poteri (anche aiuti) | 4 | **84%** | 66,0 | 13,5 | 18,6 | 13,1 |
+| C1: aiuti senza punti + punti solo per attacchi e difese | 2 | **52%** | 44,8 | 16,1 | 17,3 | 9,3 |
+| C1: aiuti senza punti + punti solo per attacchi e difese | 4 | **65%** | 81,5 | 14,2 | 16,3 | 9,5 |
+| C1 a 25 punti | 2 | **51%** | 52,1 | 20,1 | 21,1 | 12,1 |
+| C1 a 25 punti | 4 | **61%** | 94,6 | 17,8 | 20,1 | 12,5 |
+| Punti solo per attacchi e difese (aiuti con i punti) | 2 | **55%** | 39,6 | 17,0 | 18,1 | 7,5 |
+| Punti solo per attacchi e difese (aiuti con i punti) | 4 | **66%** | 73,2 | 15,1 | 16,8 | 7,7 |
 
 - **Aiuti senza punti**: le carte che hanno solo poteri di aiuto (✨, anche blu) valgono 0 punti.
 - **Punti per i poteri**: 1 punto quando un tuo attacco colpisce (una volta per attacco), quando una tua difesa
-  ferma un attacco, e al primo aiuto usato in ogni turno.
+  ferma un attacco, e (se non è detto "solo attacchi e difese") al primo aiuto usato in ogni turno.
 - **Una attivazione per turno**: al massimo 1 personaggio attivato per turno.
 
 > I robot giocano molto peggio delle persone: contano le differenze tra le righe, non i numeri esatti.
-Tempo di calcolo: 1311 secondi.
+Tempo di calcolo: 438 secondi.

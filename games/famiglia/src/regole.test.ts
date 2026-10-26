@@ -38,6 +38,7 @@ describe("preparazione", () => {
       aiutiSenzaPunti: false,
       puntiPerIPoteri: false,
       unaAttivazionePerTurno: false,
+      puntiPerGliAiuti: true,
     });
   });
 
@@ -459,6 +460,21 @@ describe("varianti dei punti (in prova)", () => {
     s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
     expect(s.giocatori.anna!.puntiPoteri).toBe(2); // attacco a segno (bruno non ha difese)
     expect(puntiDi(s.giocatori.anna!, s.opzioni)).toBe(1 + 1 + 1 + 2);
+  });
+
+  it("punti per i poteri senza gli aiuti (C1): gli aiuti non danno punti, gli attacchi a segno sì", () => {
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: false }, 1);
+    s.ordine = ["anna", "bruno", "carla"];
+    s.turno.giocatore = "anna";
+    s.turno.mosseRimaste = 3;
+    s.giocatori.anna!.attivati = [
+      { copia: copia("nonna-dina-1"), stanca: 0 },
+      { copia: copia("toto-1"), stanca: 0 },
+    ];
+    s = fai(s, "anna", { tipo: "potere", carta: "nonna-dina-1#1", potere: "sposta-i-mobili" });
+    expect(s.giocatori.anna!.puntiPoteri ?? 0).toBe(0);
+    s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
+    expect(s.giocatori.anna!.puntiPoteri).toBe(1);
   });
 
   it("punti per i poteri: chi ferma un attacco con una difesa guadagna 1 punto", () => {
