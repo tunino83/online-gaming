@@ -154,7 +154,7 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   const foto = immagine(c);
   doc.save();
   doc.roundedRect(fx, fy, fw, fh, 5).clip();
-  if (foto) doc.image(foto, fx, fy, { cover: [fw, fh], align: "center", valign: "top" });
+  if (foto) doc.image(foto, fx, fy, { cover: [fw, fh], align: "center" }); // in verticale resta in alto (le facce stanno in alto)
   else {
     doc.rect(fx, fy, fw, fh).fill("#f3ead6");
     doc.circle(fx + fw / 2, fy + fh / 2, 26).lineWidth(2).fillAndStroke("#fffaf0", t.colore);
