@@ -130,7 +130,8 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
   const c = carta(idCarta);
   return (
     <div className="flex flex-col items-center gap-3">
-      <CartaFamiglia idCarta={idCarta} stanca={stanca} dimensione="grande" />
+      {/* grande quanto lo schermo permette (la scheda scorre: i pulsanti sotto restano raggiungibili) */}
+      <CartaFamiglia idCarta={idCarta} stanca={stanca} dimensione={Math.round(Math.min(300, window.innerWidth * 0.72))} />
       <div className="w-full space-y-2 text-sm">
         {c.nota && <p className="italic text-tenue">{c.nota}</p>}
         {c.poteri.map((p) => (

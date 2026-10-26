@@ -49,7 +49,11 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const [registroAperto, setRegistroAperto] = useState(false);
   const [scelte, setScelte] = useState<string[]>([]);
   const [selezioneScarti, setSelezioneScarti] = useState(false);
-  const [pannello, setPannello] = useState<"numeri" | "nascosti" | "tavolo" | "schermo" | null>(null);
+  const [pannello, setPannello] = useState<"mano" | "tavolo" | "schermo" | null>(null);
+  const [testataAperta, setTestataAperta] = useState(() => leggiScelta(CHIAVE_TESTATA, false));
+  // Il fondo (le mie carte e la barra) è fermo in basso: la pagina lascia sotto tanto spazio quanto è alto
+  const fondo = useRef<HTMLDivElement>(null);
+  const altezzaFondo = useAltezza(fondo);
   const [osservato, setOsservato] = useState<string | null>(null);
   const [fumetto, setFumetto] = useState<{ testo: string; chiave: number } | null>(null);
 
@@ -211,11 +215,31 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const finito = v.finita;
 
   return (
-    <div className={`gioco-famiglia space-y-3 pt-2 text-luce ${finito ? "pb-8" : "pb-64"}`}>
-      {/* stato della partita */}
-      <BarraStato v={v} io={io} nick={nick} secondi={secondiRimasti} difesa={!!scadenza?.difesa} />
-      {/* pulsanti: vocale, tavolo, schermo, regole */}
-      <div className="flex items-center justify-end gap-2">
+    <div className="gioco-famiglia space-y-3 text-luce" style={{ paddingBottom: finito ? 32 : altezzaFondo + 76 }}>
+      {/* in cima, sempre in vista: lo stato (con le informazioni che si aprono e chiudono) e il tavolo */}
+      <div className="fm-cima sticky top-0 z-20 -mx-3 space-y-2 px-3 pt-2 pb-2">
+      <div className="flex items-stretch gap-2">
+        <div className="min-w-0 flex-1">
+          <BarraStato v={v} io={io} nick={nick} secondi={secondiRimasti} difesa={!!scadenza?.difesa} />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setTestataAperta(!testataAperta);
+            salvaScelta(CHIAVE_TESTATA, !testataAperta);
+          }}
+          className="shrink-0 rounded-xl border-2 border-oro/60 px-2.5 text-sm font-bold text-oro-chiaro"
+          aria-expanded={testataAperta}
+          aria-label={testataAperta ? "Chiudi le informazioni" : "Apri le informazioni e le opzioni"}
+        >
+          {testataAperta ? "▴" : "☰"}
+          {!testataAperta && v.evento && " 🎉"}
+        </button>
+      </div>
+      {testataAperta && (
+      <>
+      {/* pulsanti: vocale, voci, tavolo, schermo, regole */}
+      <div className="flex flex-wrap items-center justify-end gap-2">
         {conPersone && !finito && <PulsanteVocale partitaId={partita.id} />}
         <BottoneBarra variante="vuoto" onClick={() => impostaVoci(!vociAccese)}>
           <span aria-label={vociAccese ? "Spegni le voci delle carte" : "Accendi le voci delle carte"}>{vociAccese ? "🗣️" : "🔇"}</span>
@@ -232,6 +256,66 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
       </div>
       {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
       <Protezioni v={v} nick={nick} />
+      </>
+      )}
+
+      {/* tavolo: 4 carte numero e 2 personaggi scoperti, con i mazzi */}
+      <div className="panno rounded-2xl p-2">
+        <div className="flex items-end justify-center gap-1.5">
+          {v.tavolo.numeri.map((c, i) =>
+            c ? (
+              <CartaNumeroGrafica
+                key={c.id}
+                c={c}
+                onClick={trova((m) => m.tipo === "prendiNumero" && m.posizione === i) ? () => gioca({ tipo: "prendiNumero", posizione: i }) : undefined}
+              />
+            ) : (
+              <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
+            ),
+          )}
+          {v.scartiNumeri.length > 0 && (
+            <span className="fm-scritta-tavolo ml-1 self-center !px-1.5 !text-[10px]" title="Ultima carta negli scarti numeri">
+              scarti
+              <br />
+              {v.scartiNumeri.at(-1)!.valore}
+            </span>
+          )}
+        </div>
+        <div className="mt-2 flex items-start justify-center gap-1.5">
+          {v.tavolo.personaggi.map((c, i) =>
+            c ? (
+              <CartaFamiglia
+                key={c.id}
+                idCarta={c.carta}
+                dimensione={76}
+                onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "prendiPersonaggio" && m.posizione === i))}
+              />
+            ) : (
+              <div key={`vuotop-${i}`} className="h-[106px] w-[76px] rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
+            ),
+          )}
+          <div className="flex flex-col gap-1">
+            <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
+            <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
+            <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
+            <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
+          </div>
+        </div>
+        {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
+          <div className="mt-2 flex items-center justify-center gap-2">
+            <span className="fm-scritta-tavolo !text-[10px]">👀 in cima al mazzo</span>
+            {v.cimaPersonaggi.map((c, i) => (
+              <CartaFamiglia
+                key={c.id}
+                idCarta={c.carta}
+                dimensione={44}
+                onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "pescaPersonaggio" && !!m.seconda === (i === 1)))}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      </div>
 
       {/* giocatori */}
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -261,64 +345,6 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         </Zona>
       )}
 
-      {/* tavolo */}
-      <div className="panno rounded-2xl p-3">
-        <div className="flex flex-wrap items-end justify-center gap-2">
-          {v.tavolo.numeri.map((c, i) =>
-            c ? (
-              <CartaNumeroGrafica
-                key={c.id}
-                c={c}
-                onClick={trova((m) => m.tipo === "prendiNumero" && m.posizione === i) ? () => gioca({ tipo: "prendiNumero", posizione: i }) : undefined}
-              />
-            ) : (
-              <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
-            ),
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap items-start justify-center gap-2">
-          {v.tavolo.personaggi.map((c, i) =>
-            c ? (
-              <CartaFamiglia
-                key={c.id}
-                idCarta={c.carta}
-                onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "prendiPersonaggio" && m.posizione === i))}
-              />
-            ) : (
-              <div key={`vuotop-${i}`} className="h-[123px] w-[88px] rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
-            ),
-          )}
-          <div className="flex flex-col gap-1.5">
-            <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
-            <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
-            <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
-            <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
-          </div>
-        </div>
-        {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
-          <div className="mt-3 text-center">
-            <p className="fm-scritta-tavolo mb-1">👀 Ne ho viste tante: le prime carte del mazzo personaggi</p>
-            <div className="flex justify-center gap-2">
-              {v.cimaPersonaggi.map((c, i) => (
-                <CartaFamiglia
-                  key={c.id}
-                  idCarta={c.carta}
-                  dimensione="piccola"
-                  onClick={() =>
-                    apriCarta(
-                      c.id,
-                      undefined,
-                      mosse.filter((m) => m.tipo === "pescaPersonaggio" && !!m.seconda === (i === 1)),
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {v.scartiNumeri.length > 0 && <p className="mt-2 text-center"><span className="fm-scritta-tavolo">Scarti numeri: ultima carta {v.scartiNumeri.at(-1)!.valore}</span></p>}
-      </div>
-
       {/* le mie carte: mentre si gioca sono in basso (tavolo sempre in vista, mano nei pulsanti negli angoli) */}
       {finito && (
         <Zona titolo="Le tue carte">
@@ -344,16 +370,9 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
 
       {/* barra in basso: mosse */}
       {!finito && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-oro bg-notte/95 px-3 py-2 backdrop-blur">
-          <PulsanteAngolo
-            lato="sinistra"
-            icona="🧱"
-            quante={v.mano.length + me.mancia.length}
-            testo="Carte numero"
-            onClick={() => setPannello("numeri")}
-          />
-          <PulsanteAngolo lato="destra" icona="🂠" quante={v.nascosti.length} testo="Carte nascoste" onClick={() => setPannello("nascosti")} />
-          <CarteSulTavolo v={v} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
+        <div ref={fondo} className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-oro bg-notte/95 px-3 py-1.5 backdrop-blur">
+          <PulsanteMano numeri={v.mano.length} nascosti={v.nascosti.length} onClick={() => setPannello("mano")} />
+          <LeMieCarte v={v} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
           <div className="mx-auto flex max-w-2xl items-center gap-2">
             {selezioneScarti ? (
               <>
@@ -361,8 +380,8 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                   Scegli {daScartare} {daScartare === 1 ? "carta" : "carte"} da scartare ({scelte.length}/{daScartare})
                   {v.turno.indigestione && " 🤢 indigestione: 1 in più"}
                 </span>
-                <BottoneBarra variante="vuoto" onClick={() => setPannello("numeri")}>
-                  🧱 Scegli
+                <BottoneBarra variante="vuoto" onClick={() => setPannello("mano")}>
+                  ✋ Scegli
                 </BottoneBarra>
                 <BottoneBarra disabled={scelte.length !== daScartare || bloccato} onClick={() => gioca({ tipo: "fineTurno", scarta: scelte })}>
                   Scarta e chiudi
@@ -387,7 +406,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                 {fineTurno.length > 0 && !attesa && (
                   <BottoneBarra
                     disabled={bloccato}
-                    onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true), setPannello("numeri")) : gioca(fineTurno[0]!))}
+                    onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true), setPannello("mano")) : gioca(fineTurno[0]!))}
                   >
                     Fine turno
                   </BottoneBarra>
@@ -417,9 +436,9 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         </div>
       )}
 
-      {pannello === "numeri" && (
+      {pannello === "mano" && (
         <Foglio
-          titolo={selezioneScarti ? `🧱 Scegli ${daScartare} ${daScartare === 1 ? "carta" : "carte"} da scartare` : "🧱 Le tue carte numero"}
+          titolo={selezioneScarti ? `✋ Scegli ${daScartare} ${daScartare === 1 ? "carta" : "carte"} da scartare` : "✋ La tua mano"}
           onChiudi={() => setPannello(null)}
         >
           <PannelloNumeri
@@ -440,28 +459,28 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
               Scarta {scelte.length}/{daScartare} e chiudi il turno
             </Pulsante>
           )}
-        </Foglio>
-      )}
-      {pannello === "nascosti" && (
-        <Foglio titolo="🂠 Le tue carte nascoste" onChiudi={() => setPannello(null)}>
-          {v.nascosti.length === 0 ? (
-            <p className="text-sm text-tenue">Non hai personaggi nascosti in mano.</p>
-          ) : (
-            <div className="flex flex-wrap justify-center gap-3">
-              {v.nascosti.map((c) => (
-                <CartaFamiglia
-                  key={c.id}
-                  idCarta={c.carta}
-                  dimensione={104}
-                  onClick={() => {
-                    setPannello(null);
-                    apriCarta(c.id);
-                  }}
-                />
-              ))}
+          {!selezioneScarti && (
+            <div className="mt-4">
+              <p className="mb-1 text-xs font-bold uppercase text-tenue">Personaggi nascosti (li vedi solo tu)</p>
+              {v.nascosti.length === 0 ? (
+                <p className="text-sm text-tenue">Nessuno.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {v.nascosti.map((c) => (
+                    <CartaFamiglia
+                      key={c.id}
+                      idCarta={c.carta}
+                      dimensione={96}
+                      onClick={() => {
+                        setPannello(null);
+                        apriCarta(c.id);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          <p className="mt-3 text-center text-xs text-tenue">Tocca una carta per vederla e attivarla. Gli altri non la vedono.</p>
         </Foglio>
       )}
       {pannello === "tavolo" && (
@@ -747,52 +766,93 @@ export function AreaGiocatore({
   );
 }
 
-/** Pulsante tondo in un angolo in basso, sopra la barra: apre una parte della mano. */
-function PulsanteAngolo({
-  lato,
-  icona,
-  quante,
-  testo,
-  onClick,
-}: {
-  lato: "sinistra" | "destra";
-  icona: string;
-  quante: number;
-  testo: string;
-  onClick: () => void;
-}) {
+const CHIAVE_TESTATA = "famiglia.testata-aperta";
+
+/** Una scelta dell'interfaccia ricordata nel browser (se il browser non salva, vale il valore di base). */
+function leggiScelta(chiave: string, base: boolean): boolean {
+  try {
+    const x = localStorage.getItem(chiave);
+    return x === null ? base : x === "si";
+  } catch {
+    return base;
+  }
+}
+
+function salvaScelta(chiave: string, si: boolean): void {
+  try {
+    localStorage.setItem(chiave, si ? "si" : "no");
+  } catch {
+    // il browser non salva: resta così finché la pagina è aperta
+  }
+}
+
+/** Altezza di un elemento, aggiornata quando cambia (per lasciare lo spazio sotto il fondo fisso). */
+function useAltezza(ref: { current: HTMLElement | null }): number {
+  const [altezza, setAltezza] = useState(200);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const o = new ResizeObserver(() => setAltezza(el.getBoundingClientRect().height));
+    o.observe(el);
+    return () => o.disconnect();
+  });
+  return altezza;
+}
+
+/** Pulsante tondo ✋ sopra la barra in basso: apre la mano (carte numero e personaggi nascosti). */
+function PulsanteMano({ numeri, nascosti, onClick }: { numeri: number; nascosti: number; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`${testo}: ${quante}`}
-      className={`fm-angolo absolute -top-[4.25rem] ${lato === "sinistra" ? "left-3" : "right-3"}`}
+      aria-label={`La tua mano: ${numeri} carte numero e ${nascosti} nascoste`}
+      className="fm-angolo absolute -top-[4.5rem] right-3"
     >
-      <span className="text-2xl leading-none">{icona}</span>
-      <span className="fm-angolo-numero">{quante}</span>
-      <span className="text-[9px] font-bold leading-none">{testo}</span>
+      <span className="text-2xl leading-none">✋</span>
+      <span className="text-[10px] font-bold leading-none">
+        🧱{numeri} 🂠{nascosti}
+      </span>
+      <span className="fm-angolo-numero">{numeri + nascosti}</span>
     </button>
   );
 }
 
-/** Le mie carte sul tavolo (attivate e attacchi in attesa), sempre in vista sopra la barra in basso. */
-function CarteSulTavolo({ v, io, onCarta }: { v: VistaGiocatore; io: string; onCarta: (c: CopiaCarta, stanca?: number) => void }) {
+/** Una riga di carte in basso, con la sua etichetta a sinistra. */
+function RigaCarte({ etichetta, vuota, children }: { etichetta: ReactNode; vuota: string; children: ReactNode[] }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-14 shrink-0 text-[10px] font-bold uppercase leading-tight text-oro-chiaro">{etichetta}</div>
+      <div className="flex min-h-[64px] flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+        {children.length === 0 ? <span className="text-xs text-luce/60">{vuota}</span> : children}
+      </div>
+    </div>
+  );
+}
+
+/** Le mie carte sempre in vista in basso: attivate (con i punti) e da attivare (nascoste in mano e attacchi in attesa). */
+function LeMieCarte({ v, io, onCarta }: { v: VistaGiocatore; io: string; onCarta: (c: CopiaCarta, stanca?: number) => void }) {
   const me = v.giocatori[io]!;
   return (
-    <div className="mx-auto mb-1.5 max-w-2xl">
-      <div className="mb-0.5 text-[11px] font-bold text-oro-chiaro">
-        🪑 Le tue carte sul tavolo · ⭐ {me.punti} {me.punti === 1 ? "punto" : "punti"}
-      </div>
-      <div className="flex min-h-[70px] items-end gap-1.5 overflow-x-auto pb-1 pt-1">
-        {me.attivati.length + me.attacchi.length === 0 && <span className="self-center text-xs text-luce/60">Ancora nessuna carta attivata.</span>}
+    <div className="mx-auto mb-1 max-w-2xl space-y-0.5">
+      <RigaCarte
+        etichetta={
+          <>
+            Attivate
+            <br />⭐ {me.punti}
+          </>
+        }
+        vuota="Ancora nessuna."
+      >
         {me.attivati.map((a) => (
-          <CartaFamiglia key={a.copia.id} idCarta={a.copia.carta} stanca={a.stanca} dimensione={48} onClick={() => onCarta(a.copia, a.stanca)} />
+          <CartaFamiglia key={a.copia.id} idCarta={a.copia.carta} stanca={a.stanca} dimensione={44} onClick={() => onCarta(a.copia, a.stanca)} />
         ))}
-        {me.attivati.length > 0 && me.attacchi.length > 0 && <span className="mx-0.5 h-12 w-px shrink-0 self-center bg-luce/25" />}
-        {me.attacchi.map((c) => (
-          <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={48} onClick={() => onCarta(c)} />
-        ))}
-      </div>
+      </RigaCarte>
+      <RigaCarte etichetta="Da attivare" vuota="Nessun personaggio in mano.">
+        {[
+          ...v.nascosti.map((c) => <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={44} onClick={() => onCarta(c)} />),
+          ...me.attacchi.map((c) => <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={44} onClick={() => onCarta(c)} />),
+        ]}
+      </RigaCarte>
     </div>
   );
 }

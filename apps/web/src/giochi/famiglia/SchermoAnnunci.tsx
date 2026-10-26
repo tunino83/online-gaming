@@ -43,6 +43,8 @@ export function AnnuncioCarta({ annuncio, onFine }: { annuncio: Annuncio; onFine
     return () => clearTimeout(t);
   }, [annuncio.chiave, durata, annuncio]);
 
+  // La carta più grande possibile, lasciando spazio alla scritta sotto (e senza uscire dallo schermo)
+  const massimo = Math.round(Math.min(window.innerWidth * 0.82, (window.innerHeight - 170) / 1.4, 340));
   const colore =
     annuncio.tipo === "personaggio" && annuncio.idCarta ? TIPOLOGIE[tipologieCarta(carta(annuncio.idCarta))[0] ?? "aiuto"].colore : "#d4823a";
   return (
@@ -57,9 +59,9 @@ export function AnnuncioCarta({ annuncio, onFine }: { annuncio: Annuncio; onFine
       <span className="fm-annuncio-carta">
         {annuncio.tipo === "personaggio" ? (
           annuncio.idCarta ? (
-            <CartaFamiglia idCarta={annuncio.idCarta} dimensione={annuncio.attivazione ? 190 : 150} />
+            <CartaFamiglia idCarta={annuncio.idCarta} dimensione={annuncio.attivazione ? massimo : Math.round(massimo * 0.85)} />
           ) : (
-            <CartaFamiglia idCarta="" coperta dimensione={120} />
+            <CartaFamiglia idCarta="" coperta dimensione={Math.round(massimo * 0.6)} />
           )
         ) : annuncio.carta ? (
           <span className="fm-annuncio-numero">
