@@ -309,3 +309,16 @@ Opzioni della partita, spente di base, per far contare di più i poteri rispetto
 - **puntiPerIPoteri**: 1 punto quando un tuo attacco colpisce (una volta per attacco), quando una tua difesa ferma un
   attacco e al primo aiuto usato in ogni turno. Questi punti restano anche se poi si perdono le carte.
 - **unaAttivazionePerTurno**: al massimo 1 personaggio attivato per turno.
+
+## Nuove regole dei punti (decise il 2026-10-26)
+
+Dopo le prime partite: attivare conveniva troppo rispetto a usare i poteri (i robot "poteri" vincevano solo un terzo
+delle volte). Dal confronto con i robot (`docs/famiglia/confronto-strategie.md`) si è scelta la variante **C1**,
+che vale per tutte le partite nuove (quelle già iniziate restano con le regole di prima):
+- si vince a **25 punti** (prima 20);
+- le carte **solo aiuto** (✨, anche le blu) valgono **0 punti**: si attivano per usarle;
+- **+1 punto** quando un tuo attacco va a segno (una volta per attacco, anche se colpisce più avversari) e quando una
+  tua difesa ferma un attacco. Questi punti restano anche se poi si perdono le carte;
+- il primo aiuto del turno **non** dà punti; "una attivazione per turno" resta spenta.
+Con queste regole, nei robot, le due strategie vincono più o meno alla pari in 2 giocatori (51%) e i poteri un po' di
+più in 4 (61%); le partite durano un po' meno di prima.

@@ -38,7 +38,7 @@ describe("come funziona un attacco", () => {
     expect(g(s, "anna").attivati[0]!.stanca).toBe(1);
     expect(s.turno.attesa).toBeNull();
     expect(g(s, "bruno").mosseProssimoTurno).toBe(-1);
-    expect(s.registro.map((f) => f.tipo).slice(-2)).toEqual(["attacco", "colpito"]);
+    expect(s.registro.map((f) => f.tipo).slice(-3)).toEqual(["attacco", "colpito", "punto"]); // +1 punto per l'attacco a segno
   });
 
   it("se l'attaccato ha una difesa, il gioco aspetta la sua risposta", () => {
@@ -59,7 +59,8 @@ describe("come funziona un attacco", () => {
     s = difendi(s, "bruno", "gerardina-1", { potere: "sempre-calma" });
     expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
     expect(g(s, "bruno").attivati[0]!.stanca).toBe(1); // Gerardina 1 si ricarica in 1 turno
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "difesa", giocatore: "bruno", potere: "sempre-calma", riuscita: true });
+    expect(s.registro.at(-2)).toMatchObject({ tipo: "difesa", giocatore: "bruno", potere: "sempre-calma", riuscita: true });
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "punto", giocatore: "bruno", motivo: "difesa" });
   });
 
   it("regola del livello: una difesa di livello 1 non ferma un attacco di livello 2", () => {
@@ -69,7 +70,7 @@ describe("come funziona un attacco", () => {
     expect(g(s, "bruno").zittoProssimoTurno).toBe(true);
   });
 
-  it("difesa d'emergenza dalla mano: si paga il codice, la carta va negli scarti, niente punti", () => {
+  it("difesa d'emergenza dalla mano: si paga il codice, la carta va negli scarti, niente punti di carte (solo +1 per la difesa)", () => {
     let s = attivata(partita(), "anna", "toto-1");
     g(s, "bruno").nascosti = [copia("paesano")];
     manoDi(s, "bruno", 4, 6);
@@ -79,7 +80,7 @@ describe("come funziona un attacco", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno1"]);
     expect(s.scarti.personaggi.map((c) => c.carta)).toEqual(["paesano"]);
     expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
-    expect(puntiDi(g(s, "bruno"))).toBe(0);
+    expect(puntiDi(g(s, "bruno"))).toBe(1); // il punto per la difesa riuscita
   });
 
   it("senza carte per pagare il codice, la difesa d'emergenza non si può usare", () => {
@@ -261,7 +262,7 @@ describe("attacchi a un avversario", () => {
     ).toMatch(/non soddisfano/);
     expect(mosseValide(s, "anna")).toContainEqual(expect.objectContaining({ potere: "vertenza", bersaglio: "generoso-2#1" }));
     s = attacca(s, "giuseppe-3", { giocatore: "bruno", bersaglio: "generoso-2#1", combinazione: paga(["anna0", 2], ["anna1", 3], ["anna2", 5]) });
-    expect(puntiDi(g(s, "anna"))).toBe(5);
+    expect(puntiDi(g(s, "anna"))).toBe(6); // Giuseppe 3 + Generoso 2 + 1 per l'attacco a segno
     expect(puntiDi(g(s, "bruno"))).toBe(3);
     expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["anna3"]);
     // la carta di Giuseppe si ricarica in 3 turni + 2 (il livello di Generoso 2)
@@ -492,7 +493,7 @@ describe("difese", () => {
   it("È colpa di qualcun altro: chi riceve l'attacco non può difendersi", () => {
     const s = difendi(attivata(bruno_si_difende("maddalena-3", 3), "carla", "antonio-3"), "bruno", "maddalena-3", { giocatore: "carla" });
     expect(s.turno.attesa).toBeNull();
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "colpito", giocatore: "carla" });
+    expect(s.registro.filter((f) => f.tipo !== "punto").at(-1)).toMatchObject({ tipo: "colpito", giocatore: "carla" });
   });
 
   it("Permalosa: l'attacco torna a chi l'ha fatto", () => {
@@ -504,8 +505,8 @@ describe("difese", () => {
     let s = difendi(bruno_si_difende("chicca-2"), "bruno", "chicca-2");
     expect(g(s, "bruno").attivati[0]!.stanca).toBe(2);
     s = bruno_si_difende("chicca-2");
-    g(s, "carla").attivati.push({ copia: copia("generoso-3"), stanca: 0 }); // carla ha più punti di bruno
-    g(s, "anna").attivati.push({ copia: copia("generoso-2"), stanca: 0 });
+    g(s, "carla").attivati.push({ copia: copia("antonio-3"), stanca: 0 }); // carla ha più punti di bruno (le carte aiuto valgono 0)
+    g(s, "anna").attivati.push({ copia: copia("antonio-2"), stanca: 0 });
     s = difendi(s, "bruno", "chicca-2");
     expect(g(s, "bruno").attivati[0]!.stanca).toBe(0);
   });

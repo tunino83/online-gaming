@@ -169,7 +169,7 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
     case "brucia":
       return `${chi}: brucia le carte numero`;
     case "attiva":
-      return `${chi}: attiva ${nomeCarta(f.carta)} (+${f.punti})${f.mancia ? " e riceve la mancia dei nonni 💶" : ""}`;
+      return `${chi}: attiva ${nomeCarta(f.carta)}${f.punti > 0 ? ` (+${f.punti})` : ""}${f.mancia ? " e riceve la mancia dei nonni 💶" : ""}`;
     case "potere":
       return `${chi}: usa ${nomePotere(f.carta, f.potere)}${f.bersaglio ? ` su ${nick(f.bersaglio)}` : ""}`;
     case "sceglie":
@@ -194,6 +194,8 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
       return f.mazzo ? "📣 Il mazzo dei personaggi è finito: ultimo giro!" : `📣 Qualcuno è arrivato a ${f.punti} punti: ultimo giro!`;
     case "evento":
       return `🎉 ${chi}: pesca l'evento ${evento(f.evento).nome}`;
+    case "punto":
+      return `🎯 ${chi}: +1 punto (${f.motivo === "attacco" ? "attacco a segno" : f.motivo === "difesa" ? "difesa riuscita" : "aiuto usato"})`;
     case "fineEvento":
       return `Finisce l'evento ${evento(f.evento).nome}`;
     case "regalo":

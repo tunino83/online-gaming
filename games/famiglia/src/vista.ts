@@ -21,7 +21,10 @@ export interface VistaAvversario {
   mancia: CartaMancia[];
   attacchi: CopiaCarta[];
   attivati: Attivato[];
+  /** Punti in tutto (carte, famiglie al completo e poteri). */
   punti: number;
+  /** Di cui guadagnati con i poteri (attacchi a segno, difese riuscite). */
+  puntiPoteri: number;
 }
 
 export interface VistaGiocatore {
@@ -143,6 +146,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
           attacchi: structuredClone(o.attacchi),
           attivati: structuredClone(o.attivati),
           punti: puntiDi(o, s.opzioni),
+          puntiPoteri: o.puntiPoteri ?? 0,
         };
         return [x, v];
       }),

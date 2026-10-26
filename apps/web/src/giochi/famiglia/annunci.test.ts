@@ -66,8 +66,16 @@ describe("annunci a schermo", () => {
       },
       "carla",
     );
-    expect(r.annunci).toEqual([expect.objectContaining({ idCarta: "donatina-1", attivazione: true, testo: "Anna attiva Donatina (1) · +1 punto" })]);
+    expect(r.annunci).toEqual([expect.objectContaining({ idCarta: "donatina-1", attivazione: true, testo: "Anna attiva Donatina (1)" })]); // carta aiuto: 0 punti
     expect(r.voci).toEqual([{ idCarta: "donatina-1", quando: "attiva" }]);
+  });
+
+  it("un attacco a segno dà +1 punto e compare a schermo", () => {
+    const s = partita();
+    s.giocatori.anna!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 }); // Si incanta
+    expect(dopoLaMossa(s, { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" }, "carla").annunci).toContainEqual(
+      expect.objectContaining({ tipo: "punto", testo: "+1 punto a Anna: attacco a segno" }),
+    );
   });
 
   it("usare un potere fa partire la voce del suo tipo (attacco, aiuto…)", () => {

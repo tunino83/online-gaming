@@ -231,6 +231,8 @@ export type DatiFatto =
   /** `punti` = punti per vincere; `mazzo` = il mazzo personaggi è finito. */
   | { tipo: "ultimoGiro"; punti: number; mazzo?: true }
   | { tipo: "evento"; evento: string }
+  /** +1 punto per un potere (regola dei punti per i poteri): attacco a segno, difesa riuscita o primo aiuto del turno. */
+  | { tipo: "punto"; motivo: "attacco" | "difesa" | "aiuto" }
   | { tipo: "fineEvento"; evento: string }
   /** La Resurrezione: la carta in più data a un giocatore (si dice a chi, non quale). */
   | { tipo: "regalo"; a: IdGiocatore }

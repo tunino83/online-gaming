@@ -134,7 +134,7 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   else if (potere === "benedizione") s.benedizione = id;
   else bersaglio = applicaAiuto(s, id, g, a!, potere, m, appenaPescata);
   if (tipo === "aiuto" && s.opzioni.puntiPerGliAiuti !== false && !s.turno.premioAiuto) {
-    premioPotere(s, id);
+    premioPotere(s, id, "aiuto");
     s.turno.premioAiuto = true;
   }
   registra(s, id, { tipo: "potere", carta: origine.id, potere, ...(bersaglio ? { bersaglio } : {}) });

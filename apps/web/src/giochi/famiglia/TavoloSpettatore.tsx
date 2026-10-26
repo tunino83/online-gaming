@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVistaPubblica } from "../../lib/useVistaPubblica";
 import { Caricamento, Errore } from "../../ui";
-import { CartaFamiglia, CartaNumeroGrafica } from "./carte";
+import { CartaFamiglia, CartaNumeroGrafica, RegolePunti } from "./carte";
 import { AnnuncioCarta, useAnnunci } from "./SchermoAnnunci";
 import { descriviFatto } from "./descrivi";
 import { AreaGiocatore, BarraStato, Esito, Evento, Protezioni, Zona, useSfondoFamiglia } from "./Tavolo";
@@ -22,6 +22,7 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
   if (!riga) return <Caricamento testo="Apro il tavolo…" />;
   const v = riga.vista;
   return (
+    <RegolePunti.Provider value={{ aiutiSenzaPunti: !!v.opzioni.aiutiSenzaPunti }}>
     <div className="gioco-famiglia mx-auto max-w-6xl space-y-3 px-3 py-3 text-luce">
       <BarraStato v={v} io="" nick={nick} secondi={null} difesa={false} />
       {annuncio && <AnnuncioCarta key={annuncio.chiave} annuncio={annuncio} onFine={salta} />}
@@ -50,5 +51,6 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
       </Zona>
       {v.finita && <Esito partita={partita} v={v} nick={nick} />}
     </div>
+    </RegolePunti.Provider>
   );
 }

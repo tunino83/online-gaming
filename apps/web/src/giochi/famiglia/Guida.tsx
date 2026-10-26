@@ -1,5 +1,5 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
-import { CARTE, type Carta, EVENTI, descriviCodice } from "@og/famiglia";
+import { CARTE, type Carta, EVENTI, descriviCodice, soloAiuto } from "@og/famiglia";
 import { type ReactNode, useRef, useState } from "react";
 import { CartaFamiglia, Stemma } from "./carte";
 
@@ -18,7 +18,7 @@ export function GuidaFamiglia() {
       <Voce titolo="🎯 Scopo">
         <p>
           Attiva i parenti per fare punti e usa i loro poteri per aiutarti, attaccare gli altri e difenderti. Di solito vince chi
-          arriva per primo a <strong>20 punti</strong>: quando succede si finisce il giro e si gioca <strong>un ultimo giro</strong>.
+          arriva per primo a <strong>25 punti</strong>: quando succede si finisce il giro e si gioca <strong>un ultimo giro</strong>.
           Chi crea la partita può scegliere invece di giocare <strong>fino alla fine del mazzo</strong> dei personaggi.
         </p>
       </Voce>
@@ -78,6 +78,12 @@ export function GuidaFamiglia() {
         </p>
         <p>
           <strong>Famiglia al completo</strong>: se attivi tutte e 3 le carte della stessa persona prendi <strong>+2 punti</strong>.
+        </p>
+        <p>
+          🎯 <strong>Punti dai poteri</strong>: le carte <strong>solo aiuto</strong> (✨, anche le blu) <strong>non danno punti</strong>:
+          si attivano per usarle. In compenso prendi <strong>+1 punto</strong> ogni volta che un tuo <strong>attacco va a segno</strong>
+          (una volta per attacco, anche se colpisce più avversari) e ogni volta che una tua <strong>difesa ferma un attacco</strong>.
+          Questi punti restano anche se poi perdi le carte.
         </p>
       </Voce>
 
@@ -256,7 +262,7 @@ function Carosello({ carte, onApri }: { carte: Carta[]; onApri: (c: Carta) => vo
         ))}
         <p className="text-xs text-tenue">
           🔑 Si attiva con: <strong>{descriviCodice(c.codice)}</strong> ·{" "}
-          {c.punti > 0 ? `${c.punti} ${c.punti === 1 ? "punto" : "punti"}` : "niente punti"}
+          {c.punti > 0 && !soloAiuto(c.id) ? `${c.punti} ${c.punti === 1 ? "punto" : "punti"}` : c.punti > 0 ? "niente punti (carta aiuto)" : "niente punti"}
           {c.ricarica > 0 && ` · si ricarica in ${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`}
           {c.copie > 1 && ` · ${c.copie} copie`}
         </p>

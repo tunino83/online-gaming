@@ -141,11 +141,12 @@ export const puntiDi = (g: Pick<StatoGiocatore, "attivati" | "puntiPoteri">, opz
   famiglieComplete(g).length * PUNTI_FAMIGLIA_AL_COMPLETO +
   (g.puntiPoteri ?? 0);
 
-/** Variante "punti per i poteri": 1 punto in più al giocatore. */
-export function premioPotere(s: StatoPartita, id: IdGiocatore): void {
+/** Regola "punti per i poteri": 1 punto in più al giocatore (e si scrive nel registro). */
+export function premioPotere(s: StatoPartita, id: IdGiocatore, motivo: "attacco" | "difesa" | "aiuto"): void {
   if (!s.opzioni.puntiPerIPoteri) return;
   const g = s.giocatori[id]!;
   g.puntiPoteri = (g.puntiPoteri ?? 0) + 1;
+  registra(s, id, { tipo: "punto", motivo });
 }
 
 /** Quante carte attivate del giocatore hanno questo potere blu (sempre attivo). */

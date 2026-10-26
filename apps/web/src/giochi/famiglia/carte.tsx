@@ -6,10 +6,22 @@ import "@fontsource/caveat/700.css";
 import "@fontsource/fredoka/500.css";
 import "@fontsource/fredoka/600.css";
 import "@fontsource/fredoka/700.css";
-import { type Carta, type CartaMancia, type CartaNumero, carta, descriviCodice } from "@og/famiglia";
-import type { CSSProperties, ReactNode } from "react";
+import { type Carta, type CartaMancia, type CartaNumero, carta, descriviCodice, soloAiuto } from "@og/famiglia";
+import { type CSSProperties, type ReactNode, createContext, useContext } from "react";
 import "./famiglia.css";
 import { immagineCarta } from "./immagini";
+
+/**
+ * Regole dei punti della partita (le carte solo aiuto valgono 0?). Di base le regole nuove; il tavolo le prende
+ * dalle opzioni della partita (le partite vecchie restano con i punti di prima).
+ */
+export const RegolePunti = createContext<{ aiutiSenzaPunti: boolean }>({ aiutiSenzaPunti: true });
+
+/** Punti che vale la carta con le regole della partita. */
+export function usePuntiCarta(idCarta: string): number {
+  const { aiutiSenzaPunti } = useContext(RegolePunti);
+  return aiutiSenzaPunti && soloAiuto(idCarta) ? 0 : carta(idCarta).punti;
+}
 
 /** Tipologie di potere, ognuna col suo stemma: le blu sono aiuti sempre attivi. */
 export const TIPOLOGIE = {
@@ -84,6 +96,7 @@ export function CartaFamiglia({
     );
   }
   const c = carta(idCarta);
+  const punti = usePuntiCarta(idCarta);
   const principale = TIPOLOGIE[tipologiaPrincipale(c)];
   const immagine = immagineCarta(idCarta);
   const Contenitore = onClick ? "button" : "div";
@@ -120,7 +133,7 @@ export function CartaFamiglia({
           <Stemma key={tipo} tipo={tipo} dimensione={Math.round(19 * s)} />
         ))}
       </div>
-      {c.categoria === "personaggio" && <span className="cf-punti">{c.punti}</span>}
+      {c.categoria === "personaggio" && <span className="cf-punti">{punti}</span>}
     </Contenitore>
   );
 }
@@ -128,6 +141,7 @@ export function CartaFamiglia({
 /** Scheda completa di una carta (per il primo piano): testo di tutti i poteri. */
 export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: number }) {
   const c = carta(idCarta);
+  const punti = usePuntiCarta(idCarta);
   return (
     <div className="flex flex-col items-center gap-3">
       {/* grande quanto lo schermo permette (la scheda scorre: i pulsanti sotto restano raggiungibili) */}
@@ -151,8 +165,9 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
           </p>
         )}
         <p className="text-tenue">
-          🔑 Codice: <b>{descriviCodice(c.codice)}</b> · Livello {c.livello} · {c.punti} punti
+          🔑 Codice: <b>{descriviCodice(c.codice)}</b> · Livello {c.livello} · {punti} {punti === 1 ? "punto" : "punti"}
           {c.ricarica > 0 && ` · si ricarica in ${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`}
+          {c.categoria === "personaggio" && punti === 0 && c.punti > 0 && " (le carte solo aiuto non danno punti)"}
           {c.categoria === "difesa" && " · si usa solo quando ti attaccano, poi si scarta"}
           {c.categoria === "attacco" && " · si usa una volta, poi si scarta"}
         </p>

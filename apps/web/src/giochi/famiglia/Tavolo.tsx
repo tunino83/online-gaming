@@ -12,7 +12,7 @@ import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVista } from "../../lib/useVista";
 import { Caricamento, Errore, Pulsante as PulsanteBase } from "../../ui";
-import { CartaFamiglia, CartaNumeroGrafica, Mancia, SchedaCarta } from "./carte";
+import { CartaFamiglia, CartaNumeroGrafica, Mancia, RegolePunti, SchedaCarta } from "./carte";
 import "./famiglia.css";
 import { cartaDiCopia, descriviFatto, descriviMossa, nomeCarta, nomePotere } from "./descrivi";
 import { GuidaFamiglia } from "./Guida";
@@ -281,6 +281,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   );
 
   return (
+    <RegolePunti.Provider value={{ aiutiSenzaPunti: !!v.opzioni.aiutiSenzaPunti }}>
     <div className="gioco-famiglia text-luce">
       {finito ? (
         /* partita finita: si scorre una pagina normale con il risultato */
@@ -563,6 +564,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         />
       )}
     </div>
+    </RegolePunti.Provider>
   );
 
   function azione(m: Mossa | undefined) {
@@ -876,6 +878,7 @@ function TavoloAvversario({ v, id, onCarta }: { v: VistaGiocatore; id: string; o
           <>
             Attivate
             <br />⭐ {g.punti}
+            {g.puntiPoteri > 0 && <span className="block normal-case">di cui 🎯{g.puntiPoteri}</span>}
           </>
         }
         vuota="Ancora nessuna."
@@ -926,6 +929,7 @@ function LeMieCarte({ v, io, onCarta }: { v: VistaGiocatore; io: string; onCarta
           <>
             Attivate
             <br />⭐ {me.punti}
+            {me.puntiPoteri > 0 && <span className="block normal-case">di cui 🎯{me.puntiPoteri}</span>}
           </>
         }
         vuota="Ancora nessuna."

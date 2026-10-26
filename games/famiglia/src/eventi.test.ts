@@ -170,6 +170,7 @@ describe("Famiglia al completo", () => {
 describe("fine partita", () => {
   it("a punti: si può arrivare ai punti anche con un attacco (Vertenza)", () => {
     let s = attivata(partita(), "anna", "giuseppe-3");
+    s.opzioni = { ...s.opzioni, puntiPerVincere: 20, aiutiSenzaPunti: false }; // qui si conta come con le regole vecchie
     for (const id of ["antonio-3", "maddalena-3", "chicca-3", "toto-3", "checca-3"]) attivata(s, "anna", id); // 18 punti
     attivata(s, "bruno", "generoso-2");
     s.giocatori.anna!.mano = [num(2, "a"), num(3, "b"), num(5, "c")]; // il codice di Generoso 2: 3 carte con somma 10
@@ -185,7 +186,7 @@ describe("fine partita", () => {
         { tipo: "numero", id: "c", valore: 5 },
       ],
     });
-    expect(puntiDi(s.giocatori.anna!)).toBe(20);
+    expect(puntiDi(s.giocatori.anna!)).toBe(21); // 18 + 2 di Generoso 2 + 1 per l'attacco a segno
     expect(s.ultimoTurno).not.toBeNull();
   });
 

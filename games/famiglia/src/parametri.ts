@@ -29,17 +29,19 @@ export interface OpzioniPartita {
 }
 
 export const OPZIONI_DEFAULT: OpzioniPartita = {
-  puntiPerVincere: 20,
+  // Regole dei punti decise il 2026-10-26 (variante C1, vedi docs/famiglia/confronto-strategie.md):
+  // si vince a 25, le carte solo aiuto valgono 0, +1 punto per ogni attacco a segno e ogni difesa riuscita.
+  puntiPerVincere: 25,
   limiteMano: 7,
   maxNascosti: 3,
   maxAttacchi: 3,
   mossePerTurno: 3,
   modoFine: "punti",
   secondiDifesa: 30,
-  aiutiSenzaPunti: false,
-  puntiPerIPoteri: false,
+  aiutiSenzaPunti: true,
+  puntiPerIPoteri: true,
   unaAttivazionePerTurno: false,
-  puntiPerGliAiuti: true,
+  puntiPerGliAiuti: false,
 };
 
 export const MIN_GIOCATORI = 2;

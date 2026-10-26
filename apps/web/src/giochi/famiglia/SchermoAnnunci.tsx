@@ -10,7 +10,7 @@ import { suonaVoce } from "./audio";
 import { CartaFamiglia, CartaNumeroGrafica, TIPOLOGIE, tipologieCarta } from "./carte";
 
 /** Quanto resta a schermo ogni annuncio. */
-const DURATA_MS = { attivazione: 2400, personaggio: 1500, numero: 900 } as const;
+const DURATA_MS = { attivazione: 2400, personaggio: 1500, numero: 900, punto: 1300 } as const;
 /** Se se ne accumulano troppi (es. tornando sulla pagina) si tengono solo gli ultimi. */
 const MASSIMO_IN_CODA = 6;
 
@@ -33,12 +33,18 @@ export function useAnnunci(vista: VistaGiocatore | undefined, io: string, nick: 
 
 export function AnnuncioCarta({ annuncio, onFine }: { annuncio: Annuncio; onFine: () => void }) {
   const durata =
-    annuncio.tipo === "numero" ? DURATA_MS.numero : annuncio.attivazione ? DURATA_MS.attivazione : DURATA_MS.personaggio;
+    annuncio.tipo === "numero"
+      ? DURATA_MS.numero
+      : annuncio.tipo === "punto"
+        ? DURATA_MS.punto
+        : annuncio.attivazione
+          ? DURATA_MS.attivazione
+          : DURATA_MS.personaggio;
   // La fine si chiama una volta sola per annuncio, anche se la schermata sotto si aggiorna
   const fine = useRef(onFine);
   fine.current = onFine;
   useEffect(() => {
-    if (annuncio.tipo === "personaggio" && annuncio.attivazione) suonoMagia();
+    if ((annuncio.tipo === "personaggio" && annuncio.attivazione) || annuncio.tipo === "punto") suonoMagia();
     const t = setTimeout(() => fine.current(), durata);
     return () => clearTimeout(t);
   }, [annuncio.chiave, durata, annuncio]);
@@ -57,7 +63,9 @@ export function AnnuncioCarta({ annuncio, onFine }: { annuncio: Annuncio; onFine
       aria-label={annuncio.testo}
     >
       <span className="fm-annuncio-carta">
-        {annuncio.tipo === "personaggio" ? (
+        {annuncio.tipo === "punto" ? (
+          <span className="fm-annuncio-punto">+1 🎯</span>
+        ) : annuncio.tipo === "personaggio" ? (
           annuncio.idCarta ? (
             <CartaFamiglia idCarta={annuncio.idCarta} dimensione={annuncio.attivazione ? massimo : Math.round(massimo * 0.85)} />
           ) : (

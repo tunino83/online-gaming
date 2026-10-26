@@ -13,3 +13,4 @@ export * from "./vista";
 export * from "./gioco";
 export * from "./bot";
 export * from "./valida-mossa";
+export { puntiCarta, soloAiuto } from "./base";

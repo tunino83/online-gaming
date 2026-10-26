@@ -238,7 +238,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
   let dopo: Attesa | null = null;
   registra(s, v, { tipo: "colpito", potere: a.potere });
   if (!suSeStesso && !a.premiato) {
-    premioPotere(s, a.attaccante);
+    premioPotere(s, a.attaccante, "attacco");
     a.premiato = true;
   }
 
@@ -549,7 +549,7 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
     dopo = colpisci(s, a, id, mossa);
     avanza(s);
   } else {
-    premioPotere(s, id);
+    premioPotere(s, id, "difesa");
     dopo = effettoDifesa(s, a, id, d!.potere, mossa);
   }
   prosegui(s);

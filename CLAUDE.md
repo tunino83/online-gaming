@@ -109,7 +109,10 @@ poteri in `poteri.ts`, attacchi e difese in `attacchi.ts`, eventi in `effetti-ev
 vista in `vista.ts`, robot e sostituto in `bot.ts`. Aiuti per i test in `aiuti-test.ts`.
 Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi deve scegliere). Il tempo per difendersi
 (opzione `secondiDifesa`, di base 30) lo fa rispettare l'arbitro con `attesaMassimaMs` del gioco (azione `alPosto`,
-vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (20) o "mazzo".
+vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (25) o "mazzo".
+Punti (dal 2026-10-26, opzioni di base): carte solo aiuto 0 punti (`aiutiSenzaPunti`), +1 per attacco a segno e
+difesa riuscita (`puntiPerIPoteri`, `puntiPerGliAiuti: false`); `puntiDi(g, s.opzioni)`; nella schermata `RegolePunti`
+(contesto in `carte.tsx`) mostra lo 0 sulle carte aiuto; le partite vecchie restano con le opzioni salvate allora.
 Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide descritte in `descrivi.ts`; `TavoloSpettatore.tsx`).
 Grafica "di casa" in `famiglia.css` (caratteri Fredoka e Caveat): carte con stemma del tipo (`Stemma` in `carte.tsx`),
 carte numero come piastrelle di maiolica, tovaglia a quadretti; i colori del tema cambiano solo dentro `.gioco-famiglia`

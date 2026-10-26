@@ -119,7 +119,7 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
         <p className="mt-3 text-xs text-tenue">
           {partita.gioco === "famiglia" && partita.opzioni.modoFine === "mazzo"
             ? "Si gioca fino alla fine del mazzo dei personaggi"
-            : `Punti per vincere: ${partita.opzioni.puntiPerVincere ?? (partita.gioco === "famiglia" ? 20 : 15)}`}
+            : `Punti per vincere: ${partita.opzioni.puntiPerVincere ?? (partita.gioco === "famiglia" ? 25 : 15)}`}
           {partita.gioco === "famiglia" && ` · ${partita.opzioni.secondiDifesa ?? 30} secondi per difendersi`}
           {(partita.gioco === "primo-gioco" || partita.gioco === "famiglia") &&
             ` · Chi resta fermo 60 secondi: ${partita.opzioni.computerAlPosto === false ? "si aspetta" : "gioca il computer al suo posto"}`}

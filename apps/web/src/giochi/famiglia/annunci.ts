@@ -11,7 +11,9 @@ export type Annuncio =
   /** Personaggio: `idCarta` null = carta coperta (pescata da un altro e nascosta). */
   | { chiave: string; tipo: "personaggio"; idCarta: string | null; testo: string; attivazione: boolean }
   /** Carta numero: `carta` null = coperta (pescata da un altro). */
-  | { chiave: string; tipo: "numero"; carta: CartaNumero | null; testo: string };
+  | { chiave: string; tipo: "numero"; carta: CartaNumero | null; testo: string }
+  /** +1 punto per un potere (attacco a segno, difesa riuscita). */
+  | { chiave: string; tipo: "punto"; testo: string };
 
 /** Quando parte la voce di una carta: all'attivazione, o quando si usa il suo potere (attacco, difesa, aiuto). */
 export type QuandoVoce = "attiva" | "ATT" | "DIF" | "AIU";
@@ -52,7 +54,7 @@ export function annunciTraViste(prima: VistaGiocatore, dopo: VistaGiocatore, io:
           chiave,
           tipo: "personaggio",
           idCarta: f.carta,
-          testo: `${mio ? "Hai attivato" : `${chi} attiva`} ${nomeCarta(f.carta)} · +${f.punti} ${f.punti === 1 ? "punto" : "punti"}`,
+          testo: `${mio ? "Hai attivato" : `${chi} attiva`} ${nomeCarta(f.carta)}${f.punti > 0 ? ` · +${f.punti} ${f.punti === 1 ? "punto" : "punti"}` : ""}`,
           attivazione: true,
         });
         voci.push({ idCarta: f.carta, quando: "attiva" });
@@ -99,6 +101,11 @@ export function annunciTraViste(prima: VistaGiocatore, dopo: VistaGiocatore, io:
       case "difesa":
         voci.push({ idCarta: f.carta, quando: "DIF", potere: f.potere });
         break;
+      case "punto": {
+        const perche = f.motivo === "attacco" ? "attacco a segno" : f.motivo === "difesa" ? "difesa riuscita" : "aiuto usato";
+        annunci.push({ chiave, tipo: "punto", testo: `${mio ? "+1 punto per te" : `+1 punto a ${chi}`}: ${perche}` });
+        break;
+      }
     }
   }
   return { annunci, voci };

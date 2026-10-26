@@ -26,19 +26,19 @@ describe("preparazione", () => {
     expect(contaCarte(s)).toEqual({ numeri: 56, personaggi: 107, mancia: 20 });
   });
 
-  it("parametri di base: 20 punti, 7 carte in mano, 3 nascosti, 3 attacchi, fine a punti, 30 secondi per difendersi", () => {
+  it("parametri di base: 25 punti, 7 carte in mano, 3 nascosti, 3 attacchi, fine a punti, 30 secondi per difendersi, regole C1", () => {
     expect(setup(GIOCATORI, {}, 1).opzioni).toEqual({
-      puntiPerVincere: 20,
+      puntiPerVincere: 25,
       limiteMano: 7,
       maxNascosti: 3,
       maxAttacchi: 3,
       mossePerTurno: 3,
       modoFine: "punti",
       secondiDifesa: 30,
-      aiutiSenzaPunti: false,
-      puntiPerIPoteri: false,
+      aiutiSenzaPunti: true,
+      puntiPerIPoteri: true,
       unaAttivazionePerTurno: false,
-      puntiPerGliAiuti: true,
+      puntiPerGliAiuti: false,
     });
   });
 
@@ -341,8 +341,9 @@ describe("fine turno", () => {
 });
 
 describe("fine partita a punti", () => {
-  it("chi arriva a 20 punti fa scattare l'ultimo giro, poi vince chi ha più punti", () => {
+  it("chi arriva ai punti per vincere fa scattare l'ultimo giro, poi vince chi ha più punti", () => {
     let s = partita();
+    s.opzioni = { ...s.opzioni, puntiPerVincere: 20, aiutiSenzaPunti: false }; // conti più semplici: tutte le carte con i punti
     // anna ha 18 punti (6 carte di livello 3) e attiva Generoso livello 3... qui basta un livello 2: 20 punti
     s.giocatori.anna!.attivati = ["antonio-3", "maddalena-3", "chicca-3", "toto-3", "checca-3", "roberta-3"].map((id) => ({
       copia: copia(id),
@@ -444,7 +445,7 @@ describe("varianti dei punti (in prova)", () => {
   });
 
   it("punti per i poteri: 1 punto al primo aiuto del turno, all'attacco a segno e alla difesa riuscita", () => {
-    let s = setup(GIOCATORI, { puntiPerIPoteri: true }, 1);
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: true, aiutiSenzaPunti: false }, 1);
     s.ordine = ["anna", "bruno", "carla"];
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;

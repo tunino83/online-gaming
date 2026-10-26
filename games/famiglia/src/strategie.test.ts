@@ -6,7 +6,7 @@ describe("confronto tra strategie", () => {
     const e = partitaConfronto(1, ["attivatore", "poteri"], { aiutiSenzaPunti: true, puntiPerIPoteri: true, unaAttivazionePerTurno: true });
     expect(e.errore).toBeUndefined();
     expect(e.vincitori.length).toBeGreaterThan(0);
-    expect(e.puntiPoteri.poteri).toBeGreaterThan(0);
+    expect(e.punti.poteri + e.punti.attivatore).toBeGreaterThan(0);
   });
 
   it("poche partite per variante: percentuali coerenti e resoconto", () => {

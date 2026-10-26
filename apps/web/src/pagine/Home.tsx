@@ -16,7 +16,7 @@ const contaCarte = (lista: readonly { copie: number }[]) => lista.reduce((totale
 const GIOCHI = [
   { id: "primo-gioco", nome: "Il Portale", icona: "✨", tipi: PERSONAGGI.length, carte: contaCarte(PERSONAGGI), punti: 15 },
   { id: "ufficio", nome: "Ufficio", icona: "🏢", tipi: PERSONAGGI_UFFICIO.length, carte: contaCarte(PERSONAGGI_UFFICIO), punti: 15, prova: true },
-  { id: "famiglia", nome: "La Famiglia", icona: "👨‍👩‍👧", tipi: CARTE_FAMIGLIA.length, carte: contaCarte(CARTE_FAMIGLIA), punti: 20, prova: true },
+  { id: "famiglia", nome: "La Famiglia", icona: "👨‍👩‍👧", tipi: CARTE_FAMIGLIA.length, carte: contaCarte(CARTE_FAMIGLIA), punti: 25, prova: true },
 ] as const;
 type IdGioco = (typeof GIOCHI)[number]["id"];
 

@@ -4,7 +4,7 @@
  * I poteri di aiuto sono in poteri.ts; attacchi, difese ed eventi arrivano nei passi A4–A5 (docs/famiglia/piano.md).
  */
 import { type EsitoPartita, type IdGiocatore, type RisultatoMossa, creaCasuale, mescola } from "@og/engine";
-import {
+import { puntiCarta,
   MossaNonValida,
   pesca,
   peschiNumeri,
@@ -435,7 +435,7 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   registra(s, id, {
     tipo: "attiva",
     carta: c.id,
-    punti: c.punti,
+    punti: puntiCarta(c.id, s.opzioni),
     valori: m.combinazione.map((el) => el.valore),
     ...(mancia ? { mancia: true } : {}),
   });
