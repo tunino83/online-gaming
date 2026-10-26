@@ -12,3 +12,6 @@ supabase/functions/arbitro/nucleo.js
 
 # Originali delle illustrazioni (online vanno le versioni ridotte)
 games/primo-gioco/immagini/_originali/
+
+# PDF delle carte da stampare: si rigenera con pnpm stampa:famiglia (è grande, non va su GitHub)
+docs/famiglia/stampa/
