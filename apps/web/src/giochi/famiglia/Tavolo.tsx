@@ -6,6 +6,7 @@
 import { type Attivato, type CopiaCarta, type Mossa, type VistaGiocatore, carta, evento } from "@og/famiglia";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { CerchioAvatar } from "../../Avatar";
+import { QrCodice, linkTavolo } from "../../QrCodice";
 import { suonoTuoTurno } from "../../lib/suoni";
 import { chiediArbitro } from "../../lib/supabase";
 import type { GiocatorePartita, Partita } from "../../lib/usePartita";
@@ -16,6 +17,9 @@ import "./famiglia.css";
 import { cartaDiCopia, descriviFatto, descriviMossa, nomeCarta, nomePotere } from "./descrivi";
 import { GuidaFamiglia } from "./Guida";
 import { type Avviso, avvisoTraViste } from "./avvisi";
+import { AvvisoVocale, PulsanteVocale } from "../primo-gioco/Vocali";
+import { AnnuncioCarta, useAnnunci } from "./SchermoAnnunci";
+import { impostaVoci, useVociAccese } from "./audio";
 
 /** Pausa prima della mossa di un giocatore del computer. */
 const PAUSA_COMPUTER_MS = 2500;
@@ -45,7 +49,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const [registroAperto, setRegistroAperto] = useState(false);
   const [scelte, setScelte] = useState<string[]>([]);
   const [selezioneScarti, setSelezioneScarti] = useState(false);
-  const [manoAperta, setManoAperta] = useState(() => leggiManoAperta());
+  const [pannello, setPannello] = useState<"numeri" | "nascosti" | "tavolo" | "schermo" | null>(null);
   const [osservato, setOsservato] = useState<string | null>(null);
   const [fumetto, setFumetto] = useState<{ testo: string; chiave: number } | null>(null);
 
@@ -63,6 +67,8 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   }, [giocatori, io]);
   const avatarDi = useMemo(() => new Map(giocatori.map((g) => [g.utente_id, g.avatar])), [giocatori]);
   const bot = useMemo(() => new Set(giocatori.filter((g) => g.bot).map((g) => g.utente_id)), [giocatori]);
+  // Vocali solo se in partita c'è almeno un'altra persona (non contro il computer)
+  const conPersone = giocatori.some((g) => !g.bot && g.utente_id !== io);
 
   // Avvisi bloccanti per ciò che ti riguarda (attacchi, carte perse o ricevute, eventi…): restano finché non tocchi OK.
   // Se ne arrivano altri mentre uno è aperto, si aggiungono allo stesso avviso.
@@ -77,6 +83,10 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
     if (!nuovo) return;
     setAvviso((vecchio) => (vecchio ? { n: nuovo.n, titolo: vecchio.titolo, righe: [...vecchio.righe, "—", nuovo.titolo, ...nuovo.righe] } : nuovo));
   }, [riga, io, nick]);
+
+  // Carte pescate, prese o attivate a schermo (e voci delle carte)
+  const { corrente: annuncio, salta: saltaAnnuncio } = useAnnunci(riga?.vista, io, nick);
+  const vociAccese = useVociAccese();
 
   // Fumetto con l'ultima cosa fatta dagli altri
   const ultimoFatto = useRef<number | null>(null);
@@ -201,9 +211,25 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const finito = v.finita;
 
   return (
-    <div className={`gioco-famiglia space-y-3 pt-2 text-luce ${manoAperta || selezioneScarti ? "pb-48" : "pb-36"}`}>
+    <div className={`gioco-famiglia space-y-3 pt-2 text-luce ${finito ? "pb-8" : "pb-64"}`}>
       {/* stato della partita */}
       <BarraStato v={v} io={io} nick={nick} secondi={secondiRimasti} difesa={!!scadenza?.difesa} />
+      {/* pulsanti: vocale, tavolo, schermo, regole */}
+      <div className="flex items-center justify-end gap-2">
+        {conPersone && !finito && <PulsanteVocale partitaId={partita.id} />}
+        <BottoneBarra variante="vuoto" onClick={() => impostaVoci(!vociAccese)}>
+          <span aria-label={vociAccese ? "Spegni le voci delle carte" : "Accendi le voci delle carte"}>{vociAccese ? "🗣️" : "🔇"}</span>
+        </BottoneBarra>
+        <BottoneBarra variante="vuoto" onClick={() => setPannello("tavolo")}>
+          🗺️ Tavolo
+        </BottoneBarra>
+        <BottoneBarra variante="vuoto" onClick={() => setPannello("schermo")}>
+          📺
+        </BottoneBarra>
+        <BottoneBarra variante="vuoto" onClick={() => setGuida(true)}>
+          📖
+        </BottoneBarra>
+      </div>
       {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
       <Protezioni v={v} nick={nick} />
 
@@ -293,16 +319,12 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         {v.scartiNumeri.length > 0 && <p className="mt-2 text-center"><span className="fm-scritta-tavolo">Scarti numeri: ultima carta {v.scartiNumeri.at(-1)!.valore}</span></p>}
       </div>
 
-      {/* le mie carte */}
-      <Zona titolo="Le tue carte">
-        <AreaGiocatore
-          v={v}
-          id={io}
-          io={io}
-          onCarta={(c, stanca) => apriCarta(c.id, stanca)}
-          senzaMano={!finito}
-        />
-      </Zona>
+      {/* le mie carte: mentre si gioca sono in basso (tavolo sempre in vista, mano nei pulsanti negli angoli) */}
+      {finito && (
+        <Zona titolo="Le tue carte">
+          <AreaGiocatore v={v} id={io} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
+        </Zona>
+      )}
 
       <Errore testo={errore} />
 
@@ -323,18 +345,15 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
       {/* barra in basso: mosse */}
       {!finito && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-oro bg-notte/95 px-3 py-2 backdrop-blur">
-          <ManoFissa
-            v={v}
-            aperta={manoAperta || selezioneScarti}
-            onApri={() => {
-              const nuovo = !manoAperta;
-              setManoAperta(nuovo);
-              salvaManoAperta(nuovo);
-            }}
-            onCarta={(c) => apriCarta(c.id)}
-            onMancia={(id) => (caffe && caffe.tipo === "caffe" && caffe.mancia === id ? () => gioca(caffe) : undefined)}
-            selezione={selezioneScarti ? { scelte, onTocca: (id) => setScelte((s) => alterna(s, id, daScartare)) } : undefined}
+          <PulsanteAngolo
+            lato="sinistra"
+            icona="🧱"
+            quante={v.mano.length + me.mancia.length}
+            testo="Carte numero"
+            onClick={() => setPannello("numeri")}
           />
+          <PulsanteAngolo lato="destra" icona="🂠" quante={v.nascosti.length} testo="Carte nascoste" onClick={() => setPannello("nascosti")} />
+          <CarteSulTavolo v={v} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
           <div className="mx-auto flex max-w-2xl items-center gap-2">
             {selezioneScarti ? (
               <>
@@ -342,6 +361,9 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                   Scegli {daScartare} {daScartare === 1 ? "carta" : "carte"} da scartare ({scelte.length}/{daScartare})
                   {v.turno.indigestione && " 🤢 indigestione: 1 in più"}
                 </span>
+                <BottoneBarra variante="vuoto" onClick={() => setPannello("numeri")}>
+                  🧱 Scegli
+                </BottoneBarra>
                 <BottoneBarra disabled={scelte.length !== daScartare || bloccato} onClick={() => gioca({ tipo: "fineTurno", scarta: scelte })}>
                   Scarta e chiudi
                 </BottoneBarra>
@@ -357,9 +379,6 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                       ? "Devi fare una scelta"
                       : `Tocca a ${nick(diTurno ?? "")}`}
                 </span>
-                <BottoneBarra variante="vuoto" onClick={() => setGuida(true)}>
-                  📖
-                </BottoneBarra>
                 {mosse.length > 0 && !attesa && (
                   <BottoneBarra variante="vuoto" onClick={() => setTutteLeMosse(true)}>
                     Mosse ({mosse.length})
@@ -368,7 +387,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                 {fineTurno.length > 0 && !attesa && (
                   <BottoneBarra
                     disabled={bloccato}
-                    onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true)) : gioca(fineTurno[0]!))}
+                    onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true), setPannello("numeri")) : gioca(fineTurno[0]!))}
                   >
                     Fine turno
                   </BottoneBarra>
@@ -397,6 +416,79 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
           {fumetto.testo}
         </div>
       )}
+
+      {pannello === "numeri" && (
+        <Foglio
+          titolo={selezioneScarti ? `🧱 Scegli ${daScartare} ${daScartare === 1 ? "carta" : "carte"} da scartare` : "🧱 Le tue carte numero"}
+          onChiudi={() => setPannello(null)}
+        >
+          <PannelloNumeri
+            v={v}
+            io={io}
+            onMancia={(id) => (caffe && caffe.tipo === "caffe" && caffe.mancia === id ? () => gioca(caffe) : undefined)}
+            selezione={selezioneScarti ? { scelte, onTocca: (id) => setScelte((s) => alterna(s, id, daScartare)) } : undefined}
+          />
+          {selezioneScarti && (
+            <Pulsante
+              className="mt-4"
+              disabled={scelte.length !== daScartare || bloccato}
+              onClick={() => {
+                setPannello(null);
+                gioca({ tipo: "fineTurno", scarta: scelte });
+              }}
+            >
+              Scarta {scelte.length}/{daScartare} e chiudi il turno
+            </Pulsante>
+          )}
+        </Foglio>
+      )}
+      {pannello === "nascosti" && (
+        <Foglio titolo="🂠 Le tue carte nascoste" onChiudi={() => setPannello(null)}>
+          {v.nascosti.length === 0 ? (
+            <p className="text-sm text-tenue">Non hai personaggi nascosti in mano.</p>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-3">
+              {v.nascosti.map((c) => (
+                <CartaFamiglia
+                  key={c.id}
+                  idCarta={c.carta}
+                  dimensione={104}
+                  onClick={() => {
+                    setPannello(null);
+                    apriCarta(c.id);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          <p className="mt-3 text-center text-xs text-tenue">Tocca una carta per vederla e attivarla. Gli altri non la vedono.</p>
+        </Foglio>
+      )}
+      {pannello === "tavolo" && (
+        <PanoramicaTavolo
+          v={v}
+          io={io}
+          nick={nick}
+          avatarDi={(id) => avatarDi.get(id)}
+          onCarta={(c, stanca) => {
+            setPannello(null);
+            apriCarta(c.id, stanca);
+          }}
+          onChiudi={() => setPannello(null)}
+        />
+      )}
+      {pannello === "schermo" && (
+        <Foglio titolo="📺 Schermo del tavolo" onChiudi={() => setPannello(null)}>
+          <p className="mb-3 text-sm">
+            Apri questo codice su un tablet, un PC o una TV: mostra la partita a tutti, senza le carte in mano. Va bene anche per chi vuole
+            solo guardare.
+          </p>
+          <QrCodice testo={linkTavolo(partita.codice)} dimensione={190} />
+          <p className="mt-2 break-all text-center text-xs text-tenue select-all">{linkTavolo(partita.codice)}</p>
+        </Foglio>
+      )}
+      {conPersone && <AvvisoVocale partitaId={partita.id} io={io} nick={nick} />}
+      {annuncio && <AnnuncioCarta key={annuncio.chiave} annuncio={annuncio} onFine={saltaAnnuncio} />}
 
       {/* scheda di una carta, con le mosse che la riguardano */}
       {scheda && (
@@ -650,85 +742,155 @@ export function AreaGiocatore({
           g.mancia.length === 0,
         )}
       {g.attivati.length + g.attacchi.length + g.vetrina.length + (nascondiMano ? 0 : g.nascosti + g.carteInMano + g.mancia.length) === 0 &&
-        !soloConteggi && <p className="text-xs text-luce/60">{mio && senzaMano ? "Nessuna carta sul tavolo: la tua mano è in basso." : "Nessuna carta."}</p>}
+        !soloConteggi && <p className="text-xs text-luce/60">{mio && senzaMano ? "Nessuna carta sul tavolo." : "Nessuna carta."}</p>}
     </div>
   );
 }
 
-const CHIAVE_MANO = "famiglia-mano-aperta";
-
-/** La mano in basso è aperta? (si ricorda nel browser; di base sì) */
-function leggiManoAperta(): boolean {
-  try {
-    return localStorage.getItem(CHIAVE_MANO) !== "no";
-  } catch {
-    return true;
-  }
+/** Pulsante tondo in un angolo in basso, sopra la barra: apre una parte della mano. */
+function PulsanteAngolo({
+  lato,
+  icona,
+  quante,
+  testo,
+  onClick,
+}: {
+  lato: "sinistra" | "destra";
+  icona: string;
+  quante: number;
+  testo: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${testo}: ${quante}`}
+      className={`fm-angolo absolute -top-[4.25rem] ${lato === "sinistra" ? "left-3" : "right-3"}`}
+    >
+      <span className="text-2xl leading-none">{icona}</span>
+      <span className="fm-angolo-numero">{quante}</span>
+      <span className="text-[9px] font-bold leading-none">{testo}</span>
+    </button>
+  );
 }
 
-function salvaManoAperta(aperta: boolean): void {
-  try {
-    localStorage.setItem(CHIAVE_MANO, aperta ? "si" : "no");
-  } catch {
-    // il browser non salva: pazienza, resta come scelto finché la pagina è aperta
-  }
+/** Le mie carte sul tavolo (attivate e attacchi in attesa), sempre in vista sopra la barra in basso. */
+function CarteSulTavolo({ v, io, onCarta }: { v: VistaGiocatore; io: string; onCarta: (c: CopiaCarta, stanca?: number) => void }) {
+  const me = v.giocatori[io]!;
+  return (
+    <div className="mx-auto mb-1.5 max-w-2xl">
+      <div className="mb-0.5 text-[11px] font-bold text-oro-chiaro">
+        🪑 Le tue carte sul tavolo · ⭐ {me.punti} {me.punti === 1 ? "punto" : "punti"}
+      </div>
+      <div className="flex min-h-[70px] items-end gap-1.5 overflow-x-auto pb-1 pt-1">
+        {me.attivati.length + me.attacchi.length === 0 && <span className="self-center text-xs text-luce/60">Ancora nessuna carta attivata.</span>}
+        {me.attivati.map((a) => (
+          <CartaFamiglia key={a.copia.id} idCarta={a.copia.carta} stanca={a.stanca} dimensione={48} onClick={() => onCarta(a.copia, a.stanca)} />
+        ))}
+        {me.attivati.length > 0 && me.attacchi.length > 0 && <span className="mx-0.5 h-12 w-px shrink-0 self-center bg-luce/25" />}
+        {me.attacchi.map((c) => (
+          <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={48} onClick={() => onCarta(c)} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-/**
- * La mia mano, sempre in vista sopra la barra in basso (come in Il Portale): carte numero, personaggi nascosti
- * e mancia, in una riga che scorre di lato. Si chiude e si riapre toccando l'intestazione.
- */
-function ManoFissa({
+/** Le mie carte numero, la vetrina e la mancia (anche per scegliere cosa scartare a fine turno). */
+function PannelloNumeri({
   v,
-  aperta,
-  onApri,
-  onCarta,
+  io,
   onMancia,
   selezione,
 }: {
   v: VistaGiocatore;
-  aperta: boolean;
-  onApri: () => void;
-  onCarta: (c: CopiaCarta) => void;
+  io: string;
   onMancia: (id: string) => (() => void) | undefined;
   selezione?: { scelte: string[]; onTocca: (id: string) => void };
 }) {
-  const me = v.giocatori[v.io]!;
+  const me = v.giocatori[io]!;
   const numeri = [...v.mano].sort((a, b) => a.valore - b.valore);
-  const vuota = numeri.length + v.nascosti.length + me.mancia.length === 0;
   return (
-    <div className="mx-auto mb-1.5 max-w-2xl">
-      <button type="button" onClick={onApri} className="flex w-full items-center gap-2 text-left text-xs font-bold text-oro-chiaro">
-        <span>✋ La tua mano</span>
-        <span className="font-normal text-luce/75">
-          {numeri.length} {numeri.length === 1 ? "carta numero" : "carte numero"} · {v.nascosti.length} nascost{v.nascosti.length === 1 ? "o" : "i"}
-          {me.mancia.length > 0 && ` · ${me.mancia.length} mancia`}
-        </span>
-        <span className="ml-auto">{aperta ? "▾ chiudi" : "▴ apri"}</span>
-      </button>
-      {aperta && (
-        <div className="mt-1 flex items-end gap-1.5 overflow-x-auto pb-1 pt-2">
-          {vuota && <span className="py-3 text-xs text-luce/60">Nessuna carta in mano.</span>}
+    <div className="space-y-3">
+      {numeri.length === 0 ? (
+        <p className="text-sm text-tenue">Non hai carte numero in mano.</p>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-2 pt-2">
           {numeri.map((c) => (
-            <CartaNumeroGrafica
-              key={c.id}
-              c={c}
-              piccola
-              selezionata={selezione?.scelte.includes(c.id)}
-              onClick={selezione ? () => selezione.onTocca(c.id) : undefined}
-            />
-          ))}
-          {numeri.length > 0 && v.nascosti.length > 0 && <span className="mx-0.5 h-12 w-px shrink-0 self-center bg-luce/25" />}
-          {v.nascosti.map((c) => (
-            <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={48} onClick={() => onCarta(c)} />
-          ))}
-          {me.mancia.map((m) => (
-            <span key={m.id} className="shrink-0 self-center">
-              <Mancia m={m} onClick={onMancia(m.id)} />
-            </span>
+            <CartaNumeroGrafica key={c.id} c={c} selezionata={selezione?.scelte.includes(c.id)} onClick={selezione ? () => selezione.onTocca(c.id) : undefined} />
           ))}
         </div>
       )}
+      {me.vetrina.length > 0 && (
+        <div>
+          <p className="mb-1 text-xs font-bold uppercase text-tenue">In vetrina (fuori dal limite della mano)</p>
+          <div className="flex flex-wrap gap-2">
+            {me.vetrina.map((c) => (
+              <CartaNumeroGrafica key={c.id} c={c} piccola />
+            ))}
+          </div>
+        </div>
+      )}
+      {me.mancia.length > 0 && (
+        <div>
+          <p className="mb-1 text-xs font-bold uppercase text-tenue">Mancia dei nonni</p>
+          <div className="flex flex-wrap gap-2">
+            {me.mancia.map((m) => (
+              <Mancia key={m.id} m={m} onClick={onMancia(m.id)} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Tutto il tavolo: tutti i giocatori insieme, con le carte che si vedono (come nel Portale). */
+function PanoramicaTavolo({
+  v,
+  io,
+  nick,
+  avatarDi,
+  onCarta,
+  onChiudi,
+}: {
+  v: VistaGiocatore;
+  io: string;
+  nick: (id: string) => string;
+  avatarDi: (id: string) => string | undefined;
+  onCarta: (c: CopiaCarta, stanca?: number) => void;
+  onChiudi: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-notte/97 px-3 py-3 backdrop-blur" role="dialog" aria-label="Tutto il tavolo">
+      <div className="mx-auto max-w-2xl space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-titolo text-lg font-bold text-oro-chiaro">🗺️ Tutto il tavolo</h2>
+          <BottoneBarra variante="vuoto" onClick={onChiudi}>
+            ✕ Chiudi
+          </BottoneBarra>
+        </div>
+        {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
+        <Protezioni v={v} nick={nick} />
+        {v.ordine.map((id) => {
+          const g = v.giocatori[id]!;
+          const avatar = avatarDi(id);
+          return (
+            <section key={id} className={`fm-zona rounded-2xl p-2 ${v.turno.giocatore === id ? "ring-2 ring-oro" : ""}`}>
+              <div className="mb-1 flex items-center gap-2">
+                {avatar && <CerchioAvatar id={avatar} dimensione={26} />}
+                <b>{id === io ? "Tu" : nick(id)}</b>
+                <span className="text-xs text-luce/80">
+                  ⭐ {g.punti} · 🧱 {g.carteInMano} · 🂠 {g.nascosti}
+                  {v.turno.giocatore === id && " · di turno"}
+                </span>
+              </div>
+              <AreaGiocatore v={v} id={id} io={io} onCarta={onCarta} senzaMano />
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }

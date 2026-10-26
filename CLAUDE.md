@@ -112,6 +112,11 @@ Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide 
 Grafica "di casa" in `famiglia.css` (caratteri Fredoka e Caveat): carte con stemma del tipo (`Stemma` in `carte.tsx`),
 carte numero come piastrelle di maiolica, tovaglia a quadretti; i colori del tema cambiano solo dentro `.gioco-famiglia`
 e sul `body` con la classe `sfondo-famiglia` (messa da `useSfondoFamiglia` mentre si gioca).
+In partita: in basso le proprie carte sul tavolo sempre in vista e due pulsanti negli angoli per la mano (carte numero / nascoste);
+in alto 🎤 vocali (solo con altre persone), 🗣️ voci delle carte, 🗺️ tutto il tavolo, 📺 schermo spettatori, 📖 regole.
+Annunci a schermo di carte pescate/prese/attivate (`annunci.ts` + `SchermoAnnunci.tsx`, anche sullo schermo spettatori).
+Voci delle carte (`audio.ts`): file in `games/famiglia/audio/<carta>[ _ATT|_DIF|_AIU ].mp3|m4a` (vedi `LEGGIMI.md`),
+altrimenti la voce sintetica del telefono.
 Immagini in `games/famiglia/immagini/classica/` (anche `.svg`; prima `antonio-2`, poi `antonio`, altrimenti il nome scritto; vedi `LEGGIMI.md`).
 Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una carta non si stanca mai solo se tutti i suoi poteri sono blu (`eBlu`).
 Simulazione: `pnpm simula:famiglia [n] [mazzo]` (`src/simulazione.ts`) scrive `docs/famiglia/statistiche-simulazione.md`

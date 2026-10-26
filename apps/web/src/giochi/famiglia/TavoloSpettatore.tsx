@@ -5,6 +5,7 @@ import type { GiocatorePartita, Partita } from "../../lib/usePartita";
 import { useVistaPubblica } from "../../lib/useVistaPubblica";
 import { Caricamento, Errore } from "../../ui";
 import { CartaFamiglia, CartaNumeroGrafica } from "./carte";
+import { AnnuncioCarta, useAnnunci } from "./SchermoAnnunci";
 import { descriviFatto } from "./descrivi";
 import { AreaGiocatore, BarraStato, Esito, Evento, Protezioni, Zona, useSfondoFamiglia } from "./Tavolo";
 
@@ -15,12 +16,15 @@ export function TavoloSpettatore({ partita, giocatori }: { partita: Partita; gio
     const m = new Map(giocatori.map((g) => [g.utente_id, g.nickname]));
     return (id: string) => m.get(id) ?? "?";
   }, [giocatori]);
+  // Le carte pescate, prese o attivate compaiono anche sullo schermo del tavolo (con le voci)
+  const { corrente: annuncio, salta } = useAnnunci(riga?.vista, "", nick);
   if (errore) return <Errore testo={errore} />;
   if (!riga) return <Caricamento testo="Apro il tavolo…" />;
   const v = riga.vista;
   return (
     <div className="gioco-famiglia mx-auto max-w-6xl space-y-3 px-3 py-3 text-luce">
       <BarraStato v={v} io="" nick={nick} secondi={null} difesa={false} />
+      {annuncio && <AnnuncioCarta key={annuncio.chiave} annuncio={annuncio} onFine={salta} />}
       {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
       <Protezioni v={v} nick={nick} />
       <div className="panno flex flex-wrap items-end justify-center gap-2 rounded-2xl p-3">

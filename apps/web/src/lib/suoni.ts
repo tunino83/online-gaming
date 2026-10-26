@@ -170,6 +170,60 @@ export async function riproduci(file: Blob, forza = false): Promise<boolean> {
   }
 }
 
+/** I suoni sono accesi? (per chi non è un componente React) */
+export const suoniAttivi = (): boolean => attivi;
+
+/**
+ * Come riproduci(), ma aspetta che il file finisca (per non sovrapporre più audio di fila).
+ * Restituisce false se non è partito. Al massimo aspetta `massimoMs`.
+ */
+export async function riproduciFinoAllaFine(file: Blob, massimoMs = 15_000): Promise<boolean> {
+  if (!attivi) return false;
+  const fine = (attendi: (risolvi: () => void) => void) =>
+    new Promise<void>((risolvi) => {
+      const t = setTimeout(risolvi, massimoMs);
+      attendi(() => {
+        clearTimeout(t);
+        risolvi();
+      });
+    });
+  try {
+    const ctx = creaContesto();
+    if (ctx) {
+      if (ctx.state !== "running") await ctx.resume();
+      if (ctx.state === "running") {
+        const suono = await ctx.decodeAudioData(await file.arrayBuffer());
+        const sorgente = ctx.createBufferSource();
+        sorgente.buffer = suono;
+        sorgente.connect(ctx.destination);
+        const finito = fine((risolvi) => {
+          sorgente.onended = risolvi;
+        });
+        sorgente.start();
+        await finito;
+        return true;
+      }
+    }
+  } catch {
+    // si prova con un normale lettore audio
+  }
+  try {
+    const url = URL.createObjectURL(file);
+    const lettore = new Audio(url);
+    lettore.setAttribute("playsinline", "");
+    const finito = fine((risolvi) => {
+      lettore.onended = risolvi;
+      lettore.onerror = risolvi;
+    });
+    await lettore.play();
+    await finito;
+    URL.revokeObjectURL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Effetti                                                             */
 /* ------------------------------------------------------------------ */
