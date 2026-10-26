@@ -6,7 +6,14 @@
  * Sempre uguale: stesse carte e stesse immagini danno lo stesso file (ordine fisso, data fissa nel PDF).
  * Le regole dei punti sono quelle di base del gioco (le carte solo aiuto valgono 0).
  *
- * Uso: pnpm stampa:famiglia   → docs/famiglia/stampa/la-famiglia-carte.pdf
+ * Uso: pnpm stampa:famiglia   → docs/famiglia/stampa/la-famiglia-carte.pdf (tutto)
+ *
+ * Solo alcune carte: si scrivono dopo il comando (separate da spazi) persone, carte e mazzi:
+ *   pnpm stampa:famiglia antonio nonna-maria-2 rocky      → le 3 carte di Antonio, Nonna Maria 2 e Rocky
+ *   pnpm stampa:famiglia simone numeri                    → le carte di Simone e le carte numero
+ * Parole per i mazzi: numeri, mancia, eventi, dorsi, tabella (personaggi = tutti i personaggi).
+ * Con una scelta il file è docs/famiglia/stampa/la-famiglia-scelta.pdf (il PDF completo non si tocca);
+ * con --una-copia le carte con più copie (vini, scuse…) si stampano una volta sola.
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -44,7 +51,8 @@ const FONT = {
   mano: radice("games/famiglia/stampa/font/Caveat-Bold.ttf"),
 };
 const CARTELLA_IMMAGINI = radice("games/famiglia/immagini/classica");
-const USCITA = radice("docs/famiglia/stampa/la-famiglia-carte.pdf");
+const USCITA_TUTTO = radice("docs/famiglia/stampa/la-famiglia-carte.pdf");
+const USCITA_SCELTA = radice("docs/famiglia/stampa/la-famiglia-scelta.pdf");
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
 function immagine(c: Carta): string | undefined {
@@ -146,19 +154,28 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   doc.rect(x + 4, y + 11, L - 8, 20).fill(t.colore);
   rigaCheSta(doc, pulito(c.nome), x + 34, y + 15.5, L - 34 - 32, FONT.forte, 12, "#ffffff");
 
-  // foto (o iniziale) in una cornicetta
-  const fx = x + 11;
-  const fy = y + 35;
-  const fw = L - 22;
-  const fh = 104;
+  // in basso solo il nome del potere (o dei due poteri): prima si misura quanto spazio serve
+  const tx = x + 10;
+  const tw = L - 20;
+  const nomi = c.poteri.map((p) => ({ nome: pulito(`${p.nome}${p.blu ? " (sempre attiva)" : ""}`), colore: TIPO[p.blu ? "blu" : p.tipo].scuro }));
+  let dimNome = 11;
+  const altezzaNomi = (d: number) => nomi.reduce((h, n) => h + doc.font(FONT.forte).fontSize(d).heightOfString(n.nome, { width: tw }), 0);
+  while (dimNome > 7 && altezzaNomi(dimNome) > 30) dimNome -= 0.5;
+  const hNomi = altezzaNomi(dimNome);
+
+  // foto (o iniziale) grande: tutto lo spazio tra il nastro e il nome del potere
+  const fx = x + 8;
+  const fy = y + 34;
+  const fw = L - 16;
+  const fh = y + A - 28 - hNomi - 5 - fy;
   const foto = immagine(c);
   doc.save();
   doc.roundedRect(fx, fy, fw, fh, 5).clip();
   if (foto) doc.image(foto, fx, fy, { cover: [fw, fh], align: "center" }); // in verticale resta in alto (le facce stanno in alto)
   else {
     doc.rect(fx, fy, fw, fh).fill("#f3ead6");
-    doc.circle(fx + fw / 2, fy + fh / 2, 26).lineWidth(2).fillAndStroke("#fffaf0", t.colore);
-    doc.font(FONT.nero).fontSize(26).fillColor(t.scuro).text(pulito(c.nome).charAt(0), fx, fy + fh / 2 - 15, { width: fw, align: "center" });
+    doc.circle(fx + fw / 2, fy + fh / 2, 30).lineWidth(2).fillAndStroke("#fffaf0", t.colore);
+    doc.font(FONT.nero).fontSize(30).fillColor(t.scuro).text(pulito(c.nome).charAt(0), fx, fy + fh / 2 - 18, { width: fw, align: "center" });
   }
   doc.restore();
   doc.roundedRect(fx, fy, fw, fh, 5).lineWidth(0.8).stroke("#b9a48a");
@@ -178,35 +195,15 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
     doc.font(FONT.nero).fontSize(14).fillColor("#4a2410").text(String(punti), x + L - 30, y + 13.5, { width: 26, align: "center" });
   }
 
-  // poteri: nome e testo (si rimpicciolisce finché ci sta)
-  const tx = x + 11;
-  const tw = L - 22;
-  const ty = fy + fh + 5;
-  const fondo = y + A - 27;
-  const blocchi = c.poteri.map((p) => ({ nome: pulito(`${p.nome}${p.blu ? " (sempre attiva)" : ""}`), testo: pulito(p.testo), colore: TIPO[p.blu ? "blu" : p.tipo].scuro }));
-  const nota = c.nota ? pulito(c.nota) : "";
-  let scala = 1;
-  const altezza = (k: number) =>
-    blocchi.reduce(
-      (h, b) =>
-        h +
-        doc.font(FONT.forte).fontSize(10 * k).heightOfString(b.nome, { width: tw }) +
-        doc.font(FONT.normale).fontSize(8.6 * k).heightOfString(b.testo, { width: tw, lineGap: -0.5 }) +
-        2,
-      0,
-    ) + (nota ? doc.font(FONT.mano).fontSize(10.5 * k).heightOfString(nota, { width: tw }) : 0);
-  while (scala > 0.5 && altezza(scala) > fondo - ty) scala -= 0.03;
-  let cy = ty;
-  for (const b of blocchi) {
-    doc.font(FONT.forte).fontSize(10 * scala).fillColor(b.colore).text(b.nome, tx, cy, { width: tw });
+  // nome del potere (la descrizione è nella tabella dei poteri)
+  let cy = fy + fh + 4;
+  for (const n of nomi) {
+    doc.font(FONT.forte).fontSize(dimNome).fillColor(n.colore).text(n.nome, tx, cy, { width: tw, align: "center" });
     cy = doc.y;
-    doc.font(FONT.normale).fontSize(8.6 * scala).fillColor(INCHIOSTRO).text(b.testo, tx, cy, { width: tw, lineGap: -0.5 });
-    cy = doc.y + 2;
   }
-  if (nota) doc.font(FONT.mano).fontSize(10.5 * scala).fillColor(MATITA).text(nota, tx, cy, { width: tw });
 
   // in fondo: il codice e la ricarica (o "si usa una volta")
-  doc.moveTo(tx, y + A - 25).lineTo(tx + tw, y + A - 25).lineWidth(0.5).stroke("#d8c6a6");
+  doc.moveTo(tx, y + A - 26).lineTo(tx + tw, y + A - 26).lineWidth(0.5).stroke("#d8c6a6");
   rigaCheSta(doc, `Codice: ${pulito(descriviCodice(c.codice))}`, tx, y + A - 22, tw * 0.64, FONT.mano, 11, MATITA, "left");
   const dx = oggetto ? (c.categoria === "difesa" ? "difesa, una volta" : "attacco, una volta") : c.ricarica === 0 ? "non si stanca" : `ricarica ${c.ricarica}`;
   rigaCheSta(doc, dx, tx + tw * 0.62, y + A - 19.5, tw * 0.38, FONT.normale, 6.5, MATITA, "right");
@@ -348,6 +345,94 @@ function pagine(doc: Doc, disegni: Disegno[], titolo: string) {
   }
 }
 
+/* ---------------- tabella riassuntiva dei poteri ---------------- */
+
+interface Colonna {
+  titolo: string;
+  larghezza: number;
+}
+
+/** Tabella su più pagine A4: intestazione ripetuta, righe alternate, testo che va a capo. */
+function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: string[]; colore?: string }[]) {
+  const margine = 30;
+  const spazio = 3;
+  const dim = 7.4;
+  let y = 0;
+  const intestazione = () => {
+    doc.addPage({ size: "A4", margin: 0 });
+    doc.font(FONT.nero).fontSize(15).fillColor("#7a4a26").text(titolo, margine, 26, { width: PAGINA.w - 2 * margine });
+    y = 52;
+    let x = margine;
+    doc.rect(margine, y, PAGINA.w - 2 * margine, 16).fill("#7a4a26");
+    for (const c of colonne) {
+      doc.font(FONT.forte).fontSize(dim + 0.4).fillColor("#ffffff").text(c.titolo, x + spazio, y + 4, { width: c.larghezza - 2 * spazio, lineBreak: false });
+      x += c.larghezza;
+    }
+    y += 16;
+  };
+  intestazione();
+  righe.forEach((r, i) => {
+    const alt = Math.max(...r.celle.map((testo, k) => doc.font(k === 0 ? FONT.forte : FONT.normale).fontSize(dim).heightOfString(testo, { width: colonne[k]!.larghezza - 2 * spazio }))) + 2 * spazio;
+    if (y + alt > PAGINA.h - 30) intestazione();
+    if (i % 2 === 0) doc.rect(margine, y, PAGINA.w - 2 * margine, alt).fill("#f6ecd9");
+    let x = margine;
+    r.celle.forEach((testo, k) => {
+      const colore = k === 2 && r.colore ? r.colore : INCHIOSTRO;
+      doc.font(k === 0 || k === 2 ? FONT.forte : FONT.normale).fontSize(dim).fillColor(colore).text(testo, x + spazio, y + spazio, { width: colonne[k]!.larghezza - 2 * spazio });
+      x += colonne[k]!.larghezza;
+    });
+    y += alt;
+  });
+}
+
+const NOME_TIPO: Record<Tipologia, string> = { attacco: "Attacco", difesa: "Difesa", aiuto: "Aiuto", blu: "Aiuto blu" };
+
+/** Tutti i poteri delle carte personaggio, difesa e attacco, nell'ordine del mazzo; poi gli eventi. */
+function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
+  const colonne: Colonna[] = [
+    { titolo: "Carta", larghezza: 92 },
+    { titolo: "Liv. / punti", larghezza: 46 },
+    { titolo: "Potere", larghezza: 92 },
+    { titolo: "Cosa fa", larghezza: 197 },
+    { titolo: "Codice", larghezza: 70 },
+    { titolo: "Ricarica", larghezza: 38 },
+  ];
+  const righe = carte.flatMap((c) => {
+    const oggetto = c.categoria !== "personaggio";
+    const nome = oggetto ? `${pulito(c.nome)} (carta ${c.categoria}${c.copie > 1 ? `, ${c.copie} copie` : ""})` : `${pulito(c.nome)}${c.id === c.persona ? "" : ` ${c.livello}`}`;
+    const livello = oggetto ? `liv. ${c.livello} · 0 punti` : `liv. ${c.livello} · ${puntiCarta(c.id, OPZIONI_DEFAULT)} ${puntiCarta(c.id, OPZIONI_DEFAULT) === 1 ? "punto" : "punti"}`;
+    const ricarica = oggetto ? "si usa una volta" : c.ricarica === 0 ? "non si stanca" : `${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`;
+    return c.poteri.map((p, i) => ({
+      celle: [
+        i === 0 ? nome : "",
+        i === 0 ? livello : "",
+        `${pulito(p.nome)}
+(${NOME_TIPO[p.blu ? "blu" : p.tipo]})`,
+        pulito(p.testo),
+        i === 0 ? pulito(descriviCodice(c.codice)) : "",
+        i === 0 ? ricarica : "",
+      ],
+      colore: TIPO[p.blu ? "blu" : p.tipo].scuro,
+    }));
+  });
+  if (righe.length > 0) tabella(doc, "Tabella dei poteri", colonne, righe);
+  if (!conEventi) return;
+  tabella(
+    doc,
+    "Eventi e mancia dei nonni",
+    [
+      { titolo: "Carta", larghezza: 110 },
+      { titolo: "Durata", larghezza: 60 },
+      { titolo: "Cosa fa", larghezza: 365 },
+    ],
+    [
+      ...EVENTI.map((e) => ({ celle: [pulito(e.nome), `${e.durata} ${e.durata === 1 ? "turno" : "turni"}`, pulito(e.testo)] })),
+      { celle: ["Mancia: banconota", "", "Nei codici vale come una carta numero del suo valore. Poi si scarta."] },
+      { celle: ["Mancia: caffè", "", "Quando vuoi: 1 mossa in più, oppure +1 al valore di una carta per pagare un codice. Poi si scarta."] },
+    ],
+  );
+}
+
 /** Prima pagina: cosa c'è e come stampare. */
 function copertina(doc: Doc, conteggi: Record<string, number>) {
   doc.addPage({ size: "A4", margin: 0 });
@@ -358,6 +443,7 @@ function copertina(doc: Doc, conteggi: Record<string, number>) {
     `Carte numero: ${conteggi.numeri} carte`,
     `Mancia dei nonni: ${conteggi.mancia} carte`,
     `Eventi: ${conteggi.eventi} carte`,
+    "Subito dopo questa pagina: la tabella con tutti i poteri (sulle carte c'è solo il nome del potere).",
     "In fondo: una pagina di dorsi per ogni mazzo (stampatela quante volte servono).",
     "",
     "Come stampare:",
@@ -376,30 +462,79 @@ function copertina(doc: Doc, conteggi: Record<string, number>) {
   }
 }
 
+/** Cosa stampare: tutto, oppure solo le persone, carte e mazzi scritti dopo il comando. */
+interface Scelta {
+  tutto: boolean;
+  carte: Carta[];
+  numeri: boolean;
+  mancia: boolean;
+  eventi: boolean;
+  dorsi: boolean;
+  tabella: boolean;
+  unaCopia: boolean;
+}
+
+function leggiScelta(argomenti: string[]): Scelta {
+  const parole = argomenti.filter((a) => a !== "--").map((a) => a.trim().toLowerCase()).filter(Boolean);
+  const unaCopia = parole.includes("--una-copia");
+  const nomi = parole.filter((a) => a !== "--una-copia");
+  if (nomi.length === 0) return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: true, tabella: true, unaCopia };
+  const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi"];
+  const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
+  if (sconosciuti.length > 0) {
+    console.error(`Non trovo: ${sconosciuti.join(", ")}`);
+    console.error(`Si possono scrivere le persone (es. antonio), le carte (es. antonio-2), oppure: ${MAZZI.join(", ")}.`);
+    console.error(`Persone: ${[...new Set(CARTE.map((c) => c.persona))].join(", ")}`);
+    process.exit(1);
+  }
+  const carte = nomi.includes("personaggi") ? [...CARTE] : CARTE.filter((c) => nomi.includes(c.id) || nomi.includes(c.persona));
+  return {
+    tutto: false,
+    carte,
+    numeri: nomi.includes("numeri"),
+    mancia: nomi.includes("mancia"),
+    eventi: nomi.includes("eventi"),
+    dorsi: nomi.includes("dorsi"),
+    tabella: nomi.includes("tabella") || carte.length > 0,
+    unaCopia,
+  };
+}
+
 function crea(): void {
+  const scelta = leggiScelta(process.argv.slice(2));
+  const uscita = scelta.tutto ? USCITA_TUTTO : USCITA_SCELTA;
   mkdirSync(fileURLToPath(new URL("../../../docs/famiglia/stampa/", import.meta.url)), { recursive: true });
   const doc = new PDFDocument({
     autoFirstPage: false,
     compress: true,
     info: { Title: "La Famiglia - carte da stampare", Author: "Online Gaming", Creator: "pnpm stampa:famiglia", CreationDate: DATA_FISSA, ModDate: DATA_FISSA },
   });
-  doc.pipe(createWriteStream(USCITA));
+  doc.pipe(createWriteStream(uscita));
 
   // personaggi, difese e attacchi: una carta per copia, nell'ordine del file delle carte
-  const personaggi = CARTE.flatMap((c) => Array.from({ length: c.copie }, (): Disegno => (d, x, y) => cartaPersonaggio(d, x, y, c)));
-  const numeri = creaMazzoNumeri().map((n): Disegno => (d, x, y) => cartaNumero(d, x, y, n));
-  const mancia = creaMazzoMancia().map((m): Disegno => (d, x, y) => cartaMancia(d, x, y, m));
-  const eventi = EVENTI.map((e): Disegno => (d, x, y) => cartaEvento(d, x, y, e));
+  const personaggi = scelta.carte.flatMap((c) =>
+    Array.from({ length: scelta.unaCopia ? 1 : c.copie }, (): Disegno => (d, x, y) => cartaPersonaggio(d, x, y, c)),
+  );
+  const numeri = scelta.numeri ? creaMazzoNumeri().map((n): Disegno => (d, x, y) => cartaNumero(d, x, y, n)) : [];
+  const mancia = scelta.mancia ? creaMazzoMancia().map((m): Disegno => (d, x, y) => cartaMancia(d, x, y, m)) : [];
+  const eventi = scelta.eventi ? EVENTI.map((e): Disegno => (d, x, y) => cartaEvento(d, x, y, e)) : [];
 
-  copertina(doc, { personaggi: personaggi.length, numeri: numeri.length, mancia: mancia.length, eventi: eventi.length });
-  pagine(doc, personaggi, "personaggi");
-  pagine(doc, numeri, "carte numero");
-  pagine(doc, [...mancia, ...eventi], "mancia ed eventi");
-  for (const mazzo of ["personaggi", "numeri", "mancia", "eventi"] as const) {
-    pagine(doc, Array.from({ length: COLONNE * RIGHE }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`);
+  if (scelta.tutto) copertina(doc, { personaggi: personaggi.length, numeri: numeri.length, mancia: mancia.length, eventi: eventi.length });
+  if (scelta.tabella) tabellaPoteri(doc, scelta.carte, scelta.tutto || scelta.eventi || scelta.mancia);
+  if (personaggi.length > 0) pagine(doc, personaggi, "personaggi");
+  if (numeri.length > 0) pagine(doc, numeri, "carte numero");
+  if (mancia.length + eventi.length > 0) pagine(doc, [...mancia, ...eventi], "mancia ed eventi");
+  if (scelta.tutto || scelta.dorsi) {
+    for (const mazzo of ["personaggi", "numeri", "mancia", "eventi"] as const) {
+      pagine(doc, Array.from({ length: COLONNE * RIGHE }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`);
+    }
+  }
+  if (personaggi.length + numeri.length + mancia.length + eventi.length === 0 && !scelta.tabella && !scelta.dorsi) {
+    console.error("Niente da stampare.");
+    process.exit(1);
   }
   doc.end();
-  console.log(`PDF: ${USCITA}`);
+  console.log(`PDF: ${uscita}`);
   console.log(`Carte: ${personaggi.length} personaggi, ${numeri.length} numeri, ${mancia.length} mancia, ${eventi.length} eventi`);
 }
 
