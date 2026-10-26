@@ -260,7 +260,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         <div className="flex flex-col gap-1">
           <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
           <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
-          <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
+          <Mazzo testo="🌙 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
           <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
         </div>
       </div>
@@ -323,7 +323,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
                 </div>
                 {v.evento && (
                   <BottoneBarra variante="vuoto" onClick={() => setPannello("menu")}>
-                    🎉
+                    🌙
                   </BottoneBarra>
                 )}
                 {conPersone && <PulsanteVocale partitaId={partita.id} />}
@@ -612,7 +612,7 @@ export function Evento({ id, turni }: { id: string; turni: number }) {
   const e = evento(id);
   return (
     <div className="fm-evento rounded-xl px-3 py-2 text-sm">
-      <b>🎉 {e.nome}</b> <span className="text-xs opacity-70">(ancora {turni} {turni === 1 ? "turno" : "turni"})</span>
+      <b>🌙 {e.nome}</b> <span className="text-xs opacity-70">(ancora {turni} {turni === 1 ? "turno" : "turni"})</span>
       <p className="text-xs opacity-85">{e.testo}</p>
     </div>
   );
@@ -728,7 +728,7 @@ export function AreaGiocatore({
         <p className="mb-1.5 text-[11px] text-luce/80">
           ✋ In mano: <b>{g.carteInMano}</b> {g.carteInMano === 1 ? "carta numero" : "carte numero"} · <b>{g.nascosti}</b>{" "}
           {g.nascosti === 1 ? "personaggio nascosto" : "personaggi nascosti"}
-          {g.mancia.length > 0 && ` · 💶 ${g.mancia.length} mancia`}
+          {g.mancia.length > 0 && ` · 🪙 ${g.mancia.length} mancia`}
         </p>
       )}
       {riga(
@@ -871,7 +871,7 @@ function TavoloAvversario({ v, id, onCarta }: { v: VistaGiocatore; id: string; o
       <div className="text-[10px] text-luce/80">
         ✋ In mano: <b>{g.carteInMano}</b> numeri · <b>{g.nascosti}</b> nascosti
         {g.vetrina.length > 0 && ` · vetrina ${g.vetrina.map((c) => c.valore).join(" ")}`}
-        {g.mancia.length > 0 && ` · 💶 ${g.mancia.length}`}
+        {g.mancia.length > 0 && ` · 🪙 ${g.mancia.length}`}
       </div>
       <RigaCarte
         etichetta={

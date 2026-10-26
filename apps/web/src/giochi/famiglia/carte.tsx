@@ -98,7 +98,7 @@ export function CartaFamiglia({
   if (coperta) {
     return (
       <div style={misura} className="cf-dorso shrink-0" aria-label="carta coperta">
-        <span>🏡</span>
+        <span>✦</span>
       </div>
     );
   }
@@ -220,19 +220,18 @@ export function CartaNumeroGrafica({
   );
 }
 
-/** Mancia dei nonni (banconota) o caffè. */
+/** Mancia dei nonni (moneta d'oro) o caffè (pozione). */
 export function Mancia({ m, onClick }: { m: CartaMancia; onClick?: () => void }) {
   const Contenitore = onClick ? "button" : "div";
   return (
     <Contenitore
       type={onClick ? "button" : undefined}
       onClick={onClick}
-      className={`inline-flex h-7 items-center gap-0.5 rounded-md border px-1.5 text-xs font-bold ${
-        m.tipo === "caffe" ? "border-[#6b3e1d] bg-[#c08a5b] text-white" : "border-[#2e7d4f] bg-[#d6f0dc] text-[#1d4d31]"
-      } ${onClick ? "ring-2 ring-oro-chiaro" : ""}`}
+      className={`cf-moneta ${m.tipo === "caffe" ? "cf-pozione" : ""} ${onClick ? "ring-2 ring-oro-chiaro" : ""}`}
       aria-label={m.tipo === "caffe" ? "caffè" : `mancia ${m.valore}`}
+      title={m.tipo === "caffe" ? "Caffè" : `Moneta d'oro da ${m.valore}`}
     >
-      {m.tipo === "caffe" ? "☕" : `💶 ${m.valore}`}
+      {m.tipo === "caffe" ? "☕" : m.valore}
     </Contenitore>
   );
 }

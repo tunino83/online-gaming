@@ -232,10 +232,15 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
 }
 
 /* Evento: invito di festa */
+/* evento: pergamena con cornice dorata e titolo viola */
 .fm-evento {
-  border: 2px dashed #d65a8f;
-  background: linear-gradient(135deg, #fff0f6, #ffe1ec);
-  color: #5a1f3a;
+  border: 2px solid #c9a24a;
+  background: radial-gradient(circle at 50% 30%, #fffaf0, #e6cf9f);
+  box-shadow: inset 0 0 0 2px #fffaf0, inset 0 0 0 3px #5a3a1a;
+  color: #3a2417;
+}
+.fm-evento b {
+  color: #7a3fb0;
 }
 
 /* Finestre (schede e scelte): foglio del quaderno delle ricette */
@@ -450,26 +455,50 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
 }
 
-/* dorso: tovagliolo a quadretti con la casetta */
+/* dorso: cielo di notte viola con stelline e gemma dorata (come nel PDF) */
 .cf-dorso {
   display: grid;
   place-items: center;
   border-radius: 8px;
   background:
-    repeating-linear-gradient(0deg, rgb(196 48 43 / 0.55) 0 6px, transparent 6px 12px),
-    repeating-linear-gradient(90deg, rgb(196 48 43 / 0.55) 0 6px, transparent 6px 12px),
-    #fbf4ea;
-  box-shadow: 0 0 0 2px #7a4a26, 0 2px 5px rgb(0 0 0 / 0.35);
+    radial-gradient(circle at 18% 14%, #e8c56a 0 1px, transparent 1.6px),
+    radial-gradient(circle at 80% 22%, #e8c56a 0 1.3px, transparent 1.9px),
+    radial-gradient(circle at 24% 84%, #e8c56a 0 1.3px, transparent 1.9px),
+    radial-gradient(circle at 76% 88%, #e8c56a 0 1px, transparent 1.6px),
+    radial-gradient(circle at 50% 50%, #5a3488, #1c0f30);
+  box-shadow: 0 0 0 2px #c9a24a, inset 0 0 0 4px rgb(201 162 74 / 0.25), 0 2px 5px rgb(0 0 0 / 0.35);
 }
 .cf-dorso span {
   display: grid;
   place-items: center;
   width: 60%;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: #fffaf0;
-  box-shadow: 0 0 0 2px #c4302b;
+  clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%);
+  background: radial-gradient(circle at 50% 50%, #2a1648 0 62%, #c9a24a 63%);
+  color: #e8c56a;
   font-size: 1.3rem;
+}
+
+/* mancia: moneta d'oro; caffè: pozione fumante */
+.cf-moneta {
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff4b8, #e2b23f 50%, #8a6318);
+  box-shadow: 0 0 0 1.5px #8a6318, inset 0 0 0 3px rgb(255 244 184 / 0.35), 0 1px 3px rgb(0 0 0 / 0.4);
+  color: #fff8dc;
+  font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-shadow: 0 0 2px #6b4a10, 0 0 2px #6b4a10;
+}
+.cf-pozione {
+  background: radial-gradient(circle at 35% 30%, #e8b07a, #8a4f22 50%, #3a1d0a);
+  box-shadow: 0 0 0 1.5px #c9a24a, 0 1px 3px rgb(0 0 0 / 0.4);
+  font-size: 0.9rem;
+  text-shadow: none;
 }
 
 /* ---------------- carte numero: gemme magiche su pergamena ---------------- */

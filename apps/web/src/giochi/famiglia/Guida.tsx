@@ -97,7 +97,7 @@ export function GuidaFamiglia() {
         </p>
       </Voce>
 
-      <Voce titolo="💶 Mancia dei nonni, ☕ caffè e 🔔 campanello">
+      <Voce titolo="🪙 Mancia dei nonni, ☕ caffè e 🔔 campanello">
         <p>
           Chi attiva un personaggio di <strong>livello 3</strong> riceve una carta dal mazzo della mancia. Una banconota vale come una
           carta numero oppure fa <strong>+1</strong> a una carta. Il caffè fa +1 a una carta oppure, bevuto, dà{" "}
@@ -128,7 +128,7 @@ export function GuidaFamiglia() {
         </ul>
       </Voce>
 
-      <Voce titolo="🎉 Eventi">
+      <Voce titolo="🌙 Eventi">
         <p>Si pescano con una mossa e valgono subito per tutti, per i turni scritti sulla carta (un turno = il turno di un giocatore).</p>
         <ul className="list-disc space-y-1 pl-5">
           {EVENTI.map((e) => (

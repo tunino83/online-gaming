@@ -235,22 +235,35 @@ function scintilla(doc: Doc, cx: number, cy: number, r: number, colore = "#c9a24
   doc.polygon([cx, cy - r], [cx + k, cy - k], [cx + r, cy], [cx + k, cy + k], [cx, cy + r], [cx - k, cy + k], [cx - r, cy], [cx - k, cy - k]).fill(colore);
 }
 
-/** Carta numero fantasy: pergamena con cornice dorata e, al centro, una gemma sfaccettata col numero inciso. */
-function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
-  const g = COLORI_NUMERI[c.valore];
-  const oro = "#c9a24a";
-  const bruno = "#5a3a1a";
+const ORO = "#c9a24a";
+const BRUNO = "#5a3a1a";
+
+/** Fondo fantasy delle carte: pergamena con un po' di luce al centro e cornice dorata doppia. */
+function pergamena(doc: Doc, x: number, y: number) {
   const cx = x + L / 2;
   const cy = y + A / 2;
-
-  // pergamena con un po' di luce al centro
   const sfondo = doc.radialGradient(cx, cy - 10, 10, cx, cy, A * 0.62);
   sfondo.stop(0, "#fffaf0").stop(1, "#e6cf9f");
   doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).fill(sfondo);
-  // cornice dorata doppia
-  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(oro);
-  doc.roundedRect(x + 7, y + 7, L - 14, A - 14, 6).lineWidth(0.9).stroke(bruno);
-  doc.roundedRect(x + 9.5, y + 9.5, L - 19, A - 19, 5).lineWidth(0.6).dash(1, { space: 2 }).stroke(oro).undash();
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(ORO);
+  doc.roundedRect(x + 7, y + 7, L - 14, A - 14, 6).lineWidth(0.9).stroke(BRUNO);
+  doc.roundedRect(x + 9.5, y + 9.5, L - 19, A - 19, 5).lineWidth(0.6).dash(1, { space: 2 }).stroke(ORO).undash();
+}
+
+/** Riga di stelline dorate, a separare le parti della carta. */
+function separatore(doc: Doc, cx: number, y: number) {
+  doc.moveTo(cx - 50, y).lineTo(cx - 9, y).moveTo(cx + 9, y).lineTo(cx + 50, y).lineWidth(0.7).stroke(ORO);
+  scintilla(doc, cx, y, 5);
+}
+
+/** Carta numero fantasy: pergamena con cornice dorata e, al centro, una gemma sfaccettata col numero inciso. */
+function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
+  const g = COLORI_NUMERI[c.valore];
+  const oro = ORO;
+  const bruno = BRUNO;
+  const cx = x + L / 2;
+  const cy = y + A / 2;
+  pergamena(doc, x, y);
 
   // anello di rune (puntini dorati) attorno alla gemma
   doc.circle(cx, cy, 66).lineWidth(1.2).dash(1.5, { space: 4 }).stroke(oro).undash();
@@ -311,87 +324,119 @@ function cartaNumero(doc: Doc, x: number, y: number, c: CartaNumero) {
   }
 }
 
+/** Mancia dei nonni: una moneta d'oro col valore; il caffè è una pozione fumante. */
 function cartaMancia(doc: Doc, x: number, y: number, m: CartaMancia) {
+  const cx = x + L / 2;
+  const cy = y + A / 2 - 8;
+  pergamena(doc, x, y);
+  doc.font(FONT.mano).fontSize(15).fillColor(BRUNO).text("Mancia dei nonni", x, y + 16, { width: L, align: "center" });
+  separatore(doc, cx, y + 40);
   if (m.tipo === "caffe") {
-    cornice(doc, x, y, "#6b3e1d", "#f3e2cf");
-    doc.font(FONT.nero).fontSize(15).fillColor("#6b3e1d").text("Mancia dei nonni", x, y + 18, { width: L, align: "center" });
-    doc.circle(x + L / 2, y + A / 2 - 10, 34).lineWidth(3).fillAndStroke("#c08a5b", "#6b3e1d");
-    doc.font(FONT.nero).fontSize(22).fillColor("#ffffff").text("Caffè", x, y + A / 2 - 22, { width: L, align: "center" });
+    // fiaschetta tonda con collo e tappo
+    const vetro = doc.radialGradient(cx - 12, cy - 4, 3, cx, cy + 6, 36);
+    vetro.stop(0, "#e8b07a").stop(0.5, "#8a4f22").stop(1, "#3a1d0a");
+    doc.roundedRect(cx - 9, cy - 46, 18, 20, 3).fill("#f4ead6").roundedRect(cx - 9, cy - 46, 18, 20, 3).lineWidth(1.6).stroke(BRUNO);
+    doc.roundedRect(cx - 11, cy - 54, 22, 10, 3).fill("#8a5a2b").roundedRect(cx - 11, cy - 54, 22, 10, 3).lineWidth(1).stroke(BRUNO);
+    doc.circle(cx, cy + 6, 34).fill(vetro);
+    doc.circle(cx, cy + 6, 34).lineWidth(3).stroke(ORO).circle(cx, cy + 6, 34).lineWidth(0.8).stroke(BRUNO);
+    doc.fillOpacity(0.5).ellipse(cx - 14, cy - 10, 9, 5).fill("#ffffff");
+    for (const [bx, by, br] of [[cx + 8, cy + 18, 3], [cx - 6, cy + 26, 2], [cx + 14, cy + 4, 2]] as const) doc.circle(bx, by, br).fill("#ffffff");
+    doc.fillOpacity(1);
+    scintilla(doc, cx - 26, cy - 40, 5);
+    scintilla(doc, cx + 27, cy - 34, 4);
+    doc.font(FONT.nero).fontSize(20).lineWidth(3).lineJoin("round").strokeColor("#3a1d0a");
+    doc.text("Caffè", x, cy - 6, { width: L, align: "center", stroke: true, fill: false });
+    doc.fillColor("#ffffff").text("Caffè", x, cy - 6, { width: L, align: "center" });
     doc
       .font(FONT.normale)
       .fontSize(8.5)
       .fillColor(INCHIOSTRO)
-      .text("Bevilo quando vuoi: 1 mossa in più, oppure +1 al valore di una carta per pagare un codice. Poi si scarta.", x + 14, y + A - 70, {
-        width: L - 28,
+      .text("Bevilo quando vuoi: 1 mossa in più, oppure +1 al valore di una carta per pagare un codice. Poi si scarta.", x + 16, y + A - 68, {
+        width: L - 32,
         align: "center",
       });
     return;
   }
-  cornice(doc, x, y, "#2e7d4f", "#e3f3e6");
-  doc.font(FONT.nero).fontSize(15).fillColor("#1d4d31").text("Mancia dei nonni", x, y + 18, { width: L, align: "center" });
-  doc.roundedRect(x + 18, y + A / 2 - 38, L - 36, 64, 8).lineWidth(2).dash(3, { space: 2 }).fillAndStroke("#d6f0dc", "#2e7d4f").undash();
-  doc.font(FONT.nero).fontSize(44).fillColor("#1d4d31").text(String(m.valore), x, y + A / 2 - 32, { width: L, align: "center" });
+  // moneta d'oro con bordo zigrinato
+  const r = 40;
+  const metallo = doc.radialGradient(cx - 14, cy - 16, 4, cx, cy, r * 1.1);
+  metallo.stop(0, "#fff4b8").stop(0.5, "#e2b23f").stop(1, "#8a6318");
+  doc.circle(cx, cy, r + 3).fill("#8a6318");
+  doc.circle(cx, cy, r).fill(metallo);
+  doc.circle(cx, cy, r - 7).lineWidth(1.2).dash(1.5, { space: 2.5 }).stroke("#8a6318").undash();
+  doc.fillOpacity(0.55).ellipse(cx - 15, cy - 20, 10, 4.5).fill("#ffffff").fillOpacity(1);
+  doc.font(FONT.nero).fontSize(40).lineWidth(4).lineJoin("round").strokeColor("#6b4a10");
+  doc.text(String(m.valore), x, cy - 23, { width: L, align: "center", stroke: true, fill: false });
+  doc.fillColor("#fff8dc").text(String(m.valore), x, cy - 23, { width: L, align: "center" });
+  scintilla(doc, cx + 34, cy - 32, 6, "#fff2b0");
   doc
     .font(FONT.normale)
     .fontSize(8.5)
     .fillColor(INCHIOSTRO)
-    .text(`Banconota: nei codici vale come una carta numero da ${m.valore}. Poi si scarta.`, x + 14, y + A - 66, { width: L - 28, align: "center" });
+    .text(`Moneta d'oro: nei codici vale come una carta numero da ${m.valore}. Poi si scarta.`, x + 16, y + A - 64, { width: L - 32, align: "center" });
 }
 
+/** Evento: pergamena con il nome, un nastro viola con la durata e una luna tra le stelle. */
 function cartaEvento(doc: Doc, x: number, y: number, e: Evento) {
-  cornice(doc, x, y, "#d65a8f", "#fff0f6");
-  doc.font(FONT.mano).fontSize(13).fillColor("#a33d6c").text("Evento", x, y + 14, { width: L, align: "center" });
-  rigaCheSta(doc, pulito(e.nome), x + 12, y + 32, L - 24, FONT.nero, 18, "#5a1f3a");
-  doc.roundedRect(x + L / 2 - 38, y + 58, 76, 16, 8).fill("#d65a8f");
-  doc.font(FONT.forte).fontSize(8.5).fillColor("#ffffff").text(`dura ${e.durata} ${e.durata === 1 ? "turno" : "turni"}`, x + L / 2 - 38, y + 62, { width: 76, align: "center" });
-  doc.font(FONT.normale).fontSize(9).fillColor("#5a1f3a").text(pulito(e.testo), x + 16, y + 86, { width: L - 32, align: "center" });
+  const cx = x + L / 2;
+  pergamena(doc, x, y);
+  // luna crescente
+  doc.circle(cx, y + 26, 10).fill("#e2b23f");
+  doc.circle(cx + 5, y + 23, 9).fill("#f7ecd2");
+  scintilla(doc, cx - 18, y + 22, 4);
+  scintilla(doc, cx + 20, y + 30, 3);
+  doc.font(FONT.mano).fontSize(12).fillColor("#7a3fb0").text("Evento", x, y + 38, { width: L, align: "center" });
+  rigaCheSta(doc, pulito(e.nome), x + 14, y + 52, L - 28, FONT.nero, 17, BRUNO);
+  // nastro con le code
+  const ny = y + 76;
+  doc.polygon([cx - 50, ny], [cx - 40, ny + 8], [cx - 50, ny + 16], [cx - 34, ny + 16], [cx - 34, ny]).fill("#4e2373");
+  doc.polygon([cx + 50, ny], [cx + 40, ny + 8], [cx + 50, ny + 16], [cx + 34, ny + 16], [cx + 34, ny]).fill("#4e2373");
+  doc.rect(cx - 40, ny - 3, 80, 17).lineWidth(1).fillAndStroke("#7a3fb0", ORO);
+  doc.font(FONT.forte).fontSize(8.5).fillColor("#ffffff").text(`dura ${e.durata} ${e.durata === 1 ? "turno" : "turni"}`, cx - 40, ny + 1.5, { width: 80, align: "center" });
+  doc.font(FONT.normale).fontSize(9).fillColor(INCHIOSTRO).text(pulito(e.testo), x + 18, y + 104, { width: L - 36, align: "center" });
+  separatore(doc, cx, y + A - 20);
 }
 
 /* ---------------- dorsi ---------------- */
 
 type Mazzo = "personaggi" | "numeri" | "mancia" | "eventi";
 
+/** Colori dei dorsi: un cielo stellato diverso per ogni mazzo (chiaro al centro, scuro ai bordi, gemma centrale). */
+const DORSI: Record<Mazzo, { chiaro: string; scuro: string; gemma: string; titolo: string }> = {
+  personaggi: { chiaro: "#5a3488", scuro: "#1c0f30", gemma: "#2a1648", titolo: "La Famiglia" },
+  numeri: { chiaro: "#34407a", scuro: "#121a3a", gemma: "#1b2550", titolo: "Numeri" },
+  mancia: { chiaro: "#2b6e4c", scuro: "#0b2a1c", gemma: "#123b28", titolo: "Mancia" },
+  eventi: { chiaro: "#7a2a4c", scuro: "#2a0a16", gemma: "#43122a", titolo: "Eventi" },
+};
+
 function dorso(doc: Doc, x: number, y: number, mazzo: Mazzo) {
+  const d = DORSI[mazzo];
+  const cx = x + L / 2;
+  const cy = y + A / 2;
   doc.save();
   doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).clip();
-  if (mazzo === "personaggi") {
-    // tovagliolo a quadretti
-    doc.rect(x, y, L, A).fill("#fbf4ea");
-    doc.fillOpacity(0.5);
-    for (let i = 0; i * 12 < Math.max(L, A); i += 2) {
-      doc.rect(x + i * 12, y, 12, A).fill("#c4302b");
-      doc.rect(x, y + i * 12, L, 12).fill("#c4302b");
-    }
-    doc.fillOpacity(1);
-  } else if (mazzo === "numeri") {
-    // cielo di notte con stelline dorate (posizioni fisse: il PDF resta sempre uguale)
-    const notte = doc.radialGradient(x + L / 2, y + A / 2, 10, x + L / 2, y + A / 2, A * 0.7);
-    notte.stop(0, "#34407a").stop(1, "#121a3a");
-    doc.rect(x, y, L, A).fill(notte);
-    for (let i = 1; i <= 30; i++) {
-      // sequenza "R2": punti sparsi in modo uniforme ma sempre uguali
-      const sx = x + 12 + ((i * 0.7548777) % 1) * (L - 24);
-      const sy = y + 12 + ((i * 0.5698403) % 1) * (A - 24);
-      if (Math.hypot(sx - x - L / 2, sy - y - A / 2) < 58) continue;
-      scintilla(doc, sx, sy, i % 3 === 0 ? 4 : 2.2, "#e8c56a");
-    }
-  } else {
-    const [fondo, righe] = mazzo === "mancia" ? ["#2e7d4f", "#d6f0dc"] : ["#d65a8f", "#fff0f6"];
-    doc.rect(x, y, L, A).fill(fondo);
-    doc.fillOpacity(0.25);
-    for (let i = -A; i < L + A; i += 16) doc.polygon([x + i, y], [x + i + 8, y], [x + i + 8 + A, y + A], [x + i + A, y + A]).fill(righe);
-    doc.fillOpacity(1);
+  const cielo = doc.radialGradient(cx, cy, 10, cx, cy, A * 0.7);
+  cielo.stop(0, d.chiaro).stop(1, d.scuro);
+  doc.rect(x, y, L, A).fill(cielo);
+  for (let i = 1; i <= 30; i++) {
+    // sequenza "R2": stelle sparse in modo uniforme ma sempre nello stesso posto (il PDF resta uguale)
+    const sx = x + 12 + ((i * 0.7548777) % 1) * (L - 24);
+    const sy = y + 12 + ((i * 0.5698403) % 1) * (A - 24);
+    if (Math.hypot(sx - cx, sy - cy) < 62) continue;
+    scintilla(doc, sx, sy, i % 3 === 0 ? 4 : 2.2, "#e8c56a");
   }
   doc.restore();
-  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(mazzo === "numeri" ? "#c9a24a" : "#7a4a26");
-  if (mazzo === "numeri") {
-    doc.polygon(...ottagono(x + L / 2, y + A / 2, 50)).lineWidth(3).fillAndStroke("#1b2550", "#c9a24a");
-    rigaCheSta(doc, "Numeri", x + L / 2 - 40, y + A / 2 - 9, 80, FONT.nero, 17, "#e8c56a");
-    return;
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(3).stroke(ORO);
+  doc.roundedRect(x + 8, y + 8, L - 16, A - 16, 6).lineWidth(0.6).dash(1, { space: 2.5 }).stroke(ORO).undash();
+  // gemma centrale col nome del mazzo, e anello di stelline
+  doc.circle(cx, cy, 62).lineWidth(0.8).dash(1.5, { space: 4 }).stroke(ORO).undash();
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4;
+    scintilla(doc, cx + 62 * Math.cos(a), cy + 62 * Math.sin(a), i % 2 === 0 ? 5 : 3);
   }
-  doc.circle(x + L / 2, y + A / 2, 48).lineWidth(3).fillAndStroke("#fffaf0", "#7a4a26");
-  const titolo = { personaggi: "La Famiglia", numeri: "Numeri", mancia: "Mancia", eventi: "Eventi" }[mazzo];
-  rigaCheSta(doc, titolo, x + L / 2 - 44, y + A / 2 - 9, 88, FONT.nero, 17, "#7a4a26");
+  doc.polygon(...ottagono(cx, cy, 50)).lineWidth(3).fillAndStroke(d.gemma, ORO);
+  doc.polygon(...ottagono(cx, cy, 44)).lineWidth(0.6).stroke("#e8c56a");
+  rigaCheSta(doc, d.titolo, cx - 40, cy - 9, 80, FONT.nero, 17, "#e8c56a");
 }
 
 /* ---------------- impaginazione ---------------- */

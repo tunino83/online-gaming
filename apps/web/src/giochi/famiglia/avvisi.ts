@@ -76,7 +76,7 @@ function righeDaFatti(
         break;
       case "evento": {
         const e = evento(f.evento);
-        titolo ||= `🎉 Evento: ${e.nome}`;
+        titolo ||= `🌙 Evento: ${e.nome}`;
         righe.push(`${f.giocatore === io ? "Hai pescato" : `${nick(f.giocatore)} ha pescato`} l'evento ${e.nome} (${e.durata} ${e.durata === 1 ? "turno" : "turni"}): ${e.testo}`);
         break;
       }
