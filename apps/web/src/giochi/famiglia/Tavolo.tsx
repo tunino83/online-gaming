@@ -46,15 +46,15 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const [scheda, setScheda] = useState<Scheda>(null);
   const [tutteLeMosse, setTutteLeMosse] = useState(false);
   const [guida, setGuida] = useState(false);
-  const [registroAperto, setRegistroAperto] = useState(false);
   const [scelte, setScelte] = useState<string[]>([]);
   const [selezioneScarti, setSelezioneScarti] = useState(false);
-  const [pannello, setPannello] = useState<"mano" | "tavolo" | "schermo" | null>(null);
-  const [testataAperta, setTestataAperta] = useState(() => leggiScelta(CHIAVE_TESTATA, false));
-  // Il fondo (le mie carte e la barra) è fermo in basso: la pagina lascia sotto tanto spazio quanto è alto
-  const fondo = useRef<HTMLDivElement>(null);
-  const altezzaFondo = useAltezza(fondo);
+  const [pannello, setPannello] = useState<"mano" | "tavolo" | "schermo" | "menu" | null>(null);
   const [osservato, setOsservato] = useState<string | null>(null);
+  // L'avversario mostrato in alto segue chi è di turno; quando tocca a me resta l'ultimo che ha giocato
+  const ultimoAvversario = useRef<string | null>(null);
+  // Il tavolo in mezzo si ingrandisce per riempire lo spazio libero
+  const mezzo = useRef<HTMLDivElement>(null);
+  const spazioMezzo = useMisure(mezzo);
   const [fumetto, setFumetto] = useState<{ testo: string; chiave: number } | null>(null);
 
   const versione = riga?.versione;
@@ -184,7 +184,9 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const mioTurno = v.turno.giocatore === io && !v.finita;
   const me = v.giocatori[io]!;
   const altri = [...v.ordine.slice(v.ordine.indexOf(io) + 1), ...v.ordine.slice(0, v.ordine.indexOf(io))];
-  const mostrato = osservato && altri.includes(osservato) ? osservato : (altri.find((x) => x === diTurno) ?? altri[0]!);
+  const avversarioDiTurno = altri.find((x) => x === diTurno) ?? altri.find((x) => x === v.turno.giocatore);
+  if (avversarioDiTurno) ultimoAvversario.current = avversarioDiTurno;
+  const mostrato = osservato && altri.includes(osservato) ? osservato : (avversarioDiTurno ?? ultimoAvversario.current ?? altri[0]!);
 
   async function gioca(mossa: Mossa) {
     if (bloccato) return;
@@ -214,207 +216,228 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   const caffe = trova((m) => m.tipo === "caffe");
   const finito = v.finita;
 
-  return (
-    <div className="gioco-famiglia space-y-3 text-luce" style={{ paddingBottom: finito ? 32 : altezzaFondo + 76 }}>
-      {/* in cima, sempre in vista: lo stato (con le informazioni che si aprono e chiudono) e il tavolo */}
-      <div className="fm-cima sticky top-0 z-20 -mx-3 space-y-2 px-3 pt-2 pb-2">
-      <div className="flex items-stretch gap-2">
-        <div className="min-w-0 flex-1">
-          <BarraStato v={v} io={io} nick={nick} secondi={secondiRimasti} difesa={!!scadenza?.difesa} />
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            setTestataAperta(!testataAperta);
-            salvaScelta(CHIAVE_TESTATA, !testataAperta);
-          }}
-          className="shrink-0 rounded-xl border-2 border-oro/60 px-2.5 text-sm font-bold text-oro-chiaro"
-          aria-expanded={testataAperta}
-          aria-label={testataAperta ? "Chiudi le informazioni" : "Apri le informazioni e le opzioni"}
-        >
-          {testataAperta ? "▴" : "☰"}
-          {!testataAperta && v.evento && " 🎉"}
-        </button>
-      </div>
-      {testataAperta && (
-      <>
-      {/* pulsanti: vocale, voci, tavolo, schermo, regole */}
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {conPersone && !finito && <PulsanteVocale partitaId={partita.id} />}
-        <BottoneBarra variante="vuoto" onClick={() => impostaVoci(!vociAccese)}>
-          <span aria-label={vociAccese ? "Spegni le voci delle carte" : "Accendi le voci delle carte"}>{vociAccese ? "🗣️" : "🔇"}</span>
-        </BottoneBarra>
-        <BottoneBarra variante="vuoto" onClick={() => setPannello("tavolo")}>
-          🗺️ Tavolo
-        </BottoneBarra>
-        <BottoneBarra variante="vuoto" onClick={() => setPannello("schermo")}>
-          📺
-        </BottoneBarra>
-        <BottoneBarra variante="vuoto" onClick={() => setGuida(true)}>
-          📖
-        </BottoneBarra>
-      </div>
-      {v.evento && <Evento id={v.evento.id} turni={v.evento.turniRimasti} />}
-      <Protezioni v={v} nick={nick} />
-      </>
-      )}
-
-      {/* tavolo: 4 carte numero e 2 personaggi scoperti, con i mazzi */}
-      <div className="panno rounded-2xl p-2">
-        <div className="flex items-end justify-center gap-1.5">
-          {v.tavolo.numeri.map((c, i) =>
-            c ? (
-              <CartaNumeroGrafica
-                key={c.id}
-                c={c}
-                onClick={trova((m) => m.tipo === "prendiNumero" && m.posizione === i) ? () => gioca({ tipo: "prendiNumero", posizione: i }) : undefined}
-              />
-            ) : (
-              <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
-            ),
-          )}
-          {v.scartiNumeri.length > 0 && (
-            <span className="fm-scritta-tavolo ml-1 self-center !px-1.5 !text-[10px]" title="Ultima carta negli scarti numeri">
-              scarti
-              <br />
-              {v.scartiNumeri.at(-1)!.valore}
-            </span>
-          )}
-        </div>
-        <div className="mt-2 flex items-start justify-center gap-1.5">
-          {v.tavolo.personaggi.map((c, i) =>
-            c ? (
-              <CartaFamiglia
-                key={c.id}
-                idCarta={c.carta}
-                dimensione={76}
-                onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "prendiPersonaggio" && m.posizione === i))}
-              />
-            ) : (
-              <div key={`vuotop-${i}`} className="h-[106px] w-[76px] rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
-            ),
-          )}
-          <div className="flex flex-col gap-1">
-            <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
-            <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
-            <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
-            <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
-          </div>
-        </div>
-        {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
-          <div className="mt-2 flex items-center justify-center gap-2">
-            <span className="fm-scritta-tavolo !text-[10px]">👀 in cima al mazzo</span>
-            {v.cimaPersonaggi.map((c, i) => (
-              <CartaFamiglia
-                key={c.id}
-                idCarta={c.carta}
-                dimensione={44}
-                onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "pescaPersonaggio" && !!m.seconda === (i === 1)))}
-              />
-            ))}
-          </div>
+  // I due personaggi scoperti diventano grandi quanto lo spazio in mezzo permette
+  const dimPersonaggio = misuraPersonaggi(spazioMezzo, !!v.cimaPersonaggi?.length);
+  const tavolo = (
+    <div className="panno w-full rounded-2xl p-2">
+      <div className="flex items-end justify-center gap-1.5">
+        {v.tavolo.numeri.map((c, i) =>
+          c ? (
+            <CartaNumeroGrafica
+              key={c.id}
+              c={c}
+              onClick={trova((m) => m.tipo === "prendiNumero" && m.posizione === i) ? () => gioca({ tipo: "prendiNumero", posizione: i }) : undefined}
+            />
+          ) : (
+            <div key={`vuoto-${i}`} className="h-16 w-12 rounded-lg border-2 border-dashed border-[#7a4a26]/45" />
+          ),
+        )}
+        {v.scartiNumeri.length > 0 && (
+          <span className="fm-scritta-tavolo ml-1 self-center !px-1.5 !text-[10px]" title="Ultima carta negli scarti numeri">
+            scarti
+            <br />
+            {v.scartiNumeri.at(-1)!.valore}
+          </span>
         )}
       </div>
+      <div className="mt-2 flex items-start justify-center gap-1.5">
+        {v.tavolo.personaggi.map((c, i) =>
+          c ? (
+            <CartaFamiglia
+              key={c.id}
+              idCarta={c.carta}
+              dimensione={dimPersonaggio}
+              onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "prendiPersonaggio" && m.posizione === i))}
+            />
+          ) : (
+            <div
+              key={`vuotop-${i}`}
+              style={{ width: dimPersonaggio, height: Math.round(dimPersonaggio * 1.4) }}
+              className="rounded-lg border-2 border-dashed border-[#7a4a26]/45"
+            />
+          ),
+        )}
+        <div className="flex flex-col gap-1">
+          <Mazzo testo="🧱 Numeri" quante={v.mazzi.numeri} onClick={azione(trova((m) => m.tipo === "pescaNumero"))} />
+          <Mazzo testo="👨‍👩‍👧 Personaggi" quante={v.mazzi.personaggi} onClick={azione(trova((m) => m.tipo === "pescaPersonaggio"))} />
+          <Mazzo testo="🎉 Eventi" quante={v.eventiNelMazzo} onClick={azione(trova((m) => m.tipo === "pescaEvento"))} />
+          <Mazzo testo="🔥 Nel camino" onClick={azione(trova((m) => m.tipo === "brucia"))} />
+        </div>
       </div>
-
-      {/* giocatori */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {v.ordine.map((id) => (
-          <SchedaGiocatore
-            key={id}
-            nome={id === io ? "Tu" : nick(id)}
-            avatar={avatarDi.get(id)}
-            g={v.giocatori[id]!}
-            diTurno={v.turno.giocatore === id}
-            sceglie={v.turno.sceglie === id}
-            selezionato={id === mostrato}
-            onClick={id === io ? undefined : () => setOsservato(id)}
-          />
-        ))}
-      </div>
-
-      {/* l'avversario osservato */}
-      {mostrato && (
-        <Zona titolo={`Carte di ${nick(mostrato)}`}>
-          <AreaGiocatore
-            v={v}
-            id={mostrato}
-            io={io}
-            onCarta={(c, stanca) => apriCarta(c.id, stanca)}
-          />
-        </Zona>
+      {v.cimaPersonaggi && v.cimaPersonaggi.length > 0 && (
+        <div className="mt-2 flex items-center justify-center gap-2">
+          <span className="fm-scritta-tavolo !text-[10px]">👀 in cima al mazzo</span>
+          {v.cimaPersonaggi.map((c, i) => (
+            <CartaFamiglia
+              key={c.id}
+              idCarta={c.carta}
+              dimensione={44}
+              onClick={() => apriCarta(c.id, undefined, mosse.filter((m) => m.tipo === "pescaPersonaggio" && !!m.seconda === (i === 1)))}
+            />
+          ))}
+        </div>
       )}
+    </div>
+  );
 
-      {/* le mie carte: mentre si gioca sono in basso (tavolo sempre in vista, mano nei pulsanti negli angoli) */}
-      {finito && (
-        <Zona titolo="Le tue carte">
-          <AreaGiocatore v={v} id={io} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
-        </Zona>
-      )}
-
-      <Errore testo={errore} />
-
-      {/* registro */}
-      <Zona titolo="Cosa è successo" onTitolo={() => setRegistroAperto((x) => !x)}>
-        <ul className="space-y-0.5 text-xs text-luce/90">
-          {(registroAperto ? v.registro.slice(-25) : v.registro.slice(-4))
-            .slice()
-            .reverse()
-            .map((f) => (
-              <li key={f.n}>{descriviFatto(f, nick, io)}</li>
-            ))}
-        </ul>
-      </Zona>
-
-      {finito && <Esito partita={partita} v={v} nick={nick} />}
-
-      {/* barra in basso: mosse */}
-      {!finito && (
-        <div ref={fondo} className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-oro bg-notte/95 px-3 py-1.5 backdrop-blur">
-          <PulsanteMano numeri={v.mano.length} nascosti={v.nascosti.length} onClick={() => setPannello("mano")} />
-          <LeMieCarte v={v} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
-          <div className="mx-auto flex max-w-2xl items-center gap-2">
-            {selezioneScarti ? (
-              <>
-                <span className="flex-1 text-sm">
-                  Scegli {daScartare} {daScartare === 1 ? "carta" : "carte"} da scartare ({scelte.length}/{daScartare})
-                  {v.turno.indigestione && " 🤢 indigestione: 1 in più"}
-                </span>
-                <BottoneBarra variante="vuoto" onClick={() => setPannello("mano")}>
-                  ✋ Scegli
-                </BottoneBarra>
-                <BottoneBarra disabled={scelte.length !== daScartare || bloccato} onClick={() => gioca({ tipo: "fineTurno", scarta: scelte })}>
-                  Scarta e chiudi
-                </BottoneBarra>
-              </>
-            ) : (
-              <>
-                <span className="flex-1 text-sm">
-                  {mioTurno && !attesa
-                    ? `Tocca a te: ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}${
-                        v.turno.mosseUguali?.quante ? ` (+${v.turno.mosseUguali.quante} uguali)` : ""
-                      }`
-                    : diTurno === io
-                      ? "Devi fare una scelta"
-                      : `Tocca a ${nick(diTurno ?? "")}`}
-                </span>
-                {mosse.length > 0 && !attesa && (
-                  <BottoneBarra variante="vuoto" onClick={() => setTutteLeMosse(true)}>
-                    Mosse ({mosse.length})
-                  </BottoneBarra>
-                )}
-                {fineTurno.length > 0 && !attesa && (
-                  <BottoneBarra
-                    disabled={bloccato}
-                    onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true), setPannello("mano")) : gioca(fineTurno[0]!))}
-                  >
-                    Fine turno
-                  </BottoneBarra>
-                )}
-              </>
-            )}
+  return (
+    <div className="gioco-famiglia text-luce">
+      {finito ? (
+        /* partita finita: si scorre una pagina normale con il risultato */
+        <div className="space-y-3 py-3">
+          <BarraStato v={v} io={io} nick={nick} secondi={null} difesa={false} />
+          <Esito partita={partita} v={v} nick={nick} />
+          <Zona titolo="Le tue carte">
+            <AreaGiocatore v={v} id={io} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
+          </Zona>
+          {tavolo}
+          <div className="flex justify-center gap-2">
+            <BottoneBarra variante="vuoto" onClick={() => setPannello("tavolo")}>
+              🗺️ Tutto il tavolo
+            </BottoneBarra>
+            <BottoneBarra variante="vuoto" onClick={() => setPannello("menu")}>
+              📜 Cosa è successo
+            </BottoneBarra>
           </div>
         </div>
+      ) : (
+        /* in partita: lo schermo è diviso in 3 parti fisse (avversario, tavolo, io) e non scorre */
+        <div className="fixed inset-0 z-10 flex justify-center">
+          <div className="flex h-full w-full max-w-2xl flex-col">
+            {/* in alto: l'avversario di turno (o quello scelto), e i pulsanti per il resto */}
+            <div className="flex-none space-y-1.5 px-3 pt-2">
+              <div className="flex items-center gap-1.5">
+                <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+                  {altri.map((id) => (
+                    <ChipAvversario
+                      key={id}
+                      nome={nick(id)}
+                      avatar={avatarDi.get(id)}
+                      g={v.giocatori[id]!}
+                      diTurno={v.turno.giocatore === id || v.turno.sceglie === id}
+                      selezionato={id === mostrato}
+                      onClick={() => setOsservato(id === mostrato && osservato ? null : id)}
+                    />
+                  ))}
+                </div>
+                {v.evento && (
+                  <BottoneBarra variante="vuoto" onClick={() => setPannello("menu")}>
+                    🎉
+                  </BottoneBarra>
+                )}
+                {conPersone && <PulsanteVocale partitaId={partita.id} />}
+                <BottoneBarra variante="vuoto" onClick={() => setPannello("menu")}>
+                  <span aria-label="Altro: tavolo, schermo, regole, cosa è successo">☰</span>
+                </BottoneBarra>
+              </div>
+              {mostrato && <TavoloAvversario v={v} id={mostrato} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />}
+            </div>
+
+            {/* in mezzo: le carte sul tavolo e i mazzi */}
+            <div ref={mezzo} className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-3 py-1.5">
+              {tavolo}
+            </div>
+
+            {/* in basso: le mie carte e la barra delle mosse */}
+            <div className="flex-none border-t-2 border-oro bg-notte/95 px-3 pt-1.5 pb-2 backdrop-blur">
+              <LeMieCarte v={v} io={io} onCarta={(c, stanca) => apriCarta(c.id, stanca)} />
+              <Errore testo={errore} />
+              <div className="mx-auto flex max-w-2xl items-center gap-1.5">
+                {selezioneScarti ? (
+                  <>
+                    <span className="min-w-0 flex-1 text-sm">
+                      Scegli {daScartare} {daScartare === 1 ? "carta" : "carte"} da scartare ({scelte.length}/{daScartare})
+                      {v.turno.indigestione && " 🤢"}
+                    </span>
+                    <BottoneBarra variante="vuoto" onClick={() => setPannello("mano")}>
+                      ✋ Scegli
+                    </BottoneBarra>
+                    <BottoneBarra disabled={scelte.length !== daScartare || bloccato} onClick={() => gioca({ tipo: "fineTurno", scarta: scelte })}>
+                      Scarta
+                    </BottoneBarra>
+                  </>
+                ) : (
+                  <>
+                    <span className="min-w-0 flex-1 text-sm leading-tight">
+                      {mioTurno && !attesa
+                        ? `Tocca a te: ${v.turno.mosseRimaste} ${v.turno.mosseRimaste === 1 ? "mossa" : "mosse"}${
+                            v.turno.mosseUguali?.quante ? ` (+${v.turno.mosseUguali.quante} uguali)` : ""
+                          }`
+                        : testoStato(v, io, nick)}
+                      {secondiRimasti !== null && (
+                        <span className="ml-1 rounded-full bg-rosso px-1.5 text-xs font-bold text-white">
+                          {scadenza?.difesa ? "⏱" : "🤖"} {secondiRimasti}s
+                        </span>
+                      )}
+                      {v.ultimoTurno !== null && <span className="ml-1 rounded bg-oro px-1 text-[10px] font-bold text-[#2b1a05]">ultimo giro</span>}
+                    </span>
+                    <BottoneBarra variante="vuoto" onClick={() => setPannello("mano")}>
+                      <span aria-label={`La tua mano: ${v.mano.length} carte numero e ${v.nascosti.length} nascoste`}>
+                        ✋ {v.mano.length + v.nascosti.length}
+                      </span>
+                    </BottoneBarra>
+                    {mosse.length > 0 && !attesa && (
+                      <BottoneBarra variante="vuoto" onClick={() => setTutteLeMosse(true)}>
+                        Mosse ({mosse.length})
+                      </BottoneBarra>
+                    )}
+                    {fineTurno.length > 0 && !attesa && (
+                      <BottoneBarra
+                        disabled={bloccato}
+                        onClick={() => (daScartare > 0 ? (setScelte([]), setSelezioneScarti(true), setPannello("mano")) : gioca(fineTurno[0]!))}
+                      >
+                        Fine turno
+                      </BottoneBarra>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* il resto, a richiesta: voci, tutto il tavolo, schermo, regole, evento, protezioni, cosa è successo */}
+      {pannello === "menu" && (
+        <Foglio titolo="☰ Altro" onChiudi={() => setPannello(null)}>
+          <div className="grid grid-cols-2 gap-2">
+            <Pulsante variante="vuoto" onClick={() => setPannello("tavolo")}>
+              🗺️ Tutto il tavolo
+            </Pulsante>
+            <Pulsante variante="vuoto" onClick={() => setPannello("schermo")}>
+              📺 Schermo
+            </Pulsante>
+            <Pulsante
+              variante="vuoto"
+              onClick={() => {
+                setPannello(null);
+                setGuida(true);
+              }}
+            >
+              📖 Regole
+            </Pulsante>
+            <Pulsante variante="vuoto" onClick={() => impostaVoci(!vociAccese)}>
+              {vociAccese ? "🗣️ Voci carte: sì" : "🔇 Voci carte: no"}
+            </Pulsante>
+          </div>
+          {v.evento && (
+            <div className="mt-3">
+              <Evento id={v.evento.id} turni={v.evento.turniRimasti} />
+            </div>
+          )}
+          <div className="mt-3">
+            <Protezioni v={v} nick={nick} />
+          </div>
+          <h3 className="mt-3 mb-1 text-xs font-bold uppercase text-tenue">📜 Cosa è successo</h3>
+          <ul className="space-y-0.5 text-sm">
+            {v.registro
+              .slice(-25)
+              .reverse()
+              .map((f) => (
+                <li key={f.n}>{descriviFatto(f, nick, io)}</li>
+              ))}
+          </ul>
+        </Foglio>
       )}
 
       {avviso && (
@@ -557,14 +580,19 @@ function alterna(lista: string[], id: string, max: number): string[] {
 /* Pezzi della schermata                                               */
 /* ------------------------------------------------------------------ */
 
-export function BarraStato({ v, io, nick, secondi, difesa }: { v: VistaGiocatore; io: string; nick: (id: string) => string; secondi: number | null; difesa: boolean }) {
-  let testo: string;
-  if (v.finita) testo = "Partita finita";
-  else if (v.attacco && v.turno.sceglie) {
+/** Cosa sta succedendo adesso, in breve (di chi è il turno, attacco in corso, chi sta scegliendo). */
+export function testoStato(v: VistaGiocatore, io: string, nick: (id: string) => string): string {
+  if (v.finita) return "Partita finita";
+  if (v.attacco && v.turno.sceglie) {
     const a = v.attacco;
-    testo = `⚔️ ${a.attaccante === io ? "Attacchi" : `${nick(a.attaccante)} attacca`} ${a.bersaglio === io ? "te" : nick(a.bersaglio)} con ${nomePotere(a.carta, a.potere)}`;
-  } else if (v.turno.sceglie && v.turno.sceglie !== v.turno.giocatore) testo = `${nick(v.turno.sceglie)} sta scegliendo…`;
-  else testo = v.turno.giocatore === io ? "Tocca a te!" : `Tocca a ${nick(v.turno.giocatore)}`;
+    return `⚔️ ${a.attaccante === io ? "Attacchi" : `${nick(a.attaccante)} attacca`} ${a.bersaglio === io ? "te" : nick(a.bersaglio)} con ${nomePotere(a.carta, a.potere)}`;
+  }
+  if (v.turno.sceglie && v.turno.sceglie !== v.turno.giocatore) return `${nick(v.turno.sceglie)} sta scegliendo…`;
+  return v.turno.giocatore === io ? "Tocca a te!" : `Tocca a ${nick(v.turno.giocatore)}`;
+}
+
+export function BarraStato({ v, io, nick, secondi, difesa }: { v: VistaGiocatore; io: string; nick: (id: string) => string; secondi: number | null; difesa: boolean }) {
+  const testo = testoStato(v, io, nick);
   return (
     <div className="flex items-center justify-between gap-2 rounded-xl border border-oro/50 bg-black/20 px-3 py-2">
       <span className="font-titolo font-bold text-oro-chiaro">{testo}</span>
@@ -767,63 +795,121 @@ export function AreaGiocatore({
   );
 }
 
-const CHIAVE_TESTATA = "famiglia.testata-aperta";
-
-/** Una scelta dell'interfaccia ricordata nel browser (se il browser non salva, vale il valore di base). */
-function leggiScelta(chiave: string, base: boolean): boolean {
-  try {
-    const x = localStorage.getItem(chiave);
-    return x === null ? base : x === "si";
-  } catch {
-    return base;
-  }
-}
-
-function salvaScelta(chiave: string, si: boolean): void {
-  try {
-    localStorage.setItem(chiave, si ? "si" : "no");
-  } catch {
-    // il browser non salva: resta così finché la pagina è aperta
-  }
-}
-
-/** Altezza di un elemento, aggiornata quando cambia (per lasciare lo spazio sotto il fondo fisso). */
-function useAltezza(ref: { current: HTMLElement | null }): number {
-  const [altezza, setAltezza] = useState(200);
+/** Larghezza e altezza di un elemento, aggiornate quando cambiano. */
+function useMisure(ref: { current: HTMLElement | null }): { larghezza: number; altezza: number } {
+  const [misure, setMisure] = useState({ larghezza: 0, altezza: 0 });
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
-    const o = new ResizeObserver(() => setAltezza(el.getBoundingClientRect().height));
+    const o = new ResizeObserver(() => {
+      const r = el.getBoundingClientRect();
+      setMisure((m) => (Math.abs(m.larghezza - r.width) < 1 && Math.abs(m.altezza - r.height) < 1 ? m : { larghezza: r.width, altezza: r.height }));
+    });
     o.observe(el);
     return () => o.disconnect();
   });
-  return altezza;
+  return misure;
 }
 
-/** Pulsante tondo ✋ sopra la barra in basso: apre la mano (carte numero e personaggi nascosti). */
-function PulsanteMano({ numeri, nascosti, onClick }: { numeri: number; nascosti: number; onClick: () => void }) {
+/**
+ * Larghezza dei due personaggi scoperti sul tavolo, secondo lo spazio in mezzo:
+ * in altezza tolte le carte numero (e la fila "in cima al mazzo"), in larghezza tolta la colonna dei mazzi.
+ */
+function misuraPersonaggi({ larghezza, altezza }: { larghezza: number; altezza: number }, conCima: boolean): number {
+  if (larghezza === 0 || altezza === 0) return 76;
+  const perAltezza = (altezza - 110 - (conCima ? 70 : 0)) / 1.4;
+  const perLarghezza = (larghezza - 24 - 16 - 130) / 2;
+  return Math.round(Math.max(76, Math.min(perAltezza, perLarghezza, 150)));
+}
+
+/** Un avversario nella fila in alto: avatar, nome, punti e carte in mano. Si tocca per vedere il suo tavolo. */
+function ChipAvversario({
+  nome,
+  avatar,
+  g,
+  diTurno,
+  selezionato,
+  onClick,
+}: {
+  nome: string;
+  avatar: string | undefined;
+  g: VistaGiocatore["giocatori"][string];
+  diTurno: boolean;
+  selezionato: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`La tua mano: ${numeri} carte numero e ${nascosti} nascoste`}
-      className="fm-angolo absolute -top-[4.5rem] right-3"
+      className={`flex shrink-0 items-center gap-1.5 rounded-xl border-2 px-1.5 py-0.5 text-left ${
+        selezionato ? "border-oro bg-oro/20" : "border-white/15"
+      } ${diTurno ? "ring-2 ring-[#ff7ad9]" : ""}`}
     >
-      <span className="text-2xl leading-none">✋</span>
-      <span className="text-[10px] font-bold leading-none">
-        🧱{numeri} 🂠{nascosti}
+      {avatar && <CerchioAvatar id={avatar} dimensione={24} />}
+      <span className="leading-tight">
+        <span className="block max-w-20 truncate text-xs font-bold">
+          {diTurno && "⏳ "}
+          {nome}
+        </span>
+        <span className="block text-[10px] text-luce/80">
+          ⭐{g.punti} · ✋{g.carteInMano + g.nascosti}
+        </span>
       </span>
-      <span className="fm-angolo-numero">{numeri + nascosti}</span>
     </button>
   );
 }
 
+/** Il tavolo dell'avversario in alto: le sue carte attivate e gli attacchi in attesa (e la mano solo con il fascicolo). */
+function TavoloAvversario({ v, id, onCarta }: { v: VistaGiocatore; id: string; onCarta: (c: CopiaCarta, stanca?: number) => void }) {
+  const g = v.giocatori[id]!;
+  const fascicolo = v.fascicolo?.giocatore === id ? v.fascicolo : null;
+  return (
+    <div className="fm-zona space-y-0.5 rounded-2xl px-2 py-1">
+      <div className="text-[10px] text-luce/80">
+        ✋ In mano: <b>{g.carteInMano}</b> numeri · <b>{g.nascosti}</b> nascosti
+        {g.vetrina.length > 0 && ` · vetrina ${g.vetrina.map((c) => c.valore).join(" ")}`}
+        {g.mancia.length > 0 && ` · 💶 ${g.mancia.length}`}
+      </div>
+      <RigaCarte
+        etichetta={
+          <>
+            Attivate
+            <br />⭐ {g.punti}
+          </>
+        }
+        vuota="Ancora nessuna."
+        dimensione={40}
+      >
+        {g.attivati.map((a) => (
+          <CartaFamiglia key={a.copia.id} idCarta={a.copia.carta} stanca={a.stanca} dimensione={40} onClick={() => onCarta(a.copia, a.stanca)} />
+        ))}
+      </RigaCarte>
+      {g.attacchi.length > 0 && (
+        <RigaCarte etichetta="Attacchi pronti" vuota="" dimensione={40}>
+          {g.attacchi.map((c) => (
+            <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={40} onClick={() => onCarta(c)} />
+          ))}
+        </RigaCarte>
+      )}
+      {fascicolo && (
+        <RigaCarte etichetta="📁 Mano" vuota="Niente in mano." dimensione={40}>
+          {[
+            ...fascicolo.mano.map((c) => <CartaNumeroGrafica key={c.id} c={c} piccola />),
+            ...fascicolo.nascosti.map((c) => <CartaFamiglia key={c.id} idCarta={c.carta} dimensione={40} onClick={() => onCarta(c)} />),
+          ]}
+        </RigaCarte>
+      )}
+    </div>
+  );
+}
+
 /** Una riga di carte in basso, con la sua etichetta a sinistra. */
-function RigaCarte({ etichetta, vuota, children }: { etichetta: ReactNode; vuota: string; children: ReactNode[] }) {
+function RigaCarte({ etichetta, vuota, children, dimensione = 44 }: { etichetta: ReactNode; vuota: string; children: ReactNode[]; dimensione?: number }) {
   return (
     <div className="flex items-center gap-2">
       <div className="w-14 shrink-0 text-[10px] font-bold uppercase leading-tight text-oro-chiaro">{etichetta}</div>
-      <div className="flex min-h-[64px] flex-1 items-center gap-1.5 overflow-x-auto py-0.5">
+      <div className="flex flex-1 items-center gap-1.5 overflow-x-auto py-0.5" style={{ minHeight: Math.round(dimensione * 1.4) + 4 }}>
         {children.length === 0 ? <span className="text-xs text-luce/60">{vuota}</span> : children}
       </div>
     </div>

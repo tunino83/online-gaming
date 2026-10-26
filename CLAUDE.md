@@ -113,8 +113,10 @@ Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide 
 Grafica "di casa" in `famiglia.css` (caratteri Fredoka e Caveat): carte con stemma del tipo (`Stemma` in `carte.tsx`),
 carte numero come piastrelle di maiolica, tovaglia a quadretti; i colori del tema cambiano solo dentro `.gioco-famiglia`
 e sul `body` con la classe `sfondo-famiglia` (messa da `useSfondoFamiglia` mentre si gioca).
-In partita: in basso le proprie carte sul tavolo sempre in vista e due pulsanti negli angoli per la mano (carte numero / nascoste);
-in alto 🎤 vocali (solo con altre persone), 🗣️ voci delle carte, 🗺️ tutto il tavolo, 📺 schermo spettatori, 📖 regole.
+In partita lo schermo è diviso in 3 parti fisse (non scorre): in alto l'avversario di turno (fila di avversari da toccare,
+🎤 vocali solo con altre persone, ☰ "Altro": tutto il tavolo, schermo spettatori, regole, voci delle carte, evento,
+cosa è successo), in mezzo il tavolo (i personaggi si ingrandiscono con lo spazio), in basso le mie carte (Attivate /
+Da attivare) e la barra con ✋ mano, Mosse e Fine turno. A partita finita la pagina torna normale con il risultato.
 Annunci a schermo di carte pescate/prese/attivate (`annunci.ts` + `SchermoAnnunci.tsx`, anche sullo schermo spettatori).
 Voci delle carte (`audio.ts`): file in `games/famiglia/audio/<carta>[ _ATT|_DIF|_AIU ].mp3|m4a` (vedi `LEGGIMI.md`),
 altrimenti la voce sintetica del telefono.
