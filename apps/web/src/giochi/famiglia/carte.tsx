@@ -23,12 +23,15 @@ export function usePuntiCarta(idCarta: string): number {
   return aiutiSenzaPunti && soloAiuto(idCarta) ? 0 : carta(idCarta).punti;
 }
 
-/** Tipologie di potere, ognuna col suo stemma: le blu sono aiuti sempre attivi. */
+/** Simbolo dell'infinito (∞) per le carte sempre attive, disegnato nello stemma (uguale anche nel PDF da stampare). */
+export const INFINITO = "M20 23 C17 17.5 10.5 17.5 10.5 23 C10.5 28.5 17 28.5 20 23 C23 17.5 29.5 17.5 29.5 23 C29.5 28.5 23 28.5 20 23 Z";
+
+/** Tipologie di potere, ognuna col suo stemma: le blu sono aiuti sempre attivi (stemma azzurro con ∞). */
 export const TIPOLOGIE = {
   attacco: { nome: "Attacco", icona: "⚔️", colore: "#c63d2f", scuro: "#8e2219" },
   difesa: { nome: "Difesa", icona: "🛡️", colore: "#2d5f9a", scuro: "#1b3d66" },
   aiuto: { nome: "Aiuto", icona: "✨", colore: "#3e8a4f", scuro: "#25603a" },
-  blu: { nome: "Aiuto blu (sempre attivo)", icona: "✨", colore: "#1f9fc9", scuro: "#14708f" },
+  blu: { nome: "Aiuto sempre attivo", icona: "∞", colore: "#1f9fc9", scuro: "#14708f" },
 } as const;
 export type Tipologia = keyof typeof TIPOLOGIE;
 
@@ -59,9 +62,13 @@ export function Stemma({ tipo, dimensione = 22 }: { tipo: Tipologia; dimensione?
       </defs>
       <path d={scudo} fill={`url(#stemma-${tipo})`} stroke="#fff4dc" strokeWidth="2.5" />
       <path d={scudo} fill="none" stroke="#fff4dc" strokeWidth="1.2" strokeDasharray="2.2 2" opacity="0.75" transform="translate(20 23) scale(0.78) translate(-20 -23)" />
-      <text x="20" y="25" textAnchor="middle" dominantBaseline="middle" fontSize="17">
-        {t.icona}
-      </text>
+      {tipo === "blu" ? (
+        <path d={INFINITO} fill="none" stroke="#fff4dc" strokeWidth="3.4" strokeLinejoin="round" />
+      ) : (
+        <text x="20" y="25" textAnchor="middle" dominantBaseline="middle" fontSize="17">
+          {t.icona}
+        </text>
+      )}
     </svg>
   );
 }
@@ -160,8 +167,8 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
         {c.poteri.some((p) => p.blu) && (
           <p className="rounded-lg bg-[#2f6fb3]/15 px-2 py-1">
             {c.poteri.every((p) => p.blu)
-              ? "🔵 Carta blu: dopo averla attivata è sempre attiva, non si stanca mai (nemmeno con gli attacchi) e non costa mosse."
-              : "🔵 Potere blu: funziona una volta per turno anche se la carta è stanca e non costa mosse; l'altro potere fa stancare la carta come sempre."}
+              ? "∞ Sempre attiva: dopo averla attivata non si stanca mai (nemmeno con gli attacchi) e non costa mosse."
+              : "∞ Potere sempre attivo: funziona una volta per turno anche se la carta è stanca e non costa mosse; l'altro potere fa stancare la carta come sempre."}
           </p>
         )}
         <p className="text-tenue">

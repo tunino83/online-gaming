@@ -121,6 +121,9 @@ function stemma(doc: Doc, x: number, y: number, larghezza: number, tipo: Tipolog
   } else if (tipo === "difesa") {
     // uno scudo piccolo pieno
     doc.path("M20 13 L27 15.5 V22 C27 27 24 30 20 32 C16 30 13 27 13 22 V15.5 Z").fill(CREMA);
+  } else if (tipo === "blu") {
+    // sempre attiva: il simbolo dell'infinito (come nel gioco)
+    doc.path("M20 23 C17 17.5 10.5 17.5 10.5 23 C10.5 28.5 17 28.5 20 23 C23 17.5 29.5 17.5 29.5 23 C29.5 28.5 23 28.5 20 23 Z").lineWidth(3.4).lineJoin("round").stroke(CREMA);
   } else {
     // scintilla a 4 punte
     doc.path("M20 11 C21 19 22 20 29 22 C22 24 21 25 20 33 C19 25 18 24 11 22 C18 20 19 19 20 11 Z").fill(CREMA);
@@ -157,7 +160,7 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   // in basso solo il nome del potere (o dei due poteri): prima si misura quanto spazio serve
   const tx = x + 10;
   const tw = L - 20;
-  const nomi = c.poteri.map((p) => ({ nome: pulito(`${p.nome}${p.blu ? " (sempre attiva)" : ""}`), colore: TIPO[p.blu ? "blu" : p.tipo].scuro }));
+  const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[p.blu ? "blu" : p.tipo].scuro })); // sempre attiva: lo dice lo stemma con ∞
   let dimNome = 11;
   const altezzaNomi = (d: number) => nomi.reduce((h, n) => h + doc.font(FONT.forte).fontSize(d).heightOfString(n.nome, { width: tw }), 0);
   while (dimNome > 7 && altezzaNomi(dimNome) > 30) dimNome -= 0.5;
@@ -385,7 +388,7 @@ function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: s
   });
 }
 
-const NOME_TIPO: Record<Tipologia, string> = { attacco: "Attacco", difesa: "Difesa", aiuto: "Aiuto", blu: "Aiuto blu" };
+const NOME_TIPO: Record<Tipologia, string> = { attacco: "Attacco", difesa: "Difesa", aiuto: "Aiuto", blu: "Aiuto sempre attivo" };
 
 /** Tutti i poteri delle carte personaggio, difesa e attacco, nell'ordine del mazzo; poi gli eventi. */
 function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
@@ -444,6 +447,7 @@ function copertina(doc: Doc, conteggi: Record<string, number>) {
     `Mancia dei nonni: ${conteggi.mancia} carte`,
     `Eventi: ${conteggi.eventi} carte`,
     "Subito dopo questa pagina: la tabella con tutti i poteri (sulle carte c'è solo il nome del potere).",
+    "Stemmi: rosso = attacco, blu = difesa, verde = aiuto, azzurro con il simbolo dell'infinito = carta sempre attiva.",
     "In fondo: una pagina di dorsi per ogni mazzo (stampatela quante volte servono).",
     "",
     "Come stampare:",

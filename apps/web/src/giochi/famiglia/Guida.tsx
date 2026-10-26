@@ -73,7 +73,10 @@ export function GuidaFamiglia() {
           inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne quelli gratis, come <em>Non sbaglio mai</em>).
         </p>
         <p>
-          🔵 <strong>Carte blu</strong>: alcune carte aiuto, dopo averle attivate, sono <strong>sempre attive</strong>: non si
+          <span className="mr-1 inline-block align-middle">
+            <Stemma tipo="blu" dimensione={18} />
+          </span>
+          <strong>Carte sempre attive (∞)</strong>: alcune carte aiuto, dopo averle attivate, sono <strong>sempre attive</strong>: non si
           stancano mai e non costano mosse. Ogni effetto vale una volta per turno (es. <em>Un caffè</em>: fai sempre 4 mosse).
         </p>
         <p>
