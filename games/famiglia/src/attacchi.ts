@@ -605,7 +605,7 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
     case "campari":
       peschiNumeri(s, v, 1);
       break;
-    case "bracciali-d-oro":
+    case "la-cionna":
       if (mittente !== v && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
       break;
     case "tiro-su-un-muro":

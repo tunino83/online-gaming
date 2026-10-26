@@ -803,7 +803,7 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
     ).toMatch(/sigaretta/);
   });
 
-  it("Bracciali d'oro: ferma anche un attacco di livello 3 e chi attacca scarta 1 carta a caso", () => {
+  it("La cionna: con le male parole ferma anche un attacco di livello 3 e chi attacca scarta 1 carta a caso", () => {
     let s = bruno_si_difende("nonna-maria-3", 3);
     manoDi(s, "anna", 4);
     s = difendi(s, "bruno", "nonna-maria-3");

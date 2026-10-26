@@ -287,8 +287,8 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
   Le carte fatte in casa non si truccano.
 - **Una sigaretta fuori al bar** (Nonna Maria 2): l'avversario colpito nel suo prossimo turno non può attivare
   personaggi (può fare tutto il resto).
-- **Bracciali d'oro** (Nonna Maria 3): difesa di livello 3, annulla qualsiasi attacco; chi ha attaccato scarta 1 carta
-  numero a caso.
+- **La cionna** (Nonna Maria 3): difesa di livello 3; gliene dici di tutti i colori: annulla qualsiasi attacco e chi
+  ha attaccato, scandalizzato, scarta 1 carta numero a caso.
 - **Tiro su un muro** (Nonno Rafiluccio 1): difesa di livello 1; dopo averla usata, fino al tuo prossimo turno gli
   attacchi di livello 1 non ti colpiscono (non serve difendersi).
 - **Straordinario** (Nonno Rafiluccio 2): gratis, 1 mossa in più adesso e 1 nel prossimo turno.

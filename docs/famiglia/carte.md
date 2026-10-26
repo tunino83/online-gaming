@@ -86,7 +86,7 @@ Regole usate:
 | Annalisa | 3 | Il mio corpo che cambia | ✨ | Scala da 5 |
 | Nonna Maria | 1 | Un filo di trucco | ✨ | 2 carte con somma 13 |
 | Nonna Maria | 2 | Una sigaretta fuori al bar | ⚔️ | 3 carte con somma 17 |
-| Nonna Maria | 3 | Bracciali d'oro | 🛡️ | 4 carte dispari |
+| Nonna Maria | 3 | La cionna | 🛡️ | 4 carte dispari |
 | Nonno Rafiluccio | 1 | Tiro su un muro | 🛡️ | 2 carte con somma 10 |
 | Nonno Rafiluccio | 2 | Straordinario | ✨ | 3 carte pari |
 | Nonno Rafiluccio | 3 | Brontola tutto il giorno | ⚔️ | Scala da 5 |

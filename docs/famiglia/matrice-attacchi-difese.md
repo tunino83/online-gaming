@@ -29,7 +29,7 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | D16 | Una fetta di torta? | Claudia 3 | 3 | Doppia coppia |
 | D17 | Scudo da gladiatore | Simone 2 | 2 | 3 carte dispari |
 | D18 | Tyrion nella borsa | Annalisa 1 | 1 | 2 carte con somma 11 |
-| D19 | Bracciali d'oro | Nonna Maria 3 | 3 | 4 carte dispari |
+| D19 | La cionna | Nonna Maria 3 | 3 | 4 carte dispari |
 | D20 | Tiro su un muro | Nonno Rafiluccio 1 | 1 | 2 carte con somma 10 |
 | D21 | Non ti sento, sto suonando | Donato | 2 | Scala da 3 |
 | D22 | Guardia medica | Zia Diana | 2 | 3 carte con somma 12 |

@@ -400,7 +400,10 @@ const ADULTI: Carta[] = [
       },
       {
         codice: dispari(4),
-        poteri: [difesa("Bracciali d'oro", "Annulli qualsiasi attacco, anche di livello 3, e sbattendo i bracciali chi ti ha attaccato scarta 1 carta numero a caso")],
+        poteri: [difesa(
+            "La cionna",
+            "Gliene dici di tutti i colori: annulli qualsiasi attacco, anche di livello 3, e chi ti ha attaccato, scandalizzato, scarta 1 carta numero a caso",
+          )],
       },
     ],
     "Vanitosa, piena di bracciali, sempre truccata; fuma e dice le parolacce",
