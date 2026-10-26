@@ -66,7 +66,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Aglianico (carta difesa) | 2 | **Aglianico** | Annulli un attacco di livello 1 o 2 | Coppia | si usa una volta, 2 copie |
 | Taurasi (carta difesa) | 3 | **Taurasi** | Annulli qualsiasi attacco; chi ti ha attaccato fa 1 mossa in meno nel suo prossimo turno | Tris | si usa una volta |
 | Simone | 2 | **Scudo da gladiatore** | Annulli un attacco; se era di livello 1, chi ti ha attaccato scarta 1 carta numero a caso | 3 carte dispari | ricarica 2 |
-| Annalisa | 1 | **Tyrion nella borsa** | Annulli un attacco e Tyrion porta via 1 carta numero a caso a chi ti ha attaccato | 2 carte con somma 11 | ricarica 1 |
+| Annalisa | 1 | **Drago Tascabile** | Annulli un attacco e Tyrion, il drago tascabile, porta via 1 carta numero a caso a chi ti ha attaccato | 2 carte con somma 11 | ricarica 1 |
 | Nonna Maria | 3 | **La cionna** | Con le male parole annulli qualsiasi attacco e chi ti ha attaccato scarta 1 carta numero a caso | 4 carte dispari | ricarica 3 |
 | Nonno Rafiluccio | 1 | **Tiro su un muro** | Annulli un attacco di livello 1; fino al tuo prossimo turno nessun attacco di livello 1 ti colpisce | 2 carte con somma 10 | ricarica 1 |
 | Campari (carta difesa) | 2 | **Campari** | Annulli un attacco e peschi 1 carta numero | 2 carte qualsiasi | si usa una volta, 2 copie |

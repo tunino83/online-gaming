@@ -767,7 +767,7 @@ describe("Simone e Annalisa", () => {
     expect(g(t, "anna").mano).toHaveLength(1);
   });
 
-  it("Tyrion nella borsa: annulla un attacco di livello 1 e porta via 1 carta numero a chi ha attaccato", () => {
+  it("Drago Tascabile: annulla un attacco di livello 1 e porta via 1 carta numero a chi ha attaccato", () => {
     let s = bruno_si_difende("annalisa-1");
     manoDi(s, "anna", 7);
     s = difendi(s, "bruno", "annalisa-1");

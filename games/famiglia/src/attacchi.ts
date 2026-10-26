@@ -614,8 +614,8 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
     case "scudo-da-gladiatore":
       if (a.livello === 1 && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
       break;
-    case "tyrion-nella-borsa":
-      // Tyrion porta via a chi ti ha attaccato 1 carta numero a caso
+    case "drago-tascabile":
+      // Tyrion, il drago tascabile, porta via a chi ti ha attaccato 1 carta numero a caso
       if (mittente !== v && A.mano.length > 0) V.mano.push(...A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
       break;
     case "sono-andato-a-lioni-a-fa-a-spesa":

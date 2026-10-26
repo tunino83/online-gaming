@@ -238,7 +238,7 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
   scarta 1 carta numero a caso.
 - **Invasione di campo** (Simone 3): 2 avversari a scelta (1 se ce n'è uno solo da colpire). Ognuno può difendersi; chi
   è colpito sceglie quale sua carta carica far stancare (le blu no). Simone pesca 1 carta numero per ogni colpito.
-- **Tyrion nella borsa** (Annalisa 1): difesa di livello 1; annulla l'attacco e porta via 1 carta numero a caso a chi l'ha mandato.
+- **Drago Tascabile** (Annalisa 1, prima "Tyrion nella borsa"): difesa di livello 1; annulla l'attacco e porta via 1 carta numero a caso a chi l'ha mandato.
 - **Medico in famiglia** (Annalisa 2, blu): Dottor Racioppi e Zia Diana si attivano senza pagare il codice (la mossa
   costa lo stesso); una volta per turno, gratis, prendi uno dei due dalla pila degli scarti.
 - **Il mio corpo che cambia** (Annalisa 3): scambi una tua carta attivata (non Annalisa 3) con un personaggio che hai

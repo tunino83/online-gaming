@@ -358,7 +358,7 @@ const ADULTI: Carta[] = [
     [
       {
         codice: somma(2, 11),
-        poteri: [difesa("Tyrion nella borsa", "Annulli un attacco: Tyrion salta fuori dalla borsa e porta via 1 carta numero a caso a chi ti ha attaccato")],
+        poteri: [difesa("Drago Tascabile", "Annulli un attacco: Tyrion, il tuo drago tascabile, salta fuori dalla borsa e porta via 1 carta numero a caso a chi ti ha attaccato")],
       },
       {
         codice: somma(3, 12),
