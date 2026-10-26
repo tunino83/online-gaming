@@ -24,7 +24,7 @@ describe("simulazione", () => {
     expect(testo).toContain("Carte di livello 3");
   });
 
-  it("partita 365: Guardia medica d'emergenza contro Forno a legna non propone carte già usate per pagare", () => {
+  it("partita 365: Guardia medica d'emergenza contro Alta idratazione non propone carte già usate per pagare", () => {
     expect(simulaPartita(365, 2).errore).toBeUndefined();
   });
 

@@ -661,7 +661,7 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       stancaCarta(s, aCaso(s, caricheColpibili(A, potere)));
       break;
     }
-    // Le altre difese annullano soltanto: Ho sempre ragione io, Non sa perdere, Sempre calma, Forse c'è,
+    // Le altre difese annullano soltanto: Per me è quadrato, Non sa perdere, Sempre calma, Forse c'è,
     // Non c'è ha il turno, Paesano, Aglianico, Sono a un matrimonio.
   }
   avanza(s);

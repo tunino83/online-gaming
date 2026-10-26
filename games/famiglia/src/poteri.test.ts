@@ -32,7 +32,7 @@ describe("usare un potere", () => {
     expect(anna(s).attivati[0]!.stanca).toBe(2);
     expect(s.registro.at(-1)).toMatchObject({ tipo: "potere", carta: "generoso-2", potere: "colazione" });
 
-    let t = conCarta("nonna-dina-1"); // Sposta i mobili: gratis, ma la carta si stanca
+    let t = conCarta("nonna-dina-1"); // Cambiamo un po'…: gratis, ma la carta si stanca
     t = usa(t, "nonna-dina-1");
     expect(t.turno.mosseRimaste).toBe(3);
     expect(anna(t).attivati[0]!.stanca).toBe(1);
@@ -61,7 +61,7 @@ describe("usare un potere", () => {
     expect(rifiutata(s, "anna", potere("nonna-dina-1"))).toMatch(/attivati/);
     s.giocatori.anna!.nascosti.push(copia("generoso-1"));
     expect(rifiutata(s, "anna", potere("generoso-1"))).toMatch(/attivati/);
-    conCarta("antonio-3", s); // Ho sempre ragione io: difesa
+    conCarta("antonio-3", s); // Per me è quadrato: difesa
     expect(rifiutata(s, "anna", potere("antonio-3"))).toMatch(/quando ti attaccano/);
   });
 
@@ -93,7 +93,7 @@ describe("usare un potere", () => {
 /* ---------------- mosse in più ---------------- */
 
 describe("mosse in più", () => {
-  it("Ci penso domani: 1 mossa ora, 2 in più nel prossimo turno", () => {
+  it("Domani lo faccio: 1 mossa ora, 2 in più nel prossimo turno", () => {
     let s = usa(conCarta("antonio-1"), "antonio-1");
     expect(anna(s).mosseProssimoTurno).toBe(2);
     for (const _ of s.ordine) {
@@ -141,7 +141,7 @@ describe("mosse in più", () => {
 /* ---------------- pescare ---------------- */
 
 describe("pescare", () => {
-  it("Cucina per 200: tu 4 carte, ogni avversario 1", () => {
+  it("Chissà se sta roba basta: tu 4 carte, ogni avversario 1", () => {
     const s = usa(conCarta("nonna-dina-3"), "nonna-dina-3");
     expect(anna(s).mano).toHaveLength(4);
     expect(s.giocatori.bruno!.mano).toHaveLength(1);
@@ -161,7 +161,7 @@ describe("pescare", () => {
     expect(rifiutata(conCarta("generoso-3"), "anna", potere("generoso-3", { scelte: ["caffe", "caffe"] }))).toMatch(/2 voci diverse/);
   });
 
-  it("Frigge di tutto: scarti le carte che vuoi e ne peschi altrettante più una", () => {
+  it("Mo faccio due cotolette: scarti le carte che vuoi e ne peschi altrettante più una", () => {
     let s = conCarta("nonna-dina-2");
     anna(s).mano = [num(1, "a"), num(2, "b"), num(3, "c")];
     s = usa(s, "nonna-dina-2", { carte: ["a", "b"] });
@@ -169,7 +169,7 @@ describe("pescare", () => {
     expect(s.scarti.numeri.map((c) => c.id)).toEqual(["a", "b"]);
   });
 
-  it("Vende la carne: scarti un personaggio nascosto e peschi 3 carte numero", () => {
+  it("Vuoi un panino con sta roba puzzolente?: scarti un personaggio nascosto e peschi 3 carte numero", () => {
     let s = conCarta("chicca-1");
     anna(s).nascosti = [copia("paesano")];
     s = usa(s, "chicca-1", { bersaglio: "paesano#1" });
@@ -252,7 +252,7 @@ describe("pescare", () => {
 /* ---------------- tavolo e scarti ---------------- */
 
 describe("tavolo e scarti", () => {
-  it("Sposta i mobili: cambiano tutte le carte scoperte", () => {
+  it("Cambiamo un po'…: cambiano tutte le carte scoperte", () => {
     const s = conCarta("nonna-dina-1");
     const dopo = usa(s, "nonna-dina-1");
     expect(dopo.scarti.numeri).toEqual(s.tavolo.numeri);

@@ -70,7 +70,7 @@ function righeDaFatti(
           titolo ||= `✨ ${nick(f.giocatore)} usa un potere su di te`;
           righe.push(`${nomePotere(f.carta, f.potere)}: ${testoPotere(f.carta, f.potere)}`);
         } else if (f.giocatore !== io && f.potere === "cucina-per-200") {
-          titolo ||= "🍝 Cucina per 200";
+          titolo ||= "🍝 Chissà se sta roba basta";
           righe.push(`${chi} cucina per tutti: ricevi una carta numero.`);
         }
         break;

@@ -450,7 +450,7 @@ describe("varianti dei punti (in prova)", () => {
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;
     s.giocatori.anna!.attivati = [
-      { copia: copia("nonna-dina-1"), stanca: 0 }, // Sposta i mobili (aiuto, gratis)
+      { copia: copia("nonna-dina-1"), stanca: 0 }, // Cambiamo un po'… (aiuto, gratis)
       { copia: copia("christian"), stanca: 0 }, // Ho tanta fame (aiuto)
       { copia: copia("toto-1"), stanca: 0 }, // Si incanta (attacco)
     ];

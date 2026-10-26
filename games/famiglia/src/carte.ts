@@ -34,7 +34,11 @@ export function slug(testo: string): string {
     .replace(/^-|-$/g, "");
 }
 
-const potere = (tipo: TipoPotere) => (nome: string, testo: string): Potere => ({ id: slug(nome), nome, tipo, testo });
+/**
+ * Un potere: l'id è il nome senza accenti né spazi; per i poteri rinominati (2026-10-26) resta l'id di prima
+ * (`id`), così le regole e le prove non cambiano.
+ */
+const potere = (tipo: TipoPotere) => (nome: string, testo: string, id?: string): Potere => ({ id: id ?? slug(nome), nome, tipo, testo });
 const attacco = potere("attacco");
 const difesa = potere("difesa");
 const aiuto = potere("aiuto");
@@ -95,9 +99,9 @@ function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello
 
 const ADULTI: Carta[] = [
   ...persona("Antonio", [
-    { codice: somma(2, 9), poteri: [aiuto("Ci penso domani", "Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più")] },
-    { codice: somma(3, 18), poteri: [attacco("Forno a legna", "Un avversario scarta 2 carte numero (sceglie lui quali)")] },
-    { codice: somma(4, 20), poteri: [difesa("Ho sempre ragione io", "Annulli qualsiasi attacco contro di te, anche di livello 3")] },
+    { codice: somma(2, 9), poteri: [aiuto("Domani lo faccio", "Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più", "ci-penso-domani")] },
+    { codice: somma(3, 18), poteri: [attacco("Alta idratazione", "Un avversario scarta 2 carte numero (sceglie lui quali)", "forno-a-legna")] },
+    { codice: somma(4, 20), poteri: [difesa("Per me è quadrato", "Annulli qualsiasi attacco contro di te, anche di livello 3", "ho-sempre-ragione-io")] },
   ]),
   ...persona("Maddalena", [
     {
@@ -116,14 +120,14 @@ const ADULTI: Carta[] = [
     { codice: poker, poteri: [aiuto("Sempre la stessa storia", "Copi l'ultimo potere giocato al tavolo da chiunque")] },
   ]),
   ...persona("Nonna Dina", [
-    { codice: somma(2, 7), poteri: [aiuto("Sposta i mobili", "Gratis (non usa mosse): cambi tutte le carte scoperte sul tavolo (numeri e personaggi)")] },
-    { codice: pari(3), poteri: [aiuto("Frigge di tutto", "Scarti le carte numero che vuoi e ne peschi altrettante più una")] },
-    { codice: scala(5), poteri: [aiuto("Cucina per 200", "Tu peschi 4 carte numero, ogni avversario 1")] },
+    { codice: somma(2, 7), poteri: [aiuto("Cambiamo un po'…", "Gratis (non usa mosse): cambi tutte le carte scoperte sul tavolo (numeri e personaggi)", "sposta-i-mobili")] },
+    { codice: pari(3), poteri: [aiuto("Mo faccio due cotolette", "Scarti le carte numero che vuoi e ne peschi altrettante più una", "frigge-di-tutto")] },
+    { codice: scala(5), poteri: [aiuto("Chissà se sta roba basta", "Tu peschi 4 carte numero, ogni avversario 1", "cucina-per-200")] },
   ]),
   ...persona("Nonno Nicola", [
     { codice: dispari(2), poteri: [aiutoBlu("L'orto", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero")], ricarica: 0, punti: 0 },
     { codice: somma(3, 12), poteri: [attacco("Solo per vedere comm sape", "Rubi 1 carta numero a caso dalla mano di un avversario")] },
-    { codice: piuCoppia(6, 6), poteri: [attacco("Manca 'o sale", "Ogni avversario ti dà 1 carta numero (sceglie lui quale)")] },
+    { codice: piuCoppia(6, 6), poteri: [attacco("È insipido", "Ogni avversario ti dà 1 carta numero (sceglie lui quale)", "manca-o-sale")] },
   ]),
   ...persona("Nonna Patrizia", [
     {
@@ -148,9 +152,9 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Chicca", [
-    { codice: somma(2, 8), poteri: [aiuto("Vende la carne", "Scarti un personaggio nascosto dalla mano e peschi 3 carte numero")] },
+    { codice: somma(2, 8), poteri: [aiuto("Vuoi un panino con sta roba puzzolente?", "Scarti un personaggio nascosto dalla mano e peschi 3 carte numero", "vende-la-carne")] },
     { codice: somma(3, 9), poteri: [difesa("Non sa perdere", "Annulli un attacco; se sei ultima nei punti la carta non si stanca")] },
-    { codice: doppiaCoppia, poteri: [difesa("Permalosa", "L'attacco torna a chi l'ha fatto")] },
+    { codice: doppiaCoppia, poteri: [difesa("E se poi te ne penti?", "L'attacco torna a chi l'ha fatto", "permalosa")] },
   ]),
   ...persona("Totò", [
     { codice: somma(2, 11), poteri: [attacco("Si incanta", "Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero")] },

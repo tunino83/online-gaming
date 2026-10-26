@@ -12,27 +12,27 @@ Regole usate:
 
 | Persona | Liv. | Carta | Tipo | Codice |
 | --- | --- | --- | --- | --- |
-| Antonio | 1 | Ci penso domani | ✨ | 2 carte con somma 9 |
-| Antonio | 2 | Forno a legna | ⚔️ | 3 carte con somma 18 |
-| Antonio | 3 | Ho sempre ragione io | 🛡️ | 4 carte con somma 20 |
+| Antonio | 1 | Domani lo faccio | ✨ | 2 carte con somma 9 |
+| Antonio | 2 | Alta idratazione | ⚔️ | 3 carte con somma 18 |
+| Antonio | 3 | Per me è quadrato | 🛡️ | 4 carte con somma 20 |
 | Maddalena | 1 | Non sbaglio mai / Fatto in casa | ✨ | 2 carte pari |
 | Maddalena | 2 | Non è colpa mia | 🛡️ | 3 carte dispari |
 | Maddalena | 3 | È colpa di qualcun altro | 🛡️ | Doppia coppia |
 | Nonno Salvatore | 1 | Te l'ho già detto? | ✨ | Coppia |
 | Nonno Salvatore | 2 | L'ho già detto | ✨ | Tris |
 | Nonno Salvatore | 3 | Sempre la stessa storia | ✨ | Poker |
-| Nonna Dina | 1 | Sposta i mobili | ✨ | 2 carte con somma 7 |
-| Nonna Dina | 2 | Frigge di tutto | ✨ | 3 carte pari |
-| Nonna Dina | 3 | Cucina per 200 | ✨ | Scala da 5 |
+| Nonna Dina | 1 | Cambiamo un po'… | ✨ | 2 carte con somma 7 |
+| Nonna Dina | 2 | Mo faccio due cotolette | ✨ | 3 carte pari |
+| Nonna Dina | 3 | Chissà se sta roba basta | ✨ | Scala da 5 |
 | Nonno Nicola | 1 | L'orto | ✨ | 2 carte dispari |
 | Nonno Nicola | 2 | Solo per vedere comm sape | ⚔️ | 3 carte con somma 12 |
-| Nonno Nicola | 3 | Manca 'o sale | ⚔️ | 66 + una coppia qualsiasi |
+| Nonno Nicola | 3 | È insipido | ⚔️ | 66 + una coppia qualsiasi |
 | Nonna Patrizia | 1 | Mercatino | ✨ | 2 carte con somma 10 |
 | Nonna Patrizia | 2 | Nuvola di fumo | 🛡️ | Scala da 3 |
 | Nonna Patrizia | 3 | Baratto | ⚔️ | 4 carte dispari |
-| Chicca | 1 | Vende la carne | ✨ | 2 carte con somma 8 |
+| Chicca | 1 | Vuoi un panino con sta roba puzzolente? | ✨ | 2 carte con somma 8 |
 | Chicca | 2 | Non sa perdere | 🛡️ | 3 carte con somma 9 |
-| Chicca | 3 | Permalosa | 🛡️ | Doppia coppia |
+| Chicca | 3 | E se poi te ne penti? | 🛡️ | Doppia coppia |
 | Totò | 1 | Si incanta | ⚔️ | 2 carte con somma 11 |
 | Totò | 2 | Brace accesa | ✨ | 3 carte con somma 15 |
 | Totò | 3 | Grigliata | ✨ | 4 carte pari |

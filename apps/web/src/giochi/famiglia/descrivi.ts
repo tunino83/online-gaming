@@ -15,7 +15,7 @@ export function nomeCarta(idCarta: string): string {
 
 const nomeCopia = (idCopia: string) => nomeCarta(cartaDiCopia(idCopia));
 
-/** Nome di un potere (es. "forno-a-legna" → "Forno a legna"), cercandolo nella carta. */
+/** Nome di un potere (es. "forno-a-legna" → "Alta idratazione"), cercandolo nella carta. */
 export function nomePotere(idCarta: string, potere: string): string {
   return carta(idCarta).poteri.find((p) => p.id === potere)?.nome ?? potere;
 }

@@ -6,9 +6,9 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
-| Antonio | 2 | **Forno a legna** | Un avversario scarta 2 carte numero (sceglie lui quali) | 3 carte con somma 18 | ricarica 2 |
+| Antonio | 2 | **Alta idratazione** | Un avversario scarta 2 carte numero (sceglie lui quali) | 3 carte con somma 18 | ricarica 2 |
 | Nonno Nicola | 2 | **Solo per vedere comm sape** | Rubi 1 carta numero a caso dalla mano di un avversario | 3 carte con somma 12 | ricarica 2 |
-| Nonno Nicola | 3 | **Manca 'o sale** | Ogni avversario ti dà 1 carta numero (sceglie lui quale) | 66 + una coppia qualsiasi | ricarica 3 |
+| Nonno Nicola | 3 | **È insipido** | Ogni avversario ti dà 1 carta numero (sceglie lui quale) | 66 + una coppia qualsiasi | ricarica 3 |
 | Nonna Patrizia | 3 | **Baratto** | Scambi una tua carta attivata con una attivata di un avversario (punti compresi), dello stesso livello o con un livello di differenza; tutte e due diventano stanche | 4 carte dispari | ricarica 3 |
 | Totò | 1 | **Si incanta** | Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero | 2 carte con somma 11 | ricarica 1 |
 | Checca | 1 | **Schietta** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
@@ -43,12 +43,12 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
-| Antonio | 3 | **Ho sempre ragione io** | Annulli qualsiasi attacco contro di te, anche di livello 3 | 4 carte con somma 20 | ricarica 3 |
+| Antonio | 3 | **Per me è quadrato** | Annulli qualsiasi attacco contro di te, anche di livello 3 | 4 carte con somma 20 | ricarica 3 |
 | Maddalena | 2 | **Non è colpa mia** | L'attacco va a un altro giocatore a tua scelta | 3 carte dispari | ricarica 2 |
 | Maddalena | 3 | **È colpa di qualcun altro** | L'attacco va a un altro giocatore a tua scelta, che non può difendersi | Doppia coppia | ricarica 3 |
 | Nonna Patrizia | 2 | **Nuvola di fumo** | Fino al tuo prossimo turno nessuno può attaccarti | Scala da 3 | ricarica 2, anche nel tuo turno |
 | Chicca | 2 | **Non sa perdere** | Annulli un attacco; se sei ultima nei punti la carta non si stanca | 3 carte con somma 9 | ricarica 2 |
-| Chicca | 3 | **Permalosa** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
+| Chicca | 3 | **E se poi te ne penti?** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
 | Francesco | 3 | **Si arrabbia** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
 | Gerardina | 1 | **Sempre calma** | Annulli un attacco di livello 1 | Coppia | ricarica 1 |
 | Marika | 1 | **Forse c'è, forse no** | Giri la prossima carta numero: dispari annulli l'attacco, pari ti colpisce; la carta va in mano a te | Coppia | ricarica 1 |
@@ -78,18 +78,18 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
-| Antonio | 1 | **Ci penso domani** | Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
+| Antonio | 1 | **Domani lo faccio** | Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
 | Maddalena | 1 | 🔵 **Non sbaglio mai** | Una volta per turno, subito dopo una pescata cambi la carta con un'altra | 2 carte pari | blu (anche da stanca) |
 | Maddalena | 1 | **Fatto in casa** | Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 2 carte pari | ricarica 1 |
 | Nonno Salvatore | 1 | **Te l'ho già detto?** | Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto | Coppia | ricarica 1, gratis |
 | Nonno Salvatore | 2 | **L'ho già detto** | Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto | Tris | ricarica 2, gratis |
 | Nonno Salvatore | 3 | **Sempre la stessa storia** | Copi l'ultimo potere giocato al tavolo da chiunque | Poker | ricarica 3 |
-| Nonna Dina | 1 | **Sposta i mobili** | Cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | 2 carte con somma 7 | ricarica 1, gratis |
-| Nonna Dina | 2 | **Frigge di tutto** | Scarti le carte numero che vuoi e ne peschi altrettante più una | 3 carte pari | ricarica 2 |
-| Nonna Dina | 3 | **Cucina per 200** | Tu peschi 4 carte numero, ogni avversario 1 | Scala da 5 | ricarica 3 |
+| Nonna Dina | 1 | **Cambiamo un po'…** | Cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | 2 carte con somma 7 | ricarica 1, gratis |
+| Nonna Dina | 2 | **Mo faccio due cotolette** | Scarti le carte numero che vuoi e ne peschi altrettante più una | 3 carte pari | ricarica 2 |
+| Nonna Dina | 3 | **Chissà se sta roba basta** | Tu peschi 4 carte numero, ogni avversario 1 | Scala da 5 | ricarica 3 |
 | Nonno Nicola | 1 | 🔵 **L'orto** | A inizio di ogni tuo turno peschi 1 carta numero | 2 carte dispari | blu |
 | Nonna Patrizia | 1 | 🔵 **Mercatino** | Una volta per turno scambi una carta in mano con una degli scarti | 2 carte con somma 10 | blu |
-| Chicca | 1 | **Vende la carne** | Scarti un personaggio nascosto dalla mano e peschi 3 carte numero | 2 carte con somma 8 | ricarica 1 |
+| Chicca | 1 | **Vuoi un panino con sta roba puzzolente?** | Scarti un personaggio nascosto dalla mano e peschi 3 carte numero | 2 carte con somma 8 | ricarica 1 |
 | Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |
 | Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3, gratis |
 | Checca | 2 | **La vetrina della collezione** | Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici | 123 | ricarica 2 |

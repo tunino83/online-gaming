@@ -85,7 +85,7 @@ describe("annunci a schermo", () => {
       { idCarta: "toto-1", quando: "ATT", potere: "si-incanta" },
     ]);
     const t = partita();
-    t.giocatori.anna!.attivati.push({ copia: { id: "nonna-dina-1#1", carta: "nonna-dina-1" }, stanca: 0 }); // Sposta i mobili (aiuto)
+    t.giocatori.anna!.attivati.push({ copia: { id: "nonna-dina-1#1", carta: "nonna-dina-1" }, stanca: 0 }); // Cambiamo un po'… (aiuto)
     expect(dopoLaMossa(t, { tipo: "potere", carta: "nonna-dina-1#1", potere: "sposta-i-mobili" }, "carla").voci).toEqual([
       { idCarta: "nonna-dina-1", quando: "AIU", potere: "sposta-i-mobili" },
     ]);

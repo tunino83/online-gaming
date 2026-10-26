@@ -11,12 +11,12 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 
 | N. | Difesa | Carta | Livello | Codice |
 | --- | --- | --- | --- | --- |
-| D1 | Ho sempre ragione io | Antonio 3 | 3 | 4 carte con somma 20 |
+| D1 | Per me è quadrato | Antonio 3 | 3 | 4 carte con somma 20 |
 | D2 | Non è colpa mia | Maddalena 2 | 2 | 3 carte dispari |
 | D3 | È colpa di qualcun altro | Maddalena 3 | 3 | Doppia coppia |
 | D4 | Nuvola di fumo | Nonna Patrizia 2 | 2 | Scala da 3 |
 | D5 | Non sa perdere | Chicca 2 | 2 | 3 carte con somma 9 |
-| D6 | Permalosa | Chicca 3 | 3 | Doppia coppia |
+| D6 | E se poi te ne penti? | Chicca 3 | 3 | Doppia coppia |
 | D7 | Si arrabbia | Francesco 3 | 3 | 4 carte con somma 20 |
 | D8 | Sempre calma | Gerardina 1 | 1 | Coppia |
 | D9 | Forse c'è, forse no | Marika 1 | 1 | Coppia |
@@ -45,9 +45,9 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 
 | Attacco | Liv. | Contro | D1 | D2 | D3 | D4 | D5 | D6 | D7 | D8 | D9 | D10 | D11 | D12 | D13 | D14 | D15 | D16 | D17 | D18 | D19 | D20 | D21 | D22 | D23 | D24 | D25 | D26 | D27 | D28 | D29 | Fermano |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Forno a legna (Antonio 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
+| Alta idratazione (Antonio 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
 | Solo per vedere comm sape (Nonno Nicola 2) | 2 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
-| Manca 'o sale (Nonno Nicola 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
+| È insipido (Nonno Nicola 3) | 3 | tutti | ✓ | · | · | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 6 |
 | Baratto (Nonna Patrizia 3) | 3 | uno | ✓ | · | ↪ | · | · | 🔁 | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
 | Si incanta (Totò 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
 | Schietta (Checca 1) | 1 | uno | ✓ | ↪ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |

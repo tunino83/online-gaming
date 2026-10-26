@@ -26,7 +26,7 @@ export interface StatoGiocatore {
   /** Personaggi di attacco e carte attacco in attesa, scoperti. */
   attacchi: CopiaCarta[];
   attivati: Attivato[];
-  /** Mosse in più (o in meno, se negativo) nel prossimo turno (Ci penso domani, Si incanta, Rospe…). */
+  /** Mosse in più (o in meno, se negativo) nel prossimo turno (Domani lo faccio, Si incanta, Rospe…). */
   mosseProssimoTurno: number;
   /** Nel prossimo turno non può usare poteri (Parla parla parla). */
   zittoProssimoTurno: boolean;
@@ -102,7 +102,7 @@ export interface AttaccoInCorso {
   parametri: ParametriPotere;
   /** Chi è colpito adesso. */
   bersaglio: IdGiocatore;
-  /** Chi gli ha mandato l'attacco: l'attaccante, o chi l'ha deviato o rimandato (Maddalena, Permalosa). */
+  /** Chi gli ha mandato l'attacco: l'attaccante, o chi l'ha deviato o rimandato (Maddalena, E se poi te ne penti?). */
   da: IdGiocatore;
   /** Chi sarà colpito dopo (attacchi contro tutti). */
   coda: IdGiocatore[];
@@ -244,7 +244,7 @@ export const LUNGHEZZA_REGISTRO = 40;
 
 /** Parametri di un potere (servono solo quelli del potere usato). */
 export interface ParametriPotere {
-  /** Carte numero della propria mano (Frigge di tutto, Vetrina, Fatto in casa, Lezione di padel). */
+  /** Carte numero della propria mano (Mo faccio due cotolette, Vetrina, Fatto in casa, Lezione di padel). */
   carte?: string[];
   /** Posizioni sul tavolo (Scaffale, Lezione di padel). */
   posizioni?: number[];
@@ -254,7 +254,7 @@ export interface ParametriPotere {
   giocatore?: IdGiocatore;
   /** Più giocatori scelti (Invasione di campo: 2 avversari). */
   giocatori?: IdGiocatore[];
-  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vende la carne, Ricetta, Mercatino). */
+  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vuoi un panino con sta roba puzzolente?, Ricetta, Mercatino). */
   bersaglio?: string;
   /** Più carte attivate scelte (Brace accesa: le carte stanche da ricaricare). */
   bersagli?: string[];

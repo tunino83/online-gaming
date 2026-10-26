@@ -91,13 +91,13 @@ describe("come funziona un attacco", () => {
   });
 
   it("attacco contro tutti: un avversario alla volta, ognuno con la sua difesa", () => {
-    let s = attivata(attivata(partita(), "anna", "gerardina-3"), "carla", "chicca-3"); // Rospe per tutti; Permalosa
+    let s = attivata(attivata(partita(), "anna", "gerardina-3"), "carla", "chicca-3"); // Rospe per tutti; E se poi te ne penti?
     s = attacca(s, "gerardina-3");
     // bruno non ha difese: colpito subito; poi tocca a carla
     expect(g(s, "bruno").mosseProssimoTurno).toBe(-1);
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
     s = difendi(s, "carla", "chicca-3");
-    // Permalosa: torna all'attaccante
+    // E se poi te ne penti?: torna all'attaccante
     expect(g(s, "carla").mosseProssimoTurno).toBe(0);
     expect(g(s, "anna").mosseProssimoTurno).toBe(-1);
   });
@@ -128,7 +128,7 @@ describe("come funziona un attacco", () => {
 /* ---------------- attacchi ---------------- */
 
 describe("attacchi a un avversario", () => {
-  it("Forno a legna: l'avversario sceglie 2 carte numero da scartare", () => {
+  it("Alta idratazione: l'avversario sceglie 2 carte numero da scartare", () => {
     let s = attivata(partita(), "anna", "antonio-2");
     manoDi(s, "bruno", 1, 2, 3, 4);
     s = attacca(s, "antonio-2", { giocatore: "bruno" });
@@ -138,7 +138,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno0", "bruno2"]);
   });
 
-  it("Forno a legna con 2 carte o meno: le scarta tutte senza scegliere", () => {
+  it("Alta idratazione con 2 carte o meno: le scarta tutte senza scegliere", () => {
     let s = attivata(partita(), "anna", "antonio-2");
     manoDi(s, "bruno", 1, 2);
     s = attacca(s, "antonio-2", { giocatore: "bruno" });
@@ -373,7 +373,7 @@ describe("attacchi a un avversario", () => {
 });
 
 describe("attacchi contro tutti", () => {
-  it("Manca 'o sale: ogni avversario ti dà 1 carta (sceglie lui)", () => {
+  it("È insipido: ogni avversario ti dà 1 carta (sceglie lui)", () => {
     let s = attivata(partita(), "anna", "nonno-nicola-3");
     manoDi(s, "bruno", 1, 2);
     manoDi(s, "carla", 7);
@@ -470,7 +470,7 @@ function bruno_si_difende(difesa: string, livelloAttacco: 1 | 3 = 1): StatoParti
 }
 
 describe("difese", () => {
-  it("Ho sempre ragione io: ferma anche un attacco di livello 3", () => {
+  it("Per me è quadrato: ferma anche un attacco di livello 3", () => {
     const s = difendi(bruno_si_difende("antonio-3", 3), "bruno", "antonio-3");
     expect(g(s, "bruno").mano).toHaveLength(3);
     expect(g(s, "bruno").attivati[1]!.stanca).toBe(0); // la carta che anna voleva stancare
@@ -496,7 +496,7 @@ describe("difese", () => {
     expect(s.registro.filter((f) => f.tipo !== "punto").at(-1)).toMatchObject({ tipo: "colpito", giocatore: "carla" });
   });
 
-  it("Permalosa: l'attacco torna a chi l'ha fatto", () => {
+  it("E se poi te ne penti?: l'attacco torna a chi l'ha fatto", () => {
     const s = difendi(bruno_si_difende("chicca-3"), "bruno", "chicca-3");
     expect(g(s, "anna").mosseProssimoTurno).toBe(-1);
   });
@@ -528,7 +528,7 @@ describe("difese", () => {
   });
 
   it("Ricorso: annulli l'attacco ma paghi tante carte quanto il livello dell'attacco", () => {
-    let s = attivata(attivata(partita(), "anna", "antonio-2"), "bruno", "giuseppe-2"); // Forno a legna, livello 2
+    let s = attivata(attivata(partita(), "anna", "antonio-2"), "bruno", "giuseppe-2"); // Alta idratazione, livello 2
     manoDi(s, "bruno", 1, 2, 3, 4);
     s = attacca(s, "antonio-2", { giocatore: "bruno" });
     expect(rifiutata(s, "bruno", { tipo: "difendi", carta: "giuseppe-2#1", carte: ["bruno0"] })).toMatch(/parcella/);
@@ -663,7 +663,7 @@ describe("difese", () => {
   });
 
   it("ci si difende una volta sola per attacco", () => {
-    let s = attivata(bruno_si_difende("chicca-3"), "anna", "chicca-3", 0, 2); // anche anna ha Permalosa
+    let s = attivata(bruno_si_difende("chicca-3"), "anna", "chicca-3", 0, 2); // anche anna ha E se poi te ne penti?
     s = difendi(s, "bruno", "chicca-3"); // torna ad anna, che può difendersi
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "anna" });
     s = fai(s, "anna", { tipo: "difendi", carta: "chicca-3#2" }); // torna a bruno (chi gliel'ha rimandato), che si è già difeso

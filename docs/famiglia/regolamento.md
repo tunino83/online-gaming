@@ -88,7 +88,7 @@ Una difesa di livello 1 ferma solo attacchi di livello 1, una di livello 2 ferma
 una di livello 3 li ferma tutti. Fanno eccezione le carte che dicono già cosa fermano
 (es. Taurasi: qualsiasi attacco; Paesano: solo livello 1; Aglianico: livello 1 o 2).
 
-**Attacchi contro tutti** (Urla, Manca 'o sale, Rospe per tutti, Volo infuocato…): ogni avversario si difende
+**Attacchi contro tutti** (Urla, È insipido, Rospe per tutti, Volo infuocato…): ogni avversario si difende
 per conto suo e la sua difesa protegge solo lui. Un attacco contro tutti non si può deviare (Maddalena).
 
 **Carte rubate**: chi cura i danni (Zia Diana) recupera le carte scartate, non quelle rubate.
@@ -132,7 +132,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
 - Usare un potere costa una mossa (salvo i poteri gratis e le carte blu); dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
-- **Ci penso domani** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
+- **Domani lo faccio** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
 - **Non sbaglio mai** (Maddalena): subito dopo una pescata (numero o personaggio) scarti quella carta e ne peschi
   un'altra dallo stesso mazzo, **senza usare mosse** (deciso il 2026-10-24: è l'unico potere che non costa una mossa).
   Si può usare anche dopo l'ultima pescata del turno. La carta poi si stanca come le altre.
@@ -155,7 +155,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 
 - **Risponde solo l'attaccato**: quando c'è un attacco il gioco aspetta solo chi viene colpito (negli attacchi contro tutti,
   uno alla volta nell'ordine di turno). Ognuno si difende al massimo una volta per attacco.
-- **Antonio livello 3 "Ho sempre ragione io"**: annulla qualsiasi attacco contro di te, anche di livello 3.
+- **Antonio livello 3 "Per me è quadrato"**: annulla qualsiasi attacco contro di te, anche di livello 3.
 - **Don Pasquale "Benedizione"**: si usa nel proprio turno (costa una mossa): fino al prossimo turno di chi l'ha usata
   nessun giocatore può essere attaccato.
 - **Nuvola di fumo** si può usare in due modi: quando si è attaccati (annulla e protegge) o nel proprio turno, come un potere.
@@ -163,7 +163,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - Il gioco aspetta l'attaccato solo se ha una difesa che può usare o se l'attacco gli chiede una scelta; altrimenti
     l'attacco lo colpisce subito.
   - "Chi ti ha attaccato" (Si arrabbia, Ho appena lavato, Taurasi, Non ti sento, Una fetta di torta?) è chi ti ha mandato
-    l'attacco: dopo una deviazione di Maddalena o una Permalosa, è chi l'ha deviato o rimandato.
+    l'attacco: dopo una deviazione di Maddalena o una E se poi te ne penti?, è chi l'ha deviato o rimandato.
   - Un attacco deviato o rimandato colpisce il nuovo bersaglio con scelte a caso (es. quale carta carica far stancare).
   - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
     non fanno niente se tornano a chi li ha fatti.
@@ -185,10 +185,10 @@ e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.
 ## Poteri gratis (2026-10-25)
 
 Usare un potere costa una mossa, ma alcuni poteri **non costano mosse**: altrimenti spendere una mossa per riaverla non
-servirebbe a niente. Sono: *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto* (Nonno Salvatore 2), *Sposta i mobili* (Nonna Dina 1),
+servirebbe a niente. Sono: *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto* (Nonno Salvatore 2), *Cambiamo un po'…* (Nonna Dina 1),
 *Anima della festa* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
 Si possono usare anche a mosse finite; la carta si stanca come le altre (le blu no). Gli altri poteri che danno mosse in
-più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Ci penso domani*, *Doppio turno*).
+più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Domani lo faccio*, *Doppio turno*).
 
 ## Carte aiuto "blu" (decise il 2026-10-25)
 
@@ -223,12 +223,12 @@ Cambiate insieme alle blu (non blu, si stancano come le altre):
 ## Altri aiuti ritoccati (2026-10-25)
 
 Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare più di una mossa normale (1 carta).
-- **Sposta i mobili** (Nonna Dina 1): ora gratis.
+- **Cambiamo un po'…** (Nonna Dina 1): ora gratis.
 - **Ogni cosa al suo posto** (Nonna Maddalena 1): delle prime 5 carte numero ne prendi 1, le altre le riordini.
 - **Patate al forno** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
 - **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
 - **Ho tanta fame** (Christian): 3 carte numero; Christian non ha più la difesa *Che paura!* (2026-10-25). **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
-- Restano come sono: *Frigge di tutto* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
+- Restano come sono: *Mo faccio due cotolette* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
 
 ## Simone e Annalisa (2026-10-25)
 
@@ -322,3 +322,16 @@ che vale per tutte le partite nuove (quelle già iniziate restano con le regole 
 - il primo aiuto del turno **non** dà punti; "una attivazione per turno" resta spenta.
 Con queste regole, nei robot, le due strategie vincono più o meno alla pari in 2 giocatori (51%) e i poteri un po' di
 più in 4 (61%); le partite durano un po' meno di prima.
+
+## Poteri rinominati (2026-10-26)
+
+Cambia solo il nome (l'effetto è lo stesso):
+- Ci penso domani → **Domani lo faccio**
+- Forno a legna → **Alta idratazione**
+- Ho sempre ragione io → **Per me è quadrato**
+- Sposta i mobili → **Cambiamo un po'…**
+- Frigge di tutto → **Mo faccio due cotolette**
+- Cucina per 200 → **Chissà se sta roba basta**
+- Manca 'o sale → **È insipido**
+- Vende la carne → **Vuoi un panino con sta roba puzzolente?**
+- Permalosa → **E se poi te ne penti?**
