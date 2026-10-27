@@ -19,6 +19,9 @@
  *
  * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è la pagina dei loro dorsi, messi a specchio,
  * da stampare in fronte/retro sul lato lungo (es. pnpm stampa:famiglia personaggi --fronte-retro).
+ *
+ * Carte per foglio: --per-foglio 16 o --per-foglio 24 (carte rimpicciolite; di base 9 in formato poker).
+ * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -38,13 +41,17 @@ import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src
 const MM = 72 / 25.4;
 const L = 63.5 * MM; // larghezza della carta (poker)
 const A = 88.9 * MM; // altezza
-const COLONNE = 3;
-const RIGHE = 3;
 const PAGINA = { w: 595.28, h: 841.89 }; // A4
 /** Spazio tra una carta e l'altra, per tagliare con comodo. */
 const SPAZIO = 4 * MM;
-const MARGINE_X = (PAGINA.w - COLONNE * L - (COLONNE - 1) * SPAZIO) / 2;
-const MARGINE_Y = (PAGINA.h - RIGHE * A - (RIGHE - 1) * SPAZIO) / 2;
+/** Parte del foglio dove stanno le carte (il resto serve alle lineette di taglio e alla scritta in fondo). */
+const UTILE = { w: 200 * MM, h: 275 * MM };
+/** Quante carte per foglio si possono scegliere (colonne × righe): con 9 sono in formato poker, con di più si rimpiccioliscono. */
+const FORMATI: Record<number, { colonne: number; righe: number }> = {
+  9: { colonne: 3, righe: 3 },
+  16: { colonne: 4, righe: 4 },
+  24: { colonne: 4, righe: 6 },
+};
 /** Data fissa nel PDF: così il file è sempre identico. */
 const DATA_FISSA = new Date("2026-10-26T00:00:00Z");
 
@@ -66,8 +73,9 @@ function adesso(): string {
   return `${d.getFullYear()}-${due(d.getMonth() + 1)}-${due(d.getDate())}_${due(d.getHours())}-${due(d.getMinutes())}-${due(d.getSeconds())}`;
 }
 const quando = adesso();
-const USCITA_TUTTO = radice(`docs/famiglia/stampa/la-famiglia-carte_${quando}.pdf`);
-const USCITA_SCELTA = radice(`docs/famiglia/stampa/la-famiglia-scelta_${quando}.pdf`);
+/** Nome del PDF: "carte" (tutto) o "scelta", con le carte per foglio se non sono 9 (es. la-famiglia-carte-16_…). */
+const uscita = (cosa: "carte" | "scelta", perFoglio: number) =>
+  radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}_${quando}.pdf`);
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
 function immagine(c: Carta): string | undefined {
@@ -447,26 +455,25 @@ interface Griglia {
 }
 
 /**
- * Carte normali: 3 × 3. Carte piccole (mancia): 4 nello spazio di ogni carta normale, 6 × 6,
- * con lo stesso spazio per tagliare; la griglia è simmetrica, così i dorsi a specchio combaciano.
+ * Colonne × righe di carte al centro del foglio, con lo spazio per tagliare tra l'una e l'altra.
+ * Senza `scala` le carte sono le più grandi che ci stanno (al massimo formato poker).
+ * La griglia è simmetrica, così i dorsi a specchio combaciano.
  */
-function griglia(piccole: boolean): Griglia {
-  const scala = piccole ? (L - SPAZIO) / (2 * L) : 1;
-  const w = L * scala;
-  const h = A * scala;
-  const alto = piccole ? (A - 2 * h - SPAZIO) / 2 : 0;
-  const per = piccole ? 2 : 1;
+function griglia(colonne: number, righe: number, scala?: number): Griglia {
+  const s = scala ?? Math.min(1, (UTILE.w - (colonne - 1) * SPAZIO) / (colonne * L), (UTILE.h - (righe - 1) * SPAZIO) / (righe * A));
+  const w = L * s;
+  const h = A * s;
+  const x0 = (PAGINA.w - colonne * w - (colonne - 1) * SPAZIO) / 2;
+  const y0 = (PAGINA.h - righe * h - (righe - 1) * SPAZIO) / 2;
   const posti: Griglia["posti"] = [];
-  for (let r = 0; r < RIGHE * per; r++) {
-    for (let c = 0; c < COLONNE * per; c++) {
-      posti.push({
-        x: MARGINE_X + Math.floor(c / per) * (L + SPAZIO) + (c % per) * (w + SPAZIO),
-        y: MARGINE_Y + Math.floor(r / per) * (A + SPAZIO) + alto + (r % per) * (h + SPAZIO),
-      });
-    }
+  for (let r = 0; r < righe; r++) {
+    for (let c = 0; c < colonne; c++) posti.push({ x: x0 + c * (w + SPAZIO), y: y0 + r * (h + SPAZIO) });
   }
-  return { posti, colonne: COLONNE * per, scala };
+  return { posti, colonne, scala: s };
 }
+
+/** Mancia: carte piccole, 4 nello spazio di una carta poker (6 × 6 per foglio), qualsiasi sia il formato scelto. */
+const GRIGLIA_MANCIA = griglia(6, 6, (L - SPAZIO) / (2 * L));
 
 /** Disegna una carta nel suo posto, rimpicciolita se serve. */
 function disegna(doc: Doc, d: Disegno, x: number, y: number, scala: number) {
@@ -508,8 +515,7 @@ let pagineFatte = 0;
  * Le carte, una pagina dopo l'altra, con le linee di taglio e una scritta piccola in fondo.
  * Con `retro` dopo ogni pagina c'è quella dei dorsi, a specchio (fronte/retro sul lato lungo).
  */
-function pagine(doc: Doc, disegni: Disegno[], titolo: string, opzioni: { piccole?: boolean; retro?: Mazzo } = {}) {
-  const g = griglia(opzioni.piccole ?? false);
+function pagine(doc: Doc, disegni: Disegno[], titolo: string, g: Griglia, opzioni: { retro?: Mazzo } = {}) {
   const perPagina = g.posti.length;
   const totale = Math.ceil(disegni.length / perPagina);
   const { retro } = opzioni;
@@ -624,7 +630,8 @@ function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
 }
 
 /** Prima pagina: cosa c'è e come stampare. */
-function copertina(doc: Doc, conteggi: Record<string, number>) {
+function copertina(doc: Doc, conteggi: Record<string, number>, g: Griglia) {
+  const misura = (n: number) => (Math.round(n * g.scala * 10) / 10).toLocaleString("it-IT");
   doc.addPage({ size: "A4", margin: 0 });
   doc.font(FONT.nero).fontSize(30).fillColor("#7a4a26").text("La Famiglia", 0, 90, { width: PAGINA.w, align: "center" });
   doc.font(FONT.mano).fontSize(18).fillColor(MATITA).text("le carte da stampare", 0, 130, { width: PAGINA.w, align: "center" });
@@ -640,7 +647,9 @@ function copertina(doc: Doc, conteggi: Record<string, number>) {
     "",
     "Come stampare:",
     "- foglio A4, stampa al 100% (\"dimensione reale\", non \"adatta alla pagina\");",
-    "- ogni carta è in formato poker, 63,5 x 88,9 mm: va bene nelle bustine protettive da carte;",
+    g.scala === 1
+      ? "- ogni carta è in formato poker, 63,5 x 88,9 mm: va bene nelle bustine protettive da carte;"
+      : `- ${g.posti.length} carte per foglio, rimpicciolite a ${misura(63.5)} x ${misura(88.9)} mm (il formato poker è con 9 per foglio);`,
     "- tra una carta e l'altra ci sono 4 mm: ritagliate seguendo le lineette grigie ai bordi; un cartoncino da 200-300 g o le bustine con una carta dietro le rendono robuste;",
     "- le carte numero, la mancia e gli eventi hanno ognuno il suo dorso.",
     "",
@@ -665,14 +674,28 @@ interface Scelta {
   tabella: boolean;
   unaCopia: boolean;
   fronteRetro: boolean;
+  /** Carte per foglio: 9, 16 o 24. */
+  perFoglio: number;
 }
 
 function leggiScelta(argomenti: string[]): Scelta {
-  const parole = argomenti.filter((a) => a !== "--").map((a) => a.trim().toLowerCase()).filter(Boolean);
+  let parole = argomenti.filter((a) => a !== "--").map((a) => a.trim().toLowerCase()).filter(Boolean);
+  // --per-foglio 16 oppure --per-foglio=16
+  let perFoglio = 9;
+  const i = parole.findIndex((a) => a === "--per-foglio" || a.startsWith("--per-foglio="));
+  if (i >= 0) {
+    const conUguale = parole[i]!.includes("=");
+    perFoglio = Number(conUguale ? parole[i]!.split("=")[1] : parole[i + 1]);
+    parole = parole.filter((_, k) => k !== i && (conUguale || k !== i + 1));
+    if (!FORMATI[perFoglio]) {
+      console.error(`Carte per foglio: si può scegliere ${Object.keys(FORMATI).join(", ")} (es. --per-foglio 16).`);
+      process.exit(1);
+    }
+  }
   const unaCopia = parole.includes("--una-copia");
   const fronteRetro = parole.includes("--fronte-retro");
   const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro");
-  if (nomi.length === 0) return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro };
+  if (nomi.length === 0) return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, perFoglio };
   const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
   if (sconosciuti.length > 0) {
@@ -692,19 +715,22 @@ function leggiScelta(argomenti: string[]): Scelta {
     tabella: nomi.includes("tabella") || carte.length > 0,
     unaCopia,
     fronteRetro,
+    perFoglio,
   };
 }
 
 function crea(): void {
   const scelta = leggiScelta(process.argv.slice(2));
-  const uscita = scelta.tutto ? USCITA_TUTTO : USCITA_SCELTA;
+  const file = uscita(scelta.tutto ? "carte" : "scelta", scelta.perFoglio);
+  const formato = FORMATI[scelta.perFoglio]!;
+  const normale = griglia(formato.colonne, formato.righe);
   mkdirSync(fileURLToPath(new URL("../../../docs/famiglia/stampa/", import.meta.url)), { recursive: true });
   const doc = new PDFDocument({
     autoFirstPage: false,
     compress: true,
     info: { Title: "La Famiglia - carte da stampare", Author: "Online Gaming", Creator: "pnpm stampa:famiglia", CreationDate: DATA_FISSA, ModDate: DATA_FISSA },
   });
-  doc.pipe(createWriteStream(uscita));
+  doc.pipe(createWriteStream(file));
   doc.on("pageAdded", () => pagineFatte++);
 
   // personaggi, difese e attacchi: una carta per copia, nell'ordine del file delle carte
@@ -715,18 +741,17 @@ function crea(): void {
   const mancia = scelta.mancia ? creaMazzoMancia().map((m): Disegno => (d, x, y) => cartaMancia(d, x, y, m)) : [];
   const eventi = scelta.eventi ? EVENTI.map((e): Disegno => (d, x, y) => cartaEvento(d, x, y, e)) : [];
 
-  if (scelta.tutto) copertina(doc, { personaggi: personaggi.length, numeri: numeri.length, mancia: mancia.length, eventi: eventi.length });
+  if (scelta.tutto) copertina(doc, { personaggi: personaggi.length, numeri: numeri.length, mancia: mancia.length, eventi: eventi.length }, normale);
   if (scelta.tabella) tabellaPoteri(doc, scelta.carte, scelta.tutto || scelta.eventi || scelta.mancia);
   const retro = (mazzo: Mazzo) => (scelta.fronteRetro ? mazzo : undefined);
-  if (personaggi.length > 0) pagine(doc, personaggi, "personaggi", { retro: retro("personaggi") });
-  if (numeri.length > 0) pagine(doc, numeri, "carte numero", { retro: retro("numeri") });
-  if (mancia.length > 0) pagine(doc, mancia, "mancia dei nonni", { piccole: true, retro: retro("mancia") });
-  if (eventi.length > 0) pagine(doc, eventi, "eventi", { retro: retro("eventi") });
+  if (personaggi.length > 0) pagine(doc, personaggi, "personaggi", normale, { retro: retro("personaggi") });
+  if (numeri.length > 0) pagine(doc, numeri, "carte numero", normale, { retro: retro("numeri") });
+  if (mancia.length > 0) pagine(doc, mancia, "mancia dei nonni", GRIGLIA_MANCIA, { retro: retro("mancia") });
+  if (eventi.length > 0) pagine(doc, eventi, "eventi", normale, { retro: retro("eventi") });
   if (scelta.dorsi) {
     for (const mazzo of ["personaggi", "numeri", "mancia", "eventi"] as const) {
-      const piccole = mazzo === "mancia";
-      const quanti = griglia(piccole).posti.length;
-      pagine(doc, Array.from({ length: quanti }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`, { piccole });
+      const g = mazzo === "mancia" ? GRIGLIA_MANCIA : normale;
+      pagine(doc, Array.from({ length: g.posti.length }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`, g);
     }
   }
   if (personaggi.length + numeri.length + mancia.length + eventi.length === 0 && !scelta.tabella && !scelta.dorsi) {
@@ -734,7 +759,7 @@ function crea(): void {
     process.exit(1);
   }
   doc.end();
-  console.log(`PDF: ${uscita}`);
+  console.log(`PDF: ${file}`);
   console.log(`Carte: ${personaggi.length} personaggi, ${numeri.length} numeri, ${mancia.length} mancia, ${eventi.length} eventi`);
 }
 

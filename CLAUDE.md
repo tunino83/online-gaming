@@ -43,6 +43,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.
   Carte da stampare: `pnpm stampa:famiglia` → `docs/famiglia/stampa/la-famiglia-carte_<data_ora>.pdf` (A4, 9 carte formato poker per pagina staccate di 4 mm,
   mancia piccola 4 per posto, dorsi in fondo; con `--fronte-retro` ogni pagina è seguita dai suoi dorsi a specchio;
+  `--per-foglio 16|24` carte rimpicciolite, file `la-famiglia-carte-16_…`;
   contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
   Sulle carte solo il nome del potere; i testi sono nella tabella dei poteri all'inizio. Solo alcune carte:
   `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta_<data_ora>.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).
@@ -135,6 +136,11 @@ Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una ca
 Simulazione: `pnpm simula:famiglia [n] [mazzo]` (`src/simulazione.ts`) scrive `docs/famiglia/statistiche-simulazione.md`
 (o `statistiche-simulazione-mazzo.md`): durata, vantaggio di chi comincia, carte forti/deboli rispetto al loro livello, attacchi e difese.
 Ancora da fare: effetti di Pranzo della domenica e Ferragosto.
+Possibile evoluzione (idea del 2026-10-27, non decisa, per ora non si fa): **costo degli attacchi**, cioè per usare un attacco
+attivato si scartano carte numero quante il suo livello. Motivo: con le regole C1 in 4 giocatori il robot "poteri" vince il 61%.
+Dubbi da chiarire prima: carte qualsiasi o con un valore minimo, mancia e caffè valgono, vale per le carte attacco "una volta",
+ogni uso o solo il primo, si paga anche se l'attacco viene fermato, togliere la mossa o accorciare la ricarica per non pagare
+tre volte. Da provare prima come opzione, con `pnpm strategie:famiglia`.
 
 ## Secondo gioco: Ufficio (in costruzione)
 
