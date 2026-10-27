@@ -20,7 +20,7 @@
  * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è la pagina dei loro dorsi, messi a specchio,
  * da stampare in fronte/retro sul lato lungo (es. pnpm stampa:famiglia personaggi --fronte-retro).
  *
- * Carte per foglio: --per-foglio 16 o --per-foglio 24 (carte rimpicciolite; di base 9 in formato poker).
+ * Carte per foglio: --per-foglio 16 o --per-foglio 30 (carte rimpicciolite; di base 9 in formato poker).
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
@@ -50,7 +50,7 @@ const UTILE = { w: 200 * MM, h: 275 * MM };
 const FORMATI: Record<number, { colonne: number; righe: number }> = {
   9: { colonne: 3, righe: 3 },
   16: { colonne: 4, righe: 4 },
-  24: { colonne: 4, righe: 6 },
+  30: { colonne: 5, righe: 6 },
 };
 /** Data fissa nel PDF: così il file è sempre identico. */
 const DATA_FISSA = new Date("2026-10-26T00:00:00Z");
@@ -674,7 +674,7 @@ interface Scelta {
   tabella: boolean;
   unaCopia: boolean;
   fronteRetro: boolean;
-  /** Carte per foglio: 9, 16 o 24. */
+  /** Carte per foglio: 9, 16 o 30. */
   perFoglio: number;
 }
 
