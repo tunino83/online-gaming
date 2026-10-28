@@ -23,7 +23,7 @@
  * Carte per foglio: --per-foglio 16 o --per-foglio 30 (carte rimpicciolite; di base 9 in formato poker).
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
  *
- * Dorsi che consumano poco inchiostro: --dorso-leggero (fondo bianco, solo la cornice e uno stemma al centro con il
+ * Dorsi che consumano poco inchiostro: --dorso-leggero (fondo bianco, cornice dorata con il bordo colorato del mazzo, uno stemma al centro con il
  * nome scritto in cerchio, uguale anche capovolto). Il file finisce con "-leggero" (es. la-famiglia-carte-16-leggero_<data_ora>.pdf).
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
@@ -458,10 +458,13 @@ function dorsoLeggero(doc: Doc, x: number, y: number, mazzo: Mazzo) {
   const d = DORSI[mazzo];
   const cx = x + L / 2;
   const cy = y + A / 2;
+  // bordo colorato del mazzo (solo una fascia, dentro la cornice dorata)
+  doc.roundedRect(x + 2, y + 2, L - 4, A - 4, 8.5).roundedRect(x + 8, y + 8, L - 16, A - 16, 5).fill(d.chiaro, "even-odd");
   doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(1.6).stroke(ORO);
-  doc.roundedRect(x + 7, y + 7, L - 14, A - 14, 6).lineWidth(0.5).dash(1, { space: 2.5 }).stroke(ORO).undash();
+  doc.roundedRect(x + 8, y + 8, L - 16, A - 16, 5).lineWidth(0.8).stroke(ORO);
+  doc.roundedRect(x + 11, y + 11, L - 22, A - 22, 4).lineWidth(0.5).dash(1, { space: 2.5 }).stroke(ORO).undash();
   // stelline negli angoli (uguali a coppie opposte)
-  for (const [sx, sy] of [[x + 15, y + 15], [x + L - 15, y + 15], [x + 15, y + A - 15], [x + L - 15, y + A - 15]] as const) {
+  for (const [sx, sy] of [[x + 18, y + 18], [x + L - 18, y + 18], [x + 18, y + A - 18], [x + L - 18, y + A - 18]] as const) {
     scintilla(doc, sx, sy, 3.5, ORO);
   }
   // stemma: due anelli e un ottagono vuoto con una stella al centro
