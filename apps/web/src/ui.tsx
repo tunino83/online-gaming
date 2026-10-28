@@ -33,10 +33,20 @@ export function Logo({ dimensione = 40 }: { dimensione?: number }) {
   );
 }
 
-export function Pagina({ children, inGioco }: { children: ReactNode; /** durante la partita: niente titolo, poco margine */ inGioco?: boolean }) {
+export function Pagina({
+  children,
+  inGioco,
+  larga,
+}: {
+  children: ReactNode;
+  /** durante la partita: niente titolo, poco margine */
+  inGioco?: boolean;
+  /** sul computer la pagina si allarga (es. la guida della Famiglia) */
+  larga?: boolean;
+}) {
   if (inGioco) return <div className="mx-auto min-h-dvh max-w-md px-3 md:max-w-2xl xl:max-w-6xl">{children}</div>;
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-6">
+    <div className={`mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-6 ${larga ? "md:max-w-3xl xl:max-w-6xl" : ""}`}>
       <div className="flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-titolo text-2xl font-bold text-oro-chiaro">
           <Logo dimensione={36} />

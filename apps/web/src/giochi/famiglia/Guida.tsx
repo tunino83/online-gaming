@@ -28,7 +28,11 @@ function trovata(c: Carta, cerca: string): "nome" | "testo" | null {
   return null;
 }
 
-export function GuidaFamiglia() {
+/**
+ * Con `larga` (pagina delle regole e guida in partita) sul computer il testo va su 2 colonne e le carte su 2 o 3:
+ * sul telefono resta tutto in colonna.
+ */
+export function GuidaFamiglia({ larga = false }: { larga?: boolean }) {
   const [cerca, setCerca] = useState("");
   const parole = pulito(cerca);
   return (
@@ -43,13 +47,16 @@ export function GuidaFamiglia() {
           className="w-full rounded-xl border-2 border-oro/60 bg-white px-3 py-2 text-base text-inchiostro shadow-sm outline-none focus:border-oro"
         />
       </div>
-      {parole ? <RisultatiRicerca cerca={parole} /> : <TestoGuida />}
+      {parole ? <RisultatiRicerca cerca={parole} larga={larga} /> : <TestoGuida larga={larga} />}
     </div>
   );
 }
 
 /** Le carte che corrispondono alla ricerca: prima quelle trovate per nome, poi quelle trovate nel testo dei poteri. */
-function RisultatiRicerca({ cerca }: { cerca: string }) {
+/** Elenco delle carte: sul computer, nella guida larga, su 2 o 3 colonne. */
+const elencoCarte = (larga: boolean) => (larga ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3");
+
+function RisultatiRicerca({ cerca, larga }: { cerca: string; larga: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
   const persone = new Map<string, { carte: Carta[]; prima: Carta; perNome: boolean }>();
   for (const c of IN_ORDINE) {
@@ -64,7 +71,7 @@ function RisultatiRicerca({ cerca }: { cerca: string }) {
   return (
     <div>
       <p className="mb-2 text-sm">{trovate.length === 1 ? "1 carta trovata" : `${trovate.length} carte trovate`}</p>
-      <ul className="space-y-3">
+      <ul className={elencoCarte(larga)}>
         {trovate.map((x) => (
           <li key={`${x.prima.persona}-${x.prima.id}`}>
             <Carosello carte={x.carte} iniziale={x.carte.indexOf(x.prima)} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
@@ -76,9 +83,9 @@ function RisultatiRicerca({ cerca }: { cerca: string }) {
   );
 }
 
-function TestoGuida() {
+function TestoGuida({ larga }: { larga: boolean }) {
   return (
-    <>
+    <div className={larga ? "space-y-4 md:grid md:grid-cols-2 md:items-start md:gap-x-8 md:gap-y-5 md:space-y-0" : "space-y-4"}>
       <Voce titolo="🎯 Scopo">
         <p>
           Attiva i parenti per fare punti e usa i loro poteri per aiutarti, attaccare gli altri e difenderti. Di solito vince chi
@@ -212,10 +219,12 @@ function TestoGuida() {
         </ul>
       </Voce>
 
-      <Voce titolo="🃏 Tutte le carte">
-        <CatalogoFamiglia />
-      </Voce>
-    </>
+      <div className="md:col-span-2">
+        <Voce titolo="🃏 Tutte le carte">
+          <CatalogoFamiglia larga={larga} />
+        </Voce>
+      </div>
+    </div>
   );
 }
 
@@ -240,7 +249,7 @@ const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).f
  * Elenco di tutte le carte: una persona per riga, con la carta grande. Per gli adulti le frecce (o il dito)
  * fanno girare le 3 carte dei vari livelli. Toccando la carta si apre a tutto schermo.
  */
-export function CatalogoFamiglia() {
+export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
   const copie = CARTE.reduce((n, c) => n + c.copie, 0);
   return (
@@ -251,7 +260,7 @@ export function CatalogoFamiglia() {
       {GRUPPI.map((g) => (
         <div key={g.titolo} className="mb-5">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
-          <ul className="space-y-3">
+          <ul className={elencoCarte(larga)}>
             {perPersona(g.filtro).map((carte) => (
               <li key={carte[0]!.persona}>
                 <Carosello carte={carte} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />

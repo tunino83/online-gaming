@@ -97,7 +97,7 @@ export function PaginaRegole() {
     </button>
   );
   return (
-    <Pagina>
+    <Pagina larga={famiglia}>
       <div className="grid grid-cols-2 gap-2">
         {scheda(!famiglia, "✨ Il Portale", "")}
         {scheda(famiglia, "👨‍👩‍👧 La Famiglia", "famiglia")}
@@ -105,7 +105,7 @@ export function PaginaRegole() {
       <Riquadro titolo={famiglia ? "📖 La Famiglia · Come si gioca" : "📖 Il Portale · Come si gioca"}>
         {famiglia ? (
           <Suspense fallback={<Caricamento testo="Apro la guida…" />}>
-            <GuidaFamiglia />
+            <GuidaFamiglia larga />
           </Suspense>
         ) : (
           <TestoRegole />

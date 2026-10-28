@@ -542,8 +542,8 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
         </Foglio>
       )}
       {guida && (
-        <Foglio titolo="📖 Come si gioca" onChiudi={() => setGuida(false)}>
-          <GuidaFamiglia />
+        <Foglio titolo="📖 Come si gioca" onChiudi={() => setGuida(false)} largo>
+          <GuidaFamiglia larga />
         </Foglio>
       )}
       {tutteLeMosse && (
@@ -1097,11 +1097,11 @@ function BottoneBarra({ children, onClick, disabled, variante = "pieno" }: { chi
   );
 }
 
-function Foglio({ titolo, onChiudi, children }: { titolo: string; onChiudi?: () => void; children: ReactNode }) {
+function Foglio({ titolo, onChiudi, largo, children }: { titolo: string; onChiudi?: () => void; largo?: boolean; children: ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={onChiudi}>
       <div
-        className="fm-foglio max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl border-2 border-oro bg-gradient-to-b from-[#fbf3df] to-[#f1e2bf] p-4 text-inchiostro sm:rounded-2xl"
+        className={`fm-foglio max-h-[88dvh] w-full max-w-lg ${largo ? "md:max-w-3xl xl:max-w-6xl" : ""} overflow-y-auto rounded-t-2xl border-2 border-oro bg-gradient-to-b from-[#fbf3df] to-[#f1e2bf] p-4 text-inchiostro sm:rounded-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between gap-2">
