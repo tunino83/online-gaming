@@ -133,12 +133,11 @@ const ADULTI: Carta[] = [
     {
       codice: somma(2, 10),
       poteri: [
-        aiutoBlu(
-          "Mercatino",
-          "Sempre attiva, una volta per turno: scambi una carta che hai in mano (numero o personaggio nascosto) con una a scelta dalla pila degli scarti dello stesso tipo",
+        aiuto(
+          "La vita è una ruota",
+          "Cambi il senso del gioco (orario/antiorario); in 2 giocatori invece tu e l'avversario vi scambiate 1 carta numero a caso. Non si usa durante l'ultimo giro",
         ),
       ],
-      ricarica: 0,
     },
     { codice: scala(3), poteri: [difesa("Nuvola di fumo", "Fino al tuo prossimo turno nessuno può attaccarti")] },
     {

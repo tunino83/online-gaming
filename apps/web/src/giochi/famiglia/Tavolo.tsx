@@ -600,9 +600,20 @@ export function testoStato(v: VistaGiocatore, io: string, nick: (id: string) => 
 
 export function BarraStato({ v, io, nick, secondi, difesa }: { v: VistaGiocatore; io: string; nick: (id: string) => string; secondi: number | null; difesa: boolean }) {
   const testo = testoStato(v, io, nick);
+  // Senso del gioco (La vita è una ruota): con 3 o più giocatori si mostra chi gioca dopo
+  const i = v.ordine.indexOf(v.turno.giocatore);
+  const prossimo = v.ordine.length > 2 && i >= 0 ? v.ordine[(i + 1) % v.ordine.length]! : null;
   return (
     <div className="flex items-center justify-between gap-2 rounded-xl border border-oro/50 bg-black/20 px-3 py-2">
       <span className="font-titolo font-bold text-oro-chiaro">{testo}</span>
+      {prossimo && !v.finita && (
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${v.antiorario ? "bg-[#ff7ad9] text-[#2b1a05]" : "bg-white/15"}`}
+          title={v.antiorario ? "Si gioca al contrario (La vita è una ruota)" : "Senso del gioco"}
+        >
+          {v.antiorario ? "↺" : "↻"} poi {prossimo === io ? "tu" : nick(prossimo)}
+        </span>
+      )}
       {secondi !== null && !v.finita && (
         <span className="shrink-0 rounded-full bg-rosso px-2 py-0.5 text-xs font-bold text-white">
           {difesa ? "⏱ difesa" : "⏱ computer"} {secondi}s

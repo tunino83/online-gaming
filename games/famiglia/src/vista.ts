@@ -56,6 +56,8 @@ export interface VistaGiocatore {
   attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile"> | null;
   /** Benedizione di Don Pasquale in corso (di chi). */
   benedizione: IdGiocatore | null;
+  /** La vita è una ruota: si gioca in senso antiorario. */
+  antiorario: boolean;
   /** Nevicava: nessuno può attaccare fino a questo turno compreso. */
   tregua: number | null;
   /** Ultimo potere usato al tavolo (per Sempre la stessa storia). */
@@ -67,9 +69,9 @@ export interface VistaGiocatore {
   /** Numero di carte coperte rimaste in ogni mazzo e negli scarti. */
   mazzi: { numeri: number; personaggi: number; mancia: number };
   scarti: { numeri: number; personaggi: number; mancia: number };
-  /** La pila degli scarti numeri è scoperta (serve al Mercatino): l'ultima è in fondo. */
+  /** La pila degli scarti numeri è scoperta (serve a Medico in famiglia): l'ultima è in fondo. */
   scartiNumeri: CartaNumero[];
-  /** La pila degli scarti personaggi è scoperta (serve al Mercatino): l'ultima è in fondo. */
+  /** La pila degli scarti personaggi è scoperta (serve a Medico in famiglia): l'ultima è in fondo. */
   scartiPersonaggi: CopiaCarta[];
   /** Ne ho viste tante (blu): le prime 2 carte del mazzo personaggi, solo nel proprio turno (la prima è in cima). */
   cimaPersonaggi?: CopiaCarta[];
@@ -125,6 +127,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
         }
       : null,
     benedizione: s.benedizione,
+    antiorario: !!s.antiorario,
     tregua: s.tregua,
     ultimoPotere: s.ultimoPotere ? { ...s.ultimoPotere } : null,
     evento: s.evento ? { ...s.evento } : null,

@@ -43,7 +43,6 @@ export const POTERI_GRATIS = new Set([
   "anima-della-festa",
   "mangia-mangia-mangia",
   // blu che si usano (una volta per turno)
-  "mercatino",
   "sono-due-etti-e-mezzo-lascio",
   "studia-il-fascicolo",
   "lezione-di-padel",
@@ -351,25 +350,26 @@ function applicaAiuto(
       g.mano.push(dalTavolo!);
       return;
     }
-    case "mercatino": {
-      // Scambio con la pila degli scarti: carta numero con carta numero, personaggio nascosto con personaggio
-      const iNumero = g.mano.findIndex((c) => c.id === m.propria);
-      const iNascosto = g.nascosti.findIndex((c) => c.id === m.propria);
-      if (iNumero >= 0) {
-        const j = s.scarti.numeri.findIndex((c) => c.id === m.bersaglio);
-        if (j < 0) rifiuta("Scegli una carta dagli scarti numeri");
-        const [presa] = s.scarti.numeri.splice(j, 1);
-        scartaNumeri(s, g.mano.splice(iNumero, 1));
-        g.mano.push(presa!);
-      } else if (iNascosto >= 0) {
-        const j = s.scarti.personaggi.findIndex((c) => c.id === m.bersaglio);
-        if (j < 0) rifiuta("Scegli una carta dagli scarti personaggi");
-        const [presa] = s.scarti.personaggi.splice(j, 1);
-        s.scarti.personaggi.push(...g.nascosti.splice(iNascosto, 1));
-        riceviCarta(s, id, presa!);
-      } else {
-        rifiuta("Scegli una carta della tua mano da scambiare");
+    case "la-vita-e-una-ruota": {
+      if (s.ultimoTurno !== null) rifiuta("Durante l'ultimo giro la ruota non gira");
+      const n = s.ordine.length;
+      if (n === 2) {
+        // In 2 il senso non cambierebbe niente: "oggi a me, domani a te", vi scambiate 1 carta numero a caso
+        const altro = avversariDopo(s, id)[0]!;
+        const o = s.giocatori[altro]!;
+        if (g.mano.length === 0 || o.mano.length === 0) rifiuta("Servono carte numero in mano a tutti e due");
+        const mia = g.mano.splice(interoTra(s.rng, 0, g.mano.length - 1), 1)[0]!;
+        const sua = o.mano.splice(interoTra(s.rng, 0, o.mano.length - 1), 1)[0]!;
+        g.mano.push(sua);
+        o.mano.push(mia);
+        return altro;
       }
+      // L'ordine si specchia attorno a chi la usa (che resta al suo posto): dopo di lui gioca chi giocava prima.
+      // Il conto dei turni e dei giri non cambia.
+      const i = s.ordine.indexOf(id);
+      const prima = [...s.ordine];
+      s.ordine = prima.map((_, j) => prima[(2 * i - j + 2 * n) % n]!);
+      s.antiorario = !s.antiorario;
       return;
     }
     case "ce-l-ho-io": {
@@ -688,20 +688,11 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       return [["caffe", "birra"], ["caffe", "colazione"], ["birra", "colazione"]].map((scelte) => ({ scelte }));
     case "frigge-di-tutto":
       return mano.length === 0 ? [] : [{ carte: mano }, ...mano.slice(0, 5).map((x) => ({ carte: [x] }))];
-    case "mercatino": {
-      // Scambi possibili: una tua carta numero con un valore diverso degli scarti; un tuo nascosto con un personaggio scartato.
-      // Carte uguali danno lo stesso scambio: se ne propone uno solo.
-      const unaPer = <T, K>(lista: T[], chiave: (x: T) => K) => [...new Map(lista.map((x) => [chiave(x), x])).values()];
-      const scartiNumeri = unaPer(s.scarti.numeri, (c) => c.valore);
-      const numeri = unaPer(
-        g.mano.filter((c) => !c.unite),
-        (c) => c.valore,
-      ).flatMap((c) => scartiNumeri.filter((x) => x.valore !== c.valore).map((x) => ({ propria: c.id, bersaglio: x.id })));
-      const scartiPersonaggi = unaPer(s.scarti.personaggi, (c) => c.carta);
-      const personaggi = unaPer(g.nascosti, (c) => c.carta).flatMap((c) =>
-        scartiPersonaggi.filter((x) => x.carta !== c.carta).map((x) => ({ propria: c.id, bersaglio: x.id })),
-      );
-      return [...numeri, ...personaggi];
+    case "la-vita-e-una-ruota": {
+      if (s.ultimoTurno !== null) return [];
+      if (s.ordine.length > 2) return [{}];
+      const altro = s.giocatori[avversariDopo(s, id)[0]!]!;
+      return g.mano.length > 0 && altro.mano.length > 0 ? [{}] : [];
     }
     case "scaffale":
       if (posizioniNumeri.length === 0) return [];

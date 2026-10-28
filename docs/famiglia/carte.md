@@ -27,7 +27,7 @@ Regole usate:
 | Nonno Nicola | 1 | L'orto | ✨ | 2 carte dispari |
 | Nonno Nicola | 2 | Solo per vedere comm sape | ⚔️ | 3 carte con somma 12 |
 | Nonno Nicola | 3 | È insipido | ⚔️ | 66 + una coppia qualsiasi |
-| Nonna Patrizia | 1 | Mercatino | ✨ | 2 carte con somma 10 |
+| Nonna Patrizia | 1 | La vita è una ruota | ✨ | 2 carte con somma 10 |
 | Nonna Patrizia | 2 | Nuvola di fumo | 🛡️ | Scala da 3 |
 | Nonna Patrizia | 3 | Baratto | ⚔️ | 4 carte dispari |
 | Chicca | 1 | Tofu Super Seitan / Puzza di brace | 🛡️✨ | 2 carte con somma 8 |

@@ -60,7 +60,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     }
     if (typeof p.bersaglio === "string") {
       const n = numeri.get(p.bersaglio);
-      const mercatino = m.tipo === "potere" && (m.potere === "mercatino" || m.potere === "medico-in-famiglia");
+      const mercatino = m.tipo === "potere" && m.potere === "medico-in-famiglia";
       parti.push(n ? `prendi il ${n.valore}` : `${mercatino ? "prendi" : "su"} ${nomeCopia(p.bersaglio)}`);
     }
     if (p.bersagli && p.bersagli.length > 0) parti.push(`ricarichi ${elenco(p.bersagli.map(nomeCopia))}`);

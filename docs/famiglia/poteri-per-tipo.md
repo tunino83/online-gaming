@@ -89,7 +89,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Dina | 2 | **Mo faccio due cotolette** | Scarti le carte numero che vuoi e ne peschi altrettante più una | 3 carte pari | ricarica 2 |
 | Nonna Dina | 3 | **Chissà se sta roba basta** | Tu peschi 4 carte numero, ogni avversario 1 | Scala da 5 | ricarica 3 |
 | Nonno Nicola | 1 | 🔵 **L'orto** | A inizio di ogni tuo turno peschi 1 carta numero | 2 carte dispari | blu |
-| Nonna Patrizia | 1 | 🔵 **Mercatino** | Una volta per turno scambi una carta in mano con una degli scarti | 2 carte con somma 10 | blu |
+| Nonna Patrizia | 1 | **La vita è una ruota** | Cambi il senso del gioco; in 2 giocatori vi scambiate 1 carta numero a caso. Non durante l'ultimo giro | 2 carte con somma 10 | ricarica 1 |
 | Chicca | 1 | 🔵 **Puzza di brace** | Sempre attiva: quando un avversario usa Brace accesa o Grigliata ricarica 1 carta in meno e tu peschi 1 carta numero | 2 carte con somma 8 | blu (anche da stanca) |
 | Chicca | 2 | 🔵 **Aperitivo** | Sempre attiva: le carte vino (Paesano, Aglianico, Taurasi) e Campari le usi senza pagarne il codice | 3 carte con somma 9 | blu |
 | Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |

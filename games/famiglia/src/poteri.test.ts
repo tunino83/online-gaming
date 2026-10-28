@@ -640,22 +640,41 @@ describe("carte blu", () => {
     expect(rifiutata(t, "anna", potere("sara-e-giuseppe-1"))).toMatch(/prima mossa/);
   });
 
-  it("Mercatino: una volta per turno scambi una tua carta con una degli scarti (numeri o personaggi)", () => {
-    let s = conCarta("nonna-patrizia-1");
-    anna(s).mano = [num(2, "mia")];
-    s.scarti.numeri = [num(8, "otto")];
-    s = usa(s, "nonna-patrizia-1", { propria: "mia", bersaglio: "otto" });
-    expect(anna(s).mano.map((c) => c.id)).toEqual(["otto"]);
-    expect(s.scarti.numeri.map((c) => c.id)).toEqual(["mia"]);
-    expect(s.turno.mosseRimaste).toBe(3);
-    expect(rifiutata(s, "anna", potere("nonna-patrizia-1", { propria: "otto", bersaglio: "mia" }))).toMatch(/una volta per turno/);
+  it("La vita è una ruota: il senso del gioco si inverte, dopo di te gioca chi giocava prima; i giri si contano come prima", () => {
+    let s = partita(); // anna → bruno → carla
+    s.turno.mosseRimaste = 1;
+    s = usa(conCarta("nonna-patrizia-1", s), "nonna-patrizia-1");
+    expect(s.ordine).toEqual(["anna", "carla", "bruno"]);
+    expect(vistaGiocatore(s, "bruno").antiorario).toBe(true);
+    expect(anna(s).attivati[0]!.stanca).toBe(1);
+    s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
+    expect(s.turno.giocatore).toBe("carla");
+    // se la usa anche carla, si torna in senso orario: dopo di lei gioca di nuovo anna
+    s.giocatori.carla!.attivati.push({ copia: copia("nonna-patrizia-1", 2), stanca: 0 });
+    s = fai(s, "carla", { tipo: "potere", carta: "nonna-patrizia-1#2", potere: "la-vita-e-una-ruota" });
+    expect(s.ordine).toEqual(["bruno", "carla", "anna"]);
+    expect(s.turno.giocatore).toBe("carla");
+    expect(vistaGiocatore(s, "bruno").antiorario).toBe(false);
+  });
 
-    let t = conCarta("nonna-patrizia-1");
-    anna(t).nascosti = [copia("paesano")];
-    t.scarti.personaggi = [copia("taurasi")];
-    t = usa(t, "nonna-patrizia-1", { propria: "paesano#1", bersaglio: "taurasi#1" });
-    expect(anna(t).nascosti.map((c) => c.carta)).toEqual(["taurasi"]);
-    expect(t.scarti.personaggi.map((c) => c.carta)).toEqual(["paesano"]);
+  it("La vita è una ruota in 2 giocatori: vi scambiate 1 carta numero a caso; non si usa durante l'ultimo giro", () => {
+    let s = conCarta("nonna-patrizia-1", partita(2));
+    anna(s).mano = [num(1, "a1")];
+    s.giocatori.bruno!.mano = [num(8, "b8")];
+    s = usa(s, "nonna-patrizia-1");
+    expect(s.ordine).toEqual(["anna", "bruno"]);
+    expect(anna(s).mano.map((c) => c.id)).toEqual(["b8"]);
+    expect(s.giocatori.bruno!.mano.map((c) => c.id)).toEqual(["a1"]);
+
+    const vuota = conCarta("nonna-patrizia-1", partita(2));
+    vuota.giocatori.bruno!.mano = [num(8, "b8")];
+    expect(mosseValide(vuota, "anna").some((m) => m.tipo === "potere")).toBe(false);
+    expect(rifiutata(vuota, "anna", potere("nonna-patrizia-1"))).toMatch(/tutti e due/);
+
+    const ultimo = conCarta("nonna-patrizia-1");
+    ultimo.ultimoTurno = 5;
+    expect(mosseValide(ultimo, "anna").some((m) => m.tipo === "potere")).toBe(false);
+    expect(rifiutata(ultimo, "anna", potere("nonna-patrizia-1"))).toMatch(/ultimo giro/);
   });
 
   it("Studia il fascicolo: una volta per turno, gratis", () => {

@@ -203,6 +203,8 @@ export interface StatoPartita {
   attacco: AttaccoInCorso | null;
   /** Benedizione di Don Pasquale: fino al prossimo turno di questo giocatore nessuno può essere attaccato. */
   benedizione: IdGiocatore | null;
+  /** La vita è una ruota: il gioco va in senso antiorario (l'ordine di turno è già girato: serve per la freccia sullo schermo). */
+  antiorario?: boolean;
   /** Nevicava: fino a questo turno compreso nessuno può attaccare. */
   tregua: number | null;
   /** Ultimo potere usato al tavolo (Sempre la stessa storia). */
@@ -276,7 +278,7 @@ export interface ParametriPotere {
   giocatore?: IdGiocatore;
   /** Più giocatori scelti (Invasione di campo: 2 avversari). */
   giocatori?: IdGiocatore[];
-  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vuoi un panino con sta roba puzzolente?, Ricetta, Mercatino). */
+  /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vuoi un panino con sta roba puzzolente?, Ricetta). */
   bersaglio?: string;
   /** Più carte attivate scelte (Brace accesa: le carte stanche da ricaricare). */
   bersagli?: string[];

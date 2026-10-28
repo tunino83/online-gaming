@@ -200,7 +200,7 @@ Alcune carte aiuto sono come le carte blu di Il Portale (sulla carta hanno il si
 
 Le carte blu:
 - **L'orto** (Nonno Nicola 1): a inizio di ogni tuo turno peschi 1 carta numero.
-- **Mercatino** (Nonna Patrizia 1): scambi una carta che hai in mano con una a scelta dalla pila degli scarti dello stesso
+- **Mercatino** (Nonna Patrizia 1, tolto il 2026-10-28: al suo posto *La vita è una ruota*): scambi una carta che hai in mano con una a scelta dalla pila degli scarti dello stesso
   tipo (carta numero con carta numero, personaggio nascosto con personaggio).
 - **Un caffè** (Generoso 1): fai sempre 4 mosse per turno invece di 3 (anche nel turno in cui la attivi).
 - **Studia il fascicolo** (Giuseppe 1): scegli un avversario e per tutto il turno vedi le sue carte in mano.
@@ -373,3 +373,15 @@ Checca si infastidisce spesso quando qualcuno fa qualcosa:
 - Un aiuto con scelte sbagliate viene rifiutato subito, senza far aspettare Checca.
 
 Anche **Schietta** (Checca 1) cambia nome: ora si chiama **Lingua Glabra** (l'effetto è lo stesso).
+
+## Nonna Patrizia: La vita è una ruota (2026-10-28)
+
+**La vita è una ruota** ✨ (Nonna Patrizia livello 1, codice 2 carte con somma 10, ricarica 1) prende il posto di *Mercatino*.
+- Con 3 o più giocatori **cambia il senso del gioco**: dopo chi la usa gioca chi giocava prima di lui (esempio
+  Anna → Bruno → Carla → Dario: se la usa Dario, dopo di lui gioca Carla, poi Bruno, poi Anna). Se qualcuno la usa di
+  nuovo, si torna nel senso di prima. I turni e i giri si contano come sempre (eventi, Nevicava, ultimo giro).
+- **In 2 giocatori** il senso non cambierebbe niente, quindi vale "oggi a me, domani a te": tu e l'avversario vi
+  scambiate 1 carta numero a caso (serve che tutti e due ne abbiate almeno una).
+- **Non si usa durante l'ultimo giro**, così tutti giocano lo stesso numero di turni.
+- È un aiuto: costa una mossa, Stuffosa lo può bloccare e, con le regole dei punti di adesso, la carta vale 0 punti.
+- Sullo schermo, accanto a di chi è il turno, una freccia ↻/↺ dice chi gioca dopo (rosa quando si gioca al contrario).
