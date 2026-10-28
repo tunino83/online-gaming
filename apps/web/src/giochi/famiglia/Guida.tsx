@@ -86,86 +86,168 @@ function RisultatiRicerca({ cerca, larga }: { cerca: string; larga: boolean }) {
 function TestoGuida({ larga }: { larga: boolean }) {
   return (
     <div className={larga ? "space-y-4 md:grid md:grid-cols-2 md:items-start md:gap-x-8 md:gap-y-5 md:space-y-0" : "space-y-4"}>
-      <Voce titolo="🎯 Scopo">
+      <Voce titolo="🎯 Scopo e fine della partita">
         <p>
-          Attiva i parenti per fare punti e usa i loro poteri per aiutarti, attaccare gli altri e difenderti. Di solito vince chi
-          arriva per primo a <strong>25 punti</strong>: quando succede si finisce il giro e si gioca <strong>un ultimo giro</strong>.
+          Attiva i parenti e la gente del paese per fare punti, e usa i loro poteri per aiutarti, attaccare gli altri e difenderti.
+        </p>
+        <p>
+          Di solito vince chi arriva per primo a <strong>25 punti</strong>: quando succede si finisce il giro e si gioca{" "}
+          <strong>un ultimo giro</strong>, così tutti fanno lo stesso numero di turni. Poi vince chi ha più punti; a parità, pareggio.
           Chi crea la partita può scegliere invece di giocare <strong>fino alla fine del mazzo</strong> dei personaggi.
         </p>
       </Voce>
 
-      <Voce titolo="🃏 Il tuo turno: 3 mosse">
+      <Voce titolo="🧺 Il tavolo">
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Prendi</strong> una carta scoperta dal tavolo (numero o personaggio), oppure <strong>pesca</strong> dal mazzo.
+            <strong>4 carte numero</strong> e <strong>2 personaggi</strong> scoperti, che chiunque può prendere nel suo turno. Quando
+            uno viene preso, se ne scopre un altro dal mazzo.
+          </li>
+          <li>I mazzi coperti: carte numero (valori da 1 a 8), personaggi (con vini, scuse e carte attacco), eventi.</li>
+          <li>Gli scarti, scoperti, e l'evento in corso, se c'è.</li>
+          <li>Si parte senza carte; l'ordine di gioco lo sorteggia il gioco.</li>
+        </ul>
+      </Voce>
+
+      <Voce titolo="🃏 Il tuo turno: 3 mosse">
+        <p>A ogni turno fai 3 mosse, scegliendo tra queste (puoi anche ripetere la stessa):</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <strong>Prendi</strong> una carta scoperta dal tavolo, oppure <strong>pesca</strong> la prima carta coperta di un mazzo.
           </li>
           <li>
             <strong>Brucia</strong>: le 4 carte numero del tavolo vanno negli scarti e ne escono 4 nuove.
           </li>
           <li>
-            <strong>Attiva</strong> un personaggio pagando il suo codice con le carte numero: va tra i tuoi attivati e ti dà i suoi punti.
+            <strong>Attiva</strong> un personaggio pagando il suo codice con le carte numero (vanno negli scarti): passa tra i tuoi
+            attivati, carico, e ti dà i suoi punti.
           </li>
           <li>
-            <strong>Usa il potere</strong> di un tuo personaggio attivato e carico.
+            <strong>Usa il potere</strong> di un tuo personaggio attivato e carico (gli attacchi anche con una carta attacco).
           </li>
           <li>
-            <strong>Pesca un evento</strong> (solo se non ce n'è già uno in corso).
+            <strong>Pesca un evento</strong>, solo se non ce n'è già uno in corso.
           </li>
         </ul>
-        <p>Puoi ripetere la stessa mossa. Finite le mosse il turno si chiude da solo.</p>
+        <p>
+          Alcuni poteri sono <strong>gratis</strong>: non costano mosse (lo dice la carta). A fine turno, se hai più di{" "}
+          <strong>7 carte numero</strong>, scegli quali scartare.
+        </p>
       </Voce>
 
-      <Voce titolo="🗂️ Le tue carte">
+      <Voce titolo="🗂️ Dove stanno le tue carte">
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Carte numero</strong> (nascoste): al massimo <strong>7</strong> a fine turno.
+            <strong>In mano, nascoste</strong>: le carte numero (al massimo 7 a fine turno) e fino a <strong>3</strong> personaggi di
+            aiuto o di difesa, vini, Campari e scuse. Gli altri sanno quante ne hai, non quali.
           </li>
           <li>
-            <strong>Nascosti in mano</strong>: personaggi di aiuto e di difesa, vini e scuse. Gli altri vedono quanti sono, non quali.
-            Al massimo <strong>3</strong>.
+            <strong>Attacchi in attesa, scoperti</strong>: i personaggi d'attacco non ancora attivati e le carte attacco, al massimo{" "}
+            <strong>3</strong>. Tutti vedono che stai preparando un attacco.
           </li>
           <li>
-            <strong>Attacchi in attesa</strong>: i personaggi d'attacco e le carte attacco stanno <strong>scoperti</strong>, tutti li
-            vedono. Al massimo <strong>3</strong>.
+            <strong>Attivati</strong>, davanti a te: ti danno punti e hanno il potere carico ⚡ o stanco 😴. Non hanno limite, tranne le
+            difese (vedi sotto).
           </li>
-          <li>
-            <strong>Attivati</strong>: i personaggi che ti danno punti. Se una zona è piena, scegli quale carta vecchia scartare.
-          </li>
+          <li>Se una zona è piena e ti arriva una carta nuova, scegli quale delle vecchie scartare.</li>
         </ul>
       </Voce>
 
-      <Voce titolo="⭐ Livelli, punti e ricarica">
+      <Voce titolo="🎨 Colori e livelli delle carte">
+        <ul className="space-y-1">
+          {(
+            [
+              ["attacco", "Attacco: colpisci uno o più avversari"],
+              ["difesa", "Difesa: ti protegge quando ti attaccano"],
+              ["aiuto", "Aiuto: un potere per te, da usare con una mossa"],
+              ["blu", "Aiuto sempre attivo (∞): funziona da solo e non si stanca"],
+              ["difesaUnaVolta", "Difesa usa e getta: vini, Campari, scuse"],
+              ["attaccoUnaVolta", "Attacco usa e getta: Tomacella, Giro aperto, Occhi 'nguoll, Vento"],
+            ] as const
+          ).map(([tipo, testo]) => (
+            <li key={tipo} className="flex items-center gap-2">
+              <Stemma tipo={tipo} dimensione={18} />
+              <span>{testo}</span>
+            </li>
+          ))}
+        </ul>
         <p>
-          Ogni adulto ha 3 carte. <strong>Livello 1</strong>: codice di 2 carte, 1 punto, potere leggero. <strong>Livello 2</strong>: 3
-          carte, 2 punti. <strong>Livello 3</strong>: 4–5 carte, 3 punti, potere forte.
+          Le <strong>stelle ★</strong> dicono il livello (da 1 a 3). Il livello conta per i punti, per la ricarica e negli scontri tra
+          attacchi e difese.
+        </p>
+      </Voce>
+
+      <Voce titolo="⭐ Punti e ricarica">
+        <p>
+          Ogni adulto ha 3 carte: <strong>livello 1</strong> (codice di 2 carte, 1 punto), <strong>livello 2</strong> (3 carte, 2
+          punti), <strong>livello 3</strong> (4–5 carte, 3 punti, potere forte). Le carte <strong>solo aiuto</strong> (gialle e verdi)
+          valgono <strong>0 punti</strong>: si attivano per usarle.
         </p>
         <p>
-          Dopo aver usato un potere la carta <strong>si stanca</strong> 😴 e si ricarica in tanti turni quanto il suo livello (a ogni
-          inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne quelli gratis, come la <em>Grigliata</em>).
+          🎯 <strong>+1 punto</strong> ogni volta che un tuo <strong>attacco va a segno</strong> (una volta per attacco, anche se colpisce
+          più avversari) e ogni volta che una tua <strong>difesa ferma un attacco</strong>. Questi punti restano anche se poi perdi le
+          carte. <strong>Famiglia al completo</strong>: le 3 carte della stessa persona attivate danno <strong>+2 punti</strong>.
         </p>
         <p>
-          <span className="mr-1 inline-block align-middle">
-            <Stemma tipo="blu" dimensione={18} />
-          </span>
-          <strong>Carte sempre attive (∞)</strong>: alcune carte aiuto, dopo averle attivate, sono <strong>sempre attive</strong>: non si
-          stancano mai e non costano mosse. Ogni effetto vale una volta per turno (es. <em>Un caffè</em>: fai sempre 4 mosse).
-        </p>
-        <p>
-          <strong>Famiglia al completo</strong>: se attivi tutte e 3 le carte della stessa persona prendi <strong>+2 punti</strong>.
-        </p>
-        <p>
-          🎯 <strong>Punti dai poteri</strong>: le carte <strong>solo aiuto</strong> (✨, anche le blu) <strong>non danno punti</strong>:
-          si attivano per usarle. In compenso prendi <strong>+1 punto</strong> ogni volta che un tuo <strong>attacco va a segno</strong>
-          (una volta per attacco, anche se colpisce più avversari) e ogni volta che una tua <strong>difesa ferma un attacco</strong>.
-          Questi punti restano anche se poi perdi le carte.
+          😴 Usato il potere, la carta <strong>si stanca</strong> per tanti turni quanto il suo livello (la ricarica è scritta sulla
+          carta). All'inizio di ogni tuo turno recupera un turno; arrivata a zero è di nuovo carica. Le carte sempre attive (∞) non si
+          stancano mai e ogni loro effetto vale una volta per turno.
         </p>
       </Voce>
 
       <Voce titolo="🔢 Codici">
         <p>
-          Numeri esatti (es. 2 5), coppia, tris, poker, somma (es. 3 carte con somma 15), scala, doppia coppia, carte pari o
-          dispari, carte qualsiasi. Le carte usate vanno negli scarti.
+          Numeri esatti (es. 2 5), coppia, tris, poker, doppia coppia, somma (es. 3 carte che fanno 15), scala, carte tutte pari o
+          tutte dispari, carte qualsiasi. Le carte usate vanno negli scarti. Una banconota della mancia vale come una carta numero.
         </p>
+      </Voce>
+
+      <Voce titolo="⚔️ Attaccare">
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            Usi il potere di un personaggio d'attacco attivato e carico, oppure una carta attacco usa e getta (paghi il suo codice e la
+            scarti). Costa una mossa.
+          </li>
+          <li>
+            <strong>Attacchi contro tutti</strong> (Urla, Rospe per tutti, Collezione…): colpiscono ogni avversario, uno alla volta, e
+            ognuno si difende per conto suo.
+          </li>
+          <li>
+            ⚖️ <strong>Carico</strong> (facoltativo): all'attacco puoi aggiungere carte numero della tua mano. La loro somma è il carico
+            e quelle carte <strong>le perdi comunque</strong>, che l'altro si difenda o no. Più è alto, più è difficile difendersi.
+          </li>
+        </ul>
+      </Voce>
+
+      <Voce titolo="🛡️ Difendersi">
+        <p>
+          Quando ti attaccano il gioco aspetta solo te (di solito <strong>30 secondi</strong>, poi l'attacco passa). Ti difendi al
+          massimo una volta per attacco, e la difesa non costa mosse. Due modi:
+        </p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            Con un <strong>personaggio di difesa attivato e carico</strong>: ferma l'attacco e poi si stanca. Se l'attacco ha un{" "}
+            <strong>carico</strong>, devi anche scartare carte numero che fanno <strong>almeno</strong> quel valore, oppure fare{" "}
+            <strong>harakiri</strong>: sacrifichi la carta di difesa (va negli scarti con i suoi punti) e l'attacco è fermato lo stesso.
+          </li>
+          <li>
+            <strong>D'emergenza</strong>, dalla mano: un personaggio di difesa nascosto o una carta difesa (vini, Campari, scuse). Paghi
+            il suo codice e la carta va negli scarti. Le difese d'emergenza <strong>non pagano il carico</strong>.
+          </li>
+          <li>
+            <strong>Regola del livello</strong>: una difesa ferma solo attacchi del suo livello o più bassi (il Paesano solo il livello
+            1, l'Aglianico fino al 2, il Taurasi tutto). Alcune carte dicono di fare eccezione.
+          </li>
+          <li>
+            <strong>Una difesa per livello</strong>: davanti a te puoi avere attivata al massimo una difesa di livello 1, una di livello
+            2 e una di livello 3. Se ne attivi un'altra dello stesso livello, prende il posto della vecchia, che va negli scarti con i
+            suoi punti. Oppure la tieni in mano per l'emergenza.
+          </li>
+          <li>
+            Alcune difese passano l'attacco a un altro giocatore (Non è colpa mia) o lo rimandano a chi l'ha fatto (E se poi te ne
+            penti?): chi lo riceve, se può, si difende a sua volta (pagando anche lui il carico).
+          </li>
+        </ul>
       </Voce>
 
       <Voce titolo="🪙 Mancia dei nonni, ☕ caffè e 🔔 campanello">
@@ -178,25 +260,6 @@ function TestoGuida({ larga }: { larga: boolean }) {
           Quando sul tavolo esce una carta numero con il campanello 🔔 "suonano alla porta": i 2 personaggi scoperti se ne vanno e ne
           arrivano 2 nuovi.
         </p>
-      </Voce>
-
-      <Voce titolo="⚔️ Attacchi e 🛡️ difese">
-        <p>
-          Quando attacchi, il gioco aspetta <strong>solo chi viene colpito</strong>: ha qualche secondo (di solito 30) per difendersi,
-          poi l'attacco passa. Negli attacchi contro tutti gli avversari rispondono uno alla volta.
-        </p>
-        <ul className="list-disc space-y-1 pl-5">
-          <li>Difesa con un personaggio <strong>attivato e carico</strong>: poi si stanca.</li>
-          <li>
-            Difesa <strong>d'emergenza</strong> con un personaggio o una carta difesa nascosti in mano: paghi il codice, la carta va
-            negli scarti e non dà punti.
-          </li>
-          <li>
-            <strong>Regola del livello</strong>: una difesa ferma solo attacchi del suo livello o più bassi (il Paesano solo il
-            livello 1, il Taurasi tutto).
-          </li>
-          <li>Ognuno si difende al massimo una volta per attacco.</li>
-        </ul>
       </Voce>
 
       <Voce titolo="🌙 Eventi">
@@ -214,8 +277,10 @@ function TestoGuida({ larga }: { larga: boolean }) {
         <ul className="list-disc space-y-1 pl-5">
           <li>Tocca un numero del tavolo per prenderlo, un mazzo per pescare.</li>
           <li>Tocca una carta per vederla in grande e per le mosse che puoi farci (attivarla, usare il potere…).</li>
+          <li>Per attaccare con il carico: tocca la carta d'attacco, scegli le carte del carico, poi l'attacco.</li>
           <li>Il pulsante <strong>Mosse</strong> in basso elenca tutto quello che puoi fare adesso.</li>
           <li>In alto tocca un avversario per vedere le sue carte scoperte.</li>
+          <li>In cima a questa guida puoi cercare un personaggio o un potere.</li>
         </ul>
       </Voce>
 

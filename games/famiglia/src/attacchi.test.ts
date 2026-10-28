@@ -906,7 +906,7 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
   });
 });
 
-describe("carico (opzione in prova)", () => {
+describe("carico", () => {
   /** Anna attacca bruno con Si incanta (livello 1) e un carico di 5 + 3; bruno ha Sempre calma attivata. */
   const conCarico = (manoBruno: number[]) => {
     const s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
@@ -958,6 +958,7 @@ describe("carico (opzione in prova)", () => {
     expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
 
     const senza = attivata(partita(), "anna", "toto-1");
+    senza.opzioni.carico = false;
     g(senza, "anna").mano = [num(5, "a5")];
     expect(rifiutata(senza, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno", carico: ["a5"] })).toMatch(/carico/);
   });

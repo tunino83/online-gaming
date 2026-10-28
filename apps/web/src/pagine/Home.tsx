@@ -43,9 +43,9 @@ export function Home() {
   const [bot, setBot] = useState(1);
   const [pubblica, setPubblica] = useState(true);
   const [computerAlPosto, setComputerAlPosto] = useState(true);
-  // La Famiglia, regole in prova: limite delle difese e carico negli attacchi
-  const [limiteDifese, setLimiteDifese] = useState(false);
-  const [carico, setCarico] = useState(false);
+  // La Famiglia: limite delle difese e carico negli attacchi (accesi di base, si possono spegnere)
+  const [limiteDifese, setLimiteDifese] = useState(true);
+  const [carico, setCarico] = useState(true);
   const scelto = GIOCHI.find((g) => g.id === gioco)!;
   const famiglia = gioco === "famiglia";
   /** Opzioni scelte da chi crea la partita (alcune solo per certi giochi). */
@@ -222,7 +222,7 @@ export function Home() {
           )}
           {famiglia && (
             <div className="space-y-1.5 rounded-xl border border-inchiostro/15 p-2.5">
-              <p className="text-xs font-semibold text-tenue">Regole in prova</p>
+              <p className="text-xs font-semibold text-tenue">Regole contro le troppe difese (si possono spegnere)</p>
               <label className="flex items-start gap-2 text-sm">
                 <input type="checkbox" checked={limiteDifese} onChange={(e) => setLimiteDifese(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#b8892b]" />
                 <span>

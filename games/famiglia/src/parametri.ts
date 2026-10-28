@@ -27,7 +27,7 @@ export interface OpzioniPartita {
   /** Con "punti per i poteri": anche il primo aiuto del turno dà 1 punto (se no, solo attacchi a segno e difese riuscite). */
   puntiPerGliAiuti: boolean;
   /*
-   * Varianti in prova dal 2026-10-28 (dopo la prima partita con le carte stampate: troppe difese, attaccare è quasi impossibile).
+   * Contro le troppe difese (dopo la prima partita con le carte stampate attaccare era quasi impossibile): accese di base dal 2026-10-28.
    */
   /** Al massimo 1 personaggio di difesa attivato per livello: attivandone un altro dello stesso livello, il vecchio va negli scarti. */
   limiteDifese: boolean;
@@ -49,8 +49,9 @@ export const OPZIONI_DEFAULT: OpzioniPartita = {
   puntiPerIPoteri: true,
   unaAttivazionePerTurno: false,
   puntiPerGliAiuti: false,
-  limiteDifese: false,
-  carico: false,
+  // Contro le troppe difese (accese per tutti il 2026-10-28; le partite già iniziate restano come erano)
+  limiteDifese: true,
+  carico: true,
 };
 
 export const MIN_GIOCATORI = 2;

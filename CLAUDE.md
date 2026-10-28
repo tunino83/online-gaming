@@ -122,7 +122,7 @@ Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi de
 vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (25) o "mazzo".
 Stuffosa (Checca 3): quando un avversario usa un aiuto, l'aiuto resta in `turno.aiutoSospeso` e si aspetta Checca
 (attesa "stuffosa", 10 s con `attesaMassimaMs`, risposta "scegli": nessuna carta = lascia stare, 2 carte = blocca).
-Regole in prova (opzioni spente di base, da "Regole in prova" nella pagina iniziale): `limiteDifese` (una difesa attivata
+Regole contro le troppe difese (accese di base dal 2026-10-28, si possono spegnere creando la partita): `limiteDifese` (una difesa attivata
 per livello, `liberaPostoDifesa` in `base.ts`) e `carico` (carte numero aggiunte all'attacco, `AttaccoInCorso.carico`;
 la difesa con carta attivata paga almeno il carico o fa harakiri). Confronto tra robot: `npx tsx games/famiglia/scripts/difese.ts [n]`.
 I robot si difendono quasi sempre quando possono (come le persone). Colori dei tipi di carta in `COLORI_TIPI` (`colori.ts`).

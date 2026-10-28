@@ -412,7 +412,7 @@ Ora Francesco non ha più attacchi: Lezione di padel, Non è ancora arrivato e S
 ## Regole in prova contro le troppe difese (2026-10-28)
 
 Dopo la prima partita con le carte stampate: le difese sono troppe e attaccare è quasi impossibile. Due opzioni della
-partita, spente di base (si accendono creando la partita, "Regole in prova"); `npx tsx games/famiglia/scripts/difese.ts`
+partita, **accese per tutti dal 2026-10-28** (chi crea la partita le può spegnere; le partite già iniziate restano come erano); `npx tsx games/famiglia/scripts/difese.ts`
 le confronta tra i robot (`docs/famiglia/confronto-difese.md`).
 - **Limite delle difese**: al massimo **un personaggio di difesa attivato per livello** (uno di livello 1, uno di 2, uno
   di 3). Una seconda difesa dello stesso livello si può tenere in mano, oppure attivare: allora prende il posto della

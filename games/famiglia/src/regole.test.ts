@@ -39,8 +39,8 @@ describe("preparazione", () => {
       puntiPerIPoteri: true,
       unaAttivazionePerTurno: false,
       puntiPerGliAiuti: false,
-      limiteDifese: false,
-      carico: false,
+      limiteDifese: true,
+      carico: true,
     });
   });
 
@@ -506,7 +506,7 @@ describe("varianti dei punti (in prova)", () => {
   });
 });
 
-describe("limite delle difese (opzione in prova)", () => {
+describe("limite delle difese", () => {
   const conLimite = (limiteDifese: boolean) => {
     const s = setup(GIOCATORI, { limiteDifese }, 1);
     s.ordine = ["anna", "bruno", "carla"];
