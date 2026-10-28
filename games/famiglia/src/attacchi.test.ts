@@ -495,21 +495,12 @@ describe("difese", () => {
     expect(g(s, "bruno").attivati[1]!.stanca).toBe(0); // la carta che anna voleva stancare
   });
 
-  it("Non è colpa mia: l'attacco va a un altro giocatore, che può difendersi", () => {
-    let s = attivata(bruno_si_difende("maddalena-2"), "carla", "gerardina-1");
-    s = difendi(s, "bruno", "maddalena-2", { giocatore: "carla" });
-    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
-    s = subisci(s, "carla");
-    expect(g(s, "carla").mosseProssimoTurno).toBe(-1);
-    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
-  });
-
   it("Non è colpa mia: si può passare l'attacco anche a chi l'ha fatto", () => {
-    const s = difendi(bruno_si_difende("maddalena-2"), "bruno", "maddalena-2", { giocatore: "anna" });
+    const s = difendi(bruno_si_difende("maddalena-3"), "bruno", "maddalena-3", { giocatore: "anna" });
     expect(g(s, "anna").mosseProssimoTurno).toBe(-1);
   });
 
-  it("È colpa di qualcun altro: chi riceve l'attacco non può difendersi", () => {
+  it("Non è colpa mia (Maddalena 3): chi riceve l'attacco non può difendersi", () => {
     const s = difendi(attivata(bruno_si_difende("maddalena-3", 3), "carla", "antonio-3"), "bruno", "maddalena-3", { giocatore: "carla" });
     expect(s.turno.attesa).toBeNull();
     expect(s.registro.filter((f) => f.tipo !== "punto").at(-1)).toMatchObject({ tipo: "colpito", giocatore: "carla" });

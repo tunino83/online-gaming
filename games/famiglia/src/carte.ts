@@ -104,15 +104,20 @@ const ADULTI: Carta[] = [
     { codice: somma(4, 20), poteri: [difesa("Per me è quadrato", "Annulli qualsiasi attacco contro di te, anche di livello 3", "ho-sempre-ragione-io")] },
   ]),
   ...persona("Maddalena", [
+    { codice: pari(2), poteri: [aiuto("Fatto in casa", "Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8)")] },
     {
-      codice: pari(2),
+      codice: dispari(3),
       poteri: [
-        aiutoBlu("Non sbaglio mai", "Sempre attivo, una volta per turno: subito dopo una pescata cambi la carta con un'altra, senza usare mosse"),
-        aiuto("Fatto in casa", "Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8)"),
+        aiuto(
+          "Total black",
+          "Bruci tutte le carte scoperte sul tavolo: per un giro intero, fino al tuo prossimo turno, il tavolo resta vuoto e si pesca solo dal mazzo",
+        ),
       ],
     },
-    { codice: dispari(3), poteri: [difesa("Non è colpa mia", "L'attacco va a un altro giocatore a tua scelta")] },
-    { codice: doppiaCoppia, poteri: [difesa("È colpa di qualcun altro", "L'attacco va a un altro giocatore a tua scelta, che non può difendersi")] },
+    {
+      codice: doppiaCoppia,
+      poteri: [difesa("Non è colpa mia", "L'attacco va a un altro giocatore a tua scelta, che non può difendersi", "e-colpa-di-qualcun-altro")],
+    },
   ]),
   ...persona("Nonno Salvatore", [
     { codice: coppia, poteri: [aiuto("Te l'ho già detto?", "Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto")] },
@@ -526,7 +531,7 @@ export function carta(id: string): Carta {
 
 /**
  * La carta è "blu" (sempre attiva, non si stanca mai)? Solo se tutti i suoi poteri sono blu:
- * Maddalena 1 ha Non sbaglio mai (blu) e Fatto in casa (normale), quindi si stanca usando Fatto in casa.
+ * Chicca 1 ha Puzza di brace (blu) e Tofu Super Seitan (normale), quindi si stanca usando il Tofu.
  */
 export const eBlu = (idCarta: string): boolean => carta(idCarta).poteri.every((p) => p.blu);
 

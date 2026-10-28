@@ -169,45 +169,6 @@ describe("pescare", () => {
     expect(s.scarti.numeri.map((c) => c.id)).toEqual(["a", "b"]);
   });
 
-  it("Non sbaglio mai: subito dopo aver pescato, scarti quella carta e ne peschi un'altra, senza usare mosse", () => {
-    let s = conCarta("maddalena-1");
-    expect(rifiutata(s, "anna", potere("maddalena-1"))).toMatch(/subito dopo/);
-    s = fai(s, "anna", { tipo: "pescaNumero" });
-    const pescata = anna(s).mano[0]!;
-    s = usa(s, "maddalena-1");
-    expect(s.turno.mosseRimaste).toBe(2); // solo la pescata ha usato una mossa
-    expect(anna(s).attivati[0]!.stanca).toBe(0); // potere blu: la carta non si stanca
-    expect(s.scarti.numeri).toEqual([pescata]);
-    expect(anna(s).mano).toHaveLength(1);
-    expect(anna(s).mano[0]).not.toEqual(pescata);
-    // una volta per turno
-    s = fai(s, "anna", { tipo: "pescaNumero" });
-    expect(rifiutata(s, "anna", potere("maddalena-1"))).toMatch(/una volta per turno/);
-  });
-
-  it("Maddalena 1: Non sbaglio mai (blu) funziona anche con la carta stanca per Fatto in casa", () => {
-    let s = conCarta("maddalena-1");
-    anna(s).mano = [num(3, "a"), num(4, "b")];
-    s = usa(s, "maddalena-1", { carte: ["a", "b"] }, "fatto-in-casa");
-    expect(anna(s).attivati[0]!.stanca).toBe(1);
-    expect(rifiutata(s, "anna", potere("maddalena-1", { carte: ["a", "b"] }, "fatto-in-casa"))).toMatch(/stanca/);
-    s = fai(s, "anna", { tipo: "pescaNumero" });
-    expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
-    s = usa(s, "maddalena-1");
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "potere", potere: "non-sbaglio-mai" });
-  });
-
-  it("Non sbaglio mai si può usare anche dopo l'ultima pescata del turno (e il turno non si chiude da solo)", () => {
-    let s = conCarta("maddalena-1");
-    s.turno.mosseRimaste = 1;
-    s = fai(s, "anna", { tipo: "pescaNumero" });
-    expect(s.turno.mosseRimaste).toBe(0);
-    expect(mossaAutomatica(s)).toBeNull();
-    expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
-    s = usa(s, "maddalena-1");
-    expect(mossaAutomatica(s)).not.toBeNull();
-  });
-
   it("Lezione di padel (blu): gratis, una volta per turno, scambi una tua carta con una del tavolo", () => {
     let s = conCarta("francesco-1");
     anna(s).mano = [num(2, "mia")];
@@ -222,18 +183,6 @@ describe("pescare", () => {
     expect(rifiutata(s, "anna", potere("francesco-1", { carte: [tavolo.id], posizioni: [1] }))).toMatch(/una volta per turno/);
   });
 
-  it("Non sbaglio mai funziona anche con un personaggio, ma non dopo un'altra mossa", () => {
-    let s = conCarta("maddalena-1");
-    s = fai(s, "anna", { tipo: "pescaPersonaggio" });
-    s = usa(s, "maddalena-1");
-    expect(s.scarti.personaggi).toHaveLength(1);
-    expect(anna(s).nascosti.length + anna(s).attacchi.length).toBe(1);
-
-    let t = conCarta("maddalena-1");
-    t = fai(t, "anna", { tipo: "pescaNumero" });
-    t = fai(t, "anna", { tipo: "brucia" });
-    expect(rifiutata(t, "anna", potere("maddalena-1"))).toMatch(/subito dopo/);
-  });
 });
 
 /* ---------------- tavolo e scarti ---------------- */
@@ -504,6 +453,32 @@ describe("ricarica e informazioni", () => {
     s.giocatori.bruno!.attivati.push({ copia: copia("checca-3"), stanca: 0 });
     s.giocatori.bruno!.mano = [num(1, "b1"), num(2, "b2")];
     expect(rifiutata(s, "anna", potere("toto-2", { bersagli: ["x#1"] }))).toMatch(/stanca/);
+  });
+
+  it("Total black: brucia le carte scoperte; per un giro il tavolo resta vuoto e si pesca solo dal mazzo; poi Maddalena lo trova pieno", () => {
+    let s = conCarta("maddalena-2");
+    const numeri = s.tavolo.numeri.filter((c) => c !== null).length;
+    const personaggi = s.tavolo.personaggi.filter((c) => c !== null).length;
+    s = usa(s, "maddalena-2");
+    expect(s.tavolo.numeri.every((c) => c === null) && s.tavolo.personaggi.every((c) => c === null)).toBe(true);
+    expect(s.scarti.numeri).toHaveLength(numeri);
+    expect(s.scarti.personaggi).toHaveLength(personaggi);
+    expect(vistaGiocatore(s, "bruno").buio).toBe("anna");
+    s = fai(s, "anna", { tipo: "pescaNumero" }); // anche pescando il tavolo non si riempie
+    expect(s.tavolo.numeri.every((c) => c === null)).toBe(true);
+    expect(mosseValide(s, "anna").some((m) => m.tipo === "brucia" || m.tipo === "prendiNumero")).toBe(false);
+    s.turno.mosseRimaste = 0;
+    s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
+    expect(s.tavolo.numeri.every((c) => c === null)).toBe(true); // tocca a bruno: ancora buio
+    expect(mosseValide(s, "bruno").some((m) => m.tipo === "prendiNumero" || m.tipo === "prendiPersonaggio")).toBe(false);
+    for (const chi of ["bruno", "carla"]) {
+      s.turno.mosseRimaste = 0;
+      s = fai(s, chi, { tipo: "fineTurno", scarta: s.giocatori[chi]!.mano.slice(7).map((c) => c.id) });
+    }
+    expect(s.turno.giocatore).toBe("anna");
+    expect(s.buio).toBeNull();
+    expect(s.tavolo.numeri.some((c) => c !== null)).toBe(true);
+    expect(s.tavolo.personaggi.some((c) => c !== null)).toBe(true);
   });
 
   it("Ricetta: ricarica una carta stanca di chiunque, anche di un avversario", () => {

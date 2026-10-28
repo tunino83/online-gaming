@@ -218,7 +218,7 @@ Cambiate insieme alle blu (non blu, si stancano come le altre):
   2 turni successivi, a fine turno, scarti **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8
   carte ne scarti 2; con 5 carte ne scarti comunque 1).
 
-- **Non sbaglio mai** (Maddalena 1, potere blu): una volta per turno. La carta ha anche *Fatto in casa*, che è normale:
+- **Non sbaglio mai** (Maddalena 1, potere blu, tolto il 2026-10-28): una volta per turno. La carta ha anche *Fatto in casa*, che è normale:
   usandolo la carta si stanca, ma Non sbaglio mai funziona lo stesso (e il turno aspetta, se resta da usare dopo l'ultima pescata).
 - **Lezione di padel** (Francesco 1): una volta per turno scambi 1 tua carta numero con 1 scoperta sul tavolo.
 
@@ -385,3 +385,17 @@ Anche **Schietta** (Checca 1) cambia nome: ora si chiama **Lingua Glabra** (l'ef
 - **Non si usa durante l'ultimo giro**, così tutti giocano lo stesso numero di turni.
 - È un aiuto: costa una mossa, Stuffosa lo può bloccare e, con le regole dei punti di adesso, la carta vale 0 punti.
 - Sullo schermo, accanto a di chi è il turno, una freccia ↻/↺ dice chi gioca dopo (rosa quando si gioca al contrario).
+
+## Maddalena nuova: Total black (2026-10-28)
+
+Le carte di Maddalena ora hanno un potere ciascuna (codici uguali a prima):
+- **Livello 1 – Fatto in casa** ✨: come prima (2 carte unite in una che vale la somma, massimo 8).
+- **Livello 2 – Total black** ✨ (veste sempre e solo nero): si bruciano tutte le carte scoperte sul tavolo, numeri e
+  personaggi (vanno negli scarti). Fino all'inizio del prossimo turno di Maddalena, cioè per un giro intero, il tavolo
+  **resta vuoto e non si riempie**: si pesca solo dal mazzo e non si può bruciare. All'inizio del suo turno il tavolo si
+  riempie: lei è l'ultima ad aver avuto carte sul tavolo e la prima a ritrovarle. I poteri che usano il tavolo (Scaffale,
+  Lezione di padel…) intanto non trovano carte; il campanello non può suonare. È un aiuto: Stuffosa lo può bloccare e,
+  con le regole dei punti di adesso, la carta vale 0 punti.
+- **Livello 3 – Non è colpa mia** 🛡️: è la vecchia *È colpa di qualcun altro* con il nome nuovo: l'attacco va a un
+  altro giocatore a tua scelta, che non può difendersi.
+- Escono *Non sbaglio mai* e la vecchia difesa di livello 2 (*Non è colpa mia*: l'attacco andava a un altro, che poteva difendersi).

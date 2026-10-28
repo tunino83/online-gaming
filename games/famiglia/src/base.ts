@@ -45,6 +45,7 @@ export const puoPescare = (s: StatoPartita, mazzo: keyof Mazzi) =>
  * (vanno negli scarti e se ne scoprono di nuovi): due campanelli, due cambi.
  */
 export function riempiTavolo(s: StatoPartita): void {
+  if (s.buio) return; // Total black: il tavolo resta vuoto fino al prossimo turno di Maddalena
   const campanelli: CartaNumero[] = [];
   s.tavolo.numeri = s.tavolo.numeri.map((c) => {
     if (c) return c;

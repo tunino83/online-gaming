@@ -161,6 +161,11 @@ function iniziaTurno(s: StatoPartita): void {
   g.vietati = [];
   if (s.benedizione === id) s.benedizione = null;
   if (s.tregua !== null && s.numeroTurno > s.tregua) s.tregua = null;
+  // Finisce il Total black: il tavolo si riempie e chi l'ha usato è il primo a trovarlo pieno
+  if (s.buio === id) {
+    s.buio = null;
+    riempiTavolo(s);
+  }
   inizioTurnoConEvento(s, id);
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
   for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
@@ -363,6 +368,7 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
 
 /** Scarta le carte numero scoperte e ne scopre di nuove. */
 function brucia(s: StatoPartita): void {
+  if (s.buio) rifiuta("Total black: il tavolo è vuoto fino al prossimo turno di chi l'ha usato");
   const scoperte = s.tavolo.numeri.filter((c) => c !== null);
   if (scoperte.length === 0 && !puoPescare(s, "numeri")) rifiuta("Non ci sono carte numero da bruciare");
   s.scarti.numeri.push(...scoperte);
@@ -534,7 +540,7 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
   if (quantiBlu(g, "ne-ho-viste-tante") > 0 && !s.turno.bluUsati.includes("ne-ho-viste-tante") && s.mazzi.personaggi.length >= 2) {
     mosse.push({ tipo: "pescaPersonaggio", seconda: true });
   }
-  if (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri")) mosse.push({ tipo: "brucia" });
+  if (!s.buio && (s.tavolo.numeri.some((c) => c !== null) || puoPescare(s, "numeri"))) mosse.push({ tipo: "brucia" });
   if (puoPescareEvento(s)) mosse.push({ tipo: "pescaEvento" });
   const risorse = risorseGiocatore(g);
   const prosecco = quantiBlu(g, "prosecco") > 0 && !s.turno.bluUsati.includes("prosecco");
@@ -609,10 +615,9 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
-  // Un potere gratis carico (es. Non sbaglio mai, Un caffè di prima…): il giocatore può ancora usarlo.
-  // I poteri blu che si usano ogni turno (Studia il fascicolo…) non fermano la chiusura del turno;
-  // Non sbaglio mai sì, perché si usa subito dopo una pescata (anche l'ultima).
-  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && (m.potere === "non-sbaglio-mai" || !potereBlu(cartaDiCopia(m.carta), m.potere)))) return null;
+  // Un potere gratis carico (es. Grigliata, Te l'ho già detto?…): il giocatore può ancora usarlo.
+  // I poteri blu che si usano ogni turno (Studia il fascicolo…) non fermano la chiusura del turno.
+  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && !potereBlu(cartaDiCopia(m.carta), m.potere))) return null;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
   if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare

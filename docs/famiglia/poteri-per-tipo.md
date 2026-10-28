@@ -39,14 +39,13 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Rafiluccio | 3 | **Brontola tutto il giorno** | Un avversario sceglie: ti dà 2 carte numero oppure salta il prossimo turno | Scala da 5 | ricarica 3 |
 | Vento (carta attacco) | 1 | **Vento** | Un avversario scarta tutte le carte numero e ne ripesca altrettante dal mazzo | 1 carta qualsiasi | si usa una volta |
 
-### 🛡️ DIFESA (31)
+### 🛡️ DIFESA (30)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
 | Checca | 3 | **Stuffosa** | Quando un avversario usa un potere di aiuto ti scocci: scarti 2 carte numero e l'aiuto non ha effetto (la sua carta si stanca lo stesso) | 4 carte con somma 24 | ricarica 4 |
 | Antonio | 3 | **Per me è quadrato** | Annulli qualsiasi attacco contro di te, anche di livello 3 | 4 carte con somma 20 | ricarica 3 |
-| Maddalena | 2 | **Non è colpa mia** | L'attacco va a un altro giocatore a tua scelta | 3 carte dispari | ricarica 2 |
-| Maddalena | 3 | **È colpa di qualcun altro** | L'attacco va a un altro giocatore a tua scelta, che non può difendersi | Doppia coppia | ricarica 3 |
+| Maddalena | 3 | **Non è colpa mia** | L'attacco va a un altro giocatore a tua scelta, che non può difendersi | Doppia coppia | ricarica 3 |
 | Nonna Patrizia | 2 | **Nuvola di fumo** | Fino al tuo prossimo turno nessuno può attaccarti | Scala da 3 | ricarica 2, anche nel tuo turno |
 | Chicca | 1 | **Tofu Super Seitan** | Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi | 2 carte con somma 8 | ricarica 1 |
 | Chicca | 3 | **E se poi te ne penti?** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
@@ -80,7 +79,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
 | Antonio | 1 | **Domani lo faccio** | Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
-| Maddalena | 1 | 🔵 **Non sbaglio mai** | Una volta per turno, subito dopo una pescata cambi la carta con un'altra | 2 carte pari | blu (anche da stanca) |
+| Maddalena | 2 | **Total black** | Bruci le carte scoperte sul tavolo: per un giro il tavolo resta vuoto e si pesca solo dal mazzo | 3 carte dispari | ricarica 2 |
 | Maddalena | 1 | **Fatto in casa** | Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 2 carte pari | ricarica 1 |
 | Nonno Salvatore | 1 | **Te l'ho già detto?** | Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto | Coppia | ricarica 1, gratis |
 | Nonno Salvatore | 2 | **L'ho già detto** | Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto | Tris | ricarica 2, gratis |

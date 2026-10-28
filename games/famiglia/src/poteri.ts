@@ -37,7 +37,6 @@ export const POTERI_COPIA = new Set(["sempre-la-stessa-storia", "giacca-al-roves
  * (altrimenti spendere una mossa per averne una non servirebbe a niente: deciso il 2026-10-25).
  */
 export const POTERI_GRATIS = new Set([
-  "non-sbaglio-mai",
   "te-l-ho-gia-detto",
   "l-ho-gia-detto",
   "anima-della-festa",
@@ -279,21 +278,14 @@ function applicaAiuto(
       peschiNumeri(s, id, carte.length + 1);
       return;
     }
-    case "non-sbaglio-mai": {
-      if (!appenaPescata) rifiuta("Si usa subito dopo aver pescato una carta");
-      if (appenaPescata!.mazzo === "numeri") {
-        const c = togliNumero(g, appenaPescata!.id);
-        if (!c) rifiuta("Non hai più la carta appena pescata");
-        scartaNumeri(s, [c!]);
-        const nuova = pesca(s, "numeri");
-        if (nuova) g.mano.push(nuova);
-      } else {
-        const zona = g.nascosti.some((c) => c.id === appenaPescata!.id) ? g.nascosti : g.attacchi;
-        const i = zona.findIndex((c) => c.id === appenaPescata!.id);
-        if (i < 0) rifiuta("Non hai più la carta appena pescata");
-        s.scarti.personaggi.push(...zona.splice(i, 1));
-        pescaPersonaggio(s, id);
-      }
+    case "total-black": {
+      // Maddalena veste sempre e solo nero: si bruciano le carte scoperte e il tavolo resta vuoto per un giro
+      if (s.buio) rifiuta("Il tavolo è già al buio");
+      scartaNumeri(s, s.tavolo.numeri.filter((c): c is CartaNumero => c !== null));
+      s.scarti.personaggi.push(...s.tavolo.personaggi.filter((c): c is CopiaCarta => c !== null));
+      s.tavolo.numeri = s.tavolo.numeri.map(() => null);
+      s.tavolo.personaggi = s.tavolo.personaggi.map(() => null);
+      s.buio = id;
       return;
     }
 
@@ -682,8 +674,8 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     case "te-l-ho-gia-detto":
     case "l-ho-gia-detto":
       return t.ultimaMossa ? [{}] : [];
-    case "non-sbaglio-mai":
-      return t.appenaPescata ? [{}] : [];
+    case "total-black":
+      return s.buio ? [] : [{}];
     case "offre-la-casa":
       return [["caffe", "birra"], ["caffe", "colazione"], ["birra", "colazione"]].map((scelte) => ({ scelte }));
     case "frigge-di-tutto":

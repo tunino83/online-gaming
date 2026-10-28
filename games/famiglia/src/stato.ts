@@ -205,6 +205,8 @@ export interface StatoPartita {
   benedizione: IdGiocatore | null;
   /** La vita è una ruota: il gioco va in senso antiorario (l'ordine di turno è già girato: serve per la freccia sullo schermo). */
   antiorario?: boolean;
+  /** Total black (Maddalena 2): il tavolo resta vuoto fino all'inizio del prossimo turno di questo giocatore. */
+  buio?: IdGiocatore | null;
   /** Nevicava: fino a questo turno compreso nessuno può attaccare. */
   tregua: number | null;
   /** Ultimo potere usato al tavolo (Sempre la stessa storia). */

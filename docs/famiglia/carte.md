@@ -15,9 +15,9 @@ Regole usate:
 | Antonio | 1 | Domani lo faccio | ✨ | 2 carte con somma 9 |
 | Antonio | 2 | Alta idratazione | ⚔️ | 3 carte con somma 18 |
 | Antonio | 3 | Per me è quadrato | 🛡️ | 4 carte con somma 20 |
-| Maddalena | 1 | Non sbaglio mai / Fatto in casa | ✨ | 2 carte pari |
-| Maddalena | 2 | Non è colpa mia | 🛡️ | 3 carte dispari |
-| Maddalena | 3 | È colpa di qualcun altro | 🛡️ | Doppia coppia |
+| Maddalena | 1 | Fatto in casa | ✨ | 2 carte pari |
+| Maddalena | 2 | Total black | ✨ | 3 carte dispari |
+| Maddalena | 3 | Non è colpa mia | 🛡️ | Doppia coppia |
 | Nonno Salvatore | 1 | Te l'ho già detto? | ✨ | Coppia |
 | Nonno Salvatore | 2 | L'ho già detto | ✨ | Tris |
 | Nonno Salvatore | 3 | Sempre la stessa storia | ✨ | Poker |
