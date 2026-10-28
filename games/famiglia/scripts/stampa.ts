@@ -23,6 +23,10 @@
  * Carte per foglio: --per-foglio 16 o --per-foglio 30 (carte rimpicciolite; di base 9 in formato poker).
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
  *
+ * Plancia del giocatore (dove appoggiare le carte quando si gioca con le carte stampate): pnpm stampa:famiglia plancia
+ * (con --per-foglio 16 un A4 orizzontale; con le carte da 9 due A4 da affiancare, oppure un A3 con --a3).
+ * File la-famiglia-plancia[-16]_<data_ora>.pdf.
+ *
  * Dorsi che consumano poco inchiostro: --dorso-leggero (fondo bianco, cornice dorata con il bordo colorato del mazzo, uno stemma al centro con il
  * nome scritto in cerchio, uguale anche capovolto). Il file finisce con "-leggero" (es. la-famiglia-carte-16-leggero_<data_ora>.pdf).
  */
@@ -77,7 +81,7 @@ function adesso(): string {
 }
 const quando = adesso();
 /** Nome del PDF: "carte" (tutto) o "scelta", con le carte per foglio se non sono 9 (es. la-famiglia-carte-16_…). */
-const uscita = (cosa: "carte" | "scelta", perFoglio: number, leggero: boolean) =>
+const uscita = (cosa: "carte" | "scelta" | "plancia", perFoglio: number, leggero: boolean) =>
   radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}${leggero ? "-leggero" : ""}_${quando}.pdf`);
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
@@ -500,6 +504,139 @@ function dorsoLeggero(doc: Doc, x: number, y: number, mazzo: Mazzo) {
   }
 }
 
+/* ---------------- plancia del giocatore ---------------- */
+
+const PLANCIA_COLORI = { attivati: "#5a3488", attacchi: "#c63d2f", nascosti: "#2d5f9a", mancia: "#a8801f", punti: "#3e8a4f" };
+
+/** Contorno tratteggiato di una carta (dove appoggiarla). */
+function postoCarta(doc: Doc, x: number, y: number, w: number, h: number, colore: string) {
+  doc.roundedRect(x, y, w, h, 2.5 * MM).lineWidth(0.7).dash(2, { space: 2 }).stroke(colore).undash();
+}
+
+/** Riquadro di una zona: bordo colorato, titolo in alto a sinistra e una nota piccola a destra. */
+function zona(doc: Doc, x: number, y: number, w: number, h: number, colore: string, titolo: string, nota = "") {
+  doc.roundedRect(x, y, w, h, 3 * MM).lineWidth(1.4).stroke(colore);
+  doc.font(FONT.nero).fontSize(9).fillColor(colore).text(titolo, x + 2.5 * MM, y + 1.8 * MM, { lineBreak: false });
+  if (nota) doc.font(FONT.normale).fontSize(6.5).fillColor(MATITA).text(nota, x + 2.5 * MM, y + 2.3 * MM, { width: w - 5 * MM, align: "right", lineBreak: false });
+}
+
+/**
+ * Plancia di un giocatore, larga `W` e alta `H` (punti) a partire da (ox, oy), per carte grandi `cw` × `ch`:
+ * in alto la scaletta degli attivati (Carica, 1, 2, 3, 4+ turni: a inizio turno ogni carta stanca scende di un gradino
+ * verso Carica), sotto gli attacchi in attesa, i nascosti, mancia e vetrina; a destra il segnapunti dei poteri (0–30).
+ */
+function plancia(doc: Doc, ox: number, oy: number, W: number, H: number, cw: number, ch: number) {
+  const m = 3 * MM;
+  const g = 4 * MM;
+  const col = PLANCIA_COLORI;
+  // intestazione
+  doc.font(FONT.nero).fontSize(14).fillColor("#7a4a26").text("La Famiglia", ox + m, oy + m, { lineBreak: false });
+  doc.font(FONT.normale).fontSize(9).fillColor(MATITA).text("plancia di: ____________________", ox + m + 30 * MM, oy + m + 1.4 * MM, { lineBreak: false });
+  doc
+    .font(FONT.normale)
+    .fontSize(7)
+    .fillColor(MATITA)
+    .text("Turno: 3 mosse · a fine turno al massimo 7 carte numero · all'inizio del tuo turno sposta ogni carta stanca di un gradino verso CARICA", ox + m, oy + m + 1.8 * MM, {
+      width: W - 2 * m - 14 * MM,
+      align: "right",
+      lineBreak: false,
+    });
+  const y0 = oy + m + 9 * MM;
+  // segnapunti a destra: 0 in basso, 30 in alto
+  const tw = 10 * MM;
+  const tx = ox + W - m - tw;
+  const larghezza = W - 2 * m - tw - g;
+  const yFondo = oy + H - m;
+  zona(doc, tx, y0, tw, yFondo - y0, col.punti, "");
+  doc.font(FONT.nero).fontSize(6).fillColor(col.punti).text("PUNTI", tx, y0 + 1.5 * MM, { width: tw, align: "center", lineBreak: false });
+  const passo = (yFondo - y0 - 9 * MM) / 31;
+  for (let n = 0; n <= 30; n++) {
+    const cy = yFondo - 2 * MM - passo * (n + 0.5);
+    const r = Math.min(passo * 0.44, 3.2 * MM);
+    doc.circle(tx + tw / 2, cy, r).lineWidth(n % 5 === 0 ? 1 : 0.5).stroke(col.punti);
+    doc.font(n % 5 === 0 ? FONT.nero : FONT.normale).fontSize(Math.min(6.5, r * 1.3)).fillColor(n % 5 === 0 ? col.punti : MATITA);
+    doc.text(String(n), tx, cy - Math.min(6.5, r * 1.3) * 0.42, { width: tw, align: "center", lineBreak: false });
+  }
+  // zone in basso: attacchi (3 carte a ventaglio), nascosti (3 coperte a ventaglio), mancia e vetrina
+  const altezzaBasso = ch + 11 * MM;
+  const yBasso = yFondo - altezzaBasso;
+  const ventaglio = 2 * cw + 6 * MM; // 3 carte sovrapposte di mezza carta
+  zona(doc, ox + m, yBasso, ventaglio, altezzaBasso, col.attacchi, "ATTACCHI IN ATTESA", "scoperti · max 3");
+  zona(doc, ox + m + ventaglio + g, yBasso, ventaglio, altezzaBasso, col.nascosti, "NASCOSTI", "coperti · max 3");
+  for (const [i, colore] of [[0, col.attacchi], [1, col.nascosti]] as const) {
+    const bx = ox + m + i * (ventaglio + g) + 3 * MM;
+    for (let k = 0; k < 3; k++) postoCarta(doc, bx + k * (cw / 2), yBasso + 8 * MM, cw, ch, colore);
+  }
+  const xm = ox + m + 2 * (ventaglio + g);
+  const wm = larghezza - 2 * (ventaglio + g);
+  zona(doc, xm, yBasso, wm, altezzaBasso, col.mancia, "MANCIA · VETRINA");
+  const mw = cw / 2;
+  const mh = ch / 2;
+  const perRiga = Math.max(1, Math.floor((wm - 4 * MM) / (mw + 2 * MM)));
+  for (let k = 0; k < Math.min(perRiga * 2, 6); k++) {
+    postoCarta(doc, xm + 3 * MM + (k % perRiga) * (mw + 2 * MM), yBasso + 8 * MM + Math.floor(k / perRiga) * (mh + 1.5 * MM), mw, mh, col.mancia);
+  }
+  // scaletta degli attivati
+  const yScala = y0;
+  const hScala = yBasso - g - yScala;
+  zona(doc, ox + m, yScala, larghezza, hScala, col.attivati, "ATTIVATI", "le carte di una colonna si sovrappongono lasciando vedere il nome · le carte sempre attive (azzurre) restano in CARICA");
+  const gradini = ["CARICA", "1 turno", "2 turni", "3 turni", "4+ turni"];
+  const gc = 3 * MM;
+  const wc = (larghezza - 6 * MM - (gradini.length - 1) * gc) / gradini.length;
+  gradini.forEach((t, i) => {
+    const cx = ox + m + 3 * MM + i * (wc + gc);
+    const cy = yScala + 8 * MM;
+    const hc = hScala - 11 * MM;
+    doc.roundedRect(cx, cy, wc, hc, 2.5 * MM).lineWidth(i === 0 ? 1.2 : 0.6).stroke(col.attivati);
+    doc.font(FONT.nero).fontSize(i === 0 ? 10 : 9).fillColor(col.attivati).text(t, cx, cy + 1.6 * MM, { width: wc, align: "center", lineBreak: false });
+    if (i === 0) scintilla(doc, cx + wc / 2 - 13 * MM, cy + 3.3 * MM, 2.2 * MM, ORO);
+    postoCarta(doc, cx + (wc - cw) / 2, cy + 7 * MM, cw, Math.min(ch, hc - 9 * MM), col.attivati);
+    // freccia verso sinistra tra un gradino e l'altro: le carte tornano verso CARICA
+    if (i > 0) {
+      const ax = cx - gc / 2;
+      const ay = cy + hc / 2;
+      doc.polygon([ax - 1.3 * MM, ay], [ax + 1.1 * MM, ay - 2 * MM], [ax + 1.1 * MM, ay + 2 * MM]).fill(col.attivati);
+    }
+  });
+}
+
+/**
+ * Pagine della plancia: con le carte da 16 un A4 orizzontale; con quelle da 9 un A3 orizzontale (--a3) oppure
+ * due A4 verticali da affiancare (si ritaglia il margine destro del primo foglio e lo si appoggia sul secondo).
+ */
+function paginePlancia(doc: Doc, g: Griglia, a3: boolean) {
+  const cw = L * g.scala;
+  const ch = A * g.scala;
+  if (g.scala < 0.9) {
+    doc.addPage({ size: "A4", layout: "landscape", margin: 0 });
+    plancia(doc, 5 * MM, 5 * MM, 287 * MM, 200 * MM, cw, ch);
+    return;
+  }
+  const W = 400 * MM;
+  const H = 287 * MM;
+  if (a3) {
+    doc.addPage({ size: "A3", layout: "landscape", margin: 0 });
+    plancia(doc, 10 * MM, 5 * MM, W, H, cw, ch);
+    return;
+  }
+  for (const meta of [0, 1]) {
+    doc.addPage({ size: "A4", margin: 0 });
+    doc.save();
+    doc.rect(5 * MM, 5 * MM, W / 2, H).clip();
+    plancia(doc, 5 * MM - meta * (W / 2), 5 * MM, W, H, cw, ch);
+    doc.restore();
+    const testo =
+      meta === 0
+        ? "Plancia, foglio 1 di 2 (sinistra): ritaglia il margine bianco a destra, lungo le lineette, e appoggia questo foglio sul foglio 2"
+        : "Plancia, foglio 2 di 2 (destra): il foglio 1 si appoggia sul margine bianco a sinistra";
+    doc.font(FONT.normale).fontSize(6.5).fillColor("#999999").text(testo, 5 * MM, PAGINA.h - 3.6 * MM, { width: 200 * MM, align: "center", lineBreak: false });
+    if (meta === 0) {
+      const x = 5 * MM + W / 2;
+      doc.moveTo(x, 0).lineTo(x, 4 * MM).moveTo(x, PAGINA.h - 4 * MM).lineTo(x, PAGINA.h).lineWidth(0.5).stroke("#888888");
+    }
+  }
+}
+
 /* ---------------- impaginazione ---------------- */
 
 type Disegno = (doc: Doc, x: number, y: number) => void;
@@ -733,6 +870,9 @@ interface Scelta {
   fronteRetro: boolean;
   /** Dorsi leggeri, con poco inchiostro. */
   leggero: boolean;
+  /** Plancia del giocatore (e, con le carte da 9, su un foglio A3 invece che su due A4). */
+  plancia: boolean;
+  a3: boolean;
   /** Carte per foglio: 9, 16 o 30. */
   perFoglio: number;
 }
@@ -754,11 +894,12 @@ function leggiScelta(argomenti: string[]): Scelta {
   const unaCopia = parole.includes("--una-copia");
   const fronteRetro = parole.includes("--fronte-retro");
   const leggero = parole.includes("--dorso-leggero");
-  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero");
+  const a3 = parole.includes("--a3");
+  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero" && a !== "--a3");
   if (nomi.length === 0) {
-    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, perFoglio };
+    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, plancia: false, a3, perFoglio };
   }
-  const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi"];
+  const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi", "plancia"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
   if (sconosciuti.length > 0) {
     console.error(`Non trovo: ${sconosciuti.join(", ")}`);
@@ -778,13 +919,20 @@ function leggiScelta(argomenti: string[]): Scelta {
     unaCopia,
     fronteRetro,
     leggero,
+    plancia: nomi.includes("plancia"),
+    a3,
     perFoglio,
   };
 }
 
 function crea(): void {
   const scelta = leggiScelta(process.argv.slice(2));
-  const file = uscita(scelta.tutto ? "carte" : "scelta", scelta.perFoglio, scelta.leggero);
+  const soloPlancia = scelta.plancia && scelta.carte.length === 0 && !scelta.numeri && !scelta.mancia && !scelta.eventi && !scelta.dorsi;
+  if (scelta.plancia && scelta.perFoglio !== 9 && scelta.perFoglio !== 16) {
+    console.error("La plancia c'è per le carte da 9 e da 16 per foglio.");
+    process.exit(1);
+  }
+  const file = uscita(scelta.tutto ? "carte" : soloPlancia ? "plancia" : "scelta", scelta.perFoglio, scelta.leggero);
   dorsiLeggeri = scelta.leggero;
   const formato = FORMATI[scelta.perFoglio]!;
   const normale = griglia(formato.colonne, formato.righe);
@@ -818,7 +966,8 @@ function crea(): void {
       pagine(doc, Array.from({ length: g.posti.length }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`, g);
     }
   }
-  if (personaggi.length + numeri.length + mancia.length + eventi.length === 0 && !scelta.tabella && !scelta.dorsi) {
+  if (scelta.plancia) paginePlancia(doc, normale, scelta.a3);
+  if (personaggi.length + numeri.length + mancia.length + eventi.length === 0 && !scelta.tabella && !scelta.dorsi && !scelta.plancia) {
     console.error("Niente da stampare.");
     process.exit(1);
   }
