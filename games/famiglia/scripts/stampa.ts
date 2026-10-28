@@ -22,6 +22,9 @@
  *
  * Carte per foglio: --per-foglio 16 o --per-foglio 30 (carte rimpicciolite; di base 9 in formato poker).
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
+ *
+ * Dorsi che consumano poco inchiostro: --dorso-leggero (fondo bianco, solo la cornice e uno stemma al centro con il
+ * nome scritto in cerchio, uguale anche capovolto). Il file finisce con "-leggero" (es. la-famiglia-carte-16-leggero_<data_ora>.pdf).
  */
 import { createWriteStream, existsSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -74,8 +77,8 @@ function adesso(): string {
 }
 const quando = adesso();
 /** Nome del PDF: "carte" (tutto) o "scelta", con le carte per foglio se non sono 9 (es. la-famiglia-carte-16_…). */
-const uscita = (cosa: "carte" | "scelta", perFoglio: number) =>
-  radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}_${quando}.pdf`);
+const uscita = (cosa: "carte" | "scelta", perFoglio: number, leggero: boolean) =>
+  radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}${leggero ? "-leggero" : ""}_${quando}.pdf`);
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
 function immagine(c: Carta): string | undefined {
@@ -413,7 +416,11 @@ const DORSI: Record<Mazzo, { chiaro: string; scuro: string; gemma: string; titol
   eventi: { chiaro: "#7a2a4c", scuro: "#2a0a16", gemma: "#43122a", titolo: "Eventi" },
 };
 
+/** Dorsi leggeri (--dorso-leggero): poco inchiostro. */
+let dorsiLeggeri = false;
+
 function dorso(doc: Doc, x: number, y: number, mazzo: Mazzo) {
+  if (dorsiLeggeri) return dorsoLeggero(doc, x, y, mazzo);
   const d = DORSI[mazzo];
   const cx = x + L / 2;
   const cy = y + A / 2;
@@ -441,6 +448,53 @@ function dorso(doc: Doc, x: number, y: number, mazzo: Mazzo) {
   doc.polygon(...ottagono(cx, cy, 50)).lineWidth(3).fillAndStroke(d.gemma, ORO);
   doc.polygon(...ottagono(cx, cy, 44)).lineWidth(0.6).stroke("#e8c56a");
   rigaCheSta(doc, d.titolo, cx - 40, cy - 9, 80, FONT.nero, 17, "#e8c56a");
+}
+
+/**
+ * Dorso che consuma poco inchiostro: fondo bianco, cornice dorata e al centro uno stemma con il nome del mazzo scritto
+ * due volte in cerchio. Girato sottosopra è identico: non c'è un verso giusto e uno sbagliato.
+ */
+function dorsoLeggero(doc: Doc, x: number, y: number, mazzo: Mazzo) {
+  const d = DORSI[mazzo];
+  const cx = x + L / 2;
+  const cy = y + A / 2;
+  doc.roundedRect(x + 1.5, y + 1.5, L - 3, A - 3, 9).lineWidth(1.6).stroke(ORO);
+  doc.roundedRect(x + 7, y + 7, L - 14, A - 14, 6).lineWidth(0.5).dash(1, { space: 2.5 }).stroke(ORO).undash();
+  // stelline negli angoli (uguali a coppie opposte)
+  for (const [sx, sy] of [[x + 15, y + 15], [x + L - 15, y + 15], [x + 15, y + A - 15], [x + L - 15, y + A - 15]] as const) {
+    scintilla(doc, sx, sy, 3.5, ORO);
+  }
+  // stemma: due anelli e un ottagono vuoto con una stella al centro
+  const r = 56;
+  doc.circle(cx, cy, r + 9).lineWidth(0.9).stroke(ORO);
+  doc.circle(cx, cy, r - 9).lineWidth(0.6).stroke(ORO);
+  doc.polygon(...ottagono(cx, cy, r - 20)).lineWidth(1.2).stroke(d.chiaro);
+  scintilla(doc, cx, cy, 13, d.chiaro);
+  // nome in cerchio, due volte (in alto e, girato, in basso), con una stellina tra le due scritte
+  const testo = d.titolo.toUpperCase();
+  const corpo = 10;
+  doc.font(FONT.nero).fontSize(corpo).fillColor(d.chiaro);
+  const spazio = 1.2;
+  const larghezze = [...testo].map((ch) => doc.widthOfString(ch) + spazio);
+  const arco = larghezze.reduce((s, w) => s + w, 0) - spazio;
+  for (const centro of [-90, 90]) {
+    let angolo = centro - ((arco / r) * 180) / Math.PI / 2;
+    [...testo].forEach((ch, i) => {
+      const w = larghezze[i]!;
+      const meta = angolo + ((w - spazio) / 2 / r) * (180 / Math.PI);
+      const rad = (meta * Math.PI) / 180;
+      const px = cx + r * Math.cos(rad);
+      const py = cy + r * Math.sin(rad);
+      doc.save().translate(px, py).rotate(meta + 90);
+      doc.text(ch, -(w - spazio) / 2, -corpo * 0.62, { lineBreak: false });
+      doc.restore();
+      angolo += (w / r) * (180 / Math.PI);
+    });
+  }
+  for (const a of [0, 180]) {
+    const rad = (a * Math.PI) / 180;
+    scintilla(doc, cx + r * Math.cos(rad), cy + r * Math.sin(rad), 4, ORO);
+  }
 }
 
 /* ---------------- impaginazione ---------------- */
@@ -674,6 +728,8 @@ interface Scelta {
   tabella: boolean;
   unaCopia: boolean;
   fronteRetro: boolean;
+  /** Dorsi leggeri, con poco inchiostro. */
+  leggero: boolean;
   /** Carte per foglio: 9, 16 o 30. */
   perFoglio: number;
 }
@@ -694,8 +750,11 @@ function leggiScelta(argomenti: string[]): Scelta {
   }
   const unaCopia = parole.includes("--una-copia");
   const fronteRetro = parole.includes("--fronte-retro");
-  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro");
-  if (nomi.length === 0) return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, perFoglio };
+  const leggero = parole.includes("--dorso-leggero");
+  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero");
+  if (nomi.length === 0) {
+    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, perFoglio };
+  }
   const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
   if (sconosciuti.length > 0) {
@@ -715,13 +774,15 @@ function leggiScelta(argomenti: string[]): Scelta {
     tabella: nomi.includes("tabella") || carte.length > 0,
     unaCopia,
     fronteRetro,
+    leggero,
     perFoglio,
   };
 }
 
 function crea(): void {
   const scelta = leggiScelta(process.argv.slice(2));
-  const file = uscita(scelta.tutto ? "carte" : "scelta", scelta.perFoglio);
+  const file = uscita(scelta.tutto ? "carte" : "scelta", scelta.perFoglio, scelta.leggero);
+  dorsiLeggeri = scelta.leggero;
   const formato = FORMATI[scelta.perFoglio]!;
   const normale = griglia(formato.colonne, formato.righe);
   mkdirSync(fileURLToPath(new URL("../../../docs/famiglia/stampa/", import.meta.url)), { recursive: true });

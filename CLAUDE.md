@@ -43,7 +43,8 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.
   Carte da stampare: `pnpm stampa:famiglia` → `docs/famiglia/stampa/la-famiglia-carte_<data_ora>.pdf` (A4, 9 carte formato poker per pagina staccate di 4 mm,
   mancia piccola 4 per posto, dorsi in fondo; con `--fronte-retro` ogni pagina è seguita dai suoi dorsi a specchio;
-  `--per-foglio 16|30` carte rimpicciolite, file `la-famiglia-carte-16_…`;
+  `--per-foglio 16|30` carte rimpicciolite, file `la-famiglia-carte-16_…`; `--dorso-leggero` dorsi con poco inchiostro
+  (fondo bianco, cornice e stemma con il nome in cerchio, uguale anche capovolto), file `…-leggero_…`;
   contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
   Sulle carte solo il nome del potere; i testi sono nella tabella dei poteri all'inizio. Solo alcune carte:
   `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta_<data_ora>.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).
