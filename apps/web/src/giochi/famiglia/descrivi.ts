@@ -71,7 +71,8 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     }
     if (typeof p.valore === "number") {
       const trucco = m.tipo === "potere" && m.potere === "un-filo-di-trucco";
-      parti.push(trucco ? `la fai diventare un ${p.valore}` : `cerca un ${p.valore}`);
+      const collezione = m.tipo === "potere" && (m.potere === "collezione" || m.potereCopiato === "collezione");
+      parti.push(trucco ? `la fai diventare un ${p.valore}` : collezione ? `collezione di ${p.valore}: tutti ti danno i loro ${p.valore}` : `cerca un ${p.valore}`);
     }
     if (p.scelte) parti.push(elenco(p.scelte.map((x) => VOCI_MENU[x] ?? x)));
     return parti.length > 0 ? ` – ${parti.join(", ")}` : "";

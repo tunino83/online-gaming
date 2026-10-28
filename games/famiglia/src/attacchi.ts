@@ -32,7 +32,7 @@ import type { Carta, CartaNumero } from "./tipi-carte";
 /* ------------------------------------------------------------------ */
 
 /** Attacchi contro tutti gli avversari (gli altri colpiscono un avversario scelto). */
-const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa"]);
+const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa", "collezione"]);
 
 /** Attacchi che fanno stancare una carta carica scelta dall'attaccante. */
 const STANCANO_UNA_CARTA = new Set(["versa-il-vino", "la-tomacella", "il-bastone"]);
@@ -112,6 +112,8 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
   let bersagli: IdGiocatore[];
   if (controTutti) {
     bersagli = avversariDopo(s, id).filter((x) => attaccabile(s, id, x));
+    // Collezione: serve una coppia in mano del valore scelto (si mostra a tutti)
+    if (potere === "collezione" && !valoriInCoppia(g).includes(p.valore ?? 0)) rifiuta("Scegli un valore di cui hai almeno una coppia in mano");
     if (potere === "multa") {
       const max = Math.max(0, ...bersagli.map((x) => s.giocatori[x]!.mano.length));
       bersagli = max === 0 ? [] : bersagli.filter((x) => s.giocatori[x]!.mano.length === max);
@@ -208,6 +210,13 @@ function modiDiPagareIlCarico(g: StatoGiocatore, carico: number, giaUsate: Set<s
   }
   if (tot >= carico && !(alte.length === 1 && una && alte[0] === una.id)) modi.push({ carico: alte });
   return modi;
+}
+
+/** Valori di cui il giocatore ha almeno due carte numero in mano (Collezione). */
+function valoriInCoppia(g: StatoGiocatore): number[] {
+  const conta = new Map<number, number>();
+  for (const c of g.mano) if (!c.unite) conta.set(c.valore, (conta.get(c.valore) ?? 0) + 1);
+  return [...conta].filter(([, n]) => n >= 2).map(([v]) => v);
 }
 
 /** Ho tanta fame (Christian, braccine corte): gli avversari con i punti più vicini a quelli di chi attacca. */
@@ -405,6 +414,14 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "risata-contagiosa":
       scartaACaso(1);
       break;
+    case "collezione": {
+      // Ogni avversario dà a chi fa la collezione tutte le carte numero di quel valore che ha in mano
+      if (suSeStesso) break;
+      const prese = V.mano.filter((c) => !c.unite && c.valore === p.valore);
+      V.mano = V.mano.filter((c) => !prese.includes(c));
+      A.mano.push(...prese);
+      break;
+    }
     case "bisiniss": {
       // La carta numero più alta viene tagliata a metà: si scarta e al suo posto arriva una carta che vale la metà
       if (V.mano.length === 0) break;
@@ -839,6 +856,7 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
   if (CONTRO_TUTTI.has(potere)) {
     if (potere === "multa" && avversari.every((x) => s.giocatori[x]!.mano.length === 0)) return [];
     if (avversari.length === 0) return [];
+    if (potere === "collezione") return valoriInCoppia(g).map((valore) => ({ valore }));
     return [{}];
   }
   if (potere === "invasione-di-campo") {

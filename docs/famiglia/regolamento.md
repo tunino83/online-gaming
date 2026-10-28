@@ -140,7 +140,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   Si può usare anche dopo l'ultima pescata del turno. La carta poi si stanca come le altre.
 - **Fatto in casa** (Maddalena): le 2 carte restano unite come una sola carta "fatta in casa" che vale la loro somma
   (al massimo 8). Quando si usa o si scarta, vanno negli scarti tutte e due.
-- **La vetrina della collezione** (Checca): al massimo 3 carte in vetrina in tutto; non contano nel limite delle 7
+- **La vetrina della collezione** (Checca, tolta il 2026-10-28: al suo posto l'attacco *Collezione*): al massimo 3 carte in vetrina in tutto; non contano nel limite delle 7
   carte in mano; sono visibili a tutti; escono dalla vetrina solo quando si usano in un codice.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
   - **Lezione di padel**: una carta "fatta in casa" non si può mettere sul tavolo.
@@ -430,4 +430,12 @@ le confronta tra i robot (`docs/famiglia/confronto-difese.md`).
 Rosso attacchi, blu difese, giallo aiuti, verde aiuti sempre attivi, viola difese usa e getta, arancione attacchi usa
 e getta (`COLORI_TIPI` in `games/famiglia/src/colori.ts`, uguali nel gioco e nel PDF). Le stelle del livello sono su
 tutte le carte, anche su vini, scuse e carte attacco.
+
+## Checca: Collezione (2026-10-28)
+
+**Collezione** ⚔️ (Checca livello 2, codice 1 2 3) prende il posto della *Vetrina della collezione* (complicata e
+scomoda da mostrare con le carte stampate). È un attacco contro tutti: mostri una **coppia** che hai in mano (es. due 5)
+e dici che stai facendo la collezione di quel numero; **ogni avversario ti dà tutte le carte numero di quel valore** che
+ha in mano. Ci si può difendere come da ogni attacco (con il carico, se la partita lo prevede). Se a fine turno hai più
+di 7 carte, scarti come sempre. Le carte "fatte in casa" (Fatto in casa) non contano.
 

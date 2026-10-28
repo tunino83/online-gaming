@@ -2,7 +2,7 @@
 
 Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
-### ⚔️ ATTACCO (31)
+### ⚔️ ATTACCO (32)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -11,6 +11,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Nicola | 3 | **È insipido** | Ogni avversario ti dà 1 carta numero (sceglie lui quale) | 66 + una coppia qualsiasi | ricarica 3 |
 | Nonna Patrizia | 3 | **Baratto** | Scambi una tua carta attivata con una attivata di un avversario (punti compresi), dello stesso livello o con un livello di differenza; tutte e due diventano stanche | 4 carte dispari | ricarica 3 |
 | Totò | 1 | **Si incanta** | Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero | 2 carte con somma 11 | ricarica 1 |
+| Checca | 2 | **Collezione** | Mostri a tutti una coppia: ogni avversario ti dà tutte le carte numero di quel valore che ha in mano | 123 | ricarica 2 |
 | Checca | 1 | **Lingua Glabra** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
 | Donatina | 3 | **Urla** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
 | Zio Salvatore | 1 | **Si canta!** | Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
@@ -74,7 +75,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nevicava, non è potuto venire (carta difesa) | 2 | **Nevicava, non è potuto venire** | Annulli un attacco; per il resto del giro nessuno può più attaccare | 2 carte qualsiasi | si usa una volta, 2 copie |
 | Sono andato a Lioni a fa' a spesa (carta difesa) | 2 | **Sono andato a Lioni a fa' a spesa** | Annulli un attacco e peschi 2 carte numero | 2 carte qualsiasi | si usa una volta, 2 copie |
 
-### ✨ AIUTO (39)
+### ✨ AIUTO (38)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -93,7 +94,6 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Chicca | 2 | 🔵 **Aperitivo** | Sempre attiva: le carte vino (Paesano, Aglianico, Taurasi) e Campari le usi senza pagarne il codice | 3 carte con somma 9 | blu |
 | Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |
 | Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3, gratis |
-| Checca | 2 | **La vetrina della collezione** | Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici | 123 | ricarica 2 |
 | Donatina | 1 | **Scaffale** | Prendi 2 carte numero scoperte dal tavolo | 2 carte con somma 5 | ricarica 1 |
 | Donatina | 2 | **Ce l'ho io!** | Cerchi nel mazzo numeri la carta che vuoi e la prendi | Scala da 3 | ricarica 2 |
 | Zio Salvatore | 3 | **Anima della festa** | 3 mosse in più, poi 1 in meno nei 2 turni successivi | 88 + una coppia qualsiasi | ricarica 3, gratis |

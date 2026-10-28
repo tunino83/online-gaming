@@ -278,7 +278,7 @@ export interface ParametriPotere {
   carte?: string[];
   /** Posizioni sul tavolo (Scaffale, Lezione di padel). */
   posizioni?: number[];
-  /** Valore cercato (Ce l'ho io!). */
+  /** Valore cercato (Ce l'ho io!, Collezione). */
   valore?: number;
   /** Giocatore scelto (Studia il fascicolo). */
   giocatore?: IdGiocatore;

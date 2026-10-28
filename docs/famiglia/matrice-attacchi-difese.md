@@ -52,6 +52,7 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | Baratto (Nonna Patrizia 3) | 3 | uno | ✓ | ↪ | · | · | 🔁 | ✓ | · | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 8 |
 | Si incanta (Totò 1) | 1 | uno | ✓ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 28 |
 | Lingua Glabra (Checca 1) | 1 | uno | ✓ | ↪ | ✓ | ✓ | 🔁 | ✓ | ✓ | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 28 |
+| Collezione (Checca 2) | 2 | uno | ✓ | ↪ | ✓ | · | 🔁 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | – | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
 | Urla (Donatina 3) | 3 | tutti | ✓ | · | · | · | 🔁 | ✓ | · | ✓ | · | · | · | · | · | · | · | · | ✓ | · | · | ✓ | · | · | · | · | · | ✓ | · | · | · | · | 7 |
 | Si canta! (Zio Salvatore 1) | 1 | tutti | ✓ | · | ✓ | ✓ | 🔁 | ✓ | ✓ | ✓ | ✓ | ½ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | – | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 27 |
 | Versa il vino (Zio Salvatore 2) | 2 | uno | ✓ | ↪ | ✓ | · | 🔁 | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | 🩹 | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 23 |
@@ -83,11 +84,11 @@ Generata da `games/famiglia/scripts/matrice.ts` (`pnpm matrice:famiglia`): si ag
 | Livello attacco | Attacchi | Difese che li fermano (✓ ↪ 🔁) |
 | --- | --- | --- |
 | 1 | 7 | da 27 a 28 su 30 |
-| 2 | 13 | da 22 a 23 su 30 |
+| 2 | 14 | da 22 a 23 su 30 |
 | 3 | 11 | da 7 a 8 su 30 |
 
 | Livello difesa | Difese | Attacchi che possono fermare |
 | --- | --- | --- |
-| 1 | 6 | da 0 a 7 su 31 |
-| 2 | 16 | da 0 a 20 su 31 |
-| 3 | 8 | da 23 a 31 su 31 |
+| 1 | 6 | da 0 a 7 su 32 |
+| 2 | 16 | da 0 a 21 su 32 |
+| 3 | 8 | da 24 a 32 su 32 |

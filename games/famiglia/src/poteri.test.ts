@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { banconota, contaCarte, copia, fai, num, partita, rifiutata } from "./aiuti-test";
 import { CARTE, carta } from "./carte";
-import { BLU_DA_SOLI, MAX_VETRINA, POTERI_COPIA } from "./poteri";
+import { BLU_DA_SOLI, POTERI_COPIA } from "./poteri";
 import { mossaAutomatica, mosseValide, puntiDi } from "./regole";
 import type { Mossa, ParametriPotere, StatoPartita } from "./stato";
 import { vistaGiocatore } from "./vista";
@@ -302,42 +302,6 @@ describe("carte numero in mano", () => {
     expect(rifiutata(s, "anna", potere("maddalena-1", { carte: ["a", "b"] }, "fatto-in-casa"))).toMatch(/massimo 8/);
   });
 
-  it("La vetrina della collezione: fino a 3 carte, visibili, fuori dal limite della mano, buone per i codici", () => {
-    let s = conCarta("checca-2");
-    anna(s).mano = [num(2, "a"), num(3, "b"), num(5, "c"), num(6, "d")];
-    s = usa(s, "checca-2", { carte: ["a", "b", "c"] });
-    expect(anna(s).vetrina.map((c) => c.id)).toEqual(["a", "b", "c"]);
-    expect(vistaGiocatore(s, "bruno").giocatori.anna!.vetrina).toHaveLength(MAX_VETRINA);
-    // codice con carte in vetrina
-    anna(s).nascosti = [copia("donatina-1")]; // 2 carte con somma 5
-    s = fai(s, "anna", {
-      tipo: "attiva",
-      carta: "donatina-1#1",
-      combinazione: [
-        { tipo: "numero", id: "a", valore: 2 },
-        { tipo: "numero", id: "b", valore: 3 },
-      ],
-    });
-    expect(anna(s).vetrina.map((c) => c.id)).toEqual(["c"]);
-    // fuori dal limite: 7 in mano + 1 in vetrina, niente da scartare
-    anna(s).mano = Array.from({ length: 7 }, (_, i) => num(1, `m${i}`));
-    s.turno.mosseRimaste = 0;
-    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "fineTurno", scarta: [] });
-  });
-
-  it("La vetrina non supera 3 carte", () => {
-    let s = conCarta("checca-2");
-    anna(s).mano = [num(2, "a"), num(2, "b")];
-    anna(s).vetrina = [num(1, "v1"), num(1, "v2")];
-    expect(rifiutata(s, "anna", potere("checca-2", { carte: ["a", "b"] }))).toMatch(/Scegli 1 carta numero/);
-    s = usa(s, "checca-2", { carte: ["a"] });
-    expect(anna(s).vetrina).toHaveLength(3);
-  });
-});
-
-/* ---------------- ricarica e informazioni ---------------- */
-
-describe("ricarica e informazioni", () => {
   it("Brace accesa: ricarica 2 altre tue carte stanche (o 1 se è l'unica; non sé stessa)", () => {
     let s = conCarta("toto-2");
     anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 });

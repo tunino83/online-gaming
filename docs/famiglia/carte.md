@@ -37,7 +37,7 @@ Regole usate:
 | Totò | 2 | Brace accesa | ✨ | 3 carte con somma 15 |
 | Totò | 3 | Grigliata | ✨ | 4 carte pari |
 | Checca | 1 | Lingua Glabra | ⚔️ | 2 carte con somma 6 |
-| Checca | 2 | La vetrina della collezione | ✨ | 123 |
+| Checca | 2 | Collezione | ⚔️ | 123 |
 | Checca | 3 | Stuffosa | 🛡️ | 4 carte con somma 24 |
 | Donatina | 1 | Scaffale | ✨ | 2 carte con somma 5 |
 | Donatina | 2 | Ce l'ho io! | ✨ | Scala da 3 |

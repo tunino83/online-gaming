@@ -183,9 +183,9 @@ const ADULTI: Carta[] = [
     {
       codice: esatto(1, 2, 3),
       poteri: [
-        aiuto(
-          "La vetrina della collezione",
-          "Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici",
+        attacco(
+          "Collezione",
+          "Mostri a tutti una coppia che hai in mano (es. due 5): ogni avversario ti dà tutte le carte numero di quel valore che ha in mano",
         ),
       ],
     },

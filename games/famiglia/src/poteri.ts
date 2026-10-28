@@ -74,8 +74,6 @@ function sentonoLaPuzza(s: StatoPartita, nasi: IdGiocatore[]): void {
   }
 }
 
-/** Massimo di carte in vetrina (Checca). */
-export const MAX_VETRINA = 3;
 
 /* ------------------------------------------------------------------ */
 /* Uso di un potere                                                    */
@@ -403,11 +401,6 @@ function applicaAiuto(
       g.mano.push({ id: `casa-${coppia[0]!.id}`, valore: valore as CartaNumero["valore"], unite: [coppia[0]!, coppia[1]!] });
       return;
     }
-    case "la-vetrina-della-collezione": {
-      const carte = carteDallaMano(g, m.carte, 1, MAX_VETRINA - g.vetrina.length);
-      g.vetrina.push(...carte);
-      return;
-    }
 
     /* ---------------- ricarica e informazioni ---------------- */
     case "brace-accesa": {
@@ -722,11 +715,6 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     case "fatto-in-casa": {
       const somme = coppie(mano).filter(([a, b]) => valoreDi(g, a!) + valoreDi(g, b!) <= 8);
       return somme.slice(0, 6).map((carte) => ({ carte }));
-    }
-    case "la-vetrina-della-collezione": {
-      const posto = MAX_VETRINA - g.vetrina.length;
-      if (posto <= 0 || mano.length === 0) return [];
-      return [{ carte: mano.slice(0, posto) }, ...mano.slice(0, 4).map((x) => ({ carte: [x] }))];
     }
     case "brace-accesa": {
       const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0).map((x) => x.copia.id);

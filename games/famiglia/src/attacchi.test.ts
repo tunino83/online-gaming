@@ -761,7 +761,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(31);
+    expect(attacchi.length).toBe(32);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);
@@ -971,6 +971,33 @@ describe("carico (opzione in prova)", () => {
     s = difendi(s, "bruno", "antonio-3", { harakiri: true });
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
     expect(mosseValide(s, "carla")).toContainEqual({ tipo: "difendi", carta: "antonio-3#2", potere: "ho-sempre-ragione-io", harakiri: true });
+  });
+});
+
+describe("Collezione (Checca 2)", () => {
+  it("mostri una coppia: ogni avversario ti dà tutte le carte di quel valore che ha in mano", () => {
+    let s = attivata(partita(), "anna", "checca-2");
+    g(s, "anna").mano = [num(5, "a1"), num(5, "a2"), num(2, "a3")];
+    g(s, "bruno").mano = [num(5, "b1"), num(5, "b2"), num(1, "b3")];
+    g(s, "carla").mano = [num(4, "c1")];
+    expect(mosseValide(s, "anna").filter((m) => m.tipo === "potere" && m.potere === "collezione")).toEqual([
+      { tipo: "potere", carta: "checca-2#1", potere: "collezione", valore: 5 },
+    ]);
+    expect(rifiutata(s, "anna", { tipo: "potere", carta: "checca-2#1", potere: "collezione", valore: 2 })).toMatch(/coppia/);
+    s = attacca(s, "checca-2", { valore: 5 });
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["a1", "a2", "a3", "b1", "b2"]);
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["b3"]);
+    expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["c1"]);
+  });
+
+  it("è un attacco: chi ha una difesa può fermarlo", () => {
+    let s = attivata(attivata(partita(), "anna", "checca-2"), "bruno", "marika-2"); // Non c'è, ha il turno
+    g(s, "anna").mano = [num(3, "a1"), num(3, "a2")];
+    g(s, "bruno").mano = [num(3, "b1")];
+    s = attacca(s, "checca-2", { valore: 3 });
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    s = difendi(s, "bruno", "marika-2");
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["b1"]);
   });
 });
 
