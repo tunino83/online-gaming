@@ -46,8 +46,8 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   `--per-foglio 16|30` carte rimpicciolite, file `la-famiglia-carte-16_…`; `--dorso-leggero` dorsi con poco inchiostro
   (fondo bianco, cornice dorata con bordo del colore del mazzo, stemma con il nome in cerchio, uguale anche capovolto), file `…-leggero_…`;
   Plancia del giocatore per giocare con le carte stampate: `pnpm stampa:famiglia plancia [--per-foglio 16]` → `la-famiglia-plancia[-16]_…`
-  (scaletta degli attivati Carica/1/2/3/4+ turni, attacchi in attesa, nascosti, mancia e vetrina, segnapunti 0–30; con le carte da 9
-  due A4 da affiancare, `--a3` per un A3);
+  (un A4 orizzontale: CARICA e attacchi a ventaglio, scaletta delle stanche 1/2/3+ turni a mucchietto, mancia, segnapunti 0–30;
+  i personaggi nascosti restano in mano);
   contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
   Sulle carte solo il nome del potere; i testi sono nella tabella dei poteri all'inizio. Solo alcune carte:
   `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta_<data_ora>.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).

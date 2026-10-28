@@ -24,7 +24,7 @@
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
  *
  * Plancia del giocatore (dove appoggiare le carte quando si gioca con le carte stampate): pnpm stampa:famiglia plancia
- * (con --per-foglio 16 un A4 orizzontale; con le carte da 9 due A4 da affiancare, oppure un A3 con --a3).
+ * (un A4 orizzontale, con i posti grandi come le carte: 9 per foglio di base, oppure --per-foglio 16).
  * File la-famiglia-plancia[-16]_<data_ora>.pdf.
  *
  * Dorsi che consumano poco inchiostro: --dorso-leggero (fondo bianco, cornice dorata con il bordo colorato del mazzo, uno stemma al centro con il
@@ -506,135 +506,156 @@ function dorsoLeggero(doc: Doc, x: number, y: number, mazzo: Mazzo) {
 
 /* ---------------- plancia del giocatore ---------------- */
 
-const PLANCIA_COLORI = { attivati: "#5a3488", attacchi: "#c63d2f", nascosti: "#2d5f9a", mancia: "#a8801f", punti: "#3e8a4f" };
+const PLANCIA_COLORI = { carica: "#3e8a4f", stanche: "#5a3488", attacchi: "#c63d2f", nascosti: "#2d5f9a", mancia: "#a8801f", punti: "#a8801f" };
+const mm = (v: number) => v * MM;
 
-/** Contorno tratteggiato di una carta (dove appoggiarla). */
-function postoCarta(doc: Doc, x: number, y: number, w: number, h: number, colore: string) {
-  doc.roundedRect(x, y, w, h, 2.5 * MM).lineWidth(0.7).dash(2, { space: 2 }).stroke(colore).undash();
+/** Posto di una carta: contorno tratteggiato con gli angoli arrotondati. */
+function postoCarta(doc: Doc, x: number, y: number, w: number, h: number, colore: string, opacita = 1) {
+  doc.save().strokeOpacity(opacita);
+  doc.roundedRect(x, y, w, h, mm(2.5)).lineWidth(0.7).dash(2.2, { space: 2 }).stroke(colore).undash();
+  doc.restore();
 }
 
-/** Riquadro di una zona: bordo colorato, titolo in alto a sinistra e una nota piccola a destra. */
-function zona(doc: Doc, x: number, y: number, w: number, h: number, colore: string, titolo: string, nota = "") {
-  doc.roundedRect(x, y, w, h, 3 * MM).lineWidth(1.4).stroke(colore);
-  doc.font(FONT.nero).fontSize(9).fillColor(colore).text(titolo, x + 2.5 * MM, y + 1.8 * MM, { lineBreak: false });
-  if (nota) doc.font(FONT.normale).fontSize(6.5).fillColor(MATITA).text(nota, x + 2.5 * MM, y + 2.3 * MM, { width: w - 5 * MM, align: "right", lineBreak: false });
+/** Fulmine (carte cariche). */
+function fulmine(doc: Doc, x: number, y: number, h: number, colore: string) {
+  const k = h / 10;
+  doc.polygon([x + 4 * k, y], [x + 7 * k, y], [x + 5.2 * k, y + 4 * k], [x + 7.5 * k, y + 4 * k], [x + 2.5 * k, y + 10 * k], [x + 3.8 * k, y + 5.6 * k], [x + 1.5 * k, y + 5.6 * k]).fill(colore);
 }
 
 /**
- * Plancia di un giocatore, larga `W` e alta `H` (punti) a partire da (ox, oy), per carte grandi `cw` × `ch`:
- * in alto la scaletta degli attivati (Carica, 1, 2, 3, 4+ turni: a inizio turno ogni carta stanca scende di un gradino
- * verso Carica), sotto gli attacchi in attesa, i nascosti, mancia e vetrina; a destra il segnapunti dei poteri (0–30).
+ * Zona della plancia: fondo appena colorato, bordo, e un'etichetta piena (con l'icona) a cavallo del bordo in alto.
+ * Restituisce dove cominciano i posti delle carte.
  */
-function plancia(doc: Doc, ox: number, oy: number, W: number, H: number, cw: number, ch: number) {
-  const m = 3 * MM;
-  const g = 4 * MM;
+function zonaPlancia(doc: Doc, x: number, y: number, w: number, h: number, colore: string, titolo: string, icona?: (x: number, y: number) => void, nota = "") {
+  doc.save().fillOpacity(0.07).roundedRect(x, y, w, h, mm(3)).fill(colore).restore();
+  doc.roundedRect(x, y, w, h, mm(3)).lineWidth(1.3).stroke(colore);
+  doc.font(FONT.nero).fontSize(8);
+  if (!titolo) return;
+  const lt = doc.widthOfString(titolo) + (icona ? mm(4.2) : 0) + mm(4);
+  const ty = y - mm(2.8);
+  doc.roundedRect(x + mm(3), ty, lt, mm(5.6), mm(2.8)).fill(colore);
+  if (icona) icona(x + mm(4.6), ty + mm(1.1));
+  doc.fillColor("#ffffff").text(titolo, x + mm(3) + (icona ? mm(5.6) : mm(2)), ty + mm(1.25), { lineBreak: false });
+  if (nota) {
+    doc.font(FONT.mano).fontSize(9.5).fillColor(colore);
+    doc.text(nota, x + mm(5) + lt, y + mm(0.6), { width: Math.max(0, w - lt - mm(9)), align: "right", lineBreak: false });
+  }
+}
+
+/** Freccia piena (verso sinistra o verso l'alto) con una scritta piccola. */
+function frecciaPlancia(doc: Doc, cx: number, cy: number, verso: "sinistra" | "su", testo: string) {
+  const k = mm(1);
+  doc.save().translate(cx, cy).rotate(verso === "su" ? 90 : 0);
+  doc.polygon([-3.5 * k, 0], [0, -3 * k], [0, -1.3 * k], [3.5 * k, -1.3 * k], [3.5 * k, 1.3 * k], [0, 1.3 * k], [0, 3 * k]).fill(ORO);
+  doc.restore();
+  doc.font(FONT.mano).fontSize(8).fillColor(MATITA);
+  if (verso === "sinistra") doc.text(testo, cx - mm(8), cy + mm(3.6), { width: mm(16), align: "center", lineBreak: false });
+  else doc.text(testo, cx + mm(4), cy - mm(1.6), { lineBreak: false });
+}
+
+/**
+ * Plancia di un giocatore su un A4 orizzontale, per carte larghe `C` e alte `H` (mm). I personaggi nascosti restano in mano.
+ * In alto: CARICA (le carte attivate e pronte, a ventaglio) e ATTACCHI IN ATTESA (a ventaglio).
+ * In basso la scaletta delle carte stanche: 1 turno, 2 turni, 3+ turni (a mucchietto: all'inizio del tuo turno ogni
+ * mucchietto scende di un gradino, quello di "1 turno" torna in CARICA), e la MANCIA. A destra il segnapunti 0–30.
+ */
+function plancia(doc: Doc, C: number, H: number) {
   const col = PLANCIA_COLORI;
+  const M = 4.5; // margine del foglio
+  const W = 297 - 2 * M;
+  const T = 210 - 2 * M;
+  // cornice del foglio: pergamena leggera e doppio filo dorato
+  doc.save().fillOpacity(0.35).roundedRect(mm(M), mm(M), mm(W), mm(T), mm(4)).fill("#f6ecd2").restore();
+  doc.roundedRect(mm(M), mm(M), mm(W), mm(T), mm(4)).lineWidth(1.6).stroke(ORO);
+  doc.roundedRect(mm(M + 1.4), mm(M + 1.4), mm(W - 2.8), mm(T - 2.8), mm(3)).lineWidth(0.5).dash(1, { space: 2 }).stroke(ORO).undash();
+
   // intestazione
-  doc.font(FONT.nero).fontSize(14).fillColor("#7a4a26").text("La Famiglia", ox + m, oy + m, { lineBreak: false });
-  doc.font(FONT.normale).fontSize(9).fillColor(MATITA).text("plancia di: ____________________", ox + m + 30 * MM, oy + m + 1.4 * MM, { lineBreak: false });
+  const xi = M + 4;
+  doc.font(FONT.nero).fontSize(14).fillColor("#7a4a26").text("La Famiglia", mm(xi), mm(M + 2.2), { lineBreak: false });
+  const fine = mm(xi) + doc.widthOfString("La Famiglia");
+  scintilla(doc, fine + mm(3), mm(M + 5), mm(1.6), ORO);
+  doc.font(FONT.mano).fontSize(13).fillColor(MATITA).text("plancia di ______________", fine + mm(6), mm(M + 2.4), { lineBreak: false });
   doc
-    .font(FONT.normale)
-    .fontSize(7)
+    .font(FONT.mano)
+    .fontSize(10)
     .fillColor(MATITA)
-    .text("Turno: 3 mosse · a fine turno al massimo 7 carte numero · all'inizio del tuo turno sposta ogni carta stanca di un gradino verso CARICA", ox + m, oy + m + 1.8 * MM, {
-      width: W - 2 * m - 14 * MM,
+    .text("le carte stanche stanno a mucchietto e a ogni tuo turno scendono di un gradino · i personaggi nascosti si tengono in mano", mm(xi), mm(M + 3.4), {
+      width: mm(W - 8),
       align: "right",
       lineBreak: false,
     });
-  const y0 = oy + m + 9 * MM;
-  // segnapunti a destra: 0 in basso, 30 in alto
-  const tw = 10 * MM;
-  const tx = ox + W - m - tw;
-  const larghezza = W - 2 * m - tw - g;
-  const yFondo = oy + H - m;
-  zona(doc, tx, y0, tw, yFondo - y0, col.punti, "");
-  doc.font(FONT.nero).fontSize(6).fillColor(col.punti).text("PUNTI", tx, y0 + 1.5 * MM, { width: tw, align: "center", lineBreak: false });
-  const passo = (yFondo - y0 - 9 * MM) / 31;
-  for (let n = 0; n <= 30; n++) {
-    const cy = yFondo - 2 * MM - passo * (n + 0.5);
-    const r = Math.min(passo * 0.44, 3.2 * MM);
-    doc.circle(tx + tw / 2, cy, r).lineWidth(n % 5 === 0 ? 1 : 0.5).stroke(col.punti);
-    doc.font(n % 5 === 0 ? FONT.nero : FONT.normale).fontSize(Math.min(6.5, r * 1.3)).fillColor(n % 5 === 0 ? col.punti : MATITA);
-    doc.text(String(n), tx, cy - Math.min(6.5, r * 1.3) * 0.42, { width: tw, align: "center", lineBreak: false });
-  }
-  // zone in basso: attacchi (3 carte a ventaglio), nascosti (3 coperte a ventaglio), mancia e vetrina
-  const altezzaBasso = ch + 11 * MM;
-  const yBasso = yFondo - altezzaBasso;
-  const ventaglio = 2 * cw + 6 * MM; // 3 carte sovrapposte di mezza carta
-  zona(doc, ox + m, yBasso, ventaglio, altezzaBasso, col.attacchi, "ATTACCHI IN ATTESA", "scoperti · max 3");
-  zona(doc, ox + m + ventaglio + g, yBasso, ventaglio, altezzaBasso, col.nascosti, "NASCOSTI", "coperti · max 3");
-  for (const [i, colore] of [[0, col.attacchi], [1, col.nascosti]] as const) {
-    const bx = ox + m + i * (ventaglio + g) + 3 * MM;
-    for (let k = 0; k < 3; k++) postoCarta(doc, bx + k * (cw / 2), yBasso + 8 * MM, cw, ch, colore);
-  }
-  const xm = ox + m + 2 * (ventaglio + g);
-  const wm = larghezza - 2 * (ventaglio + g);
-  zona(doc, xm, yBasso, wm, altezzaBasso, col.mancia, "MANCIA · VETRINA");
-  const mw = cw / 2;
-  const mh = ch / 2;
-  const perRiga = Math.max(1, Math.floor((wm - 4 * MM) / (mw + 2 * MM)));
-  for (let k = 0; k < Math.min(perRiga * 2, 6); k++) {
-    postoCarta(doc, xm + 3 * MM + (k % perRiga) * (mw + 2 * MM), yBasso + 8 * MM + Math.floor(k / perRiga) * (mh + 1.5 * MM), mw, mh, col.mancia);
-  }
-  // scaletta degli attivati
-  const yScala = y0;
-  const hScala = yBasso - g - yScala;
-  zona(doc, ox + m, yScala, larghezza, hScala, col.attivati, "ATTIVATI", "le carte di una colonna si sovrappongono lasciando vedere il nome · le carte sempre attive (azzurre) restano in CARICA");
-  const gradini = ["CARICA", "1 turno", "2 turni", "3 turni", "4+ turni"];
-  const gc = 3 * MM;
-  const wc = (larghezza - 6 * MM - (gradini.length - 1) * gc) / gradini.length;
-  gradini.forEach((t, i) => {
-    const cx = ox + m + 3 * MM + i * (wc + gc);
-    const cy = yScala + 8 * MM;
-    const hc = hScala - 11 * MM;
-    doc.roundedRect(cx, cy, wc, hc, 2.5 * MM).lineWidth(i === 0 ? 1.2 : 0.6).stroke(col.attivati);
-    doc.font(FONT.nero).fontSize(i === 0 ? 10 : 9).fillColor(col.attivati).text(t, cx, cy + 1.6 * MM, { width: wc, align: "center", lineBreak: false });
-    if (i === 0) scintilla(doc, cx + wc / 2 - 13 * MM, cy + 3.3 * MM, 2.2 * MM, ORO);
-    postoCarta(doc, cx + (wc - cw) / 2, cy + 7 * MM, cw, Math.min(ch, hc - 9 * MM), col.attivati);
-    // freccia verso sinistra tra un gradino e l'altro: le carte tornano verso CARICA
-    if (i > 0) {
-      const ax = cx - gc / 2;
-      const ay = cy + hc / 2;
-      doc.polygon([ax - 1.3 * MM, ay], [ax + 1.1 * MM, ay - 2 * MM], [ax + 1.1 * MM, ay + 2 * MM]).fill(col.attivati);
-    }
+
+  // due righe di zone e il segnapunti a destra
+  const pad = 0.8;
+  const testa = 2.5; // spazio sotto l'etichetta
+  const riga = H + 2 * pad + testa;
+  const gap = 2.6;
+  const spazio = T - 11.5 - 1.5;
+  const yTop = M + 11.5 + Math.max(0, Math.min(6, (spazio - 2 * riga - gap) / 2));
+  const tw = 11;
+  const xs = M + 3;
+  const larga = W - 6 - tw - 3;
+  const yRiga1 = yTop + testa + pad;
+  /** Carte a ventaglio: la prima intera, le altre più leggere. */
+  const ventaglio = (x: number, y: number, quante: number, passo: number, colore: string) => {
+    for (let k = quante - 1; k >= 0; k--) postoCarta(doc, mm(x + k * passo), mm(y), mm(C), mm(H), colore, k === 0 ? 1 : 0.3);
+  };
+  const pila = (x: number, y: number, colore: string) => {
+    postoCarta(doc, mm(x + 1.6), mm(y + 1.6), mm(C), mm(H), colore, 0.3);
+    postoCarta(doc, mm(x + 0.8), mm(y + 0.8), mm(C), mm(H), colore, 0.55);
+    postoCarta(doc, mm(x), mm(y), mm(C), mm(H), colore);
+  };
+
+  // riga in alto: CARICA (a ventaglio) e ATTACCHI IN ATTESA (3 a ventaglio)
+  const wAttacchi = Math.min(larga * 0.4, C + 2 * Math.min(C * 0.6, 28) + 2 * pad + 6);
+  const wCarica = larga - wAttacchi - gap;
+  const passoC = Math.min(C * 0.62, (wCarica - C - 2 * pad - 6) / 4);
+  zonaPlancia(doc, mm(xs), mm(yTop), mm(wCarica), mm(riga), col.carica, "CARICA", (x, y) => fulmine(doc, x, y, mm(3.4), "#ffffff"), "le carte attivate, pronte da usare");
+  ventaglio(xs + 3, yRiga1, 5, passoC, col.carica);
+  const xa = xs + wCarica + gap;
+  const passoA = Math.min(C * 0.6, (wAttacchi - C - 2 * pad - 6) / 2);
+  zonaPlancia(doc, mm(xa), mm(yTop), mm(wAttacchi), mm(riga), col.attacchi, "ATTACCHI IN ATTESA", undefined, "scoperti · max 3");
+  ventaglio(xa + 3, yRiga1, 3, passoA, col.attacchi);
+
+  // riga in basso: la scaletta delle carte stanche (a mucchietto) e la mancia
+  const yBasso = yTop + riga + gap;
+  const yRiga2 = yBasso + testa + pad;
+  const wMancia = Math.max(C / 2 + 8, 30);
+  const wPila = (larga - wMancia - 3 * gap) / 3;
+  ["1 TURNO", "2 TURNI", "3+ TURNI"].forEach((testo, i) => {
+    const x = xs + i * (wPila + gap);
+    zonaPlancia(doc, mm(x), mm(yBasso), mm(wPila), mm(riga), col.stanche, testo);
+    doc.font(FONT.mano).fontSize(14).fillColor(col.stanche).text("z Z", mm(x + wPila - 11), mm(yBasso + 2.5), { lineBreak: false });
+    pila(x + (wPila - C - 1.6) / 2, yRiga2, col.stanche);
+    if (i > 0) frecciaPlancia(doc, mm(x - gap / 2), mm(yBasso + riga / 2), "sinistra", "ogni turno");
   });
+  frecciaPlancia(doc, mm(xs + wPila * 0.72), mm(yBasso - gap / 2), "su", "torna carica");
+  const xm = xs + 3 * (wPila + gap);
+  zonaPlancia(doc, mm(xm), mm(yBasso), mm(wMancia), mm(riga), col.mancia, "MANCIA");
+  for (let k = 0; k < 2; k++) postoCarta(doc, mm(xm + (wMancia - C / 2) / 2), mm(yRiga2 + k * (H / 2 + 0.8)), mm(C / 2), mm(H / 2 - 0.4), col.mancia);
+
+  // segnapunti: monete da 0 (in basso) a 30 (in alto)
+  const xt = M + W - 3 - tw;
+  const hT = 2 * riga + gap;
+  zonaPlancia(doc, mm(xt), mm(yTop), mm(tw), mm(hT), col.punti, "");
+  doc.font(FONT.nero).fontSize(6.5).fillColor(col.punti).text("PUNTI", mm(xt), mm(yTop + 1.2), { width: mm(tw), align: "center", lineBreak: false });
+  const passoT = (hT - 7) / 31;
+  for (let n = 0; n <= 30; n++) {
+    const cy = mm(yTop + hT - 1.5 - passoT * (n + 0.5));
+    const r = mm(Math.min(passoT * 0.45, 3.4));
+    const tondo = n % 5 === 0;
+    if (tondo) doc.circle(mm(xt + tw / 2), cy, r).lineWidth(0.8).fillAndStroke("#f3dc9a", ORO);
+    else doc.circle(mm(xt + tw / 2), cy, r).lineWidth(0.6).stroke(ORO);
+    const corpo = Math.min(7, (r / MM) * 2.2);
+    doc.font(tondo ? FONT.nero : FONT.normale).fontSize(corpo).fillColor(tondo ? "#7a4a26" : MATITA);
+    doc.text(String(n), mm(xt), cy - corpo * 0.42, { width: mm(tw), align: "center", lineBreak: false });
+  }
 }
 
-/**
- * Pagine della plancia: con le carte da 16 un A4 orizzontale; con quelle da 9 un A3 orizzontale (--a3) oppure
- * due A4 verticali da affiancare (si ritaglia il margine destro del primo foglio e lo si appoggia sul secondo).
- */
-function paginePlancia(doc: Doc, g: Griglia, a3: boolean) {
-  const cw = L * g.scala;
-  const ch = A * g.scala;
-  if (g.scala < 0.9) {
-    doc.addPage({ size: "A4", layout: "landscape", margin: 0 });
-    plancia(doc, 5 * MM, 5 * MM, 287 * MM, 200 * MM, cw, ch);
-    return;
-  }
-  const W = 400 * MM;
-  const H = 287 * MM;
-  if (a3) {
-    doc.addPage({ size: "A3", layout: "landscape", margin: 0 });
-    plancia(doc, 10 * MM, 5 * MM, W, H, cw, ch);
-    return;
-  }
-  for (const meta of [0, 1]) {
-    doc.addPage({ size: "A4", margin: 0 });
-    doc.save();
-    doc.rect(5 * MM, 5 * MM, W / 2, H).clip();
-    plancia(doc, 5 * MM - meta * (W / 2), 5 * MM, W, H, cw, ch);
-    doc.restore();
-    const testo =
-      meta === 0
-        ? "Plancia, foglio 1 di 2 (sinistra): ritaglia il margine bianco a destra, lungo le lineette, e appoggia questo foglio sul foglio 2"
-        : "Plancia, foglio 2 di 2 (destra): il foglio 1 si appoggia sul margine bianco a sinistra";
-    doc.font(FONT.normale).fontSize(6.5).fillColor("#999999").text(testo, 5 * MM, PAGINA.h - 3.6 * MM, { width: 200 * MM, align: "center", lineBreak: false });
-    if (meta === 0) {
-      const x = 5 * MM + W / 2;
-      doc.moveTo(x, 0).lineTo(x, 4 * MM).moveTo(x, PAGINA.h - 4 * MM).lineTo(x, PAGINA.h).lineWidth(0.5).stroke("#888888");
-    }
-  }
+/** La plancia: un A4 orizzontale, con i posti grandi come le carte stampate (9 o 16 per foglio). */
+function paginePlancia(doc: Doc, g: Griglia) {
+  doc.addPage({ size: "A4", layout: "landscape", margin: 0 });
+  plancia(doc, (L * g.scala) / MM, (A * g.scala) / MM);
 }
 
 /* ---------------- impaginazione ---------------- */
@@ -870,9 +891,8 @@ interface Scelta {
   fronteRetro: boolean;
   /** Dorsi leggeri, con poco inchiostro. */
   leggero: boolean;
-  /** Plancia del giocatore (e, con le carte da 9, su un foglio A3 invece che su due A4). */
+  /** Plancia del giocatore. */
   plancia: boolean;
-  a3: boolean;
   /** Carte per foglio: 9, 16 o 30. */
   perFoglio: number;
 }
@@ -894,10 +914,9 @@ function leggiScelta(argomenti: string[]): Scelta {
   const unaCopia = parole.includes("--una-copia");
   const fronteRetro = parole.includes("--fronte-retro");
   const leggero = parole.includes("--dorso-leggero");
-  const a3 = parole.includes("--a3");
-  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero" && a !== "--a3");
+  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero");
   if (nomi.length === 0) {
-    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, plancia: false, a3, perFoglio };
+    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, plancia: false, perFoglio };
   }
   const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi", "plancia"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
@@ -920,7 +939,6 @@ function leggiScelta(argomenti: string[]): Scelta {
     fronteRetro,
     leggero,
     plancia: nomi.includes("plancia"),
-    a3,
     perFoglio,
   };
 }
@@ -966,7 +984,7 @@ function crea(): void {
       pagine(doc, Array.from({ length: g.posti.length }, (): Disegno => (d, x, y) => dorso(d, x, y, mazzo)), `dorsi ${mazzo}`, g);
     }
   }
-  if (scelta.plancia) paginePlancia(doc, normale, scelta.a3);
+  if (scelta.plancia) paginePlancia(doc, normale);
   if (personaggi.length + numeri.length + mancia.length + eventi.length === 0 && !scelta.tabella && !scelta.dorsi && !scelta.plancia) {
     console.error("Niente da stampare.");
     process.exit(1);
