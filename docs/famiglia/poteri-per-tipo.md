@@ -49,7 +49,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Patrizia | 2 | **Nuvola di fumo** | Fino al tuo prossimo turno nessuno può attaccarti | Scala da 3 | ricarica 2, anche nel tuo turno |
 | Chicca | 1 | **Tofu Super Seitan** | Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi | 2 carte con somma 8 | ricarica 1 |
 | Chicca | 3 | **E se poi te ne penti?** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
-| Francesco | 3 | **Si arrabbia** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
+| Francesco | 3 | **Scatto d'ira** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
 | Gerardina | 1 | **Sempre calma** | Annulli un attacco di livello 1 | Coppia | ricarica 1 |
 | Marika | 1 | **Forse c'è, forse no** | Giri la prossima carta numero: dispari annulli l'attacco, pari ti colpisce; la carta va in mano a te | Coppia | ricarica 1 |
 | Marika | 2 | **Non c'è, ha il turno** | Annulli un attacco contro di te | Scala da 3 | ricarica 2 |

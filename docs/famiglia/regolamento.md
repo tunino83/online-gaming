@@ -164,7 +164,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
   - Il gioco aspetta l'attaccato solo se ha una difesa che può usare o se l'attacco gli chiede una scelta; altrimenti
     l'attacco lo colpisce subito.
-  - "Chi ti ha attaccato" (Si arrabbia, Ho appena lavato, Taurasi, Non ti sento, Una fetta di torta?) è chi ti ha mandato
+  - "Chi ti ha attaccato" (Scatto d'ira, Ho appena lavato, Taurasi, Non ti sento, Una fetta di torta?) è chi ti ha mandato
     l'attacco: dopo una deviazione di Maddalena o una E se poi te ne penti?, è chi l'ha deviato o rimandato.
   - Un attacco deviato o rimandato colpisce il nuovo bersaglio con scelte a caso (es. quale carta carica far stancare).
   - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
@@ -338,6 +338,7 @@ Cambia solo il nome (l'effetto è lo stesso):
 - Vende la carne → **Vuoi un panino con sta roba puzzolente?**
 - Permalosa → **E se poi te ne penti?**
 - Schietta → **Lingua Glabra** (2026-10-28)
+- Si arrabbia → **Scatto d'ira** (2026-10-28)
 
 ## Chicca vegana e Christian T-rex (2026-10-28)
 

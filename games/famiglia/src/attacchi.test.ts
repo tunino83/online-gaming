@@ -588,7 +588,7 @@ describe("difese", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno2", "bruno3"]);
   });
 
-  it("Si arrabbia: annulli, e chi ti ha attaccato scarta 1 carta e una sua carta carica si stanca", () => {
+  it("Scatto d'ira: annulli, e chi ti ha attaccato scarta 1 carta e una sua carta carica si stanca", () => {
     let s = attivata(bruno_si_difende("francesco-3", 3), "anna", "chicca-1");
     manoDi(s, "anna", 5, 6);
     s = difendi(s, "bruno", "francesco-3");

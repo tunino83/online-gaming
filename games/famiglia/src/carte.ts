@@ -233,7 +233,7 @@ const ADULTI: Carta[] = [
       { codice: somma(3, 20), poteri: [attacco("Smash", "Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso")] },
       {
         codice: somma(4, 20),
-        poteri: [difesa("Si arrabbia", "Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca")],
+        poteri: [difesa("Scatto d'ira", "Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca", "si-arrabbia")],
       },
     ],
     "Non beve vino: Versa il vino non ha effetto sulle sue carte",

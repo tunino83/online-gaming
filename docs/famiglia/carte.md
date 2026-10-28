@@ -50,7 +50,7 @@ Regole usate:
 | Generoso | 3 | Offre la casa | ✨ | 4 carte con somma 16 |
 | Francesco | 1 | Lezione di padel | ✨ | 2 carte con somma 12 |
 | Francesco | 2 | Smash | ⚔️ | 3 carte con somma 20 |
-| Francesco | 3 | Si arrabbia | 🛡️ | 4 carte con somma 20 |
+| Francesco | 3 | Scatto d'ira | 🛡️ | 4 carte con somma 20 |
 | Gerardina | 1 | Sempre calma | 🛡️ | Coppia |
 | Gerardina | 2 | Una rospa? | ⚔️ | 3 carte con somma 13 |
 | Gerardina | 3 | Rospe per tutti | ⚔️ | 4 carte con somma 22 |
