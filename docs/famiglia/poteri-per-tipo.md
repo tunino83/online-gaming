@@ -2,7 +2,7 @@
 
 Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
-### ⚔️ ATTACCO (32)
+### ⚔️ ATTACCO (31)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -15,7 +15,6 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Donatina | 3 | **Urla** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
 | Zio Salvatore | 1 | **Si canta!** | Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
 | Zio Salvatore | 2 | **Versa il vino** | Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi | 3 carte con somma 14 | ricarica 2 |
-| Francesco | 2 | **Smash** | Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso | 3 carte con somma 20 | ricarica 2 |
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Rospe per tutti** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |
 | Giuseppe | 3 | **Vertenza** | Paghi con le tue carte il codice di un personaggio attivato di livello 1 o 2 di un avversario e lo prendi, con i suoi punti | 4 carte con somma 18 | ricarica 3 + livello della carta presa |
@@ -39,7 +38,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Rafiluccio | 3 | **Brontola tutto il giorno** | Un avversario sceglie: ti dà 2 carte numero oppure salta il prossimo turno | Scala da 5 | ricarica 3 |
 | Vento (carta attacco) | 1 | **Vento** | Un avversario scarta tutte le carte numero e ne ripesca altrettante dal mazzo | 1 carta qualsiasi | si usa una volta |
 
-### 🛡️ DIFESA (30)
+### 🛡️ DIFESA (31)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -49,6 +48,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Patrizia | 2 | **Nuvola di fumo** | Fino al tuo prossimo turno nessuno può attaccarti | Scala da 3 | ricarica 2, anche nel tuo turno |
 | Chicca | 1 | **Tofu Super Seitan** | Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi | 2 carte con somma 8 | ricarica 1 |
 | Chicca | 3 | **E se poi te ne penti?** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
+| Francesco | 2 | **Non è ancora arrivato** | Annulli un attacco di qualsiasi livello; però nel tuo prossimo turno fai 1 mossa in meno | 3 carte con somma 20 | ricarica 2 |
 | Francesco | 3 | **Scatto d'ira** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
 | Gerardina | 1 | **Sempre calma** | Annulli un attacco di livello 1 | Coppia | ricarica 1 |
 | Marika | 1 | **Forse c'è, forse no** | Giri la prossima carta numero: dispari annulli l'attacco, pari ti colpisce; la carta va in mano a te | Coppia | ricarica 1 |

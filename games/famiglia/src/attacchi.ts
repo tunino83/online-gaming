@@ -34,7 +34,7 @@ import type { Carta, CartaNumero } from "./tipi-carte";
 const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa"]);
 
 /** Attacchi che fanno stancare una carta carica scelta dall'attaccante. */
-const STANCANO_UNA_CARTA = new Set(["versa-il-vino", "la-tomacella", "smash", "il-bastone"]);
+const STANCANO_UNA_CARTA = new Set(["versa-il-vino", "la-tomacella", "il-bastone"]);
 
 /** Attacchi "di carne": Tofu Super Seitan (Chicca 1) li ferma di qualsiasi livello. */
 export const ATTACCHI_DI_CARNE = new Set(["la-tomacella", "tritacarne"]);
@@ -339,10 +339,9 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       stancaCarta(s, x, a.potere === "versa-il-vino" ? 1 : 0);
       break;
     }
-    case "smash":
     case "il-bastone":
       stanca(originale(caricheColpibili(V, a.potere)));
-      scartaACaso(a.potere === "smash" ? 1 : 2);
+      scartaACaso(2);
       break;
     case "risata-contagiosa":
       scartaACaso(1);
@@ -486,8 +485,10 @@ export function difeseDisponibili(s: StatoPartita, v: IdGiocatore): DifesaPossib
   const a = s.attacco;
   if (!a) return [];
   const g = s.giocatori[v]!;
-  // Regola del livello; Tofu Super Seitan ferma anche gli attacchi di carne di qualsiasi livello
-  const livelloOk = (c: Carta, potere: string) => c.livello >= a.livello || (potere === "tofu-super-seitan" && ATTACCHI_DI_CARNE.has(a.potere));
+  // Regola del livello; Tofu Super Seitan ferma anche gli attacchi di carne di qualsiasi livello,
+  // Non è ancora arrivato (Francesco 2) qualsiasi attacco (ma costa 1 mossa nel prossimo turno)
+  const livelloOk = (c: Carta, potere: string) =>
+    c.livello >= a.livello || potere === "non-e-ancora-arrivato" || (potere === "tofu-super-seitan" && ATTACCHI_DI_CARNE.has(a.potere));
   // Stuffosa non ferma gli attacchi: vale solo contro gli aiuti (poteri.ts)
   const ok = (c: Carta, potere: string) =>
     potere !== "stuffosa" && livelloOk(c, potere) && reattiva(potere) && (!a.controTutti || !DEVIANO.has(potere));
@@ -626,6 +627,10 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       break;
     case "la-cionna":
       if (mittente !== v && A.mano.length > 0) scartaNumeri(s, A.mano.splice(interoTra(s.rng, 0, A.mano.length - 1), 1));
+      break;
+    case "non-e-ancora-arrivato":
+      // Arriva in ritardo: l'attacco non lo trova, ma il prossimo turno comincia tardi
+      V.mosseProssimoTurno -= 1;
       break;
     case "tiro-su-un-muro":
       V.muro = true;

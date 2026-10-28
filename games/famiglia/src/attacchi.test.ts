@@ -212,7 +212,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").attivati.map((a) => a.stanca)).toEqual([4, 0]); // ricarica 3 + 1 turno in più
   });
 
-  it("Smash e Il bastone: una carta si stanca e si scartano 1 o 2 carte a caso", () => {
+  it("Il bastone: una carta si stanca e si scartano 2 carte a caso", () => {
     let s = attivata(attivata(partita(), "anna", "nonno-antonio-3"), "bruno", "generoso-2");
     manoDi(s, "bruno", 1, 2, 3);
     s = attacca(s, "nonno-antonio-3", { giocatore: "bruno", bersaglio: "generoso-2#1" });
@@ -563,6 +563,14 @@ describe("difese", () => {
     expect(t.turno.attesa).toBeNull(); // nessuna difesa possibile: l'attacco è passato subito
   });
 
+  it("Non è ancora arrivato (Francesco 2): ferma anche un attacco di livello 3, ma nel prossimo turno 1 mossa in meno", () => {
+    const s = difendi(bruno_si_difende("francesco-2", 3), "bruno", "francesco-2");
+    expect(g(s, "bruno").mano).toHaveLength(3); // il bastone non colpisce
+    expect(g(s, "bruno").attivati[1]!.stanca).toBe(0);
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(-1);
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(2);
+  });
+
   it("Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce; la carta va in mano", () => {
     const s = bruno_si_difende("marika-1");
     s.mazzi.numeri.push(num(3, "dispari"));
@@ -664,10 +672,10 @@ describe("difese", () => {
   it("Guardia medica: l'attacco passa, ma le carte scartate tornano e le carte stancate si ricaricano", () => {
     const s = difendi(bruno_si_difende("zia-diana", 1), "bruno", "zia-diana");
     expect(g(s, "bruno").mosseProssimoTurno).toBe(-1); // Si incanta passa (non è un danno da curare)
-    let t = attivata(attivata(partita(), "anna", "francesco-2"), "bruno", "zia-diana");
+    let t = attivata(attivata(partita(), "anna", "zio-salvatore-2"), "bruno", "zia-diana");
     attivata(t, "bruno", "chicca-1");
     manoDi(t, "bruno", 4, 5);
-    t = attacca(t, "francesco-2", { giocatore: "bruno", bersaglio: "chicca-1#1" }); // Smash: stanca + scarta 1
+    t = attacca(t, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "chicca-1#1" }); // Versa il vino: la carta si addormenta
     t = difendi(t, "bruno", "zia-diana");
     expect(g(t, "bruno").mano).toHaveLength(2);
     expect(g(t, "bruno").attivati.find((a) => a.copia.carta === "chicca-1")!.stanca).toBe(0);
@@ -753,7 +761,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(32);
+    expect(attacchi.length).toBe(31);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);

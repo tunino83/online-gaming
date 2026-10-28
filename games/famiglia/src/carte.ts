@@ -230,7 +230,10 @@ const ADULTI: Carta[] = [
         poteri: [aiutoBlu("Lezione di padel", "Sempre attiva, una volta per turno: scambi 1 carta numero della tua mano con 1 scoperta sul tavolo")],
         ricarica: 0,
       },
-      { codice: somma(3, 20), poteri: [attacco("Smash", "Una carta carica di un avversario diventa stanca e lui scarta 1 carta numero a caso")] },
+      {
+        codice: somma(3, 20),
+        poteri: [difesa("Non è ancora arrivato", "Annulli un attacco di qualsiasi livello: tu non c'eri ancora; però nel tuo prossimo turno fai 1 mossa in meno")],
+      },
       {
         codice: somma(4, 20),
         poteri: [difesa("Scatto d'ira", "Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca", "si-arrabbia")],

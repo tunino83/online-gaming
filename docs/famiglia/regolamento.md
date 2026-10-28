@@ -400,3 +400,11 @@ Le carte di Maddalena ora hanno un potere ciascuna (codici uguali a prima):
 - **Livello 3 – Non è colpa mia** 🛡️: è la vecchia *È colpa di qualcun altro* con il nome nuovo: l'attacco va a un
   altro giocatore a tua scelta, che non può difendersi.
 - Escono *Non sbaglio mai* e la vecchia difesa di livello 2 (*Non è colpa mia*: l'attacco andava a un altro, che poteva difendersi).
+
+## Francesco: Non è ancora arrivato (2026-10-28)
+
+**Non è ancora arrivato** 🛡️ (Francesco livello 2, codice 3 carte con somma 20, 2 punti) prende il posto di *Smash*:
+Francesco è sempre in ritardo. Annulla un attacco di **qualsiasi livello** (anche 3, a differenza delle altre difese di
+livello 2), perché lui ancora non c'era; in cambio nel suo prossimo turno fa **1 mossa in meno**. Si usa come le altre
+difese: attivata e carica (poi si stanca 2 turni) oppure d'emergenza dalla mano pagando il codice.
+Ora Francesco non ha più attacchi: Lezione di padel, Non è ancora arrivato e Scatto d'ira.
