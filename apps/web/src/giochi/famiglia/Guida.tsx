@@ -12,9 +12,73 @@ function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
   );
 }
 
+/** Testo da confrontare nella ricerca: minuscolo, senza accenti né apostrofi. */
+const pulito = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+/** La carta corrisponde alla ricerca? Si guarda il nome (persona o carta) e il nome dei poteri, poi il loro testo. */
+function trovata(c: Carta, cerca: string): "nome" | "testo" | null {
+  if ([c.nome, ...c.poteri.map((p) => p.nome)].some((x) => pulito(x).includes(cerca))) return "nome";
+  if (c.poteri.some((p) => pulito(p.testo).includes(cerca)) || (c.nota && pulito(c.nota).includes(cerca))) return "testo";
+  return null;
+}
+
 export function GuidaFamiglia() {
+  const [cerca, setCerca] = useState("");
+  const parole = pulito(cerca);
   return (
     <div className="space-y-4 text-inchiostro">
+      <div className="sticky top-0 z-10 -mx-1 bg-[inherit] px-1 pb-1 pt-0.5">
+        <input
+          type="search"
+          value={cerca}
+          onChange={(e) => setCerca(e.target.value)}
+          placeholder="🔎 Cerca un personaggio o un potere (es. Chicca, Grigliata)"
+          aria-label="Cerca un personaggio o un potere"
+          className="w-full rounded-xl border-2 border-oro/60 bg-white px-3 py-2 text-base text-inchiostro shadow-sm outline-none focus:border-oro"
+        />
+      </div>
+      {parole ? <RisultatiRicerca cerca={parole} /> : <TestoGuida />}
+    </div>
+  );
+}
+
+/** Le carte che corrispondono alla ricerca: prima quelle trovate per nome, poi quelle trovate nel testo dei poteri. */
+function RisultatiRicerca({ cerca }: { cerca: string }) {
+  const [aperta, setAperta] = useState<number | null>(null);
+  const persone = new Map<string, { carte: Carta[]; prima: Carta; perNome: boolean }>();
+  for (const c of IN_ORDINE) {
+    const come = trovata(c, cerca);
+    if (!come) continue;
+    const gia = persone.get(c.persona);
+    if (!gia) persone.set(c.persona, { carte: CARTE.filter((x) => x.persona === c.persona && x.categoria === c.categoria), prima: c, perNome: come === "nome" });
+    else if (come === "nome" && !gia.perNome) persone.set(c.persona, { ...gia, prima: c, perNome: true });
+  }
+  const trovate = [...persone.values()].sort((a, b) => Number(b.perNome) - Number(a.perNome));
+  if (trovate.length === 0) return <p className="text-sm">Nessuna carta trovata. Prova con un altro nome.</p>;
+  return (
+    <div>
+      <p className="mb-2 text-sm">{trovate.length === 1 ? "1 carta trovata" : `${trovate.length} carte trovate`}</p>
+      <ul className="space-y-3">
+        {trovate.map((x) => (
+          <li key={`${x.prima.persona}-${x.prima.id}`}>
+            <Carosello carte={x.carte} iniziale={x.carte.indexOf(x.prima)} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+          </li>
+        ))}
+      </ul>
+      {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
+    </div>
+  );
+}
+
+function TestoGuida() {
+  return (
+    <>
       <Voce titolo="🎯 Scopo">
         <p>
           Attiva i parenti per fare punti e usa i loro poteri per aiutarti, attaccare gli altri e difenderti. Di solito vince chi
@@ -70,7 +134,7 @@ export function GuidaFamiglia() {
         </p>
         <p>
           Dopo aver usato un potere la carta <strong>si stanca</strong> 😴 e si ricarica in tanti turni quanto il suo livello (a ogni
-          inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne quelli gratis, come <em>Non sbaglio mai</em>).
+          inizio del tuo turno recupera una tacca). Usare un potere costa una mossa (tranne quelli gratis, come la <em>Grigliata</em>).
         </p>
         <p>
           <span className="mr-1 inline-block align-middle">
@@ -151,7 +215,7 @@ export function GuidaFamiglia() {
       <Voce titolo="🃏 Tutte le carte">
         <CatalogoFamiglia />
       </Voce>
-    </div>
+    </>
   );
 }
 
@@ -202,8 +266,8 @@ export function CatalogoFamiglia() {
 }
 
 /** Le carte di una persona, una alla volta: frecce, pallini dei livelli e scorrimento del dito. */
-function Carosello({ carte, onApri }: { carte: Carta[]; onApri: (c: Carta) => void }) {
-  const [i, setI] = useState(0);
+function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c: Carta) => void; iniziale?: number }) {
+  const [i, setI] = useState(Math.max(0, iniziale));
   const inizio = useRef<number | null>(null);
   const c = carte[i]!;
   const piu = carte.length > 1;
