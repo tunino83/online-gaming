@@ -43,13 +43,16 @@ export function Home() {
   const [bot, setBot] = useState(1);
   const [pubblica, setPubblica] = useState(true);
   const [computerAlPosto, setComputerAlPosto] = useState(true);
+  // La Famiglia, regole in prova: limite delle difese e carico negli attacchi
+  const [limiteDifese, setLimiteDifese] = useState(false);
+  const [carico, setCarico] = useState(false);
   const scelto = GIOCHI.find((g) => g.id === gioco)!;
   const famiglia = gioco === "famiglia";
   /** Opzioni scelte da chi crea la partita (alcune solo per certi giochi). */
   const opzioni = () => ({
     puntiPerVincere: punti,
     ...(gioco === "primo-gioco" || famiglia ? { computerAlPosto } : {}),
-    ...(famiglia ? { modoFine, secondiDifesa } : {}),
+    ...(famiglia ? { modoFine, secondiDifesa, limiteDifese, carico } : {}),
   });
   const scegliGioco = (id: IdGioco) => {
     setGioco(id);
@@ -216,6 +219,23 @@ export function Home() {
               />
               Se qualcuno resta fermo 60 secondi, il computer gioca al suo posto
             </label>
+          )}
+          {famiglia && (
+            <div className="space-y-1.5 rounded-xl border border-inchiostro/15 p-2.5">
+              <p className="text-xs font-semibold text-tenue">Regole in prova</p>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" checked={limiteDifese} onChange={(e) => setLimiteDifese(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#b8892b]" />
+                <span>
+                  <b>Limite delle difese</b>: al massimo una difesa attivata per livello (la nuova prende il posto della vecchia)
+                </span>
+              </label>
+              <label className="flex items-start gap-2 text-sm">
+                <input type="checkbox" checked={carico} onChange={(e) => setCarico(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#b8892b]" />
+                <span>
+                  <b>Carico</b>: chi attacca può aggiungere carte numero; per difendersi si scarta almeno quel valore o si sacrifica la carta
+                </span>
+              </label>
+            </div>
           )}
           <Errore testo={errore} />
           <Pulsante type="submit" disabled={inCorso || !nickname.trim()}>

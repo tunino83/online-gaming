@@ -40,7 +40,7 @@ import { creaMazzoMancia, creaMazzoNumeri } from "../src/mazzi";
 import { OPZIONI_DEFAULT } from "../src/parametri";
 import { nomiImmagine } from "../src/carte";
 import { puntiCarta } from "../src/base";
-import { COLORI_NUMERI } from "../src/colori";
+import { COLORI_NUMERI, COLORI_TIPI, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta } from "../src/colori";
 import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src/tipi-carte";
 
 /* ---------------- misure (in punti tipografici: 1 mm = 2,8346 pt) ---------------- */
@@ -97,24 +97,14 @@ function immagine(c: Carta): string | undefined {
 
 /* ---------------- colori (come nel gioco) ---------------- */
 
-type Tipologia = TipoPotere | "blu";
-const TIPO: Record<Tipologia, { colore: string; scuro: string }> = {
-  attacco: { colore: "#c63d2f", scuro: "#8e2219" },
-  difesa: { colore: "#2d5f9a", scuro: "#1b3d66" },
-  aiuto: { colore: "#3e8a4f", scuro: "#25603a" },
-  blu: { colore: "#1f9fc9", scuro: "#14708f" },
-};
+type Tipologia = TipologiaCarta;
+const TIPO = COLORI_TIPI;
 const CREMA = "#fdf6e6";
 const INCHIOSTRO = "#3a2417";
 const MATITA = "#7a6048";
 
-const tipologie = (c: Carta): Tipologia[] => [...new Set(c.poteri.map((p): Tipologia => (p.blu ? "blu" : p.tipo)))];
-function principale(c: Carta): Tipologia {
-  const t = tipologie(c);
-  if (t.includes("attacco")) return "attacco";
-  if (t.includes("difesa") && !t.includes("aiuto") && !t.includes("blu")) return "difesa";
-  return t.includes("aiuto") ? "aiuto" : (t[0] ?? "aiuto");
-}
+const tipologie = tipologieCarta;
+const principale = tipologiaPrincipale;
 
 /** Toglie i caratteri che i font non hanno (emoji e simboli): sulla carta stampata non si vedrebbero. */
 const pulito = (s: string) => s.replace(/[^ -ɏ‘-„…–—]/gu, "").replace(/\s+/g, " ").trim();
@@ -142,13 +132,13 @@ function stemma(doc: Doc, x: number, y: number, larghezza: number, tipo: Tipolog
   doc.path("M20 2 L37 7 V22 C37 33 29 40 20 44 C11 40 3 33 3 22 V7 Z").lineWidth(2.5).fillAndStroke(t.colore, CREMA);
   doc.path("M20 7 L32 10.5 V22 C32 30 26.5 35 20 38 C13.5 35 8 30 8 22 V10.5 Z").lineWidth(1).dash(2, { space: 1.6 }).stroke(CREMA).undash();
   doc.lineWidth(2.4).lineCap("round");
-  if (tipo === "attacco") {
+  if (tipo === "attacco" || tipo === "attaccoUnaVolta") {
     // due spade incrociate
     doc.moveTo(13, 14).lineTo(27, 30).stroke(CREMA);
     doc.moveTo(27, 14).lineTo(13, 30).stroke(CREMA);
     doc.moveTo(10, 26).lineTo(16, 32).stroke(CREMA);
     doc.moveTo(30, 26).lineTo(24, 32).stroke(CREMA);
-  } else if (tipo === "difesa") {
+  } else if (tipo === "difesa" || tipo === "difesaUnaVolta") {
     // uno scudo piccolo pieno
     doc.path("M20 13 L27 15.5 V22 C27 27 24 30 20 32 C16 30 13 27 13 22 V15.5 Z").fill(CREMA);
   } else if (tipo === "blu") {
@@ -190,7 +180,7 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   // in basso solo il nome del potere (o dei due poteri): prima si misura quanto spazio serve
   const tx = x + 10;
   const tw = L - 20;
-  const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[p.blu ? "blu" : p.tipo].scuro })); // sempre attiva: lo dice lo stemma con ∞
+  const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[tipologiaPotere(c, p)].scuro })); // sempre attiva: lo dice lo stemma con ∞
   let dimNome = 11;
   const altezzaNomi = (d: number) => nomi.reduce((h, n) => h + doc.font(FONT.forte).fontSize(d).heightOfString(n.nome, { width: tw }), 0);
   while (dimNome > 7 && altezzaNomi(dimNome) > 30) dimNome -= 0.5;
@@ -213,11 +203,9 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   doc.restore();
   doc.roundedRect(fx, fy, fw, fh, 5).lineWidth(0.8).stroke("#b9a48a");
 
-  // livello (stelle) in basso a sinistra sulla foto
-  if (!oggetto) {
-    doc.roundedRect(fx + 3, fy + fh - 13, 6 + c.livello * 10, 10, 3).fill("#3a2417");
-    for (let i = 0; i < c.livello; i++) stella(doc, fx + 11 + i * 10, fy + fh - 8, 4, "#ffd59a");
-  }
+  // livello (stelle) in basso a sinistra sulla foto: anche sulle carte difesa e attacco usa e getta (conta per la regola del livello)
+  doc.roundedRect(fx + 3, fy + fh - 13, 6 + c.livello * 10, 10, 3).fill("#3a2417");
+  for (let i = 0; i < c.livello; i++) stella(doc, fx + 11 + i * 10, fy + fh - 8, 4, "#ffd59a");
 
   // stemmi del tipo (uno per tipo di potere) e punti nel biscotto
   tipologie(c).forEach((tp, i) => stemma(doc, x + 5, y + 4 + i * 33, 26, tp));
@@ -796,7 +784,14 @@ function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: s
   });
 }
 
-const NOME_TIPO: Record<Tipologia, string> = { attacco: "Attacco", difesa: "Difesa", aiuto: "Aiuto", blu: "Aiuto sempre attivo" };
+const NOME_TIPO: Record<Tipologia, string> = {
+  attacco: "Attacco",
+  difesa: "Difesa",
+  aiuto: "Aiuto",
+  blu: "Aiuto sempre attivo",
+  difesaUnaVolta: "Difesa usa e getta",
+  attaccoUnaVolta: "Attacco usa e getta",
+};
 
 /** Tutti i poteri delle carte personaggio, difesa e attacco, nell'ordine del mazzo; poi gli eventi. */
 function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
@@ -818,12 +813,12 @@ function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
         i === 0 ? nome : "",
         i === 0 ? livello : "",
         `${pulito(p.nome)}
-(${NOME_TIPO[p.blu ? "blu" : p.tipo]})`,
+(${NOME_TIPO[tipologiaPotere(c, p)]})`,
         pulito(p.testo),
         i === 0 ? pulito(descriviCodice(c.codice)) : "",
         i === 0 ? ricarica : "",
       ],
-      colore: TIPO[p.blu ? "blu" : p.tipo].scuro,
+      colore: TIPO[tipologiaPotere(c, p)].scuro,
     }));
   });
   if (righe.length > 0) tabella(doc, "Tabella dei poteri", colonne, righe);

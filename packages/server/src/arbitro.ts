@@ -349,7 +349,7 @@ function applicaAutomatiche(g: QualsiasiGioco, stato: unknown): unknown {
  * Opzioni scelte da chi crea la partita. computerAlPosto: il computer gioca al posto di chi è fermo
  * da 60 secondi (se manca vale sì); è della piattaforma, non delle regole, quindi non arriva al gioco.
  */
-const OPZIONI_ACCETTATE = ["puntiPerVincere", "computerAlPosto", "modoFine", "secondiDifesa"];
+const OPZIONI_ACCETTATE = ["puntiPerVincere", "computerAlPosto", "modoFine", "secondiDifesa", "limiteDifese", "carico"];
 
 /** Opzioni da passare alle regole del gioco (senza quelle della piattaforma). */
 function opzioniDelGioco(opzioni: Record<string, unknown>): Record<string, unknown> {
@@ -394,6 +394,13 @@ async function crea(r: Record<string, unknown>, utente: string, archivio: Archiv
         return errore("Il tempo per difendersi va da 10 a 120 secondi");
       }
       opzioni.secondiDifesa = secondi;
+    }
+    // Solo per la Famiglia: regole in prova (limite delle difese, carico negli attacchi)
+    for (const chiave of ["limiteDifese", "carico"] as const) {
+      const valore = r.opzioni[chiave];
+      if (valore === undefined) continue;
+      if (gioco !== "famiglia" || typeof valore !== "boolean") return errore("Opzioni non valide");
+      opzioni[chiave] = valore;
     }
   }
 

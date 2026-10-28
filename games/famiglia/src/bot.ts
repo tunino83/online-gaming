@@ -5,6 +5,7 @@
  *   e non risponde in tempo, l'attacco passa (subisce, con la prima scelta proposta).
  */
 import type { IdGiocatore } from "@og/engine";
+import { carta } from "./carte";
 import { chiDeveMuovere, mosseValide } from "./regole";
 import type { Mossa, StatoPartita } from "./stato";
 
@@ -14,13 +15,46 @@ const aCaso = <T>(lista: T[], casuale: () => number): T => lista[Math.floor(casu
 export function mossaDelBot(s: StatoPartita, giocatore: IdGiocatore, casuale: () => number): Mossa {
   const mosse = mosseValide(s, giocatore);
   if (mosse.length === 0) throw new Error("Il robot non ha mosse");
+  // Attaccato: come una persona, quasi sempre si difende se può (pagando il carico più che con l'harakiri)
+  const difese = mosse.filter((m) => m.tipo === "difendi");
+  if (difese.length > 0 && casuale() < 0.9) {
+    const senzaSacrificio = difese.filter((m) => !(m.tipo === "difendi" && m.harakiri));
+    return aCaso(senzaSacrificio.length > 0 && casuale() < 0.8 ? senzaSacrificio : difese, casuale);
+  }
   const attiva = mosse.filter((m) => m.tipo === "attiva");
   if (attiva.length > 0) return aCaso(attiva, casuale);
   const poteri = mosse.filter((m) => m.tipo === "potere" || m.tipo === "usaCarta");
-  if (poteri.length > 0 && casuale() < 0.5) return aCaso(poteri, casuale);
+  if (poteri.length > 0 && casuale() < 0.5) return conCarico(s, giocatore, aCaso(poteri, casuale), casuale);
   // Il caffè non si beve subito: prima le mosse normali
   const normali = mosse.filter((m) => m.tipo !== "caffe");
   return aCaso(normali.length > 0 ? normali : mosse, casuale);
+}
+
+/**
+ * Opzione "carico": se la mossa è un attacco, a volte il robot ci aggiunge un carico (1 o 2 carte numero tra le più alte
+ * della mano che non usa già per la mossa).
+ */
+function conCarico(s: StatoPartita, giocatore: IdGiocatore, m: Mossa, casuale: () => number): Mossa {
+  if (!s.opzioni.carico || (m.tipo !== "potere" && m.tipo !== "usaCarta") || !eUnAttacco(s, m) || casuale() < 0.5) return m;
+  const usate = new Set([...(m.carte ?? []), ...(m.combinazione?.map((el) => el.id) ?? [])]);
+  const libere = s.giocatori[giocatore]!.mano.filter((c) => !usate.has(c.id) && !c.unite).sort((a, b) => b.valore - a.valore);
+  const quante = Math.min(libere.length, casuale() < 0.5 ? 1 : 2);
+  return quante === 0 ? m : { ...m, carico: libere.slice(0, quante).map((c) => c.id) };
+}
+
+/** La mossa usa un potere d'attacco (anche copiato) o una carta attacco? */
+function eUnAttacco(s: StatoPartita, m: Extract<Mossa, { tipo: "potere" | "usaCarta" }>): boolean {
+  if (m.tipo === "usaCarta") return true;
+  let origine = carta(m.carta.split("#")[0]!);
+  let potere = m.potere;
+  if (potere === "sempre-la-stessa-storia" && s.ultimoPotere) {
+    origine = carta(s.ultimoPotere.carta);
+    potere = s.ultimoPotere.potere;
+  } else if (m.potereCopiato && m.fonte) {
+    origine = carta(m.fonte.split("#")[0]!);
+    potere = m.potereCopiato;
+  }
+  return origine.poteri.find((p) => p.id === potere)?.tipo === "attacco";
 }
 
 /** Mossa al posto di una persona ferma da troppo tempo (o che non ha risposto a un attacco in tempo). */

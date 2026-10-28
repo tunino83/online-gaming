@@ -121,6 +121,8 @@ export interface AttaccoInCorso {
   copia: string | null;
   /** Il punto per l'attacco andato a segno è già stato dato (variante "punti per i poteri"). */
   premiato?: boolean;
+  /** Carico (opzione "carico"): per difendersi con una carta attivata si scarta almeno questo valore, o si sacrifica la carta. */
+  carico?: number;
 }
 
 export interface StatoTurno {
@@ -239,12 +241,12 @@ export type DatiFatto =
   | { tipo: "potere"; carta: string; potere: string; bersaglio?: IdGiocatore }
   | { tipo: "sceglie"; quante: number }
   /** Inizio di un attacco: `bersagli` sono i giocatori colpiti (in ordine). */
-  | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[] }
+  | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[]; carico?: number }
   /**
    * Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Forse c'è, forse no andato male;
    * `girata` = valore della carta numero girata da Forse c'è, forse no.
    */
-  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number }
+  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number; harakiri?: true }
   /** L'attacco ha colpito il giocatore. */
   | { tipo: "colpito"; potere: string }
   /** L'attacco non ha effetto sul giocatore (protetto o non c'era niente da colpire). */
@@ -262,6 +264,8 @@ export type DatiFatto =
   | { tipo: "regalo"; a: IdGiocatore }
   /** Stuffosa: il giocatore si è scocciato e ha bloccato l'aiuto `potere` (della carta `carta`) di `a`. */
   | { tipo: "sbuffa"; a: IdGiocatore; carta: string; potere: string }
+  /** Limite delle difese: attivando `nuova`, la difesa dello stesso livello `vecchia` è andata negli scarti. */
+  | { tipo: "sostituisce"; vecchia: string; nuova: string }
   /** È comparsa sul tavolo una carta con il campanello: i personaggi scoperti sono stati cambiati. */
   | { tipo: "campanello"; valore: number; scartati: string[]; nuovi: string[] };
 
@@ -294,6 +298,8 @@ export interface ParametriPotere {
   potereCopiato?: string;
   /** Carte con cui si paga un codice (Vertenza: il codice del personaggio che si prende). */
   combinazione?: Combinazione;
+  /** Carico dell'attacco (opzione "carico"): carte numero della mano che chi attacca scarta; la loro somma è il carico. */
+  carico?: string[];
 }
 
 /** Tutte le mosse e azioni che un giocatore può inviare. */
@@ -337,6 +343,10 @@ export type Mossa =
       giocatore?: IdGiocatore;
       carte?: string[];
       bersaglio?: string;
+      /** Attacco con il carico, difesa con una carta attivata: carte numero da scartare (almeno quanto il carico)... */
+      carico?: string[];
+      /** ...oppure si sacrifica la carta di difesa (va negli scarti con i suoi punti). */
+      harakiri?: true;
     }
   /** Non ci si difende: `carte` / `bersaglio` sono le scelte chieste dall'attacco (es. quali carte scartare). */
   | { tipo: "subisci"; carte?: string[]; bersaglio?: string }

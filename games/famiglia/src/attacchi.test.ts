@@ -905,3 +905,72 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
     expect(g(t, "bruno").saltaProssimoTurno).toBe(true);
   });
 });
+
+describe("carico (opzione in prova)", () => {
+  /** Anna attacca bruno con Si incanta (livello 1) e un carico di 5 + 3; bruno ha Sempre calma attivata. */
+  const conCarico = (manoBruno: number[]) => {
+    const s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
+    s.opzioni.carico = true;
+    g(s, "anna").mano = [num(5, "a5"), num(3, "a3"), num(2, "a2")];
+    manoDi(s, "bruno", ...manoBruno);
+    return attacca(s, "toto-1", { giocatore: "bruno", carico: ["a5", "a3"] });
+  };
+
+  it("chi attacca perde le carte del carico; chi si difende con una carta attivata scarta almeno quel valore", () => {
+    let s = conCarico([4, 4, 1]);
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["a2"]);
+    expect(vistaGiocatore(s, "carla").attacco?.carico).toBe(8);
+    expect(s.registro.find((f) => f.tipo === "attacco")).toMatchObject({ carico: 8 });
+    const difese = mosseValide(s, "bruno").filter((m) => m.tipo === "difendi");
+    expect(difese).toContainEqual({ tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma", harakiri: true });
+    expect(difese).toContainEqual({ tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma", carico: ["bruno0", "bruno1"] });
+    expect(rifiutata(s, "bruno", { tipo: "difendi", carta: "gerardina-1#1", carico: ["bruno0", "bruno2"] })).toMatch(/almeno 8/);
+    s = difendi(s, "bruno", "gerardina-1", { carico: ["bruno0", "bruno1"] });
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno2"]);
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1);
+  });
+
+  it("harakiri: la carta di difesa va negli scarti (con i suoi punti) e l'attacco è fermato lo stesso", () => {
+    let s = conCarico([1]);
+    const difese = mosseValide(s, "bruno").filter((m) => m.tipo === "difendi");
+    expect(difese).toEqual([{ tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma", harakiri: true }]); // non bastano le carte
+    s = difendi(s, "bruno", "gerardina-1", { harakiri: true });
+    expect(g(s, "bruno").attivati).toEqual([]);
+    expect(s.scarti.personaggi.map((c) => c.carta)).toContain("gerardina-1");
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "bruno").mano).toHaveLength(1);
+    expect(s.registro.find((f) => f.tipo === "difesa")).toMatchObject({ harakiri: true });
+    expect(g(s, "bruno").puntiPoteri).toBe(1); // difesa riuscita
+  });
+
+  it("le difese usa e getta (d'emergenza) non pagano il carico; senza l'opzione il carico non si può usare", () => {
+    let s = attivata(partita(), "anna", "toto-1");
+    s.opzioni.carico = true;
+    g(s, "anna").mano = [num(5, "a5"), num(3, "a3")];
+    g(s, "bruno").nascosti = [copia("paesano")];
+    manoDi(s, "bruno", 1);
+    s = attacca(s, "toto-1", { giocatore: "bruno", carico: ["a5", "a3"] });
+    const paesano = mosseValide(s, "bruno").find((m) => m.tipo === "difendi")!;
+    expect(paesano).toMatchObject({ carta: "paesano#1", combinazione: [{ id: "bruno0" }] });
+    expect(rifiutata(s, "bruno", { ...paesano, harakiri: true } as Mossa)).toMatch(/carta attivata/);
+    s = fai(s, "bruno", paesano);
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+
+    const senza = attivata(partita(), "anna", "toto-1");
+    g(senza, "anna").mano = [num(5, "a5")];
+    expect(rifiutata(senza, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno", carico: ["a5"] })).toMatch(/carico/);
+  });
+
+  it("negli attacchi contro tutti il carico vale per ogni avversario", () => {
+    let s = attivata(attivata(attivata(partita(), "anna", "gerardina-3"), "bruno", "antonio-3"), "carla", "antonio-3", 0, 2);
+    s.opzioni.carico = true;
+    g(s, "anna").mano = [num(6, "a6")];
+    s = attacca(s, "gerardina-3", { carico: ["a6"] });
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    s = difendi(s, "bruno", "antonio-3", { harakiri: true });
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
+    expect(mosseValide(s, "carla")).toContainEqual({ tipo: "difendi", carta: "antonio-3#2", potere: "ho-sempre-ragione-io", harakiri: true });
+  });
+});
+

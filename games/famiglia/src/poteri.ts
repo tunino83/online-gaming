@@ -20,6 +20,7 @@ import {
   togliNumero,
   zonaDi,
   premioPotere,
+  liberaPostoDifesa,
 } from "./base";
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { MEDICI, carta } from "./carte";
@@ -438,6 +439,7 @@ function applicaAiuto(
       const zona = zonaDi(nuova!);
       g[zona].splice(g[zona].indexOf(nuova!), 1);
       g.attivati[g.attivati.indexOf(vecchia!)] = { copia: nuova!, stanca: carta(nuova!.carta).ricarica };
+      liberaPostoDifesa(s, id, nuova!);
       riceviCarta(s, id, vecchia!.copia);
       return;
     }

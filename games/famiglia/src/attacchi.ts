@@ -20,6 +20,7 @@ import {
   togliNumero,
   zonaDi,
   premioPotere,
+  liberaPostoDifesa,
 } from "./base";
 import { carta, eBlu } from "./carte";
 import { type Combinazione, trovaCombinazioni, verificaCombinazione } from "./codici";
@@ -133,7 +134,8 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     controllaScelteAttacco(s, id, potere, v!, p);
     bersagli = [v!];
   }
-  registra(s, id, { tipo: "attacco", carta: origine.id, potere, bersagli });
+  const carico = pagaCarico(s, id, p);
+  registra(s, id, { tipo: "attacco", carta: origine.id, potere, bersagli, ...(carico > 0 ? { carico } : {}) });
   s.attacco = {
     attaccante: id,
     carta: origine.id,
@@ -147,8 +149,65 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     indifendibile: false,
     controTutti,
     copia,
+    ...(carico > 0 ? { carico } : {}),
   };
   prosegui(s);
+}
+
+/** Valore delle carte numero indicate. */
+const somma = (carte: CartaNumero[]) => carte.reduce((n, c) => n + c.valore, 0);
+
+/**
+ * Carico (opzione): chi attacca scarta le carte numero scelte dalla mano e la loro somma è il carico.
+ * Le carte si perdono sempre, che l'avversario si difenda o no. Restituisce il carico (0 se non c'è).
+ */
+function pagaCarico(s: StatoPartita, id: IdGiocatore, p: ParametriPotere): number {
+  const ids = p.carico ?? [];
+  if (ids.length === 0) return 0;
+  if (!s.opzioni.carico) rifiuta("In questa partita non si attacca con il carico");
+  const g = s.giocatori[id]!;
+  if (new Set(ids).size !== ids.length || !ids.every((x) => g.mano.some((c) => c.id === x))) rifiuta("Il carico si fa con carte numero della tua mano");
+  if (p.carte?.some((x) => ids.includes(x))) rifiuta("La carta da dare non può stare anche nel carico");
+  const carte = ids.map((x) => togliNumero(g, x)!);
+  scartaNumeri(s, carte);
+  return somma(carte);
+}
+
+/**
+ * Carico: chi si difende con una carta attivata scarta carte numero che fanno almeno il carico (poi la carta si stanca),
+ * oppure fa harakiri: la carta di difesa va negli scarti (con i suoi punti) e l'attacco è fermato lo stesso.
+ */
+function pagaDifesaConCarico(s: StatoPartita, g: StatoGiocatore, x: Attivato, carico: number, m: Extract<Mossa, { tipo: "difendi" }>): void {
+  if (m.harakiri) {
+    g.attivati.splice(g.attivati.indexOf(x), 1);
+    s.scarti.personaggi.push(x.copia);
+    return;
+  }
+  const ids = m.carico ?? [];
+  if (new Set(ids).size !== ids.length || !ids.every((y) => g.mano.some((c) => c.id === y)) || somma(g.mano.filter((c) => ids.includes(c.id))) < carico) {
+    rifiuta(`Per difenderti scarta carte numero che fanno almeno ${carico}, oppure sacrifica la carta (harakiri)`);
+  }
+  scartaNumeri(s, ids.map((y) => togliNumero(g, y)!));
+  stancaCarta(s, x);
+}
+
+/** Modi di pagare il carico per una difesa con una carta attivata: harakiri, e (se bastano le carte) una o due scelte di carte. */
+function modiDiPagareIlCarico(g: StatoGiocatore, carico: number, giaUsate: Set<string>): Pick<Extract<Mossa, { tipo: "difendi" }>, "carico" | "harakiri">[] {
+  const libere = g.mano.filter((c) => !giaUsate.has(c.id));
+  const modi: Pick<Extract<Mossa, { tipo: "difendi" }>, "carico" | "harakiri">[] = [{ harakiri: true }];
+  // la carta più piccola che basta da sola
+  const una = [...libere].sort((a, b) => a.valore - b.valore).find((c) => c.valore >= carico);
+  if (una) modi.push({ carico: [una.id] });
+  // le più alte, finché bastano
+  const alte: string[] = [];
+  let tot = 0;
+  for (const c of [...libere].sort((a, b) => b.valore - a.valore)) {
+    if (tot >= carico) break;
+    alte.push(c.id);
+    tot += c.valore;
+  }
+  if (tot >= carico && !(alte.length === 1 && una && alte[0] === una.id)) modi.push({ carico: alte });
+  return modi;
 }
 
 /** Ho tanta fame (Christian, braccine corte): gli avversari con i punti più vicini a quelli di chi attacca. */
@@ -417,6 +476,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
         // La carta di Vertenza ci mette in più tanti turni quanto il livello della carta presa (3 + 1 o 2)
         const giuseppe = A.attivati.find((x) => x.copia.id === a.copia);
         if (giuseppe) giuseppe.stanca += carta(presa.copia.carta).livello;
+        liberaPostoDifesa(s, a.attaccante, presa.copia);
       }
       break;
     }
@@ -437,6 +497,8 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       V.attivati[V.attivati.indexOf(sua)] = mia;
       stanca(mia);
       stanca(sua);
+      liberaPostoDifesa(s, a.attaccante, sua.copia);
+      liberaPostoDifesa(s, v, mia.copia);
       break;
     }
     case "tritacarne": {
@@ -537,8 +599,11 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
       s.scarti.personaggi.push(...g.nascosti.splice(g.nascosti.findIndex((x) => x.id === d!.copia), 1));
     }
   } else {
-    stancaCarta(s, g.attivati.find((y) => y.copia.id === d!.copia)!);
+    const x = g.attivati.find((y) => y.copia.id === d!.copia)!;
+    if (a.carico && s.opzioni.carico) pagaDifesaConCarico(s, g, x, a.carico, mossa);
+    else stancaCarta(s, x);
   }
+  if ((mossa.harakiri || mossa.carico) && (d!.emergenza || !a.carico)) rifiuta("Il carico si paga solo difendendosi con una carta attivata");
   a.difesi.push(id);
   s.turno.attesa = null;
 
@@ -556,7 +621,15 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
   }
   const devia = DEVIANO.has(d!.potere) ? mossa.giocatore : undefined;
   if (DEVIANO.has(d!.potere) && (devia === undefined || devia === id || !s.ordine.includes(devia))) rifiuta("Scegli a chi passare l'attacco");
-  registra(s, id, { tipo: "difesa", carta: c.id, potere: d!.potere, riuscita, ...(devia ? { devia } : {}), ...(girata ? { girata } : {}) });
+  registra(s, id, {
+    tipo: "difesa",
+    carta: c.id,
+    potere: d!.potere,
+    riuscita,
+    ...(devia ? { devia } : {}),
+    ...(girata ? { girata } : {}),
+    ...(mossa.harakiri ? { harakiri: true as const } : {}),
+  });
 
   let dopo: Attesa | null = null;
   if (!riuscita) {
@@ -708,18 +781,20 @@ export function mosseDiDifesa(s: StatoPartita, v: IdGiocatore): Mossa[] {
   const risorse = risorseGiocatore(g);
   for (const d of difeseDisponibili(s, v)) {
     const base: Extract<Mossa, { tipo: "difendi" }> = { tipo: "difendi", carta: d.copia, potere: d.potere };
-    const conPagamento: Extract<Mossa, { tipo: "difendi" }>[] = d.emergenza && !gratisConAperitivo(g, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).id)
+    let conPagamento: Extract<Mossa, { tipo: "difendi" }>[] = d.emergenza && !gratisConAperitivo(g, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).id)
       ? trovaCombinazioni(risorse, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).codice, 1).map((combinazione) => ({ ...base, combinazione }))
       : [base];
+    // Carico: con una carta attivata si paga il carico (o si fa harakiri)
+    if (!d.emergenza && a.carico && s.opzioni.carico) conPagamento = modiDiPagareIlCarico(g, a.carico, new Set()).map((x) => ({ ...base, ...x }));
     for (const m of conPagamento) {
       if (DEVIANO.has(d.potere)) {
         for (const giocatore of s.ordine.filter((x) => x !== v)) mosse.push({ ...m, giocatore });
       } else if (d.potere === "ricorso") {
-        const pagate = new Set(m.combinazione?.map((el) => el.id) ?? []);
+        const pagate = new Set([...(m.combinazione?.map((el) => el.id) ?? []), ...(m.carico ?? [])]);
         mosse.push({ ...m, carte: g.mano.filter((c) => !pagate.has(c.id)).slice(0, a.livello).map((c) => c.id) });
       } else if (d.potere === "guardia-medica") {
         // Le carte da scartare (se l'attacco le chiede) si scelgono tra quelle che restano dopo aver pagato la difesa
-        const pagate = new Set(m.combinazione?.map((el) => el.id) ?? []);
+        const pagate = new Set([...(m.combinazione?.map((el) => el.id) ?? []), ...(m.carico ?? [])]);
         const scelta = scelte[0] ?? {};
         if (scelta.carte && scelta.carte.some((x) => pagate.has(x))) {
           const libere = g.mano.filter((c) => !pagate.has(c.id)).map((c) => c.id);

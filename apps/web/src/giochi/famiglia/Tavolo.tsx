@@ -538,7 +538,7 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
       {scheda && (
         <Foglio titolo={scheda.titolo} onChiudi={() => setScheda(null)}>
           {scheda.idCarta && <SchedaCarta idCarta={scheda.idCarta} stanca={scheda.stanca} />}
-          <ListaMosse mosse={scheda.mosse} v={v} nick={nick} onScegli={gioca} disabilitata={bloccato} vuota="Adesso non puoi fare niente con questa carta." />
+          <MosseConCarico mosse={scheda.mosse} v={v} nick={nick} gioca={gioca} bloccato={bloccato} />
         </Foglio>
       )}
       {guida && (
@@ -571,6 +571,49 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   function azione(m: Mossa | undefined) {
     return m ? () => gioca(m) : undefined;
   }
+}
+
+/** La mossa è un attacco (potere d'attacco, anche copiato, o carta attacco)? */
+function eUnAttacco(m: Mossa, v: VistaGiocatore): boolean {
+  if (m.tipo === "usaCarta") return true;
+  if (m.tipo !== "potere") return false;
+  const [idCarta, potere] =
+    m.potere === "sempre-la-stessa-storia" && v.ultimoPotere
+      ? [v.ultimoPotere.carta, v.ultimoPotere.potere]
+      : m.potereCopiato && m.fonte
+        ? [cartaDiCopia(m.fonte), m.potereCopiato]
+        : [cartaDiCopia(m.carta), m.potere];
+  return carta(idCarta).poteri.find((p) => p.id === potere)?.tipo === "attacco";
+}
+
+/**
+ * Le mosse di una carta; con l'opzione "carico", se tra queste c'è un attacco, si possono prima scegliere le carte numero
+ * del carico (le perdi comunque; chi si difende con una carta attivata deve scartare almeno quel valore).
+ */
+function MosseConCarico({ mosse, v, nick, gioca, bloccato }: { mosse: Mossa[]; v: VistaGiocatore; nick: (id: string) => string; gioca: (m: Mossa) => void; bloccato: boolean }) {
+  const [carico, setCarico] = useState<string[]>([]);
+  const attacchi = !!v.opzioni.carico && mosse.some((m) => eUnAttacco(m, v));
+  const somma = v.mano.filter((c) => carico.includes(c.id)).reduce((n, c) => n + c.valore, 0);
+  const scegli = (m: Mossa) => gioca(carico.length > 0 && eUnAttacco(m, v) && (m.tipo === "potere" || m.tipo === "usaCarta") ? { ...m, carico } : m);
+  return (
+    <>
+      {attacchi && v.mano.length > 0 && (
+        <div className="mb-3 rounded-xl border border-rosso/40 bg-rosso/5 p-2">
+          <p className="text-sm font-semibold">⚖️ Carico (facoltativo): {carico.length > 0 ? `${somma}` : "nessuno"}</p>
+          <p className="mb-1.5 text-xs text-tenue">
+            Tocca le carte da aggiungere all'attacco: le perdi comunque. Per difendersi con una carta attivata, l'altro deve scartare almeno
+            questo valore oppure sacrificare la carta.
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {v.mano.map((c) => (
+              <CartaNumeroGrafica key={c.id} c={c} selezionata={carico.includes(c.id)} onClick={() => setCarico((s) => (s.includes(c.id) ? s.filter((x) => x !== c.id) : [...s, c.id]))} />
+            ))}
+          </div>
+        </div>
+      )}
+      <ListaMosse mosse={mosse} v={v} nick={nick} onScegli={scegli} disabilitata={bloccato} vuota="Adesso non puoi fare niente con questa carta." />
+    </>
+  );
 }
 
 /** Aggiunge o toglie un id dalla selezione (al massimo `max`). */
@@ -1210,6 +1253,12 @@ function SceltaInSospeso({
           <b>{nomePotere(att.carta, att.potere)}</b> ({nomeCarta(att.carta)}, livello {att.livello}): {testoPotere}
         </p>
         {secondi !== null && <p className="mt-1 text-sm font-bold text-rosso">⏱ Hai ancora {secondi} secondi, poi l'attacco passa.</p>}
+        {att.carico ? (
+          <p className="mt-1 text-sm">
+            ⚖️ <b>Carico {att.carico}</b>: per difenderti con una carta attivata scarti carte numero che fanno almeno {att.carico}, oppure fai{" "}
+            <b>harakiri</b> (la carta va negli scarti con i suoi punti). Vini, scuse e difese d'emergenza non pagano il carico.
+          </p>
+        ) : null}
         <ListaMosse mosse={mosse.filter((m) => m.tipo === "difendi")} v={v} nick={nick} onScegli={gioca} disabilitata={bloccato} />
         {n > 0 && (
           <div className="mt-3">

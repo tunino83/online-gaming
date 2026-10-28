@@ -53,7 +53,7 @@ export interface VistaGiocatore {
     rivelati: StatoTurno["rivelati"];
   };
   /** Attacco in corso (informazioni pubbliche). */
-  attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile"> | null;
+  attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile" | "carico"> | null;
   /** Benedizione di Don Pasquale in corso (di chi). */
   benedizione: IdGiocatore | null;
   /** Total black: il tavolo resta vuoto fino al prossimo turno di questo giocatore. */
@@ -126,6 +126,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
           bersaglio: s.attacco.bersaglio,
           controTutti: s.attacco.controTutti,
           indifendibile: s.attacco.indifendibile,
+          ...(s.attacco.carico ? { carico: s.attacco.carico } : {}),
         }
       : null,
     benedizione: s.benedizione,

@@ -6,7 +6,7 @@ import "@fontsource/caveat/700.css";
 import "@fontsource/fredoka/500.css";
 import "@fontsource/fredoka/600.css";
 import "@fontsource/fredoka/700.css";
-import { COLORI_NUMERI, type Carta, type CartaMancia, type CartaNumero, carta, descriviCodice, soloAiuto } from "@og/famiglia";
+import { COLORI_NUMERI, COLORI_TIPI, type Carta, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta, type CartaMancia, type CartaNumero, carta, descriviCodice, soloAiuto } from "@og/famiglia";
 import { type CSSProperties, type ReactNode, createContext, useContext } from "react";
 import "./famiglia.css";
 import { immagineCarta } from "./immagini";
@@ -26,27 +26,20 @@ export function usePuntiCarta(idCarta: string): number {
 /** Simbolo dell'infinito (∞) per le carte sempre attive, disegnato nello stemma (uguale anche nel PDF da stampare). */
 export const INFINITO = "M20 23 C17 17.5 10.5 17.5 10.5 23 C10.5 28.5 17 28.5 20 23 C23 17.5 29.5 17.5 29.5 23 C29.5 28.5 23 28.5 20 23 Z";
 
-/** Tipologie di potere, ognuna col suo stemma: le blu sono aiuti sempre attivi (stemma azzurro con ∞). */
-export const TIPOLOGIE = {
-  attacco: { nome: "Attacco", icona: "⚔️", colore: "#c63d2f", scuro: "#8e2219" },
-  difesa: { nome: "Difesa", icona: "🛡️", colore: "#2d5f9a", scuro: "#1b3d66" },
-  aiuto: { nome: "Aiuto", icona: "✨", colore: "#3e8a4f", scuro: "#25603a" },
-  blu: { nome: "Aiuto sempre attivo", icona: "∞", colore: "#1f9fc9", scuro: "#14708f" },
-} as const;
-export type Tipologia = keyof typeof TIPOLOGIE;
-
-/** Le tipologie dei poteri di una carta, senza ripetizioni (al massimo 2). */
-export function tipologieCarta(c: Carta): Tipologia[] {
-  return [...new Set(c.poteri.map((p): Tipologia => (p.blu ? "blu" : p.tipo)))];
-}
-
-/** Colore principale della carta: attacco, poi difesa (se non ha aiuti), poi aiuto. */
-function tipologiaPrincipale(c: Carta): Tipologia {
-  const tipi = tipologieCarta(c);
-  if (tipi.includes("attacco")) return "attacco";
-  if (tipi.includes("difesa") && !tipi.includes("aiuto") && !tipi.includes("blu")) return "difesa";
-  return tipi.includes("aiuto") ? "aiuto" : (tipi[0] ?? "aiuto");
-}
+/**
+ * Tipologie di carta, ognuna col suo stemma e il suo colore (colori in games/famiglia/src/colori.ts, uguali nel PDF):
+ * rosso attacchi, blu difese, giallo aiuti, verde aiuti sempre attivi (∞), viola e arancione le carte usa e getta.
+ */
+export const TIPOLOGIE: Record<TipologiaCarta, { nome: string; icona: string; colore: string; scuro: string }> = {
+  attacco: { nome: "Attacco", icona: "⚔️", ...COLORI_TIPI.attacco },
+  difesa: { nome: "Difesa", icona: "🛡️", ...COLORI_TIPI.difesa },
+  aiuto: { nome: "Aiuto", icona: "✨", ...COLORI_TIPI.aiuto },
+  blu: { nome: "Aiuto sempre attivo", icona: "∞", ...COLORI_TIPI.blu },
+  difesaUnaVolta: { nome: "Difesa usa e getta", icona: "🛡️", ...COLORI_TIPI.difesaUnaVolta },
+  attaccoUnaVolta: { nome: "Attacco usa e getta", icona: "⚔️", ...COLORI_TIPI.attaccoUnaVolta },
+};
+export type Tipologia = TipologiaCarta;
+export { tipologieCarta, tipologiaPotere };
 
 /** Stemma a scudo del tipo di potere, con la cucitura e il simbolo. */
 export function Stemma({ tipo, dimensione = 22 }: { tipo: Tipologia; dimensione?: number }) {
@@ -127,7 +120,7 @@ export function CartaFamiglia({
               <span>{c.categoria === "personaggio" ? c.nota ?? "" : c.categoria === "difesa" ? "carta difesa" : "carta attacco"}</span>
             </div>
           )}
-          {c.categoria === "personaggio" && <span className="cf-livello">{"★".repeat(c.livello)}</span>}
+          <span className="cf-livello">{"★".repeat(c.livello)}</span>
           {stanca !== undefined && stanca > 0 && <div className="cf-stanca">😴 {stanca}</div>}
         </div>
         <div className="cf-etichetta">
@@ -158,7 +151,7 @@ export function SchedaCarta({ idCarta, stanca }: { idCarta: string; stanca?: num
         {c.poteri.map((p) => (
           <p key={p.id}>
             <span className="mr-1 inline-block align-middle">
-              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={18} />
+              <Stemma tipo={tipologiaPotere(c, p)} dimensione={18} />
             </span>
             <b>{p.nome}:</b>{" "}
             {p.testo}

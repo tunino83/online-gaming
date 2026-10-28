@@ -1,5 +1,5 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
-import { CARTE, type Carta, EVENTI, descriviCodice, soloAiuto } from "@og/famiglia";
+import { CARTE, type Carta, EVENTI, descriviCodice, soloAiuto, tipologiaPotere } from "@og/famiglia";
 import { type ReactNode, useRef, useState } from "react";
 import { CartaFamiglia, Stemma } from "./carte";
 
@@ -295,7 +295,7 @@ function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c
     >
       <p className="font-titolo text-lg font-bold leading-tight">
         {c.nome}
-        {c.categoria === "personaggio" && <span className="text-oro"> {"★".repeat(c.livello)}</span>}
+        <span className="text-oro"> {"★".repeat(c.livello)}</span>
       </p>
       <div className="flex items-center gap-2">
         {piu && (
@@ -331,7 +331,7 @@ function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c
         {c.poteri.map((p) => (
           <p key={p.id}>
             <span className="mr-1 inline-block align-middle">
-              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={16} />
+              <Stemma tipo={tipologiaPotere(c, p)} dimensione={16} />
             </span>
             <strong>{p.nome}</strong>: {p.testo}
           </p>
@@ -379,7 +379,7 @@ function CartaInGrande({ indice, onCambia, onChiudi }: { indice: number; onCambi
         {c.poteri.map((p) => (
           <p key={p.id}>
             <span className="mr-1 inline-block align-middle">
-              <Stemma tipo={p.blu ? "blu" : p.tipo} dimensione={16} />
+              <Stemma tipo={tipologiaPotere(c, p)} dimensione={16} />
             </span>
             <strong>{p.nome}</strong>: {p.testo}
           </p>

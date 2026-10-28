@@ -2,7 +2,7 @@
  * Testi in italiano per la schermata della Famiglia: mosse (per i pulsanti) e cose successe (per il registro).
  * Le carte si riconoscono dall'id della copia: "antonio-2#1" è la carta "antonio-2".
  */
-import { type CartaNumero, type Fatto, type Mossa, type ParametriPotere, type VistaGiocatore, carta, evento } from "@og/famiglia";
+import { type CartaNumero, type Fatto, type Mossa, type ParametriPotere, type VistaGiocatore, carta, eDifesa, evento } from "@og/famiglia";
 
 /** Id della carta da quello della copia ("antonio-2#1" → "antonio-2"). */
 export const cartaDiCopia = (idCopia: string) => idCopia.split("#")[0]!;
@@ -97,9 +97,16 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     case "pescaEvento":
       return "Pesca un evento";
     case "attiva": {
-      if (m.combinazione.length === 0) return `Attiva ${nomeCopia(m.carta)} senza codice (Medico in famiglia)`;
+      // Limite delle difese: la difesa già attivata dello stesso livello va negli scarti
+      const idCarta = cartaDiCopia(m.carta);
+      const vecchia =
+        v.opzioni.limiteDifese && eDifesa(idCarta)
+          ? v.giocatori[v.io]?.attivati.find((a) => eDifesa(a.copia.carta) && carta(a.copia.carta).livello === carta(idCarta).livello)
+          : undefined;
+      const sostituisce = vecchia ? ` (al posto di ${nomeCarta(vecchia.copia.carta)}, che va negli scarti)` : "";
+      if (m.combinazione.length === 0) return `Attiva ${nomeCopia(m.carta)} senza codice (Medico in famiglia)${sostituisce}`;
       const prosecco = m.codiceDi ? ` 🥂 col codice di ${nomeCopia(m.codiceDi)}` : "";
-      return `Attiva ${nomeCopia(m.carta)}${prosecco} con ${elenco(m.combinazione.map((el) => (el.modifica ? `${el.valore} (+1)` : String(el.valore))))}`;
+      return `Attiva ${nomeCopia(m.carta)}${prosecco} con ${elenco(m.combinazione.map((el) => (el.modifica ? `${el.valore} (+1)` : String(el.valore))))}${sostituisce}`;
     }
     case "potere": {
       const idCarta = cartaDiCopia(m.carta);
@@ -141,7 +148,8 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
           : "";
       const devia = m.giocatore ? ` → l'attacco va a ${nick(m.giocatore)}` : "";
       const paga = potere === "ricorso" && m.carte ? ` (parcella: ${valori(m.carte)})` : "";
-      return `🛡️ ${nomePotere(idCarta, potere)} – ${nomeCarta(idCarta)}${emergenza}${devia}${paga}`;
+      const carico = m.harakiri ? " · harakiri: sacrifichi la carta" : m.carico ? ` · carico: scarti ${valori(m.carico)}` : "";
+      return `🛡️ ${nomePotere(idCarta, potere)} – ${nomeCarta(idCarta)}${emergenza}${devia}${paga}${carico}`;
     }
     case "subisci": {
       if (v.attacco?.potere === "brontola-tutto-il-giorno") {
@@ -177,10 +185,10 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
     case "sceglie":
       return `${chi}: sceglie ${f.quante === 1 ? "una carta" : `${f.quante} carte`}`;
     case "attacco":
-      return `⚔️ ${chi}: ${nomePotere(f.carta, f.potere)} contro ${elenco(f.bersagli.map(nick))}`;
+      return `⚔️ ${chi}: ${nomePotere(f.carta, f.potere)} contro ${elenco(f.bersagli.map(nick))}${f.carico ? ` con carico ${f.carico}` : ""}`;
     case "difesa":
       return f.riuscita
-        ? `🛡️ ${chi}: si difende con ${nomePotere(f.carta, f.potere)}${f.girata ? ` (gira un ${f.girata}: dispari!)` : ""}${f.devia ? ` e passa l'attacco a ${nick(f.devia)}` : ""}`
+        ? `🛡️ ${chi}: si difende con ${nomePotere(f.carta, f.potere)}${f.harakiri ? " (harakiri: sacrifica la carta)" : ""}${f.girata ? ` (gira un ${f.girata}: dispari!)` : ""}${f.devia ? ` e passa l'attacco a ${nick(f.devia)}` : ""}`
         : `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)}${f.girata ? `, gira un ${f.girata}: pari` : ""}… ma non funziona!`;
     case "colpito":
       return `💥 ${chi}: colpito`;
@@ -204,6 +212,8 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
       return `${chi}: regala una carta a ${f.a === io ? "te" : nick(f.a)}`;
     case "campanello":
       return `🔔 Suonano alla porta! Arrivano ${elenco(f.nuovi.map(nomeCarta))}`;
+    case "sostituisce":
+      return `🛡️ ${chi}: ${nomeCarta(f.nuova)} prende il posto di ${nomeCarta(f.vecchia)}, che va negli scarti`;
     case "sbuffa":
       return `😤 ${chi}: si scoccia e blocca ${nomePotere(f.carta, f.potere)} di ${f.a === io ? "te" : nick(f.a)}`;
   }

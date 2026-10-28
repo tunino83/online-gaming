@@ -14,6 +14,7 @@ import { puntiCarta,
   registra,
   riceviCarta,
   riempiTavolo,
+  liberaPostoDifesa,
   rifiuta,
   risorseGiocatore,
   scartaNumeri,
@@ -430,6 +431,7 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   const zona = zonaDi(copia!);
   g[zona].splice(g[zona].findIndex((x) => x.id === copia!.id), 1);
   g.attivati.push({ copia: copia!, stanca: 0 });
+  liberaPostoDifesa(s, id, copia!);
   // Un caffè (blu) vale già dal turno in cui si attiva
   if (c.poteri.some((p) => p.blu && p.id === "un-caffe")) {
     s.turno.mosseRimaste += 1;

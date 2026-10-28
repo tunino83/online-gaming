@@ -28,7 +28,7 @@ function elementoValido(e: unknown): boolean {
 const combinazioneValida = (x: unknown) => Array.isArray(x) && x.length >= 1 && x.length <= 20 && x.every(elementoValido);
 
 /** Parametri facoltativi dei poteri (vedi ParametriPotere in stato.ts). */
-const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "bersagli", "giocatori", "scelte", "propria", "fonte", "potereCopiato", "combinazione"];
+const PARAMETRI = ["carte", "posizioni", "valore", "giocatore", "bersaglio", "bersagli", "giocatori", "scelte", "propria", "fonte", "potereCopiato", "combinazione", "carico"];
 
 function parametriValidi(m: Oggetto): boolean {
   return (
@@ -39,6 +39,7 @@ function parametriValidi(m: Oggetto): boolean {
     (m.bersagli === undefined || listaTesti(m.bersagli)) &&
     (m.giocatori === undefined || listaTesti(m.giocatori)) &&
     (m.combinazione === undefined || combinazioneValida(m.combinazione)) &&
+    (m.carico === undefined || listaTesti(m.carico)) &&
     ["giocatore", "bersaglio", "propria", "fonte", "potereCopiato"].every((k) => m[k] === undefined || isTesto(m[k]))
   );
 }
@@ -71,8 +72,9 @@ export function validaMossa(m: unknown): m is Mossa {
       return campi(m, ["carta", "combinazione"], PARAMETRI) && isTesto(m.carta) && combinazioneValida(m.combinazione) && parametriValidi(m);
     case "difendi":
       return (
-        campi(m, ["carta"], ["potere", "combinazione", "giocatore", "carte", "bersaglio"]) &&
+        campi(m, ["carta"], ["potere", "combinazione", "giocatore", "carte", "bersaglio", "carico", "harakiri"]) &&
         isTesto(m.carta) &&
+        (m.harakiri === undefined || m.harakiri === true) &&
         (m.potere === undefined || isTesto(m.potere)) &&
         (m.combinazione === undefined || combinazioneValida(m.combinazione)) &&
         parametriValidi(m)

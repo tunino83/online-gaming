@@ -408,3 +408,26 @@ Francesco è sempre in ritardo. Annulla un attacco di **qualsiasi livello** (anc
 livello 2), perché lui ancora non c'era; in cambio nel suo prossimo turno fa **1 mossa in meno**. Si usa come le altre
 difese: attivata e carica (poi si stanca 2 turni) oppure d'emergenza dalla mano pagando il codice.
 Ora Francesco non ha più attacchi: Lezione di padel, Non è ancora arrivato e Scatto d'ira.
+
+## Regole in prova contro le troppe difese (2026-10-28)
+
+Dopo la prima partita con le carte stampate: le difese sono troppe e attaccare è quasi impossibile. Due opzioni della
+partita, spente di base (si accendono creando la partita, "Regole in prova"); `npx tsx games/famiglia/scripts/difese.ts`
+le confronta tra i robot (`docs/famiglia/confronto-difese.md`).
+- **Limite delle difese**: al massimo **un personaggio di difesa attivato per livello** (uno di livello 1, uno di 2, uno
+  di 3). Una seconda difesa dello stesso livello si può tenere in mano, oppure attivare: allora prende il posto della
+  vecchia, che va negli scarti con i suoi punti. Vale anche per le carte che arrivano tra gli attivati con i poteri
+  (Il mio corpo che cambia, Vertenza, Baratto). Le difese d'emergenza dalla mano non contano.
+- **Carico**: chi attacca può aggiungere all'attacco carte numero della mano; la loro somma è il carico e quelle carte
+  le perde sempre. Per difendersi con un **personaggio attivato** bisogna scartare carte numero che fanno **almeno** il
+  carico (poi la carta si stanca), oppure fare **harakiri**: la carta di difesa va negli scarti con i suoi punti e
+  l'attacco è fermato lo stesso (si prende comunque il +1 della difesa riuscita). Le difese usa e getta (vini, Campari,
+  scuse, personaggi giocati d'emergenza) non pagano il carico. Negli attacchi contro tutti vale per ogni avversario; se
+  l'attacco viene passato a un altro, anche lui deve pagarlo.
+
+## Colori delle carte (2026-10-28)
+
+Rosso attacchi, blu difese, giallo aiuti, verde aiuti sempre attivi, viola difese usa e getta, arancione attacchi usa
+e getta (`COLORI_TIPI` in `games/famiglia/src/colori.ts`, uguali nel gioco e nel PDF). Le stelle del livello sono su
+tutte le carte, anche su vini, scuse e carte attacco.
+

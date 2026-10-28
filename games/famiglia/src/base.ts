@@ -73,6 +73,27 @@ export function riempiTavolo(s: StatoPartita): void {
 
 /* ---------------- carte numero ---------------- */
 
+/** È un personaggio con un potere di difesa (per il limite delle difese)? */
+export const eDifesa = (idCarta: string): boolean => {
+  const c = carta(idCarta);
+  return c.categoria === "personaggio" && c.poteri.some((p) => p.tipo === "difesa");
+};
+
+/**
+ * Limite delle difese (opzione): al massimo 1 personaggio di difesa attivato per livello. Se `nuova` è appena arrivata
+ * tra gli attivati e c'è già un'altra difesa dello stesso livello, la vecchia va negli scarti (con i suoi punti).
+ */
+export function liberaPostoDifesa(s: StatoPartita, id: IdGiocatore, nuova: CopiaCarta): void {
+  if (!s.opzioni.limiteDifese || !eDifesa(nuova.carta)) return;
+  const g = s.giocatori[id]!;
+  const livello = carta(nuova.carta).livello;
+  const vecchia = g.attivati.find((a) => a.copia.id !== nuova.id && eDifesa(a.copia.carta) && carta(a.copia.carta).livello === livello);
+  if (!vecchia) return;
+  g.attivati.splice(g.attivati.indexOf(vecchia), 1);
+  s.scarti.personaggi.push(vecchia.copia);
+  registra(s, id, { tipo: "sostituisce", vecchia: vecchia.copia.carta, nuova: nuova.carta });
+}
+
 /** Mette carte numero negli scarti; una carta "fatta in casa" si scarta come le 2 carte che la formano. */
 export function scartaNumeri(s: StatoPartita, carte: CartaNumero[]): void {
   for (const c of carte) {

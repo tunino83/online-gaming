@@ -39,6 +39,8 @@ describe("preparazione", () => {
       puntiPerIPoteri: true,
       unaAttivazionePerTurno: false,
       puntiPerGliAiuti: false,
+      limiteDifese: false,
+      carico: false,
     });
   });
 
@@ -501,5 +503,47 @@ describe("varianti dei punti (in prova)", () => {
     s = fai(s, "anna", attivazione("donatina-1", ["a", 2], ["b", 3]));
     expect(mosseValide(s, "anna").some((m) => m.tipo === "attiva")).toBe(false);
     expect(rifiutata(s, "anna", attivazione("nonna-dina-1", ["c", 3], ["d", 4]))).toMatch(/un solo personaggio/);
+  });
+});
+
+describe("limite delle difese (opzione in prova)", () => {
+  const conLimite = (limiteDifese: boolean) => {
+    const s = setup(GIOCATORI, { limiteDifese }, 1);
+    s.ordine = ["anna", "bruno", "carla"];
+    s.turno.giocatore = "anna";
+    s.turno.mosseRimaste = 3;
+    const g = s.giocatori.anna!;
+    g.attivati = [
+      { copia: copia("gerardina-1"), stanca: 0 }, // Sempre calma: difesa di livello 1
+      { copia: copia("toto-1"), stanca: 0 }, // Si incanta: attacco di livello 1
+    ];
+    g.nascosti = [copia("marika-1"), copia("squacqualacchione-1")]; // Forse c'è (difesa, coppia) e un attacco di livello 1
+    g.mano = [num(5, "a"), num(5, "b"), num(4, "c"), num(5, "d")];
+    return s;
+  };
+  const attivaMarika: Mossa = {
+    tipo: "attiva",
+    carta: "marika-1#1",
+    combinazione: [
+      { tipo: "numero", id: "a", valore: 5 },
+      { tipo: "numero", id: "b", valore: 5 },
+    ],
+  };
+
+  it("una sola difesa attivata per livello: la nuova prende il posto della vecchia, che va negli scarti", () => {
+    let s = conLimite(true);
+    s = fai(s, "anna", attivaMarika);
+    expect(s.giocatori.anna!.attivati.map((a) => a.copia.carta)).toEqual(["toto-1", "marika-1"]);
+    expect(s.scarti.personaggi.map((c) => c.carta)).toContain("gerardina-1");
+    expect(s.registro.at(-2)).toMatchObject({ tipo: "sostituisce", vecchia: "gerardina-1", nuova: "marika-1" });
+  });
+
+  it("gli attacchi e le difese di un altro livello non contano; senza l'opzione le difese restano tutte", () => {
+    let s = conLimite(true);
+    s = fai(s, "anna", { tipo: "attiva", carta: "squacqualacchione-1#1", combinazione: [{ tipo: "numero", id: "c", valore: 4 }, { tipo: "numero", id: "d", valore: 5 }] });
+    expect(s.giocatori.anna!.attivati).toHaveLength(3);
+    let t = conLimite(false);
+    t = fai(t, "anna", attivaMarika);
+    expect(t.giocatori.anna!.attivati.map((a) => a.copia.carta)).toEqual(["gerardina-1", "toto-1", "marika-1"]);
   });
 });
