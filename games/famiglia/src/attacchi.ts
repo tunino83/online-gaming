@@ -21,7 +21,7 @@ import {
   zonaDi,
   premioPotere,
 } from "./base";
-import { carta, cartePersona, eBlu } from "./carte";
+import { carta, eBlu } from "./carte";
 import { type Combinazione, trovaCombinazioni, verificaCombinazione } from "./codici";
 import type { Attesa, AttaccoInCorso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
 import type { Carta, CartaNumero } from "./tipi-carte";
@@ -35,6 +35,16 @@ const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tut
 
 /** Attacchi che fanno stancare una carta carica scelta dall'attaccante. */
 const STANCANO_UNA_CARTA = new Set(["versa-il-vino", "la-tomacella", "smash", "il-bastone"]);
+
+/** Attacchi "di carne": Tofu Super Seitan (Chicca 1) li ferma di qualsiasi livello. */
+export const ATTACCHI_DI_CARNE = new Set(["la-tomacella", "tritacarne"]);
+
+/** Carte che con l'Aperitivo (Chicca 2) si usano senza pagare il codice: i vini e il Campari. */
+const DA_APERITIVO = new Set(["paesano", "aglianico", "taurasi", "campari"]);
+
+/** Il giocatore ha attivato l'Aperitivo e questa carta è un vino o il Campari? Allora la usa senza pagare. */
+export const gratisConAperitivo = (g: StatoGiocatore, idCarta: string): boolean =>
+  DA_APERITIVO.has(idCarta) && g.attivati.some((a) => a.copia.carta === "chicca-2");
 
 /** Difese che passano l'attacco a un altro giocatore (Maddalena): non valgono contro gli attacchi contro tutti. */
 const DEVIANO = new Set(["non-e-colpa-mia", "e-colpa-di-qualcun-altro"]);
@@ -119,13 +129,9 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     const v = p.giocatore;
     if (!v || v === id || !s.ordine.includes(v)) rifiuta("Scegli l'avversario da attaccare");
     if (!attaccabile(s, id, v!)) rifiuta("Quel giocatore adesso non può essere attaccato");
+    if (potere === "ho-tanta-fame" && !piuVicini(s, id).includes(v!)) rifiuta("Braccine corte: puoi prendere solo dall'avversario con i punti più vicini ai tuoi");
     controllaScelteAttacco(s, id, potere, v!, p);
     bersagli = [v!];
-  }
-  // Legame con Chicca (che vende la carne): usando il Tritacarne una sua carta stanca si ricarica
-  if (potere === "tritacarne") {
-    const chicca = chiccaStanca(g);
-    if (chicca) chicca.stanca = 0;
   }
   registra(s, id, { tipo: "attacco", carta: origine.id, potere, bersagli });
   s.attacco = {
@@ -143,6 +149,15 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     copia,
   };
   prosegui(s);
+}
+
+/** Ho tanta fame (Christian, braccine corte): gli avversari con i punti più vicini a quelli di chi attacca. */
+function piuVicini(s: StatoPartita, id: IdGiocatore): IdGiocatore[] {
+  const miei = puntiDi(s.giocatori[id]!, s.opzioni);
+  const distanza = (x: IdGiocatore) => Math.abs(puntiDi(s.giocatori[x]!, s.opzioni) - miei);
+  const avversari = avversariDopo(s, id);
+  const minima = Math.min(...avversari.map(distanza));
+  return avversari.filter((x) => distanza(x) === minima);
 }
 
 /** Le scelte dell'attaccante per un attacco a un solo avversario sono valide? */
@@ -259,10 +274,14 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       break;
     }
     case "solo-per-vedere-comm-sape":
-    case "giro-aperto": {
+    case "giro-aperto":
+    case "ho-tanta-fame": {
       if (suSeStesso) break;
-      const c = rubaACaso();
-      if (c) A.mano.push(c);
+      // Ho tanta fame: 2 carte numero a caso
+      for (let i = 0; i < (a.potere === "ho-tanta-fame" ? 2 : 1); i++) {
+        const c = rubaACaso();
+        if (c) A.mano.push(c);
+      }
       break;
     }
     case "burla":
@@ -475,7 +494,9 @@ export function difeseDisponibili(s: StatoPartita, v: IdGiocatore): DifesaPossib
   const a = s.attacco;
   if (!a) return [];
   const g = s.giocatori[v]!;
-  const ok = (c: Carta, potere: string) => c.livello >= a.livello && reattiva(potere) && (!a.controTutti || !DEVIANO.has(potere));
+  // Regola del livello; Tofu Super Seitan ferma anche gli attacchi di carne di qualsiasi livello
+  const livelloOk = (c: Carta, potere: string) => c.livello >= a.livello || (potere === "tofu-super-seitan" && ATTACCHI_DI_CARNE.has(a.potere));
+  const ok = (c: Carta, potere: string) => livelloOk(c, potere) && reattiva(potere) && (!a.controTutti || !DEVIANO.has(potere));
   const res: DifesaPossibile[] = [];
   for (const x of g.attivati) {
     if (x.stanca > 0) continue;
@@ -486,7 +507,7 @@ export function difeseDisponibili(s: StatoPartita, v: IdGiocatore): DifesaPossib
   for (const x of g.nascosti) {
     const c = carta(x.carta);
     const difese = c.poteri.filter((p) => p.tipo === "difesa" && ok(c, p.id));
-    if (difese.length > 0 && trovaCombinazioni(risorse, c.codice, 1).length > 0) {
+    if (difese.length > 0 && (gratisConAperitivo(g, c.id) || trovaCombinazioni(risorse, c.codice, 1).length > 0)) {
       for (const p of difese) res.push({ copia: x.id, potere: p.id, emergenza: true });
     }
   }
@@ -515,15 +536,13 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
 
   // Pagare la difesa: carica che si stanca, oppure (d'emergenza) codice pagato e carta scartata
   if (d!.emergenza) {
-    paga(s, g, c, mossa.combinazione);
+    if (!gratisConAperitivo(g, c.id)) paga(s, g, c, mossa.combinazione);
     // "Sono a un matrimonio": durante l'evento Matrimonio la carta non si scarta e resta in mano
     if (!(d!.potere === "sono-a-un-matrimonio" && s.evento?.id === "matrimonio")) {
       s.scarti.personaggi.push(...g.nascosti.splice(g.nascosti.findIndex((x) => x.id === d!.copia), 1));
     }
   } else {
-    const x = g.attivati.find((y) => y.copia.id === d!.copia)!;
-    const ultimo = Math.min(...s.ordine.map((o) => puntiDi(s.giocatori[o]!, s.opzioni)));
-    if (!(d!.potere === "non-sa-perdere" && puntiDi(g, s.opzioni) <= ultimo)) stancaCarta(s, x);
+    stancaCarta(s, g.attivati.find((y) => y.copia.id === d!.copia)!);
   }
   a.difesi.push(id);
   s.turno.attesa = null;
@@ -651,6 +670,14 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       peschiNumeri(s, v, 2);
       peschiNumeri(s, mittente, 1);
       break;
+    case "tofu-super-seitan": {
+      // Contro la carne: peschi 2 carte e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi
+      if (!ATTACCHI_DI_CARNE.has(a.potere)) break;
+      peschiNumeri(s, v, 2);
+      const x = s.giocatori[a.attaccante]!.attivati.find((y) => y.copia.id === a.copia);
+      if (x) stancaCarta(s, x, 1);
+      break;
+    }
     case "cella-frigorifera": {
       const x = s.giocatori[a.attaccante]!.attivati.find((y) => y.copia.id === a.copia);
       if (x) stancaCarta(s, x, 1);
@@ -661,7 +688,7 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       stancaCarta(s, aCaso(s, caricheColpibili(A, potere)));
       break;
     }
-    // Le altre difese annullano soltanto: Per me è quadrato, Non sa perdere, Sempre calma, Forse c'è,
+    // Le altre difese annullano soltanto: Per me è quadrato, Sempre calma, Forse c'è,
     // Non c'è ha il turno, Paesano, Aglianico, Sono a un matrimonio.
   }
   avanza(s);
@@ -682,7 +709,7 @@ export function mosseDiDifesa(s: StatoPartita, v: IdGiocatore): Mossa[] {
   const risorse = risorseGiocatore(g);
   for (const d of difeseDisponibili(s, v)) {
     const base: Extract<Mossa, { tipo: "difendi" }> = { tipo: "difendi", carta: d.copia, potere: d.potere };
-    const conPagamento: Extract<Mossa, { tipo: "difendi" }>[] = d.emergenza
+    const conPagamento: Extract<Mossa, { tipo: "difendi" }>[] = d.emergenza && !gratisConAperitivo(g, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).id)
       ? trovaCombinazioni(risorse, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).codice, 1).map((combinazione) => ({ ...base, combinazione }))
       : [base];
     for (const m of conPagamento) {
@@ -768,12 +795,7 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
       return [{ giocatore }];
     }
     if (potere === "burla" && g.mano.length > 0) return [{ giocatore, carte: [g.mano[0]!.id] }];
+    if (potere === "ho-tanta-fame" && !piuVicini(s, id).includes(giocatore)) return [];
     return [{ giocatore }];
   });
-}
-
-/** Un personaggio di Chicca stanco del giocatore (per il legame con il Tritacarne). */
-export function chiccaStanca(g: StatoGiocatore): Attivato | undefined {
-  const chicca = new Set(cartePersona("chicca").map((c) => c.id));
-  return g.attivati.find((x) => chicca.has(x.copia.carta) && x.stanca > 0);
 }

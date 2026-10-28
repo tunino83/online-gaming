@@ -451,12 +451,12 @@ describe("varianti dei punti (in prova)", () => {
     s.turno.mosseRimaste = 3;
     s.giocatori.anna!.attivati = [
       { copia: copia("nonna-dina-1"), stanca: 0 }, // Cambiamo un po'… (aiuto, gratis)
-      { copia: copia("christian"), stanca: 0 }, // Ho tanta fame (aiuto)
+      { copia: copia("antonio-1"), stanca: 0 }, // Domani lo faccio (aiuto)
       { copia: copia("toto-1"), stanca: 0 }, // Si incanta (attacco)
     ];
     s = fai(s, "anna", { tipo: "potere", carta: "nonna-dina-1#1", potere: "sposta-i-mobili" });
     expect(s.giocatori.anna!.puntiPoteri).toBe(1);
-    s = fai(s, "anna", { tipo: "potere", carta: "christian#1", potere: "ho-tanta-fame" });
+    s = fai(s, "anna", { tipo: "potere", carta: "antonio-1#1", potere: "ci-penso-domani" });
     expect(s.giocatori.anna!.puntiPoteri).toBe(1); // solo il primo aiuto del turno
     s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
     expect(s.giocatori.anna!.puntiPoteri).toBe(2); // attacco a segno (bruno non ha difese)

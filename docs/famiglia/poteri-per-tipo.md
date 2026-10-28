@@ -2,7 +2,7 @@
 
 Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
-### ⚔️ ATTACCO (32)
+### ⚔️ ATTACCO (33)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -20,7 +20,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Gerardina | 2 | **Una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Rospe per tutti** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |
 | Giuseppe | 3 | **Vertenza** | Paghi con le tue carte il codice di un personaggio attivato di livello 1 o 2 di un avversario e lo prendi, con i suoi punti | 4 carte con somma 18 | ricarica 3 + livello della carta presa |
-| Sara e Giuseppe | 3 | **Tritacarne** | Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno. Se hai una carta di Chicca stanca, si ricarica | 4 carte con somma 12 | ricarica 3 |
+| Sara e Giuseppe | 3 | **Tritacarne** | Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno.  | 4 carte con somma 12 | ricarica 3 |
 | Nonno Antonio | 3 | **Il bastone** | Una carta carica di un avversario diventa stanca e lui scarta 2 carte numero a caso | Poker dispari | ricarica 3 |
 | Roberta | 1 | **Ti chiamo un attimo…** | Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno | 2 carte con somma 7 | ricarica 2 |
 | Roberta | 3 | **Sparecchio** | Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva | Poker | ricarica 3 |
@@ -28,6 +28,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Squacqualacchione | 1 | **Burla** | Prendi 2 carte numero a caso a un avversario e gli dai una tua a scelta | 2 carte con somma 9 | ricarica 1 |
 | Squacqualacchione | 3 | **Volo infuocato** | Una carta carica di ogni avversario diventa stanca | 88 + una coppia qualsiasi | ricarica 3 |
 | Nicole | 2 | **Parla parla parla** | Un avversario nel suo prossimo turno non può usare poteri | 3 carte con somma 11 | ricarica 2 |
+| Christian | 1 | **Ho tanta fame** | Braccine corte: prendi 2 carte numero a caso dall'avversario con i punti più vicini ai tuoi (a parità scegli tu) | Coppia | ricarica 2 |
 | Greta | 2 | **Risata contagiosa** | Ogni avversario scarta 1 carta numero a caso | 3 carte dispari | ricarica 2 |
 | Franchino | 2 | **Multa** | Chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti) | 3 carte con somma 15 | ricarica 2 |
 | Rocky | 2 | **Bisiniss** | Tagli a metà la carta numero più alta di un avversario: la scarta e al suo posto riceve una carta che vale la metà (es. un 8 diventa un 4) | 3 carte con somma 14 | ricarica 2 |
@@ -47,7 +48,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Maddalena | 2 | **Non è colpa mia** | L'attacco va a un altro giocatore a tua scelta | 3 carte dispari | ricarica 2 |
 | Maddalena | 3 | **È colpa di qualcun altro** | L'attacco va a un altro giocatore a tua scelta, che non può difendersi | Doppia coppia | ricarica 3 |
 | Nonna Patrizia | 2 | **Nuvola di fumo** | Fino al tuo prossimo turno nessuno può attaccarti | Scala da 3 | ricarica 2, anche nel tuo turno |
-| Chicca | 2 | **Non sa perdere** | Annulli un attacco; se sei ultima nei punti la carta non si stanca | 3 carte con somma 9 | ricarica 2 |
+| Chicca | 1 | **Tofu Super Seitan** | Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi | 2 carte con somma 8 | ricarica 1 |
 | Chicca | 3 | **E se poi te ne penti?** | L'attacco torna a chi l'ha fatto | Doppia coppia | ricarica 3 |
 | Francesco | 3 | **Si arrabbia** | Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca | 4 carte con somma 20 | ricarica 3 |
 | Gerardina | 1 | **Sempre calma** | Annulli un attacco di livello 1 | Coppia | ricarica 1 |
@@ -89,7 +90,8 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Dina | 3 | **Chissà se sta roba basta** | Tu peschi 4 carte numero, ogni avversario 1 | Scala da 5 | ricarica 3 |
 | Nonno Nicola | 1 | 🔵 **L'orto** | A inizio di ogni tuo turno peschi 1 carta numero | 2 carte dispari | blu |
 | Nonna Patrizia | 1 | 🔵 **Mercatino** | Una volta per turno scambi una carta in mano con una degli scarti | 2 carte con somma 10 | blu |
-| Chicca | 1 | **Vuoi un panino con sta roba puzzolente?** | Scarti un personaggio nascosto dalla mano e peschi 3 carte numero | 2 carte con somma 8 | ricarica 1 |
+| Chicca | 1 | 🔵 **Puzza di brace** | Sempre attiva: quando un avversario usa Brace accesa o Grigliata ricarica 1 carta in meno e tu peschi 1 carta numero | 2 carte con somma 8 | blu (anche da stanca) |
+| Chicca | 2 | 🔵 **Aperitivo** | Sempre attiva: le carte vino (Paesano, Aglianico, Taurasi) e Campari le usi senza pagarne il codice | 3 carte con somma 9 | blu |
 | Totò | 2 | **Brace accesa** | Ricarichi subito 2 altre tue carte stanche | 3 carte con somma 15 | ricarica 2 |
 | Totò | 3 | **Grigliata** | Ricarichi subito tutte le tue carte stanche | 4 carte pari | ricarica 3, gratis |
 | Checca | 2 | **La vetrina della collezione** | Metti in vetrina fino a 3 tue carte numero: nessun attacco può rubarle o farle scartare, e valgono per i tuoi codici | 123 | ricarica 2 |
@@ -108,7 +110,6 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Maddalena | 3 | **Patate al forno** | Scopri tante carte numero quanti i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza | Scala da 5 | ricarica 3 |
 | Claudia | 1 | 🔵 **Prosecco** | Una volta per turno attivi un personaggio col codice di un'altra tua carta (al massimo 1 livello di differenza) | 2 carte con somma 15 | blu |
 | Squacqualacchione | 2 | **Giacca al rovescio** | Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca) | 3 carte dispari | ricarica 2 |
-| Christian | 1 | **Ho tanta fame** | Peschi 3 carte numero | Coppia | ricarica 2 |
 | Alessia | 2 | **Mangia mangia mangia** | 4 carte numero alla cieca; poi per 2 turni scarti 1 carta in più | 3 carte pari | ricarica 2, gratis |
 | Simone | 1 | **Pranzo a domicilio** | Peschi 2 carte numero e poi, se vuoi, scambi 1 carta della mano con 1 del tavolo | 2 carte con somma 6 | ricarica 1 |
 | Annalisa | 2 | 🔵 **Medico in famiglia** | Attivi Racioppi e Zia Diana senza codice; una volta per turno prendi uno dei due dagli scarti | 3 carte con somma 12 | blu |

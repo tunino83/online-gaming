@@ -169,14 +169,6 @@ describe("pescare", () => {
     expect(s.scarti.numeri.map((c) => c.id)).toEqual(["a", "b"]);
   });
 
-  it("Vuoi un panino con sta roba puzzolente?: scarti un personaggio nascosto e peschi 3 carte numero", () => {
-    let s = conCarta("chicca-1");
-    anna(s).nascosti = [copia("paesano")];
-    s = usa(s, "chicca-1", { bersaglio: "paesano#1" });
-    expect(anna(s).nascosti).toEqual([]);
-    expect(anna(s).mano).toHaveLength(3);
-  });
-
   it("Non sbaglio mai: subito dopo aver pescato, scarti quella carta e ne peschi un'altra, senza usare mosse", () => {
     let s = conCarta("maddalena-1");
     expect(rifiutata(s, "anna", potere("maddalena-1"))).toMatch(/subito dopo/);
@@ -214,11 +206,6 @@ describe("pescare", () => {
     expect(mosseValide(s, "anna")).toContainEqual(potere("maddalena-1"));
     s = usa(s, "maddalena-1");
     expect(mossaAutomatica(s)).not.toBeNull();
-  });
-
-  it("Ho tanta fame: 3 carte numero", () => {
-    const s = usa(conCarta("christian"), "christian", {}, "ho-tanta-fame");
-    expect(anna(s).mano).toHaveLength(3);
   });
 
   it("Lezione di padel (blu): gratis, una volta per turno, scambi una tua carta con una del tavolo", () => {
@@ -422,6 +409,39 @@ describe("ricarica e informazioni", () => {
     s = usa(s, "toto-3");
     expect(anna(s).attivati.map((a) => a.stanca)).toEqual([3, 0, 0]);
     expect(s.turno.mosseRimaste).toBe(3); // gratis
+  });
+
+  it("Puzza di brace (Chicca 1, anche stanca): Brace accesa di un avversario ricarica 1 carta sola e Chicca pesca 1 carta", () => {
+    let s = conCarta("toto-2");
+    anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 }, { copia: copia("generoso-2"), stanca: 1 });
+    s.giocatori.bruno!.attivati.push({ copia: copia("chicca-1"), stanca: 1 });
+    expect(rifiutata(s, "anna", potere("toto-2", { bersagli: ["generoso-3#1", "generoso-2#1"] }))).toMatch(/un'altra/);
+    expect(mosseValide(s, "anna").filter((m) => m.tipo === "potere" && m.potere === "brace-accesa")).toHaveLength(2);
+    s = usa(s, "toto-2", { bersagli: ["generoso-3#1"] });
+    expect(anna(s).attivati.map((a) => a.stanca)).toEqual([2, 0, 1]);
+    expect(s.giocatori.bruno!.mano).toHaveLength(1);
+    expect(s.registro).toContainEqual(expect.objectContaining({ tipo: "potere", giocatore: "bruno", potere: "puzza-di-brace" }));
+  });
+
+  it("Puzza di brace: la Grigliata di un avversario lascia stanca 1 carta; la propria Chicca no", () => {
+    let s = conCarta("toto-3");
+    anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 }, { copia: copia("generoso-2"), stanca: 1 });
+    s.giocatori.carla!.attivati.push({ copia: copia("chicca-1"), stanca: 0 });
+    s = usa(s, "toto-3");
+    expect(anna(s).attivati.slice(1).filter((a) => a.stanca > 0)).toHaveLength(1);
+    expect(s.giocatori.carla!.mano).toHaveLength(1);
+    // la Chicca di chi usa la Grigliata non conta
+    let t = conCarta("toto-3");
+    anna(t).attivati.push({ copia: copia("chicca-1"), stanca: 1 }, { copia: copia("generoso-2"), stanca: 1 });
+    t = usa(t, "toto-3");
+    expect(anna(t).attivati.map((a) => a.stanca)).toEqual([3, 0, 0]);
+  });
+
+  it("Aperitivo e Puzza di brace non si usano come una mossa: funzionano da sole", () => {
+    let s = conCarta("chicca-2");
+    s = conCarta("chicca-1", s);
+    expect(mosseValide(s, "anna").some((m) => m.tipo === "potere")).toBe(false);
+    expect(rifiutata(s, "anna", potere("chicca-2"))).toMatch(/da sola/);
   });
 
   it("Ricetta: ricarica una carta stanca di chiunque, anche di un avversario", () => {

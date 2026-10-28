@@ -136,7 +136,12 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     case "difendi": {
       const idCarta = cartaDiCopia(m.carta);
       const potere = m.potere ?? carta(idCarta).poteri[0]!.id;
-      const emergenza = m.combinazione ? ` (d'emergenza: paghi ${elenco(m.combinazione.map((el) => String(el.valore)))})` : "";
+      // Vini e Campari senza codice: gratis con l'Aperitivo (Chicca 2)
+      const emergenza = m.combinazione
+        ? ` (d'emergenza: paghi ${elenco(m.combinazione.map((el) => String(el.valore)))})`
+        : carta(idCarta).categoria === "difesa"
+          ? " (gratis con l'Aperitivo)"
+          : "";
       const devia = m.giocatore ? ` → l'attacco va a ${nick(m.giocatore)}` : "";
       const paga = potere === "ricorso" && m.carte ? ` (parcella: ${valori(m.carte)})` : "";
       return `🛡️ ${nomePotere(idCarta, potere)} – ${nomeCarta(idCarta)}${emergenza}${devia}${paga}`;

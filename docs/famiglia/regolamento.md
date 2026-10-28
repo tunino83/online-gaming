@@ -128,6 +128,8 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 2. Codici e punti di ogni personaggio (livello 1: 2 carte, 1 punto; livello 2: 3 carte, 2 punti; livello 3: 4–5 carte, 3 punti).
 3. Si possono attivare personaggi presi dal tavolo direttamente, o vanno prima in mano/in attesa?
 4. Contro un attacco si gioca una sola difesa? (proposta: sì)
+5. **Aperitivo** (Chicca 2): i vini e il Campari gratis valgono senza limiti, anche più volte nello stesso giro? (per ora sì)
+6. **Ho tanta fame** (Christian): se l'avversario più vicino nei punti non si può attaccare (es. Benedizione), Christian non può prendere da nessun altro? (per ora sì: le braccia non arrivano più in là)
 
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
@@ -168,7 +170,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
     non fanno niente se tornano a chi li ha fatti.
   - **Volo infuocato**: la carta che si stanca è scelta a caso. **Multa**: tra gli avversari; le 2 carte sono a caso.
-  - **Tritacarne**: il legame con Chicca ricarica una sola carta di Chicca, appena si usa il Tritacarne.
+  - **Tritacarne**: il legame con Chicca è stato tolto il 2026-10-28 (Chicca è vegana).
   - **Guardia medica** rispetta la regola del livello; cura solo carte numero scartate e carte fatte stancare.
 
 ## Roberta livello 1 (2026-10-25)
@@ -227,7 +229,7 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
 - **Ogni cosa al suo posto** (Nonna Maddalena 1): delle prime 5 carte numero ne prendi 1, le altre le riordini.
 - **Patate al forno** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
 - **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
-- **Ho tanta fame** (Christian): 3 carte numero; Christian non ha più la difesa *Che paura!* (2026-10-25). **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
+- **Ho tanta fame** (Christian): 3 carte numero; Christian non ha più la difesa *Che paura!* (2026-10-25). Dal 2026-10-28 è un attacco (vedi sotto). **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
 - Restano come sono: *Mo faccio due cotolette* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
 
 ## Simone e Annalisa (2026-10-25)
@@ -335,3 +337,22 @@ Cambia solo il nome (l'effetto è lo stesso):
 - Manca 'o sale → **È insipido**
 - Vende la carne → **Vuoi un panino con sta roba puzzolente?**
 - Permalosa → **E se poi te ne penti?**
+
+## Chicca vegana e Christian T-rex (2026-10-28)
+
+**Chicca** cambia due carte su tre (codici uguali a prima):
+- **Livello 1 – Tofu Super Seitan** 🛡️: annulla un attacco di livello 1, oppure un **attacco di carne** di qualsiasi
+  livello (*La tomacella*, *Tritacarne*). Se ferma un attacco di carne, Chicca pesca 2 carte numero e il personaggio che
+  ha attaccato ci mette 1 turno in più a ricaricarsi (La tomacella si scarta, quindi lì c'è solo la pescata).
+  Sulla stessa carta c'è **Puzza di brace** 🔵, sempre attiva anche con la carta stanca: quando un **avversario** usa
+  *Brace accesa* o *Grigliata* di Totò (anche copiate), Brace accesa ricarica 1 carta sola e la Grigliata lascia stanca
+  una delle carte (a caso); ogni avversario con il Tofu pesca 1 carta numero. La propria Chicca non conta.
+- **Livello 2 – Aperitivo** 🔵: sempre attiva; le carte vino (Paesano, Aglianico, Taurasi) e il Campari si usano
+  d'emergenza senza pagarne il codice. È una carta solo aiuto: con le regole dei punti di adesso vale 0 punti.
+- **Livello 3 – E se poi te ne penti?** (la permalosa): resta com'era, l'attacco torna a chi l'ha fatto.
+- Escono *Vuoi un panino con sta roba puzzolente?* e *Non sa perdere*; il Tritacarne non ha più il legame con Chicca.
+
+**Christian – Ho tanta fame** diventa un attacco ⚔️ (livello 1, ricarica 2): con le braccine corte da T-rex prende
+2 carte numero a caso dall'avversario con i punti **più vicini** ai suoi (sopra o sotto). Se più avversari sono alla
+stessa distanza sceglie lui; in 2 giocatori è sempre l'altro. L'attaccato può difendersi come sempre; se l'attacco
+torna a Christian (E se poi te ne penti?) non succede niente. Essendo un attacco, la carta ora vale 1 punto.

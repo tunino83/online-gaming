@@ -152,8 +152,21 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Chicca", [
-    { codice: somma(2, 8), poteri: [aiuto("Vuoi un panino con sta roba puzzolente?", "Scarti un personaggio nascosto dalla mano e peschi 3 carte numero", "vende-la-carne")] },
-    { codice: somma(3, 9), poteri: [difesa("Non sa perdere", "Annulli un attacco; se sei ultima nei punti la carta non si stanca")] },
+    {
+      codice: somma(2, 8),
+      poteri: [
+        difesa(
+          "Tofu Super Seitan",
+          "Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi",
+        ),
+        aiutoBlu("Puzza di brace", "Sempre attiva: quando un avversario usa Brace accesa o Grigliata ricarica 1 carta in meno e tu peschi 1 carta numero"),
+      ],
+    },
+    {
+      codice: somma(3, 9),
+      poteri: [aiutoBlu("Aperitivo", "Sempre attiva: le carte vino (Paesano, Aglianico, Taurasi) e Campari le usi senza pagarne il codice")],
+      ricarica: 0,
+    },
     { codice: doppiaCoppia, poteri: [difesa("E se poi te ne penti?", "L'attacco torna a chi l'ha fatto", "permalosa")] },
   ]),
   ...persona("Totò", [
@@ -262,7 +275,7 @@ const ADULTI: Carta[] = [
         poteri: [
           attacco(
             "Tritacarne",
-            "Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno. Se hai una carta di Chicca stanca, si ricarica",
+            "Mescoli le tue carte numero con quelle di un avversario e ve le ridividete: tu 1 in più di prima, lui 1 in meno.",
           ),
         ],
       },
@@ -437,7 +450,13 @@ const ADULTI: Carta[] = [
 
 const SINGOLE: Carta[] = [
   singola("Nicole", 2, somma(3, 11), [attacco("Parla parla parla", "Un avversario nel suo prossimo turno non può usare poteri")]),
-  singola("Christian", 1, coppia, [aiuto("Ho tanta fame", "Peschi 3 carte numero")], 2),
+  singola(
+    "Christian",
+    1,
+    coppia,
+    [attacco("Ho tanta fame", "Braccine corte da T-rex: prendi 2 carte numero a caso dall'avversario con i punti più vicini ai tuoi (a parità scegli tu)")],
+    2,
+  ),
   {
     // Vale 1 punto invece di 2 (carta forte, deciso dopo la simulazione)
     ...singola("Alessia", 2, pari(3), [

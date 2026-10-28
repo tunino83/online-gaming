@@ -3,7 +3,7 @@
 Poteri completi in `bozza.md`. Tipi di codice come Il Portale (vedi `docs/regolamento.md`, "Codici di attivazione").
 
 Regole usate:
-- **Livello 1**: 2 carte, 1 punto, ricarica 1 turno (Christian: ricarica 2, perché pesca 3 carte; Roberta 1: ricarica 2, perché fa saltare un turno). **Livello 2**: 3 carte, 2 punti, ricarica 2. **Livello 3**: 4–5 carte, 3 punti, ricarica 3.
+- **Livello 1**: 2 carte, 1 punto, ricarica 1 turno (Christian: ricarica 2, perché prende 2 carte; Roberta 1: ricarica 2, perché fa saltare un turno). **Livello 2**: 3 carte, 2 punti, ricarica 2. **Livello 3**: 4–5 carte, 3 punti, ricarica 3.
 - A parità di livello, gli attacchi ⚔️ e i poteri più forti hanno codici più difficili.
 - Le difese 🛡️ hanno codici "generici" (coppia, somma, scala…), perché si possono pagare anche d'emergenza durante il turno di un altro.
 - Dove possibile il codice richiama il personaggio (es. Nonno Salvatore ripete: coppia, tris, poker; la macelleria: 25 = due etti e mezzo).
@@ -30,8 +30,8 @@ Regole usate:
 | Nonna Patrizia | 1 | Mercatino | ✨ | 2 carte con somma 10 |
 | Nonna Patrizia | 2 | Nuvola di fumo | 🛡️ | Scala da 3 |
 | Nonna Patrizia | 3 | Baratto | ⚔️ | 4 carte dispari |
-| Chicca | 1 | Vuoi un panino con sta roba puzzolente? | ✨ | 2 carte con somma 8 |
-| Chicca | 2 | Non sa perdere | 🛡️ | 3 carte con somma 9 |
+| Chicca | 1 | Tofu Super Seitan / Puzza di brace | 🛡️✨ | 2 carte con somma 8 |
+| Chicca | 2 | Aperitivo | ✨ | 3 carte con somma 9 |
 | Chicca | 3 | E se poi te ne penti? | 🛡️ | Doppia coppia |
 | Totò | 1 | Si incanta | ⚔️ | 2 carte con somma 11 |
 | Totò | 2 | Brace accesa | ✨ | 3 carte con somma 15 |
@@ -96,7 +96,7 @@ Regole usate:
 | Persona | Liv. | Carta | Tipo | Codice |
 | --- | --- | --- | --- | --- |
 | Nicole | 2 | Parla parla parla | ⚔️ | 3 carte con somma 11 |
-| Christian | 1 | Ho tanta fame | ✨ | Coppia |
+| Christian | 1 | Ho tanta fame | ⚔️ | Coppia |
 | Alessia | 2 | Mangia mangia mangia | ✨ | 3 carte pari |
 | Greta | 2 | Risata contagiosa | ⚔️ | 3 carte dispari |
 | Donato | 2 | Non ti sento, sto suonando | 🛡️ | Scala da 3 |

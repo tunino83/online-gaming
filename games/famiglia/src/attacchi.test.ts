@@ -304,24 +304,51 @@ describe("attacchi a un avversario", () => {
     expect(rifiutata(s, "anna", { tipo: "potere", carta: "nonna-patrizia-3#1", potere: "baratto", giocatore: "bruno", propria: "chicca-1#1", bersaglio: "generoso-3#1" })).toMatch(/livello/);
   });
 
-  it("Tritacarne: carte mescolate e ridivise, tu 1 in più; se hai Chicca stanca si ricarica", () => {
-    let s = attivata(attivata(partita(), "anna", "sara-e-giuseppe-3"), "anna", "chicca-1", 1);
+  it("Tritacarne: carte mescolate e ridivise, tu 1 in più; niente più legame con Chicca (è vegana)", () => {
+    let s = attivata(attivata(partita(), "anna", "sara-e-giuseppe-3"), "anna", "chicca-3", 1);
     manoDi(s, "anna", 1, 2);
     manoDi(s, "bruno", 3, 4, 5, 6);
     s = attacca(s, "sara-e-giuseppe-3", { giocatore: "bruno" });
     expect(g(s, "anna").mano).toHaveLength(3);
     expect(g(s, "bruno").mano).toHaveLength(3);
-    expect(g(s, "anna").attivati[1]!.stanca).toBe(0);
+    expect(g(s, "anna").attivati[1]!.stanca).toBe(1);
+  });
+
+  it("Ho tanta fame (Christian, braccine corte): prendi 2 carte numero a caso dall'avversario con i punti più vicini ai tuoi", () => {
+    let s = attivata(partita(), "anna", "christian"); // anna: 1 punto
+    attivata(s, "bruno", "antonio-3"); // bruno: 3 punti (distanza 2)
+    attivata(s, "carla", "antonio-2"); // carla: 2 punti (distanza 1)
+    manoDi(s, "bruno", 1, 2, 3);
+    manoDi(s, "carla", 4, 5, 6);
+    expect(rifiutata(s, "anna", { tipo: "potere", carta: "christian#1", potere: "ho-tanta-fame", giocatore: "bruno" })).toMatch(/più vicini/);
+    expect(mosseValide(s, "anna").filter((m) => m.tipo === "potere" && m.potere === "ho-tanta-fame")).toEqual([
+      { tipo: "potere", carta: "christian#1", potere: "ho-tanta-fame", giocatore: "carla" },
+    ]);
+    s = attacca(s, "christian", { giocatore: "carla" });
+    expect(g(s, "anna").mano).toHaveLength(2);
+    expect(g(s, "carla").mano).toHaveLength(1);
+    expect(g(s, "anna").attivati[0]!.stanca).toBe(2);
+  });
+
+  it("Ho tanta fame: a pari distanza (sopra o sotto) sceglie Christian; in 2 giocatori è sempre l'altro", () => {
+    const s = attivata(partita(), "anna", "antonio-2"); // anna: 2 punti con Antonio 2...
+    attivata(s, "anna", "christian"); // ...+1 = 3
+    attivata(s, "bruno", "toto-1"); // bruno: 1 punto (distanza 2)
+    attivata(attivata(s, "carla", "antonio-3"), "carla", "giuseppe-2"); // carla: 5 punti (distanza 2)
+    const bersagli = mosseValide(s, "anna").flatMap((m) => (m.tipo === "potere" && m.potere === "ho-tanta-fame" ? [m.giocatore] : []));
+    expect(bersagli.sort()).toEqual(["bruno", "carla"]);
+    const due = attivata(attivata(partita(2), "anna", "christian"), "bruno", "antonio-3");
+    expect(mosseValide(due, "anna").some((m) => m.tipo === "potere" && m.potere === "ho-tanta-fame" && m.giocatore === "bruno")).toBe(true);
   });
 
   it("Parla parla parla: nel suo prossimo turno l'avversario non può usare poteri", () => {
-    let s = attivata(attivata(partita(2), "anna", "nicole"), "bruno", "chicca-1");
+    let s = attivata(attivata(partita(2), "anna", "nicole"), "bruno", "vincenzo");
     s = attacca(s, "nicole", { giocatore: "bruno" });
     s.turno.mosseRimaste = 0;
     s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
     expect(s.turno.zitto).toBe(true);
     expect(mosseValide(s, "bruno").some((m) => m.tipo === "potere")).toBe(false);
-    expect(rifiutata(s, "bruno", { tipo: "potere", carta: "chicca-1#1", potere: "vende-la-carne" })).toMatch(/Parla parla parla/);
+    expect(rifiutata(s, "bruno", { tipo: "potere", carta: "vincenzo#1", potere: "frutta-e-verdura" })).toMatch(/Parla parla parla/);
   });
 
   it("Ti chiamo un attimo…: l'avversario riceve 2 carte numero ma salta il suo prossimo turno", () => {
@@ -501,14 +528,56 @@ describe("difese", () => {
     expect(g(s, "anna").mosseProssimoTurno).toBe(-1);
   });
 
-  it("Non sa perdere: se sei ultimo nei punti la carta non si stanca", () => {
-    let s = difendi(bruno_si_difende("chicca-2"), "bruno", "chicca-2");
-    expect(g(s, "bruno").attivati[0]!.stanca).toBe(2);
-    s = bruno_si_difende("chicca-2");
-    g(s, "carla").attivati.push({ copia: copia("antonio-3"), stanca: 0 }); // carla ha più punti di bruno (le carte aiuto valgono 0)
-    g(s, "anna").attivati.push({ copia: copia("antonio-2"), stanca: 0 });
-    s = difendi(s, "bruno", "chicca-2");
-    expect(g(s, "bruno").attivati[0]!.stanca).toBe(0);
+  it("Tofu Super Seitan: ferma gli attacchi di livello 1 (senza premi), ma non quelli di livello 3 che non sono di carne", () => {
+    const s = difendi(bruno_si_difende("chicca-1"), "bruno", "chicca-1", { potere: "tofu-super-seitan" });
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "bruno").mano).toHaveLength(0);
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1);
+    const forte = bruno_si_difende("chicca-1", 3);
+    expect(mosseValide(forte, "bruno").some((m) => m.tipo === "difendi")).toBe(false);
+  });
+
+  it("Tofu Super Seitan contro la carne: ferma il Tritacarne (livello 3), peschi 2 carte e il Tritacarne resta stanco 1 turno in più", () => {
+    let s = attivata(attivata(partita(), "anna", "sara-e-giuseppe-3"), "bruno", "chicca-1");
+    manoDi(s, "anna", 1, 2);
+    manoDi(s, "bruno", 3, 4, 5, 6);
+    s = attacca(s, "sara-e-giuseppe-3", { giocatore: "bruno" });
+    expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
+    s = difendi(s, "bruno", "chicca-1", { potere: "tofu-super-seitan" });
+    expect(g(s, "bruno").mano).toHaveLength(6);
+    expect(g(s, "anna").mano).toHaveLength(2);
+    expect(g(s, "anna").attivati[0]!.stanca).toBe(4); // ricarica 3 + 1
+  });
+
+  it("Tofu Super Seitan contro La tomacella (livello 2): la ferma e peschi 2 carte", () => {
+    let s = attivata(partita(), "bruno", "chicca-1");
+    attivata(s, "bruno", "antonio-1", 0, 2);
+    g(s, "anna").attacchi = [copia("la-tomacella")];
+    manoDi(s, "anna", 3, 3);
+    const tomacella = mosseValide(s, "anna").find((m) => m.tipo === "usaCarta" && m.carta === "la-tomacella#1" && m.bersaglio === "antonio-1#2");
+    expect(tomacella).toBeDefined();
+    s = fai(s, "anna", tomacella!);
+    s = difendi(s, "bruno", "chicca-1", { potere: "tofu-super-seitan" });
+    expect(g(s, "bruno").attivati.map((a) => a.stanca)).toEqual([1, 0]);
+    expect(g(s, "bruno").mano).toHaveLength(2);
+  });
+
+  it("Aperitivo: con Chicca 2 attivata vini e Campari si usano senza pagare il codice", () => {
+    let s = attivata(attivata(attivata(partita(), "anna", "nonno-antonio-3"), "bruno", "chicca-2"), "bruno", "chicca-1");
+    g(s, "bruno").nascosti = [copia("taurasi"), copia("antonio-3")];
+    manoDi(s, "bruno", 1, 2, 3); // niente tris: senza Aperitivo il Taurasi non si potrebbe pagare
+    s = attacca(s, "nonno-antonio-3", { giocatore: "bruno", bersaglio: "chicca-1#1" });
+    expect(mosseValide(s, "bruno")).toContainEqual({ tipo: "difendi", carta: "taurasi#1", potere: "taurasi" });
+    s = difendi(s, "bruno", "taurasi");
+    expect(g(s, "bruno").mano).toHaveLength(3);
+    expect(g(s, "bruno").nascosti.map((c) => c.carta)).toEqual(["antonio-3"]);
+    expect(g(s, "anna").mosseProssimoTurno).toBe(-1);
+    // senza Aperitivo il Taurasi non si può usare
+    let t = attivata(attivata(partita(), "anna", "nonno-antonio-3"), "bruno", "chicca-1");
+    g(t, "bruno").nascosti = [copia("taurasi")];
+    manoDi(t, "bruno", 1, 2, 3);
+    t = attacca(t, "nonno-antonio-3", { giocatore: "bruno", bersaglio: "chicca-1#1" });
+    expect(t.turno.attesa).toBeNull(); // nessuna difesa possibile: l'attacco è passato subito
   });
 
   it("Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce; la carta va in mano", () => {
@@ -700,7 +769,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(32);
+    expect(attacchi.length).toBe(33);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);

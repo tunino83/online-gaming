@@ -4,7 +4,7 @@
  * (i poteri blu no: funzionano una volta per turno anche se la carta è stanca).
  * Gli attacchi e le difese sono in attacchi.ts.
  */
-import { type IdGiocatore, mescola } from "@og/engine";
+import { type IdGiocatore, interoTra, mescola } from "@og/engine";
 import {
   avversariDopo,
   cartaVera,
@@ -53,11 +53,27 @@ export const POTERI_GRATIS = new Set([
   "straordinario",
 ]);
 
-/** Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando). */
-export const BLU_DA_SOLI = new Set(["un-caffe", "l-orto", "prosecco", "ne-ho-viste-tante"]);
+/**
+ * Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando),
+ * Aperitivo (difendendosi con vini e Campari), Puzza di brace (quando un avversario usa Brace accesa o Grigliata).
+ */
+export const BLU_DA_SOLI = new Set(["un-caffe", "l-orto", "prosecco", "ne-ho-viste-tante", "aperitivo", "puzza-di-brace"]);
 
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;
+
+/** Avversari di `id` con la Puzza di brace (Chicca 1 attivata, anche stanca): Brace accesa e Grigliata ricaricano 1 carta in meno. */
+function puzzaDiBrace(s: StatoPartita, id: IdGiocatore): IdGiocatore[] {
+  return avversariDopo(s, id).filter((x) => s.giocatori[x]!.attivati.some((a) => a.copia.carta === "chicca-1"));
+}
+
+/** Chi sente la puzza di brace pesca 1 carta numero. */
+function sentonoLaPuzza(s: StatoPartita, nasi: IdGiocatore[]): void {
+  for (const x of nasi) {
+    registra(s, x, { tipo: "potere", carta: "chicca-1", potere: "puzza-di-brace" });
+    peschiNumeri(s, x, 1);
+  }
+}
 
 /** Massimo di carte in vetrina (Checca). */
 export const MAX_VETRINA = 3;
@@ -174,9 +190,6 @@ function applicaAiuto(
     }
 
     /* ---------------- pescare ---------------- */
-    case "ho-tanta-fame":
-      peschiNumeri(s, id, 3);
-      return;
     case "cucina-per-200":
       peschiNumeri(s, id, 4);
       for (const altro of avversariDopo(s, id)) {
@@ -219,13 +232,6 @@ function applicaAiuto(
       const carte = carteDallaMano(g, m.carte, 1, Infinity);
       scartaNumeri(s, carte);
       peschiNumeri(s, id, carte.length + 1);
-      return;
-    }
-    case "vende-la-carne": {
-      const i = g.nascosti.findIndex((c) => c.id === m.bersaglio);
-      if (i < 0) rifiuta("Scegli un tuo personaggio nascosto da scartare");
-      s.scarti.personaggi.push(...g.nascosti.splice(i, 1));
-      peschiNumeri(s, id, 3);
       return;
     }
     case "non-sbaglio-mai": {
@@ -366,15 +372,17 @@ function applicaAiuto(
 
     /* ---------------- ricarica e informazioni ---------------- */
     case "brace-accesa": {
-      // 2 altre carte stanche (o 1, se è l'unica)
+      // 2 altre carte stanche (o 1, se è l'unica); con la Puzza di brace di Chicca una in meno
       const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0);
       const scelte = m.bersagli ?? [];
-      const quante = Math.min(2, stanche.length);
+      const nasi = puzzaDiBrace(s, id);
+      const quante = Math.min(nasi.length > 0 ? 1 : 2, stanche.length);
       const ricaricate = stanche.filter((x) => scelte.includes(x.copia.id));
       if (quante === 0 || new Set(scelte).size !== scelte.length || ricaricate.length !== scelte.length || scelte.length !== quante) {
         rifiuta(quante <= 1 ? "Scegli un'altra tua carta stanca" : "Scegli 2 altre tue carte stanche");
       }
       for (const x of ricaricate) x.stanca = 0;
+      sentonoLaPuzza(s, nasi);
       return;
     }
     case "medico-in-famiglia": {
@@ -395,9 +403,15 @@ function applicaAiuto(
       riceviCarta(s, id, vecchia!.copia);
       return;
     }
-    case "grigliata":
-      for (const x of g.attivati) if (x !== questa) x.stanca = 0;
+    case "grigliata": {
+      // Con la Puzza di brace di Chicca una delle carte stanche (a caso) resta stanca
+      const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0);
+      const nasi = puzzaDiBrace(s, id);
+      const resta = nasi.length > 0 && stanche.length > 0 ? stanche[interoTra(s.rng, 0, stanche.length - 1)] : undefined;
+      for (const x of stanche) if (x !== resta) x.stanca = 0;
+      sentonoLaPuzza(s, nasi);
       return;
+    }
     case "ricetta": {
       for (const giocatore of s.ordine) {
         const x = s.giocatori[giocatore]!.attivati.find((y) => y.copia.id === m.bersaglio && y.stanca > 0);
@@ -617,8 +631,6 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       return [["caffe", "birra"], ["caffe", "colazione"], ["birra", "colazione"]].map((scelte) => ({ scelte }));
     case "frigge-di-tutto":
       return mano.length === 0 ? [] : [{ carte: mano }, ...mano.slice(0, 5).map((x) => ({ carte: [x] }))];
-    case "vende-la-carne":
-      return g.nascosti.map((c) => ({ bersaglio: c.id }));
     case "mercatino": {
       // Scambi possibili: una tua carta numero con un valore diverso degli scarti; un tuo nascosto con un personaggio scartato.
       // Carte uguali danno lo stesso scambio: se ne propone uno solo.
@@ -676,7 +688,7 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
     }
     case "brace-accesa": {
       const stanche = g.attivati.filter((x) => x !== questa && x.stanca > 0).map((x) => x.copia.id);
-      return stanche.length <= 1 ? stanche.map((x) => ({ bersagli: [x] })) : coppie(stanche).map((bersagli) => ({ bersagli }));
+      return stanche.length <= 1 || puzzaDiBrace(s, id).length > 0 ? stanche.map((x) => ({ bersagli: [x] })) : coppie(stanche).map((bersagli) => ({ bersagli }));
     }
     case "ricetta":
       return s.ordine.flatMap((x) => s.giocatori[x]!.attivati.filter((y) => y.stanca > 0).map((y) => ({ bersaglio: y.copia.id })));
