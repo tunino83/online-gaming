@@ -2,7 +2,7 @@
 
 Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
-### ⚔️ ATTACCO (33)
+### ⚔️ ATTACCO (32)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
@@ -11,8 +11,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Nicola | 3 | **È insipido** | Ogni avversario ti dà 1 carta numero (sceglie lui quale) | 66 + una coppia qualsiasi | ricarica 3 |
 | Nonna Patrizia | 3 | **Baratto** | Scambi una tua carta attivata con una attivata di un avversario (punti compresi), dello stesso livello o con un livello di differenza; tutte e due diventano stanche | 4 carte dispari | ricarica 3 |
 | Totò | 1 | **Si incanta** | Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero | 2 carte con somma 11 | ricarica 1 |
-| Checca | 1 | **Schietta** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
-| Checca | 3 | **Allergica al finocchietto** | Scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi peschi 2 carte numero | 4 carte con somma 24 | ricarica 3 |
+| Checca | 1 | **Lingua Glabra** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
 | Donatina | 3 | **Urla** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
 | Zio Salvatore | 1 | **Si canta!** | Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
 | Zio Salvatore | 2 | **Versa il vino** | Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi | 3 carte con somma 14 | ricarica 2 |
@@ -40,10 +39,11 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonno Rafiluccio | 3 | **Brontola tutto il giorno** | Un avversario sceglie: ti dà 2 carte numero oppure salta il prossimo turno | Scala da 5 | ricarica 3 |
 | Vento (carta attacco) | 1 | **Vento** | Un avversario scarta tutte le carte numero e ne ripesca altrettante dal mazzo | 1 carta qualsiasi | si usa una volta |
 
-### 🛡️ DIFESA (30)
+### 🛡️ DIFESA (31)
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
+| Checca | 3 | **Stuffosa** | Quando un avversario usa un potere di aiuto ti scocci: scarti 2 carte numero e l'aiuto non ha effetto (la sua carta si stanca lo stesso) | 4 carte con somma 24 | ricarica 4 |
 | Antonio | 3 | **Per me è quadrato** | Annulli qualsiasi attacco contro di te, anche di livello 3 | 4 carte con somma 20 | ricarica 3 |
 | Maddalena | 2 | **Non è colpa mia** | L'attacco va a un altro giocatore a tua scelta | 3 carte dispari | ricarica 2 |
 | Maddalena | 3 | **È colpa di qualcun altro** | L'attacco va a un altro giocatore a tua scelta, che non può difendersi | Doppia coppia | ricarica 3 |

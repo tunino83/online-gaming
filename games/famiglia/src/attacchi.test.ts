@@ -188,14 +188,6 @@ describe("attacchi a un avversario", () => {
     expect(vistaGiocatore(s, "carla").turno.rivelati).toEqual([{ giocatore: "bruno", mano: [], nascosti: [copia("chicca-1")] }]);
   });
 
-  it("Allergica al finocchietto: fa scartare la carta nascosta scelta (per posizione)", () => {
-    let s = attivata(partita(), "anna", "checca-3");
-    g(s, "bruno").nascosti = [copia("chicca-1"), copia("generoso-2")];
-    s = attacca(s, "checca-3", { giocatore: "bruno", posizioni: [1] });
-    expect(g(s, "bruno").nascosti.map((c) => c.carta)).toEqual(["chicca-1"]);
-    expect(g(s, "anna").mano).toHaveLength(2); // poi peschi 2 carte numero
-  });
-
   it("Gli occhi 'nguoll: una carta nascosta a caso", () => {
     let s = partita();
     g(s, "anna").attacchi = [copia("gli-occhi-nguoll")];
@@ -664,8 +656,9 @@ describe("difese", () => {
   it("Chiusa in camera: nessuno guarda o prende i tuoi personaggi nascosti", () => {
     let s = difendi(bruno_si_difende("roberta-2"), "bruno", "roberta-2");
     g(s, "bruno").nascosti = [copia("chicca-1")];
-    attivata(s, "anna", "checca-3");
-    s = attacca(s, "checca-3", { giocatore: "bruno", posizioni: [0] });
+    attivata(s, "anna", "checca-1");
+    s = attacca(s, "checca-1", { giocatore: "bruno" }); // Lingua Glabra
+    expect(s.turno.rivelati).toEqual([]);
     expect(g(s, "bruno").nascosti).toHaveLength(1);
   });
 
@@ -769,7 +762,7 @@ describe("poteri che copiano", () => {
 describe("tutti gli attacchi", () => {
   it("ogni attacco (personaggi e carte attacco) si può usare e le carte non si perdono", () => {
     const attacchi = CARTE.filter((c) => c.poteri.some((p) => p.tipo === "attacco"));
-    expect(attacchi.length).toBe(33);
+    expect(attacchi.length).toBe(32);
     for (const c of attacchi) {
       const s = partita();
       if (c.categoria === "personaggio") attivata(s, "anna", c.id);

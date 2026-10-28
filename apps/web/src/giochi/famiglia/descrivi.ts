@@ -67,11 +67,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
     if (p.combinazione && p.combinazione.length > 0) parti.push(`paghi ${elenco(p.combinazione.map((el) => String(el.valore)))}`);
     if (p.carte && p.carte.length > 0) parti.push(`carte ${valori(p.carte)}`);
     if (p.posizioni && p.posizioni.length > 0) {
-      parti.push(
-        m.tipo === "potere" && (m.potere === "allergica-al-finocchietto" || m.potereCopiato === "allergica-al-finocchietto")
-          ? `carta nascosta n. ${p.posizioni[0]! + 1}`
-          : `dal tavolo il ${elenco(p.posizioni.map((i) => String(v.tavolo.numeri[i]?.valore ?? "?")))}`,
-      );
+      parti.push(`dal tavolo il ${elenco(p.posizioni.map((i) => String(v.tavolo.numeri[i]?.valore ?? "?")))}`);
     }
     if (typeof p.valore === "number") {
       const trucco = m.tipo === "potere" && m.potere === "un-filo-di-trucco";
@@ -121,6 +117,7 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
       if (attesa?.tipo === "canto") {
         return `Dai ${elenco(m.carte.map((id, i) => `il ${numeri.get(id)?.valore ?? "?"} a ${nick(attesa.a[i] ?? "")}`))}`;
       }
+      if (attesa?.tipo === "stuffosa") return m.carte.length === 0 ? "Lascia stare" : `😤 Ti scocci: scarti ${valori(m.carte)}`;
       if (v.turno.attesa?.tipo === "scambiaTavolo") {
         if (m.carte.length === 0) return "Nessuno scambio";
         const tavolo = v.tavolo.numeri.find((c) => c?.id === m.carte[1]);
@@ -207,6 +204,8 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
       return `${chi}: regala una carta a ${f.a === io ? "te" : nick(f.a)}`;
     case "campanello":
       return `🔔 Suonano alla porta! Arrivano ${elenco(f.nuovi.map(nomeCarta))}`;
+    case "sbuffa":
+      return `😤 ${chi}: si scoccia e blocca ${nomePotere(f.carta, f.potere)} di ${f.a === io ? "te" : nick(f.a)}`;
   }
 }
 

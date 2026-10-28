@@ -178,9 +178,6 @@ function controllaScelteAttacco(s: StatoPartita, id: IdGiocatore, potere: string
     const sua = o.attivati.find((a) => a.copia.id === p.bersaglio);
     if (!mia || !sua) rifiuta("Scegli una tua carta attivata e una dell'avversario");
     if (!livelloVicino(mia!, sua!)) rifiuta("Le due carte devono essere dello stesso livello o con un livello di differenza");
-  } else if (potere === "allergica-al-finocchietto") {
-    const i = p.posizioni?.[0];
-    if (p.posizioni?.length !== 1 || i! >= o.nascosti.length) rifiuta("Scegli una delle carte nascoste dell'avversario");
   } else if (potere === "burla" || potere === "una-rospa") {
     if (p.carte && (p.carte.length !== 1 || !g.mano.some((c) => c.id === p.carte![0]))) rifiuta("Scegli una tua carta numero da dare");
   }
@@ -330,15 +327,10 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "schietta":
       if (!V.nascostiProtetti) s.turno.rivelati.push({ giocatore: v, mano: [], nascosti: structuredClone(V.nascosti) });
       break;
-    case "allergica-al-finocchietto":
-    case "gli-occhi-nguoll": {
+    case "gli-occhi-nguoll":
       if (V.nascostiProtetti || V.nascosti.length === 0) break;
-      const voluta = a.potere === "allergica-al-finocchietto" && v === p.giocatore ? p.posizioni?.[0] : undefined;
-      const i = voluta !== undefined && voluta < V.nascosti.length ? voluta : interoTra(s.rng, 0, V.nascosti.length - 1);
-      s.scarti.personaggi.push(...V.nascosti.splice(i, 1));
-      if (a.potere === "allergica-al-finocchietto" && !suSeStesso) peschiNumeri(s, a.attaccante, 2);
+      s.scarti.personaggi.push(...V.nascosti.splice(interoTra(s.rng, 0, V.nascosti.length - 1), 1));
       break;
-    }
     case "versa-il-vino":
     case "la-tomacella":
     case "volo-infuocato": {
@@ -496,7 +488,9 @@ export function difeseDisponibili(s: StatoPartita, v: IdGiocatore): DifesaPossib
   const g = s.giocatori[v]!;
   // Regola del livello; Tofu Super Seitan ferma anche gli attacchi di carne di qualsiasi livello
   const livelloOk = (c: Carta, potere: string) => c.livello >= a.livello || (potere === "tofu-super-seitan" && ATTACCHI_DI_CARNE.has(a.potere));
-  const ok = (c: Carta, potere: string) => livelloOk(c, potere) && reattiva(potere) && (!a.controTutti || !DEVIANO.has(potere));
+  // Stuffosa non ferma gli attacchi: vale solo contro gli aiuti (poteri.ts)
+  const ok = (c: Carta, potere: string) =>
+    potere !== "stuffosa" && livelloOk(c, potere) && reattiva(potere) && (!a.controTutti || !DEVIANO.has(potere));
   const res: DifesaPossibile[] = [];
   for (const x of g.attivati) {
     if (x.stanca > 0) continue;
@@ -788,9 +782,8 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
         .flatMap((mia) => o.attivati.filter((sua) => livelloVicino(mia, sua)).map((sua) => ({ giocatore, propria: mia.copia.id, bersaglio: sua.copia.id })))
         .slice(0, 6);
     }
-    if (potere === "allergica-al-finocchietto" || potere === "gli-occhi-nguoll" || potere === "una-rospa") {
+    if (potere === "gli-occhi-nguoll" || potere === "una-rospa") {
       if (o.nascosti.length === 0) return [];
-      if (potere === "allergica-al-finocchietto") return o.nascosti.map((_, i) => ({ giocatore, posizioni: [i] }));
       if (potere === "una-rospa" && g.mano.length > 0) return [{ giocatore, carte: [g.mano[0]!.id] }];
       return [{ giocatore }];
     }

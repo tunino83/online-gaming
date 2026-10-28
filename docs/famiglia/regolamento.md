@@ -262,7 +262,7 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Mangia mangia mangia** (Alessia): resta gratis, perché poi per 2 turni si scarta una carta in più.
 - Carte deboli rinforzate:
   - **Si incanta** (Totò 1): in più l'attaccante pesca 1 carta numero.
-  - **Allergica al finocchietto** (Checca 3): dopo che l'avversario scarta il personaggio, l'attaccante pesca 2 carte numero.
+  - **Allergica al finocchietto** (Checca 3): dopo che l'avversario scarta il personaggio, l'attaccante pesca 2 carte numero. Tolta il 2026-10-28 (al suo posto Stuffosa).
   - **Versa il vino** (Zio Salvatore 2): la carta colpita ci mette 1 turno in più a ricaricarsi.
   - **Burla** (Squacqualacchione 1): si prendono 2 carte numero a caso (prima 1) e se ne dà 1 a scelta.
   - **Grigliata** (Totò 3): diventa gratis (non usa mosse).
@@ -337,6 +337,7 @@ Cambia solo il nome (l'effetto è lo stesso):
 - Manca 'o sale → **È insipido**
 - Vende la carne → **Vuoi un panino con sta roba puzzolente?**
 - Permalosa → **E se poi te ne penti?**
+- Schietta → **Lingua Glabra** (2026-10-28)
 
 ## Chicca vegana e Christian T-rex (2026-10-28)
 
@@ -356,3 +357,19 @@ Cambia solo il nome (l'effetto è lo stesso):
 2 carte numero a caso dall'avversario con i punti **più vicini** ai suoi (sopra o sotto). Se più avversari sono alla
 stessa distanza sceglie lui; in 2 giocatori è sempre l'altro. L'attaccato può difendersi come sempre; se l'attacco
 torna a Christian (E se poi te ne penti?) non succede niente. Essendo un attacco, la carta ora vale 1 punto.
+
+## Checca: Stuffosa (2026-10-28)
+
+**Stuffosa** 🛡️ (Checca livello 3, codice 4 carte con somma 24, 3 punti) prende il posto di *Allergica al finocchietto*.
+Checca si infastidisce spesso quando qualcuno fa qualcosa:
+- Quando un **avversario** usa un potere di **aiuto** ✨ (anche gratis, blu da usare o copiato), il gioco si ferma e
+  aspetta Checca, ma solo se ha Stuffosa **attivata e carica** e almeno **2 carte numero in mano**. Gli altri vedono
+  "Checca si scoccia per …?".
+- Checca ha **10 secondi**: se si scoccia scarta 2 carte numero a sua scelta, l'aiuto **non ha effetto** (chi l'ha
+  usato ha comunque speso la mossa e la sua carta si stanca lo stesso), Checca prende +1 punto come per una difesa
+  riuscita e Stuffosa resta stanca **4 turni**. Se lascia stare o il tempo scade, l'aiuto funziona normalmente.
+- Non vale contro gli attacchi (lì ci sono le difese), né contro i poteri blu che funzionano da soli (L'orto, Un caffè,
+  Aperitivo, Puzza di brace…). Non si usa d'emergenza dalla mano: dev'essere già attivata.
+- Un aiuto con scelte sbagliate viene rifiutato subito, senza far aspettare Checca.
+
+Anche **Schietta** (Checca 1) cambia nome: ora si chiama **Lingua Glabra** (l'effetto è lo stesso).

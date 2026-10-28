@@ -24,7 +24,7 @@ import {
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { MEDICI, carta } from "./carte";
 import { poteriBloccati } from "./effetti-eventi";
-import type { Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
+import type { AiutoSospeso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
 import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
 
 type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
@@ -145,15 +145,61 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
     avviaAttacco(s, id, origine, potere, m, origine === c ? a!.copia.id : null);
     return;
   }
-  let bersaglio: IdGiocatore | undefined;
   if (potere === "nuvola-di-fumo") g.protetto = true;
   else if (potere === "benedizione") s.benedizione = id;
-  else bersaglio = applicaAiuto(s, id, g, a!, potere, m, appenaPescata);
-  if (tipo === "aiuto" && s.opzioni.puntiPerGliAiuti !== false && !s.turno.premioAiuto) {
-    premioPotere(s, id, "aiuto");
+  if (tipo !== "aiuto") {
+    registra(s, id, { tipo: "potere", carta: origine.id, potere });
+    return;
+  }
+  const sospeso: AiutoSospeso = { di: id, copia: a!.copia.id, carta: origine.id, potere, parametri: m, appenaPescata };
+  const stuffosa = chiSiScoccia(s, id);
+  if (stuffosa) {
+    // Prima si controlla che l'aiuto si possa fare davvero (su una copia), poi si aspetta Checca
+    eseguiAiuto(structuredClone(s), sospeso);
+    s.turno.aiutoSospeso = sospeso;
+    s.turno.attesa = { tipo: "stuffosa", giocatore: stuffosa, di: id, carta: origine.id, potere };
+    registra(s, id, { tipo: "potere", carta: origine.id, potere });
+    return;
+  }
+  eseguiAiuto(s, sospeso);
+}
+
+/** Applica un aiuto (subito, o dopo che Stuffosa ha lasciato stare): effetto, punto per l'aiuto e registro. */
+function eseguiAiuto(s: StatoPartita, x: AiutoSospeso): void {
+  const g = s.giocatori[x.di]!;
+  const questa = g.attivati.find((y) => y.copia.id === x.copia)!;
+  const bersaglio = applicaAiuto(s, x.di, g, questa, x.potere, x.parametri, x.appenaPescata);
+  if (s.opzioni.puntiPerGliAiuti !== false && !s.turno.premioAiuto) {
+    premioPotere(s, x.di, "aiuto");
     s.turno.premioAiuto = true;
   }
-  registra(s, id, { tipo: "potere", carta: origine.id, potere, ...(bersaglio ? { bersaglio } : {}) });
+  if (!s.turno.aiutoSospeso) registra(s, x.di, { tipo: "potere", carta: x.carta, potere: x.potere, ...(bersaglio ? { bersaglio } : {}) });
+}
+
+/** Avversario di `id` che può scocciarsi con Stuffosa (Checca 3 attivata e carica, almeno 2 carte numero in mano). */
+function chiSiScoccia(s: StatoPartita, id: IdGiocatore): IdGiocatore | undefined {
+  return avversariDopo(s, id).find((x) => {
+    const g = s.giocatori[x]!;
+    return g.mano.length >= 2 && g.attivati.some((a) => a.copia.carta === "checca-3" && a.stanca === 0);
+  });
+}
+
+/** Risposta di chi ha Stuffosa: nessuna carta = lascia stare (l'aiuto funziona), 2 carte = le scarta e blocca l'aiuto. */
+function rispondiStuffosa(s: StatoPartita, id: IdGiocatore, carte: string[]): void {
+  const t = s.turno;
+  const x = t.aiutoSospeso!;
+  t.attesa = null;
+  if (carte.length === 0) {
+    eseguiAiuto(s, x);
+    t.aiutoSospeso = null;
+    return;
+  }
+  const g = s.giocatori[id]!;
+  scartaNumeri(s, carteDallaMano(g, carte, 2, 2));
+  stancaCarta(s, g.attivati.find((a) => a.copia.carta === "checca-3"));
+  t.aiutoSospeso = null;
+  registra(s, id, { tipo: "sbuffa", a: x.di, carta: x.carta, potere: x.potere });
+  premioPotere(s, id, "difesa");
 }
 
 /** Applica l'effetto; restituisce il giocatore coinvolto (per il registro), se c'è. */
@@ -467,6 +513,10 @@ function carteDallaMano(g: StatoGiocatore, ids: string[] | undefined, min: numbe
 export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
   const a = s.turno.attesa;
   const g = s.giocatori[id]!;
+  if (a?.tipo === "stuffosa" && m.tipo === "scegli") {
+    rispondiStuffosa(s, id, m.carte);
+    return;
+  }
   if (a?.tipo === "scegliNumeri" && m.tipo === "scegli") {
     const quante = Math.min(a.quante, a.carte.length);
     if (new Set(m.carte).size !== m.carte.length || m.carte.length !== quante) rifiuta(`Scegli ${quante} carte`);
@@ -557,6 +607,13 @@ export function mosseDiScelta(s: StatoPartita): Mossa[] {
       { tipo: "scegli", carte: [] },
       ...perValore.flatMap((c) => tavolo.filter((x) => x.valore !== c.valore).map((x): Mossa => ({ tipo: "scegli", carte: [c.id, x.id] }))),
     ];
+  }
+  if (a?.tipo === "stuffosa") {
+    // Lascia stare (per primo: è quello che fa il sostituto), oppure scarta 2 carte: le più basse o le prime due
+    const g = s.giocatori[a.giocatore]!;
+    const basse = [...g.mano].sort((x, y) => x.valore - y.valore).slice(0, 2).map((c) => c.id);
+    const prime = g.mano.slice(0, 2).map((c) => c.id);
+    return [{ tipo: "scegli", carte: [] }, ...[...new Map([basse, prime].map((x) => [[...x].sort().join(), x])).values()].map((carte): Mossa => ({ tipo: "scegli", carte }))];
   }
   if (a?.tipo === "riordina") {
     const ids = a.carte.map((c) => c.id);

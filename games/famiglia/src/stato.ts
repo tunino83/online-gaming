@@ -88,7 +88,12 @@ export type Attesa =
    */
   | { tipo: "canto"; giocatore: IdGiocatore; a: IdGiocatore[] }
   /** La Resurrezione: chi ha Totò ha pescato una carta in più e sceglie a chi darla. */
-  | { tipo: "regalo"; giocatore: IdGiocatore; carta: CartaNumero };
+  | { tipo: "regalo"; giocatore: IdGiocatore; carta: CartaNumero }
+  /**
+   * Stuffosa (Checca 3): un avversario ha usato un potere di aiuto (vedi StatoTurno.aiutoSospeso) e Checca può scocciarsi.
+   * Si risponde con "scegli": nessuna carta = lascia stare, 2 carte numero della mano = le scarta e blocca l'aiuto.
+   */
+  | { tipo: "stuffosa"; giocatore: IdGiocatore; di: IdGiocatore; carta: string; potere: string };
 
 /** Un attacco che si sta risolvendo, un bersaglio alla volta. */
 export interface AttaccoInCorso {
@@ -152,6 +157,21 @@ export interface StatoTurno {
   canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */
   rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
+  /** Aiuto in attesa della risposta di chi ha Stuffosa: si applica se non lo blocca (le scelte restano segrete). */
+  aiutoSospeso?: AiutoSospeso | null;
+}
+
+/** Un aiuto già pagato (mossa spesa, carta stanca) che aspetta la risposta di Stuffosa. */
+export interface AiutoSospeso {
+  /** Chi l'ha usato. */
+  di: IdGiocatore;
+  /** Copia della carta attivata usata. */
+  copia: string;
+  /** Carta e potere che si usano davvero (anche copiati). */
+  carta: string;
+  potere: string;
+  parametri: ParametriPotere;
+  appenaPescata: StatoTurno["appenaPescata"];
 }
 
 export interface Mazzi {
@@ -236,6 +256,8 @@ export type DatiFatto =
   | { tipo: "fineEvento"; evento: string }
   /** La Resurrezione: la carta in più data a un giocatore (si dice a chi, non quale). */
   | { tipo: "regalo"; a: IdGiocatore }
+  /** Stuffosa: il giocatore si è scocciato e ha bloccato l'aiuto `potere` (della carta `carta`) di `a`. */
+  | { tipo: "sbuffa"; a: IdGiocatore; carta: string; potere: string }
   /** È comparsa sul tavolo una carta con il campanello: i personaggi scoperti sono stati cambiati. */
   | { tipo: "campanello"; valore: number; scartati: string[]; nuovi: string[] };
 

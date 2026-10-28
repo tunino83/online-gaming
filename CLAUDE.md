@@ -116,6 +116,8 @@ vista in `vista.ts`, robot e sostituto in `bot.ts`. Aiuti per i test in `aiuti-t
 Attacchi: il gioco aspetta solo l'attaccato (attesa "difesa", `diTurno` = chi deve scegliere). Il tempo per difendersi
 (opzione `secondiDifesa`, di base 30) lo fa rispettare l'arbitro con `attesaMassimaMs` del gioco (azione `alPosto`,
 vale anche senza "computer al posto di chi è fermo"); passato il tempo l'attacco passa. Opzione `modoFine`: "punti" (25) o "mazzo".
+Stuffosa (Checca 3): quando un avversario usa un aiuto, l'aiuto resta in `turno.aiutoSospeso` e si aspetta Checca
+(attesa "stuffosa", 10 s con `attesaMassimaMs`, risposta "scegli": nessuna carta = lascia stare, 2 carte = blocca).
 Punti (dal 2026-10-26, opzioni di base): carte solo aiuto 0 punti (`aiutiSenzaPunti`), +1 per attacco a segno e
 difesa riuscita (`puntiPerIPoteri`, `puntiPerGliAiuti: false`); `puntiDi(g, s.opzioni)`; nella schermata `RegolePunti`
 (contesto in `carte.tsx`) mostra lo 0 sulle carte aiuto; le partite vecchie restano con le opzioni salvate allora.

@@ -444,6 +444,68 @@ describe("ricarica e informazioni", () => {
     expect(rifiutata(s, "anna", potere("chicca-2"))).toMatch(/da sola/);
   });
 
+  it("Stuffosa: quando un avversario usa un aiuto il gioco aspetta Checca; lasciando stare l'aiuto funziona", () => {
+    let s = conCarta("toto-3"); // Grigliata
+    anna(s).attivati.push({ copia: copia("generoso-3"), stanca: 3 });
+    s.giocatori.bruno!.attivati.push({ copia: copia("checca-3"), stanca: 0 });
+    s.giocatori.bruno!.mano = [num(1, "b1"), num(2, "b2"), num(3, "b3")];
+    s = usa(s, "toto-3");
+    expect(s.turno.attesa).toEqual({ tipo: "stuffosa", giocatore: "bruno", di: "anna", carta: "toto-3", potere: "grigliata" });
+    expect(vistaGiocatore(s, "carla").turno.aiutoSospeso).toEqual({ di: "anna", carta: "toto-3", potere: "grigliata" });
+    expect(vistaGiocatore(s, "carla").turno.attesa).toBeNull();
+    expect(anna(s).attivati[1]!.stanca).toBe(3); // non ancora ricaricata
+    expect(rifiutata(s, "anna", { tipo: "pescaNumero" })).toMatch(/altro giocatore/);
+    expect(mosseValide(s, "bruno")[0]).toEqual({ tipo: "scegli", carte: [] });
+    s = fai(s, "bruno", { tipo: "scegli", carte: [] });
+    expect(s.turno.attesa).toBeNull();
+    expect(anna(s).attivati.map((a) => a.stanca)).toEqual([3, 0]);
+    expect(s.giocatori.bruno!.mano).toHaveLength(3);
+  });
+
+  it("Stuffosa: Checca scarta 2 carte, l'aiuto non ha effetto (mossa spesa, carta stanca) e Stuffosa resta stanca 4 turni", () => {
+    let s = conCarta("christian");
+    s = conCarta("vincenzo", s);
+    s.giocatori.bruno!.attivati.push({ copia: copia("checca-3"), stanca: 0 });
+    s.giocatori.bruno!.mano = [num(1, "b1"), num(2, "b2"), num(3, "b3")];
+    s = usa(s, "vincenzo"); // Frutta e verdura!
+    expect(rifiutata(s, "bruno", { tipo: "scegli", carte: ["b1"] })).toMatch(/2 carte/);
+    s = fai(s, "bruno", { tipo: "scegli", carte: ["b1", "b2"] });
+    expect(s.turno.attesa).toBeNull();
+    expect(s.giocatori.bruno!.mano.map((c) => c.id)).toEqual(["b3"]);
+    expect(s.giocatori.bruno!.attivati[0]!.stanca).toBe(4);
+    expect(anna(s).mano).toHaveLength(0);
+    expect(anna(s).attivati[1]!.stanca).toBe(1);
+    expect(s.turno.mosseRimaste).toBe(2);
+    expect(s.registro).toContainEqual(expect.objectContaining({ tipo: "sbuffa", giocatore: "bruno", a: "anna", potere: "frutta-e-verdura" }));
+    expect(s.giocatori.bruno!.puntiPoteri).toBe(1); // come una difesa riuscita
+  });
+
+  it("Stuffosa non si ferma ad aspettare se è stanca, se Checca ha meno di 2 carte o per i propri aiuti; non ferma gli attacchi", () => {
+    const prova = (chi: string, stanca: number, carte: number) => {
+      let s = conCarta("toto-3");
+      s.giocatori[chi]!.attivati.push({ copia: copia("checca-3"), stanca });
+      s.giocatori[chi]!.mano = [num(1, "c1"), num(2, "c2"), num(3, "c3")].slice(0, carte);
+      s = usa(s, "toto-3");
+      return s.turno.attesa;
+    };
+    expect(prova("bruno", 1, 3)).toBeNull();
+    expect(prova("bruno", 0, 1)).toBeNull();
+    expect(prova("anna", 0, 3)).toBeNull();
+    let s = conCarta("toto-1"); // Si incanta (attacco)
+    s.giocatori.bruno!.attivati.push({ copia: copia("checca-3"), stanca: 0 });
+    s.giocatori.bruno!.mano = [num(1, "b1"), num(2, "b2")];
+    s = usa(s, "toto-1", { giocatore: "bruno" });
+    expect(s.turno.attesa).toBeNull();
+    expect(s.giocatori.bruno!.mosseProssimoTurno).toBe(-1);
+  });
+
+  it("Stuffosa: un aiuto con scelte sbagliate viene rifiutato subito, senza far aspettare Checca", () => {
+    const s = conCarta("toto-2"); // Brace accesa, senza carte stanche da ricaricare
+    s.giocatori.bruno!.attivati.push({ copia: copia("checca-3"), stanca: 0 });
+    s.giocatori.bruno!.mano = [num(1, "b1"), num(2, "b2")];
+    expect(rifiutata(s, "anna", potere("toto-2", { bersagli: ["x#1"] }))).toMatch(/stanca/);
+  });
+
   it("Ricetta: ricarica una carta stanca di chiunque, anche di un avversario", () => {
     let s = conCarta("dottor-racioppi");
     s.giocatori.bruno!.attivati.push({ copia: copia("generoso-3"), stanca: 2 });

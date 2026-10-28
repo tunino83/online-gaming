@@ -47,6 +47,8 @@ export interface VistaGiocatore {
     zitto: boolean;
     /** Chi è di turno non può attivare personaggi (Una sigaretta fuori al bar). */
     senzaAttivare: boolean;
+    /** Aiuto che aspetta la risposta di Stuffosa (visibile a tutti, senza le scelte di chi l'ha usato). */
+    aiutoSospeso: { di: IdGiocatore; carta: string; potere: string } | null;
     /** Carte mostrate a tutti in questo turno (Schietta). */
     rivelati: StatoTurno["rivelati"];
   };
@@ -108,6 +110,7 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
       zitto: t.zitto,
       senzaAttivare: !!t.senzaAttivare,
       rivelati: structuredClone(t.rivelati),
+      aiutoSospeso: t.aiutoSospeso ? { di: t.aiutoSospeso.di, carta: t.aiutoSospeso.carta, potere: t.aiutoSospeso.potere } : null,
     },
     attacco: s.attacco
       ? {

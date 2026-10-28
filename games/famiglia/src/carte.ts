@@ -175,7 +175,7 @@ const ADULTI: Carta[] = [
     { codice: pari(4), poteri: [aiuto("Grigliata", "Gratis (non usa mosse): ricarichi subito tutte le tue carte stanche")] },
   ]),
   ...persona("Checca", [
-    { codice: somma(2, 6), poteri: [attacco("Schietta", "Un avversario mostra a tutti i personaggi nascosti in mano")] },
+    { codice: somma(2, 6), poteri: [attacco("Lingua Glabra", "Un avversario mostra a tutti i personaggi nascosti in mano", "schietta")] },
     {
       codice: esatto(1, 2, 3),
       poteri: [
@@ -185,7 +185,17 @@ const ADULTI: Carta[] = [
         ),
       ],
     },
-    { codice: somma(4, 24), poteri: [attacco("Allergica al finocchietto", "Scegli un personaggio nascosto in mano a un avversario e lo fai scartare; poi tu peschi 2 carte numero")] },
+    {
+      codice: somma(4, 24),
+      poteri: [
+        difesa(
+          "Stuffosa",
+          "Quando un avversario usa un potere di aiuto ti scocci: scarti 2 carte numero e l'aiuto non ha effetto (la sua carta si stanca lo stesso)",
+        ),
+      ],
+      // Si scoccia spesso, ma poi ci mette tanto a passarle
+      ricarica: 4,
+    },
   ]),
   ...persona("Donatina", [
     { codice: somma(2, 5), poteri: [aiuto("Scaffale", "Prendi 2 carte numero scoperte dal tavolo")] },

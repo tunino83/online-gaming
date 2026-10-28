@@ -101,6 +101,9 @@ export function annunciTraViste(prima: VistaGiocatore, dopo: VistaGiocatore, io:
       case "difesa":
         voci.push({ idCarta: f.carta, quando: "DIF", potere: f.potere });
         break;
+      case "sbuffa":
+        voci.push({ idCarta: "checca-3", quando: "DIF", potere: "stuffosa" });
+        break;
       case "punto": {
         const perche = f.motivo === "attacco" ? "attacco a segno" : f.motivo === "difesa" ? "difesa riuscita" : "aiuto usato";
         annunci.push({ chiave, tipo: "punto", testo: `${mio ? "+1 punto per te" : `+1 punto a ${chi}`}: ${perche}` });

@@ -29,6 +29,7 @@ export function mossaDelSostituto(s: StatoPartita, giocatore: IdGiocatore, casua
   if (mosse.length === 0) throw new Error("Nessuna mossa possibile");
   // Attaccato e non ha risposto: l'attacco passa
   if (s.turno.attesa?.tipo === "difesa") return mosse.find((m) => m.tipo === "subisci") ?? mosse[0]!;
+  // Stuffosa senza risposta: lascia stare (la prima mossa proposta)
   if (s.turno.attesa) return mosse[0]!;
   const preferite: Mossa["tipo"][] = ["attiva", "prendiNumero", "pescaNumero", "fineTurno"];
   for (const tipo of preferite) {
@@ -43,9 +44,15 @@ export function mossaDelSostituto(s: StatoPartita, giocatore: IdGiocatore, casua
  * (lo fa l'arbitro con il sostituto). null = nessun tempo massimo speciale.
  */
 export function attesaMassimaMs(s: StatoPartita): number | null {
-  if (s.finita || s.turno.attesa?.tipo !== "difesa") return null;
+  if (s.finita) return null;
+  // Stuffosa: Checca ha poco tempo per scocciarsi, poi l'aiuto funziona
+  if (s.turno.attesa?.tipo === "stuffosa") return SECONDI_STUFFOSA * 1000;
+  if (s.turno.attesa?.tipo !== "difesa") return null;
   return s.opzioni.secondiDifesa * 1000;
 }
+
+/** Secondi per decidere se bloccare un aiuto con Stuffosa. */
+export const SECONDI_STUFFOSA = 10;
 
 /** Chi deve muovere adesso (anche chi è attaccato o deve fare una scelta). */
 export const diTurno = (s: StatoPartita): IdGiocatore | null => (s.finita ? null : chiDeveMuovere(s));

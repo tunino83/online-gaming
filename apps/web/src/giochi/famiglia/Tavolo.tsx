@@ -141,7 +141,8 @@ export function TavoloFamiglia({ partita, giocatori, io }: { partita: Partita; g
   }, [turnoDelComputer, versione, tentativoBot, partita.id, ricarica]);
 
   // Tempo per difendersi (e computer al posto di chi è fermo, se la partita lo prevede): i tempi li conosce l'arbitro
-  const difesaInCorso = !!riga?.vista.attacco && !!riga.vista.turno.sceglie;
+  // (anche Stuffosa: Checca ha 10 secondi per scocciarsi)
+  const difesaInCorso = (!!riga?.vista.attacco || !!riga?.vista.turno.aiutoSospeso) && !!riga?.vista.turno.sceglie;
   const chiediTempo = !!riga && !riga.vista.finita && !turnoDelComputer && (partita.opzioni.computerAlPosto !== false || difesaInCorso);
   const [scadenza, setScadenza] = useState<{ quando: number; difesa: boolean } | null>(null);
   useEffect(() => {
@@ -588,6 +589,10 @@ export function testoStato(v: VistaGiocatore, io: string, nick: (id: string) => 
   if (v.attacco && v.turno.sceglie) {
     const a = v.attacco;
     return `⚔️ ${a.attaccante === io ? "Attacchi" : `${nick(a.attaccante)} attacca`} ${a.bersaglio === io ? "te" : nick(a.bersaglio)} con ${nomePotere(a.carta, a.potere)}`;
+  }
+  if (v.turno.aiutoSospeso && v.turno.sceglie) {
+    const x = v.turno.aiutoSospeso;
+    return `😤 ${v.turno.sceglie === io ? "Ti scocci" : `${nick(v.turno.sceglie)} si scoccia`} per ${nomePotere(x.carta, x.potere)}?`;
   }
   if (v.turno.sceglie && v.turno.sceglie !== v.turno.giocatore) return `${nick(v.turno.sceglie)} sta scegliendo…`;
   return v.turno.giocatore === io ? "Tocca a te!" : `Tocca a ${nick(v.turno.giocatore)}`;
@@ -1208,6 +1213,33 @@ function SceltaInSospeso({
           </div>
         )}
         <ListaMosse mosse={altriSubisci} v={v} nick={nick} onScegli={gioca} disabilitata={bloccato} />
+      </Foglio>
+    );
+  }
+
+  if (a.tipo === "stuffosa") {
+    const testoAiuto = carta(a.carta).poteri.find((p) => p.id === a.potere)?.testo;
+    return (
+      <Foglio titolo={`😤 ${nick(a.di)} usa ${nomePotere(a.carta, a.potere)}: ti scocci?`}>
+        <p className="text-sm">
+          <b>{nomePotere(a.carta, a.potere)}</b> ({nomeCarta(a.carta)}): {testoAiuto}
+        </p>
+        <p className="mt-1 text-sm">Con Stuffosa scarti 2 carte numero e l'aiuto non ha effetto. Poi Stuffosa resta stanca 4 turni.</p>
+        {secondi !== null && <p className="mt-1 text-sm font-bold text-rosso">⏱ Hai ancora {secondi} secondi, poi l'aiuto funziona.</p>}
+        <p className="mb-1 mt-3 text-sm font-semibold">Scegli le 2 carte da scartare:</p>
+        <div className="flex flex-wrap gap-1.5">
+          {v.mano.map((c) => (
+            <CartaNumeroGrafica key={c.id} c={c} selezionata={scelte.includes(c.id)} onClick={() => setScelte((s) => alterna(s, c.id, 2))} />
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pulsante disabled={bloccato || scelte.length !== 2} onClick={() => gioca({ tipo: "scegli", carte: scelte })}>
+            😤 Mi scoccio: blocca
+          </Pulsante>
+          <Pulsante disabled={bloccato} onClick={() => gioca({ tipo: "scegli", carte: [] })}>
+            Lascia stare
+          </Pulsante>
+        </div>
       </Foglio>
     );
   }
