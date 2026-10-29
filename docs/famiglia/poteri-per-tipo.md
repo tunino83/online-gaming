@@ -79,7 +79,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 
 | Carta | Liv. | Potere | Cosa fa | Codice | Note |
 | --- | --- | --- | --- | --- | --- |
-| Antonio | 1 | **Domani lo faccio** | Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
+| Antonio | 1 | **Domani lo faccio** | Ti costa solo la mossa con cui lo usi (non ne perdi altre); nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
 | Maddalena | 2 | **Total black** | Bruci le carte scoperte sul tavolo: per un giro il tavolo resta vuoto e si pesca solo dal mazzo | 3 carte dispari | ricarica 2 |
 | Maddalena | 1 | **Fatto in casa** | Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 2 carte pari | ricarica 1 |
 | Nonno Salvatore | 1 | **Stai di nuovo qua?** | Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto | Coppia | ricarica 1, gratis |

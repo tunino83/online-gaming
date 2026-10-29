@@ -40,7 +40,7 @@ Tipo: ⚔️ attacco · 🛡️ difesa · ✨ aiuto a sé stessi.
 
 | Persona | Liv. 1 | Liv. 2 | Liv. 3 |
 | --- | --- | --- | --- |
-| **Antonio** | ✨ *Domani lo faccio*: usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più | ⚔️ *Alta idratazione* (fa le pizze): un avversario mette le sue carte numero nel forno e ne scarta 2 (sceglie lui quali) | 🛡️ *Per me è quadrato*: annulla qualsiasi attacco contro di te, anche di livello 3 |
+| **Antonio** | ✨ *Domani lo faccio*: ti costa solo la mossa con cui lo usi (non ne perdi altre); nel tuo prossimo turno hai 2 mosse in più | ⚔️ *Alta idratazione* (fa le pizze): un avversario mette le sue carte numero nel forno e ne scarta 2 (sceglie lui quali) | 🛡️ *Per me è quadrato*: annulla qualsiasi attacco contro di te, anche di livello 3 |
 | **Maddalena** | ✨ *Fatto in casa* (torte, artigianato): unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | ✨ *Total black* (veste sempre e solo nero): bruci tutte le carte scoperte sul tavolo; per un giro intero, fino al tuo prossimo turno, il tavolo resta vuoto e si pesca solo dal mazzo | 🛡️ *Non è colpa mia*: l'attacco va a un altro giocatore a tua scelta, che non può difendersi |
 | **Nonno Salvatore** | ✨ *Stai di nuovo qua?* (gratis): 1 mossa in più, uguale all'ultima che hai fatto | ✨ *È l'ultima volta che venite!* (gratis): 2 mosse in più, uguali all'ultima | ✨ *Sempre la stessa storia*: copi l'ultimo potere giocato al tavolo da chiunque |
 | **Nonna Dina** | ✨ *Cambiamo un po'…* (gratis): cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | ✨ *Mo faccio due cotolette*: scarti le carte numero che vuoi e ne peschi altrettante più una | ✨ *Chissà se sta roba basta*: tu peschi 4 carte numero, ogni avversario 1 |

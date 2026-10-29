@@ -134,7 +134,8 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
 - Usare un potere costa una mossa (salvo i poteri gratis e le carte blu); dopo l'uso la carta diventa stanca per il suo tempo di ricarica.
-- **Domani lo faccio** (Antonio): spendi 1 mossa ora e nel tuo prossimo turno hai 2 mosse in più.
+- **Domani lo faccio** (Antonio): ti costa solo la mossa con cui lo usi (non ne perdi altre) e nel tuo prossimo turno hai 2 mosse in più:
+  in due turni fai 3 + 5 = 8 mosse invece di 6 (chiarito il 2026-10-29).
 - **Non sbaglio mai** (Maddalena): subito dopo una pescata (numero o personaggio) scarti quella carta e ne peschi
   un'altra dallo stesso mazzo, **senza usare mosse** (deciso il 2026-10-24: è l'unico potere che non costa una mossa).
   Si può usare anche dopo l'ultima pescata del turno. La carta poi si stanca come le altre.

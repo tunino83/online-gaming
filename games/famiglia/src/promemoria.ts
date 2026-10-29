@@ -4,12 +4,12 @@
  */
 export const PROMEMORIA: Record<string, string> = {
   // Antonio
-  "ci-penso-domani": "1 mossa adesso, +2 mosse nel prossimo turno",
+  "ci-penso-domani": "costa solo la mossa di oggi: +2 mosse nel prossimo turno",
   "forno-a-legna": "un avversario scarta 2 carte (sceglie lui)",
   "ho-sempre-ragione-io": "fermi qualsiasi attacco, anche di livello 3",
   // Maddalena
   "fatto-in-casa": "unisci 2 carte in una (somma, max 8)",
-  "total-black": "bruci il tavolo: vuoto fino al tuo turno",
+  "total-black": "tavolo vuoto fino al tuo turno",
   "e-colpa-di-qualcun-altro": "passi l'attacco a un altro: non si difende",
   // Nonno Salvatore
   "te-l-ho-gia-detto": "gratis: rifai l'ultima mossa",

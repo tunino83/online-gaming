@@ -99,7 +99,7 @@ function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello
 
 const ADULTI: Carta[] = [
   ...persona("Antonio", [
-    { codice: somma(2, 9), poteri: [aiuto("Domani lo faccio", "Usi 1 mossa adesso e nel tuo prossimo turno hai 2 mosse in più", "ci-penso-domani")] },
+    { codice: somma(2, 9), poteri: [aiuto("Domani lo faccio", "Ti costa solo la mossa con cui lo usi (non ne perdi altre); nel tuo prossimo turno hai 2 mosse in più", "ci-penso-domani")] },
     { codice: somma(3, 18), poteri: [attacco("Alta idratazione", "Un avversario scarta 2 carte numero (sceglie lui quali)", "forno-a-legna")] },
     { codice: somma(4, 20), poteri: [difesa("Per me è quadrato", "Annulli qualsiasi attacco contro di te, anche di livello 3", "ho-sempre-ragione-io")] },
   ]),
