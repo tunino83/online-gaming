@@ -225,7 +225,7 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
 
   // in fondo: il codice disegnato con le carte (a sinistra) e la ricarica con le faccine che dormono (a destra)
   doc.moveTo(tx, y + A - 26).lineTo(tx + tw, y + A - 26).lineWidth(0.5).stroke("#d8c6a6");
-  const yc = y + A - 13.5;
+  const yc = y + A - 16;
   const larghezzaRicarica = oggetto || c.ricarica === 0 ? 34 : c.ricarica * 10.5;
   codiceDisegnato(doc, c.codice, tx, yc, tw - larghezzaRicarica - 6);
   if (oggetto) rigaCheSta(doc, "usa e getta", tx + tw - 40, yc - 3.5, 40, FONT.mano, 9, MATITA, "right");
@@ -246,33 +246,34 @@ function dormiglione(doc: Doc, cx: number, cy: number) {
   doc.font(FONT.nero).fontSize(5).fillColor("#7a5ab0").text("z", cx + 2.6, cy - 7.2, { lineBreak: false });
 }
 
-/** Pezzo del codice disegnato: una carta piccola (con un numero, un simbolo o vuota) o un segno tra le carte. */
-type PezzoCodice = { carta: string; valore?: number } | { segno: string } | { parola: string };
+/** Pezzo del codice disegnato: una carta piccola (con un numero, una lettera o vuota), un segno tra le carte o uno spazio. */
+type PezzoCodice = { carta: string; valore?: number } | { segno: string } | { parola: string } | { spazio: number };
 
-/** Il codice di attivazione fatto di carte piccole: "5 5" sono carte uguali, "+ + = 12" una somma, "P P P" carte pari… */
+/**
+ * Il codice di attivazione fatto di carte piccole, senza parole: lettere uguali = carte uguali (AA coppia, AAA tris,
+ * AAAA poker, AABB doppia coppia), "▢+▢ = 12" una somma, P e D carte pari o dispari, ? carte qualsiasi, 88 AA numeri e coppia.
+ */
 function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
   const carte = (n: number, testo: string): PezzoCodice[] => Array.from({ length: n }, () => ({ carta: testo }));
   const numeri = (valori: number[]): PezzoCodice[] => valori.map((v) => ({ carta: String(v), valore: v }));
   switch (codice.tipo) {
     case "esatto":
       return numeri(codice.valori);
-    case "uguali": {
-      const nome = codice.carte === 2 ? "coppia" : codice.carte === 3 ? "tris" : "poker";
-      const lettera = codice.parita === "dispari" ? "D" : codice.parita === "pari" ? "P" : "=";
-      return [...carte(codice.carte, lettera), { parola: codice.parita ? `${nome} ${codice.parita}` : nome }];
-    }
+    case "uguali":
+      // poker dispari (Il bastone): 4 carte uguali di valore dispari, lo dice la parola
+      return [...carte(codice.carte, "A"), ...(codice.parita ? [{ parola: codice.parita }] : [])];
     case "somma":
       return [...Array.from({ length: codice.carte }, (_, i): PezzoCodice[] => (i === 0 ? [{ carta: "" }] : [{ segno: "+" }, { carta: "" }])).flat(), { segno: "=" }, { parola: String(codice.totale) }];
     case "scala":
-      return [...carte(codice.lunghezza, "↗"), { parola: "in fila" }];
+      return carte(codice.lunghezza, "↗");
     case "doppiaCoppia":
-      return [{ carta: "A" }, { carta: "A" }, { carta: "B" }, { carta: "B" }, { parola: "2 coppie" }];
+      return [{ carta: "A" }, { carta: "A" }, { carta: "B" }, { carta: "B" }];
     case "parita":
-      return [...carte(codice.carte, codice.parita === "pari" ? "P" : "D"), { parola: codice.parita }];
+      return carte(codice.carte, codice.parita === "pari" ? "P" : "D");
     case "qualsiasi":
-      return [...carte(codice.carte, "?"), { parola: "qualsiasi" }];
+      return carte(codice.carte, "?");
     case "combinato":
-      return [...numeri(codice.esatto), { segno: "+" }, ...pezziDelCodice(codice.piu)];
+      return [...numeri(codice.esatto), { spazio: 4 }, ...pezziDelCodice(codice.piu)];
   }
 }
 
@@ -285,7 +286,7 @@ function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: numbe
   /** Il totale di una somma sta in una moneta d'oro. */
   const moneta = (pz: PezzoCodice) => "parola" in pz && /^\d+$/.test(pz.parola);
   const larghezza = (pz: PezzoCodice) =>
-    "carta" in pz ? cw + 1.6 : "segno" in pz ? 7 : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
+    "carta" in pz ? cw + 1.6 : "segno" in pz ? 7 : "spazio" in pz ? pz.spazio : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
   const totale = pezzi.reduce((s, pz) => s + larghezza(pz), 0);
   const scala = Math.min(1, massimo / totale);
   doc.save().translate(x, cy).scale(scala);
@@ -300,6 +301,8 @@ function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: numbe
       } else if (pz.carta) {
         doc.font(FONT.nero).fontSize(8).fillColor(gemma ? gemma.scuro : "#7a4a26").text(pz.carta, px, -4.2, { width: cw, align: "center", lineBreak: false });
       }
+    } else if ("spazio" in pz) {
+      // solo spazio
     } else if ("segno" in pz) {
       doc.font(FONT.nero).fontSize(9).fillColor(MATITA).text(pz.segno, px, -5, { width: 7, align: "center", lineBreak: false });
     } else if (moneta(pz)) {
