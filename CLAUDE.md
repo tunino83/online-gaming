@@ -38,6 +38,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
 - Prova a due giocatori in locale: `pnpm --filter @og/web build`, poi anteprima "web" su `localhost:4173` (giocatore 1)
   e `bruno.localhost:4173` (giocatore 2: indirizzo diverso = sessione separata).
 - `pnpm matrice:famiglia` – rigenera `docs/famiglia/matrice-attacchi-difese.md` (attacchi contro difese della Famiglia).
+- `pnpm codici:famiglia [mani]` – quanto è facile attivare ogni carta della Famiglia (`src/difficolta-codici.ts`) → `docs/famiglia/codici-difficolta.md`.
 - `pnpm carte` – rigenera `docs/anteprima-carte.html` (tutte le carte personaggio, disegnate dai dati).
 - La Famiglia: `pnpm simula:famiglia [n] [mazzo]` (resoconto in `docs/famiglia/`).
   Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.

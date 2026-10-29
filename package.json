@@ -17,6 +17,7 @@
     "carte": "tsx games/primo-gioco/scripts/anteprima-carte.ts",
     "carte:ufficio": "tsx games/ufficio/scripts/anteprima-carte.ts",
     "matrice:famiglia": "tsx games/famiglia/scripts/matrice.ts",
+    "codici:famiglia": "tsx games/famiglia/scripts/codici.ts",
     "web": "pnpm --filter @og/web dev",
     "test:supabase": "vitest run -c vitest.supabase.config.ts",
     "build:arbitro": "esbuild packages/server/src/index.ts --bundle --format=esm --platform=neutral --main-fields=module,main --target=es2022 --external:@supabase/supabase-js --outfile=supabase/functions/arbitro/nucleo.js",
