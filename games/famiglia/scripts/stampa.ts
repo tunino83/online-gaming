@@ -40,7 +40,7 @@ import { creaMazzoMancia, creaMazzoNumeri } from "../src/mazzi";
 import { OPZIONI_DEFAULT } from "../src/parametri";
 import { nomiImmagine } from "../src/carte";
 import { puntiCarta } from "../src/base";
-import { PROMEMORIA } from "../src/promemoria";
+import { CON_DETTAGLI, PROMEMORIA } from "../src/promemoria";
 import { type PezzoCodice, pezziDelCodice } from "../src/codice-disegnato";
 import { COLORI_NUMERI, COLORI_TIPI, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta } from "../src/colori";
 import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src/tipi-carte";
@@ -195,7 +195,8 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   // promemoria del potere in fondo (2–3 righe)
   const tx = x + 11;
   const tw = L - 22;
-  const promemoria = c.poteri.map((p) => pulito(PROMEMORIA[p.id] ?? p.testo)).join(" · ");
+  // con * se il potere ha qualche particolare in più da leggere nella tabella dei poteri
+  const promemoria = c.poteri.map((p) => pulito(PROMEMORIA[p.id] ?? p.testo) + (CON_DETTAGLI.has(p.id) ? " *" : "")).join(" · ");
   let dimP = 9;
   doc.font(FONT.normale);
   while (dimP > 6.5 && doc.fontSize(dimP).heightOfString(promemoria, { width: tw, align: "center" }) > 30) dimP -= 0.5;
@@ -863,7 +864,8 @@ interface Colonna {
 }
 
 /** Tabella su più pagine A4: intestazione ripetuta, righe alternate, testo che va a capo. */
-function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: string[]; colore?: string }[]) {
+/** Tabella su A4 con titolo (e una nota piccola accanto, se c'è), che continua su altre pagine se serve. */
+function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: string[]; colore?: string }[], nota?: string) {
   const margine = 30;
   const spazio = 3;
   const dim = 7.4;
@@ -871,6 +873,10 @@ function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: s
   const intestazione = () => {
     doc.addPage({ size: "A4", margin: 0 });
     doc.font(FONT.nero).fontSize(15).fillColor("#7a4a26").text(titolo, margine, 26, { width: PAGINA.w - 2 * margine });
+    if (nota) {
+      const dopo = margine + doc.font(FONT.nero).fontSize(15).widthOfString(titolo) + 12;
+      doc.font(FONT.normale).fontSize(8.5).fillColor(MATITA).text(nota, dopo, 32, { width: PAGINA.w - margine - dopo, lineBreak: false });
+    }
     y = 52;
     let x = margine;
     doc.rect(margine, y, PAGINA.w - 2 * margine, 16).fill("#7a4a26");
@@ -923,7 +929,7 @@ function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
       celle: [
         i === 0 ? nome : "",
         i === 0 ? livello : "",
-        `${pulito(p.nome)}
+        `${pulito(p.nome)}${CON_DETTAGLI.has(p.id) ? " *" : ""}
 (${NOME_TIPO[tipologiaPotere(c, p)]})`,
         pulito(p.testo),
         i === 0 ? pulito(descriviCodice(c.codice)) : "",
@@ -932,7 +938,7 @@ function tabellaPoteri(doc: Doc, carte: readonly Carta[], conEventi: boolean) {
       colore: TIPO[tipologiaPotere(c, p)].scuro,
     }));
   });
-  if (righe.length > 0) tabella(doc, "Tabella dei poteri", colonne, righe);
+  if (righe.length > 0) tabella(doc, "Tabella dei poteri", colonne, righe, "* = sulla carta il promemoria non dice tutto: i particolari sono qui in \"Cosa fa\"");
   if (!conEventi) return;
   tabella(
     doc,

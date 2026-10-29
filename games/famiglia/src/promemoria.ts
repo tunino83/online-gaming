@@ -133,3 +133,31 @@ export const PROMEMORIA: Record<string, string> = {
   "gli-occhi-nguoll": "un avversario scarta un nascosto a caso",
   vento: "un avversario cambia tutte le carte numero",
 };
+
+/**
+ * Poteri con qualche particolare in più che il promemoria non dice: sulla carta stampata il promemoria finisce con un *
+ * e il testo intero si legge nella tabella dei poteri (in fondo al PDF). Per aggiungerne o toglierne uno basta cambiare questa lista.
+ */
+export const CON_DETTAGLI: ReadonlySet<string> = new Set([
+  "total-black", // si pesca solo dal mazzo
+  "la-vita-e-una-ruota", // non si usa nell'ultimo giro
+  "baratto", // stesso livello o 1 di differenza, punti compresi, tutte e due stanche
+  "tofu-super-seitan", // contro la carne: peschi 2 e la sua carta dorme 1 turno in più
+  "stuffosa", // la carta dell'aiuto si stanca lo stesso
+  "un-caffe", // poi si ricomincia
+  "forse-c-e-forse-no", // la carta girata va in mano a te
+  "ricorso", // se le carte non bastano, le scarti tutte
+  "vertenza", // la carta si ricarica in 3 turni più il livello di quella presa
+  "tritacarne", // le carte si mescolano e si ridividono
+  "ne-ho-viste-tante", // una volta per turno
+  "patate-al-forno", // l'ultimo resta senza
+  "sparecchio", // perde i punti finché non la riattiva
+  "prosecco", // al massimo 1 livello di differenza
+  "giacca-al-rovescio", // solo carte attivate e cariche; la sua non si stanca
+  "invasione-di-campo", // scelgono loro quale carta
+  "medico-in-famiglia", // una volta per turno dagli scarti
+  "il-mio-corpo-che-cambia", // la carta nuova arriva stanca
+  "ho-tanta-fame", // a parità scegli tu
+  "multa", // a pari merito scartano tutti
+  "bisiniss", // la scarta e ne riceve una che vale la metà
+]);
