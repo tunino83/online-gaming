@@ -998,7 +998,7 @@ function copertina(doc: Doc, conteggi: Record<string, number>, g: Griglia) {
     `Mancia dei nonni: ${conteggi.mancia} carte piccole (4 nello spazio di una carta)`,
     `Eventi: ${conteggi.eventi} carte`,
     "Subito dopo questa pagina: la tabella con tutti i poteri (sulle carte c'è solo il nome del potere).",
-    "Stemmi: rosso = attacco, blu = difesa, verde = aiuto, azzurro con il simbolo dell'infinito = carta sempre attiva.",
+    "Colori: rosso = attacco, blu = difesa, giallo = aiuto, verde con il simbolo dell'infinito = sempre attiva; viola e arancione = difese e attacchi usa e getta.",
     "In fondo: una pagina di dorsi per ogni mazzo (stampatela quante volte servono).",
     "Per avere i dorsi già dietro alle carte: pnpm stampa:famiglia --fronte-retro (stampa fronte/retro, lato lungo).",
     "",
