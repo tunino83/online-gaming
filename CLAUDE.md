@@ -49,8 +49,10 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   (un A4 orizzontale: carte pronte divise in attacco, aiuto e difesa con un posto per livello, attacchi in attesa, mancia,
   segnapunti 0–30; le stanche stanno fuori dal foglio sotto le tacche 1/2/3+ turni del bordo basso; i nascosti restano in mano);
   contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
-  Sulle carte solo il nome del potere (i testi sono nella tabella dei poteri all'inizio), il codice disegnato con carte piccole
-  (`codiceDisegnato`: numeri colorati, AA coppia, AAA tris, AABB doppia coppia, "+3 = moneta" per le somme di 3 carte, P/D, ?) e la ricarica con una faccina che dorme per turno. Solo alcune carte:
+  Carta stampata: nastro con nome e faccine che dormono (una per turno di ricarica), sotto il nome del potere, immagine con il
+  codice sovrapposto al bordo basso, in fondo un promemoria breve (`games/famiglia/src/promemoria.ts`, da correggere lì; testo intero
+  nella tabella dei poteri). Codice disegnato con carte piccole
+  (`codiceDisegnato`: numeri colorati, AA coppia, AAA tris, AABB doppia coppia, "+3 = moneta" per le somme di 3 carte, P/D, ?). Solo alcune carte:
   `pnpm stampa:famiglia antonio nonna-maria-2 numeri` → `la-famiglia-scelta_<data_ora>.pdf` (persone, carte, numeri, mancia, eventi, dorsi, tabella; `--una-copia`).
   Voci delle carte: `pnpm vocali:famiglia` trasforma `games/famiglia/audio/_originali/*` (anche vocali WhatsApp) in .mp3 (serve ffmpeg, installato con winget).
   Vantaggio per posizione con partite nuove: `npx tsx games/famiglia/scripts/posizioni.ts [giocatori] [partite] [seme]`.

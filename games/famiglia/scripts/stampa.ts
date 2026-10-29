@@ -40,6 +40,7 @@ import { creaMazzoMancia, creaMazzoNumeri } from "../src/mazzi";
 import { OPZIONI_DEFAULT } from "../src/parametri";
 import { nomiImmagine } from "../src/carte";
 import { puntiCarta } from "../src/base";
+import { PROMEMORIA } from "../src/promemoria";
 import { COLORI_NUMERI, COLORI_TIPI, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta } from "../src/colori";
 import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src/tipi-carte";
 
@@ -167,30 +168,48 @@ function cornice(doc: Doc, x: number, y: number, colore: string, sfondo = CREMA)
 
 /* ---------------- carte ---------------- */
 
+/**
+ * Carta personaggio (e carte difesa e attacco usa e getta). Dall'alto: nastro con nome e faccine che dormono
+ * (una per turno di ricarica), sotto il nome del potere (così con le carte a scaletta si leggono tutti e due),
+ * l'immagine, il codice di attivazione a cavallo del bordo basso dell'immagine (come in Il Portale) e infine
+ * un promemoria breve del potere (src/promemoria.ts; il testo intero è nella tabella dei poteri).
+ */
 function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   const tipo = principale(c);
   const t = TIPO[tipo];
   const oggetto = c.categoria !== "personaggio";
   cornice(doc, x, y, t.colore, oggetto ? "#f1dfbd" : CREMA);
 
-  // nastro col nome
+  // nastro col nome e, a destra, le faccine che dormono (prima del biscotto dei punti)
+  const finePunti = oggetto ? x + L - 8 : x + L - 32;
+  const larghezzaSonno = oggetto ? 34 : c.ricarica === 0 ? 30 : c.ricarica * 10;
   doc.rect(x + 4, y + 11, L - 8, 20).fill(t.colore);
-  rigaCheSta(doc, pulito(c.nome), x + 34, y + 15.5, L - 34 - 32, FONT.forte, 12, "#ffffff");
+  rigaCheSta(doc, pulito(c.nome), x + 33, y + 15.5, finePunti - larghezzaSonno - 3 - (x + 33), FONT.forte, 12, "#ffffff", "left");
+  if (oggetto) rigaCheSta(doc, "usa e getta", finePunti - larghezzaSonno, y + 16.5, larghezzaSonno, FONT.mano, 9, "#ffffff", "right");
+  else if (c.ricarica === 0) rigaCheSta(doc, "non dorme", finePunti - larghezzaSonno, y + 16.5, larghezzaSonno, FONT.mano, 9, "#ffffff", "right");
+  else for (let i = 0; i < c.ricarica; i++) dormiglione(doc, finePunti - 5 - i * 10, y + 20.5);
 
-  // in basso solo il nome del potere (o dei due poteri): prima si misura quanto spazio serve
-  const tx = x + 10;
-  const tw = L - 20;
-  const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[tipologiaPotere(c, p)].scuro })); // sempre attiva: lo dice lo stemma con ∞
-  let dimNome = 11;
-  const altezzaNomi = (d: number) => nomi.reduce((h, n) => h + doc.font(FONT.forte).fontSize(d).heightOfString(n.nome, { width: tw }), 0);
-  while (dimNome > 7 && altezzaNomi(dimNome) > 30) dimNome -= 0.5;
-  const hNomi = altezzaNomi(dimNome);
+  // sotto il nome: il nome del potere (o dei due poteri)
+  const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[tipologiaPotere(c, p)].scuro }));
+  const testoNomi = nomi.map((n) => n.nome).join(" / ");
+  const xn = x + 32;
+  const wn = L - 32 - 10;
+  rigaCheSta(doc, testoNomi, xn, y + 35, wn, FONT.forte, 10.5, nomi[0]!.colore);
 
-  // foto (o iniziale) grande: tutto lo spazio tra il nastro e il nome del potere
+  // promemoria del potere in fondo (2–3 righe)
+  const tx = x + 11;
+  const tw = L - 22;
+  const promemoria = c.poteri.map((p) => pulito(PROMEMORIA[p.id] ?? p.testo)).join(" · ");
+  let dimP = 9;
+  doc.font(FONT.normale);
+  while (dimP > 6.5 && doc.fontSize(dimP).heightOfString(promemoria, { width: tw, align: "center" }) > 30) dimP -= 0.5;
+  const hP = doc.fontSize(dimP).heightOfString(promemoria, { width: tw, align: "center" });
+
+  // immagine (o iniziale): tra il nome del potere e il promemoria, lasciando posto al codice che la sormonta
   const fx = x + 8;
-  const fy = y + 34;
+  const fy = y + 49;
   const fw = L - 16;
-  const fh = y + A - 28 - hNomi - 5 - fy;
+  const fh = y + A - 12 - hP - 13 - fy;
   const foto = immagine(c);
   doc.save();
   doc.roundedRect(fx, fy, fw, fh, 5).clip();
@@ -203,12 +222,13 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   doc.restore();
   doc.roundedRect(fx, fy, fw, fh, 5).lineWidth(0.8).stroke("#b9a48a");
 
-  // livello (stelle) in basso a sinistra sulla foto: anche sulle carte difesa e attacco usa e getta (conta per la regola del livello)
-  doc.roundedRect(fx + 3, fy + fh - 13, 6 + c.livello * 10, 10, 3).fill("#3a2417");
-  for (let i = 0; i < c.livello; i++) stella(doc, fx + 11 + i * 10, fy + fh - 8, 4, "#ffd59a");
+  // livello (stelle) in alto a destra sulla foto (a sinistra c'è il secondo stemma delle carte con due poteri)
+  const ls = 6 + c.livello * 10;
+  doc.roundedRect(fx + fw - 3 - ls, fy + 3, ls, 10, 3).fill("#3a2417");
+  for (let i = 0; i < c.livello; i++) stella(doc, fx + fw - 3 - ls + 8 + i * 10, fy + 8, 4, "#ffd59a");
 
   // stemmi del tipo (uno per tipo di potere) e punti nel biscotto
-  tipologie(c).forEach((tp, i) => stemma(doc, x + 5, y + 4 + i * 33, 26, tp));
+  tipologie(c).forEach((tp, i) => stemma(doc, x + 5, y + 4 + i * 27, i === 0 ? 26 : 22, tp));
   if (!oggetto) {
     const punti = puntiCarta(c.id, OPZIONI_DEFAULT);
     doc.circle(x + L - 17, y + 21, 13).fill("#d18b3c");
@@ -216,21 +236,11 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
     doc.font(FONT.nero).fontSize(14).fillColor("#4a2410").text(String(punti), x + L - 30, y + 13.5, { width: 26, align: "center" });
   }
 
-  // nome del potere (la descrizione è nella tabella dei poteri)
-  let cy = fy + fh + 4;
-  for (const n of nomi) {
-    doc.font(FONT.forte).fontSize(dimNome).fillColor(n.colore).text(n.nome, tx, cy, { width: tw, align: "center" });
-    cy = doc.y;
-  }
+  // codice di attivazione a cavallo del bordo basso dell'immagine, su una pillola chiara
+  codiceDisegnato(doc, c.codice, x + L / 2, fy + fh, fw - 16, true);
 
-  // in fondo: il codice disegnato con le carte (a sinistra) e la ricarica con le faccine che dormono (a destra)
-  doc.moveTo(tx, y + A - 26).lineTo(tx + tw, y + A - 26).lineWidth(0.5).stroke("#d8c6a6");
-  const yc = y + A - 16;
-  const larghezzaRicarica = oggetto || c.ricarica === 0 ? 34 : c.ricarica * 10.5;
-  codiceDisegnato(doc, c.codice, tx, yc, tw - larghezzaRicarica - 6);
-  if (oggetto) rigaCheSta(doc, "usa e getta", tx + tw - 40, yc - 3.5, 40, FONT.mano, 9, MATITA, "right");
-  else if (c.ricarica === 0) rigaCheSta(doc, "non dorme mai", tx + tw - 44, yc - 3.5, 44, FONT.mano, 9, MATITA, "right");
-  else for (let i = 0; i < c.ricarica; i++) dormiglione(doc, tx + tw - 4.5 - i * 10.5, yc);
+  // promemoria del potere
+  doc.font(FONT.normale).fontSize(dimP).fillColor(INCHIOSTRO).text(promemoria, tx, y + A - 12 - hP, { width: tw, align: "center" });
 }
 
 /** Faccina che dorme (un turno di ricarica): tonda, occhi chiusi e una "z". */
@@ -278,8 +288,11 @@ function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
   }
 }
 
-/** Disegna il codice con le carte piccole, centrato in altezza su `cy`, al massimo largo `massimo`. */
-function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: number, massimo: number) {
+/**
+ * Disegna il codice con le carte piccole, centrato in altezza su `cy`, al massimo largo `massimo`.
+ * Con `pillola` `x` è il centro e sotto c'è una pillola chiara (il codice sormonta l'immagine).
+ */
+function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: number, massimo: number, pillola = false) {
   const pezzi = pezziDelCodice(codice);
   const cw = 10;
   const ch = 14;
@@ -291,8 +304,14 @@ function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: numbe
   const larghezza = (pz: PezzoCodice) =>
     "carta" in pz ? larghezzaCarta(pz.carta) + 1.6 : "segno" in pz ? 7 : "spazio" in pz ? pz.spazio : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
   const totale = pezzi.reduce((s, pz) => s + larghezza(pz), 0);
-  const scala = Math.min(1, massimo / totale);
-  doc.save().translate(x, cy).scale(scala);
+  const scala = Math.min(pillola ? 1.15 : 1, massimo / totale);
+  const x0 = pillola ? x - (totale * scala) / 2 : x;
+  if (pillola) {
+    const w = totale * scala + 10;
+    const h = ch * scala + 7;
+    doc.roundedRect(x - w / 2, cy - h / 2, w, h, h / 2).lineWidth(1).fillAndStroke("#fffaf0", "#c9a24a");
+  }
+  doc.save().translate(x0, cy).scale(scala);
   let px = 0;
   for (const pz of pezzi) {
     if ("carta" in pz) {

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { PROMEMORIA } from "./promemoria";
 import { CARTE, carta, cartePersona, eAttacco, nomiImmagine } from "./carte";
 import { descriviCodice, numeroCarte, puoPagare } from "./codici";
 import type { CartaNumero, Valore } from "./tipi-carte";
@@ -140,3 +141,13 @@ describe("regole sui dati delle carte", () => {
     for (const c of CARTE) expect(puoPagare({ mano: mazzo, mancia: [] }, c.codice), c.id).toBe(true);
   });
 });
+
+describe("promemoria dei poteri (sulle carte stampate)", () => {
+  it("ogni potere ha il suo promemoria breve, e non ce ne sono di poteri che non esistono", () => {
+    const poteri = new Set(CARTE.flatMap((c) => c.poteri.map((p) => p.id)));
+    expect([...poteri].filter((id) => !PROMEMORIA[id])).toEqual([]);
+    expect(Object.keys(PROMEMORIA).filter((id) => !poteri.has(id))).toEqual([]);
+    for (const [id, testo] of Object.entries(PROMEMORIA)) expect(testo.length, id).toBeLessThanOrEqual(60);
+  });
+});
+
