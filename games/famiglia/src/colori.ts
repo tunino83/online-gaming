@@ -23,7 +23,7 @@ export const COLORI_NUMERI: Record<Valore, { nome: string; colore: string; chiar
 export const COLORI_TIPI = {
   attacco: { colore: "#c63d2f", scuro: "#8e2219" },
   difesa: { colore: "#2d5f9a", scuro: "#1b3d66" },
-  aiuto: { colore: "#d9a514", scuro: "#946c05" },
+  aiuto: { colore: "#a8820a", scuro: "#6b5204" },
   blu: { colore: "#3e8a4f", scuro: "#25603a" },
   difesaUnaVolta: { colore: "#7a3fb0", scuro: "#4b2272" },
   attaccoUnaVolta: { colore: "#e07a1f", scuro: "#9e4f0a" },
