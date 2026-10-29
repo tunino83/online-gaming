@@ -30,7 +30,7 @@ import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
 
 type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
 
-/** Poteri che copiano un altro potere (Sempre la stessa storia, Giacca al rovescio). */
+/** Poteri che copiano un altro potere (Sempre la stessa storia, Ma come ti vesti?). */
 export const POTERI_COPIA = new Set(["sempre-la-stessa-storia", "giacca-al-rovescio"]);
 
 /**
@@ -53,15 +53,15 @@ export const POTERI_GRATIS = new Set([
 ]);
 
 /**
- * Poteri blu che funzionano da soli (non si "usano"): Un caffè, L'orto, Prosecco (attivando), Ne ho viste tante (pescando),
- * Aperitivo (difendendosi con vini e Campari), Puzza di brace (quando un avversario usa Brace accesa o Grigliata).
+ * Poteri blu che funzionano da soli (non si "usano"): Un caffè, Questi so della campagna, Cin cin (attivando), Ne ho viste tante (pescando),
+ * Aperitivo (difendendosi con vini e Campari), Puzza di brace (quando un avversario usa Diavolina o O al sangue o niente).
  */
 export const BLU_DA_SOLI = new Set(["un-caffe", "l-orto", "prosecco", "ne-ho-viste-tante", "aperitivo", "puzza-di-brace"]);
 
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;
 
-/** Avversari di `id` con la Puzza di brace (Chicca 1 attivata, anche stanca): Brace accesa e Grigliata ricaricano 1 carta in meno. */
+/** Avversari di `id` con la Puzza di brace (Chicca 1 attivata, anche stanca): Diavolina e O al sangue o niente ricaricano 1 carta in meno. */
 function puzzaDiBrace(s: StatoPartita, id: IdGiocatore): IdGiocatore[] {
   return avversariDopo(s, id).filter((x) => s.giocatori[x]!.attivati.some((a) => a.copia.carta === "chicca-1"));
 }
@@ -86,7 +86,7 @@ function copiabile(c: Carta, potere: string): boolean {
   return p.tipo !== "difesa" || DIFESE_ANCHE_PROATTIVE.has(potere);
 }
 
-/** Il potere che si usa davvero: quello della carta, oppure quello copiato (Sempre la stessa storia, Giacca al rovescio). */
+/** Il potere che si usa davvero: quello della carta, oppure quello copiato (Sempre la stessa storia, Ma come ti vesti?). */
 function potereDaUsare(s: StatoPartita, id: IdGiocatore, c: Carta, potere: string, m: ParametriPotere): { origine: Carta; potere: string } {
   if (potere === "sempre-la-stessa-storia") {
     const u = s.ultimoPotere;
@@ -120,7 +120,7 @@ export function usaPotere(s: StatoPartita, id: IdGiocatore, m: MossaPotere, appe
   const p = c.poteri.find((x) => x.id === m.potere);
   if (!p) rifiuta("Questo personaggio non ha quel potere");
   if (a!.stanca > 0 && !p!.blu) rifiuta("Questa carta è stanca: deve ricaricarsi"); // i poteri blu funzionano anche da stanca
-  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
+  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (BLA BLA BLA BLA)");
   if (poteriBloccati(s, c.id)) rifiuta("Durante questo evento Totò non può usare i suoi poteri");
   if (p!.blu) {
     if (BLU_DA_SOLI.has(p!.id)) rifiuta("Questa carta è sempre attiva: funziona da sola");
@@ -532,7 +532,7 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
     return;
   }
   if (a?.tipo === "canto" && m.tipo === "scegli") {
-    // Si canta!: una carta della mano per ogni avversario colpito, nello stesso ordine
+    // E one, E one ciù trii: una carta della mano per ogni avversario colpito, nello stesso ordine
     const quante = Math.min(a.a.length, g.mano.length);
     if (m.carte.length !== quante || new Set(m.carte).size !== quante || !m.carte.every((x) => g.mano.some((c) => c.id === x))) {
       rifiuta(quante === 1 ? "Scegli la carta da dare" : `Scegli ${quante} carte da dare, una per giocatore`);
@@ -657,7 +657,7 @@ function usiPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore, a: At
 function parametriDi(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore, a: Attivato, c: Carta, potere: string): ParametriPotere[] {
   const tipo = c.poteri.find((x) => x.id === potere)!.tipo;
   if (tipo === "attacco") return parametriAttacco(s, id, potere);
-  if (tipo === "difesa") return [{}]; // Nuvola di fumo, Benedizione
+  if (tipo === "difesa") return [{}]; // Nuvola di fumo, Maschio e femmina li creò
   return parametriPossibili(s, id, g, a, potere);
 }
 

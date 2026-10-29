@@ -18,7 +18,7 @@ Il nome del file da usare è indicato per ogni immagine.
 **`giuseppe-1`** – Giuseppe, avvocato di paese. [ASPETTO: …]. Seduto a una scrivania piena di fascicoli, studia con una
 grande lente d'ingrandimento un fascicolo da cui escono carte da gioco e segreti di un altro giocatore, con aria furba.
 
-**`giuseppe-2`** – Giuseppe, avvocato. [ASPETTO: …]. In un'aula di tribunale fiabesca alza la mano gridando "Ricorso!";
+**`giuseppe-2`** – Giuseppe, avvocato. [ASPETTO: …]. In un'aula di tribunale fiabesca alza la mano gridando "Mi oppongo!";
 nell'altra mano srotola una parcella lunghissima che arriva fino a terra, mentre il cliente lo guarda preoccupato.
 
 **`giuseppe-3`** – Giuseppe, avvocato. [ASPETTO: …]. Vince la causa: batte il martelletto del giudice e, con un foglio
@@ -39,7 +39,7 @@ volano in aria.
 **`marika-1`** – Marika, lavora al supermercato e fa i turni. [ASPETTO: …]. Metà del corpo dietro la cassa del supermercato
 e metà che svanisce in una nuvoletta magica: non si capisce se c'è o non c'è; una moneta "testa o croce" gira in aria.
 
-**`marika-2`** – Marika, in divisa da cassiera. [ASPETTO: …]. Davanti alla porta di casa c'è un cartello "Non c'è, ha il turno!";
+**`marika-2`** – Marika, in divisa da cassiera. [ASPETTO: …]. Davanti alla porta di casa c'è un cartello "Mi dispiace lavoro!";
 qualcuno bussa invano mentre lei, al supermercato in lontananza, sistema gli scaffali.
 
 **`marika-3`** – Marika, cassiera. [ASPETTO: …]. Fa il doppio turno: due Marike identiche lavorano insieme, una alla cassa e una

@@ -18,14 +18,14 @@ Regole usate:
 | Maddalena | 1 | Fatto in casa | ✨ | 2 carte pari |
 | Maddalena | 2 | Total black | ✨ | 3 carte dispari |
 | Maddalena | 3 | Non è colpa mia | 🛡️ | Doppia coppia |
-| Nonno Salvatore | 1 | Te l'ho già detto? | ✨ | Coppia |
-| Nonno Salvatore | 2 | L'ho già detto | ✨ | Tris |
+| Nonno Salvatore | 1 | Stai di nuovo qua? | ✨ | Coppia |
+| Nonno Salvatore | 2 | È l'ultima volta che venite! | ✨ | Tris |
 | Nonno Salvatore | 3 | Sempre la stessa storia | ✨ | Poker |
 | Nonna Dina | 1 | Cambiamo un po'… | ✨ | 2 carte con somma 7 |
 | Nonna Dina | 2 | Mo faccio due cotolette | ✨ | 3 carte pari |
 | Nonna Dina | 3 | Chissà se sta roba basta | ✨ | Scala da 5 |
-| Nonno Nicola | 1 | L'orto | ✨ | 2 carte dispari |
-| Nonno Nicola | 2 | Solo per vedere comm sape | ⚔️ | 3 carte con somma 12 |
+| Nonno Nicola | 1 | Questi so della campagna | ✨ | 2 carte dispari |
+| Nonno Nicola | 2 | È per vedere comm sape | ⚔️ | 3 carte con somma 12 |
 | Nonno Nicola | 3 | È insipido | ⚔️ | 66 + una coppia qualsiasi |
 | Nonna Patrizia | 1 | La vita è una ruota | ✨ | 2 carte con somma 10 |
 | Nonna Patrizia | 2 | Nuvola di fumo | 🛡️ | Scala da 3 |
@@ -33,33 +33,33 @@ Regole usate:
 | Chicca | 1 | Tofu Super Seitan / Puzza di brace | 🛡️✨ | 2 carte con somma 8 |
 | Chicca | 2 | Aperitivo | ✨ | 3 carte con somma 9 |
 | Chicca | 3 | E se poi te ne penti? | 🛡️ | Doppia coppia |
-| Totò | 1 | Si incanta | ⚔️ | 2 carte con somma 11 |
-| Totò | 2 | Brace accesa | ✨ | 3 carte con somma 15 |
-| Totò | 3 | Grigliata | ✨ | 4 carte pari |
+| Totò | 1 | Freeeeeezee | ⚔️ | 2 carte con somma 11 |
+| Totò | 2 | Diavolina | ✨ | 3 carte con somma 15 |
+| Totò | 3 | O al sangue o niente | ✨ | 4 carte pari |
 | Checca | 1 | Lingua Glabra | ⚔️ | 2 carte con somma 6 |
 | Checca | 2 | Collezione | ⚔️ | 123 |
 | Checca | 3 | Stuffosa | 🛡️ | 4 carte con somma 24 |
 | Donatina | 1 | Scaffale | ✨ | 2 carte con somma 5 |
 | Donatina | 2 | Ce l'ho io! | ✨ | Scala da 3 |
-| Donatina | 3 | Urla | ⚔️ | 1234 |
-| Zio Salvatore | 1 | Si canta! | ⚔️ | 77 |
-| Zio Salvatore | 2 | Versa il vino | ⚔️ | 3 carte con somma 14 |
-| Zio Salvatore | 3 | Anima della festa | ✨ | 88 + una coppia qualsiasi |
+| Donatina | 3 | WEEEEEEEEEEEEEE | ⚔️ | 1234 |
+| Zio Salvatore | 1 | E one, E one ciù trii | ⚔️ | 77 |
+| Zio Salvatore | 2 | Assaggia questo vino | ⚔️ | 3 carte con somma 14 |
+| Zio Salvatore | 3 | Sono il Party's King | ✨ | 88 + una coppia qualsiasi |
 | Generoso | 1 | Un caffè | ✨ | 88 + una coppia qualsiasi |
 | Generoso | 2 | Colazione | ✨ | 3 carte con somma 10 |
 | Generoso | 3 | Offre la casa | ✨ | 4 carte con somma 16 |
 | Francesco | 1 | Lezione di padel | ✨ | 2 carte con somma 12 |
-| Francesco | 2 | Non è ancora arrivato | 🛡️ | 3 carte con somma 20 |
+| Francesco | 2 | Scusate il ritardo | 🛡️ | 3 carte con somma 20 |
 | Francesco | 3 | Scatto d'ira | 🛡️ | 4 carte con somma 20 |
-| Gerardina | 1 | Sempre calma | 🛡️ | Coppia |
-| Gerardina | 2 | Una rospa? | ⚔️ | 3 carte con somma 13 |
-| Gerardina | 3 | Rospe per tutti | ⚔️ | 4 carte con somma 22 |
-| Marika | 1 | Forse c'è, forse no | 🛡️ | Coppia |
-| Marika | 2 | Non c'è, ha il turno | 🛡️ | Scala da 3 |
-| Marika | 3 | Doppio turno | ✨ | Scala da 5 |
-| Giuseppe (avvocato) | 1 | Studia il fascicolo | ✨ | 2 carte con somma 13 |
-| Giuseppe (avvocato) | 2 | Ricorso | 🛡️ | 3 carte pari |
-| Giuseppe (avvocato) | 3 | Vertenza | ⚔️ | 4 carte con somma 18 |
+| Gerardina | 1 | Ma siii… | 🛡️ | Coppia |
+| Gerardina | 2 | Vuoi una rospa? | ⚔️ | 3 carte con somma 13 |
+| Gerardina | 3 | Ho portato le rospe! | ⚔️ | 4 carte con somma 22 |
+| Marika | 1 | Non so se ho il turno | 🛡️ | Coppia |
+| Marika | 2 | Mi dispiace lavoro | 🛡️ | Scala da 3 |
+| Marika | 3 | Che palle lavoro | ✨ | Scala da 5 |
+| Giuseppe (avvocato) | 1 | Fammi leggere le carte | ✨ | 2 carte con somma 13 |
+| Giuseppe (avvocato) | 2 | Mi oppongo | 🛡️ | 3 carte pari |
+| Giuseppe (avvocato) | 3 | Ai sensi dell'articolo… | ⚔️ | 4 carte con somma 18 |
 | Sara e Giuseppe | 1 | Sono due etti e mezzo, lascio? | ✨ | 25 |
 | Sara e Giuseppe | 2 | Cella frigorifera | 🛡️ | 3 carte dispari |
 | Sara e Giuseppe | 3 | Tritacarne | ⚔️ | 4 carte con somma 12 |
@@ -68,15 +68,15 @@ Regole usate:
 | Nonno Antonio | 3 | Il bastone | ⚔️ | Poker dispari |
 | Nonna Maddalena | 1 | Ogni cosa al suo posto | ✨ | 2 carte pari |
 | Nonna Maddalena | 2 | Ho appena lavato a terra | 🛡️ | 3 carte con somma 9 |
-| Nonna Maddalena | 3 | Patate al forno | ✨ | Scala da 5 |
+| Nonna Maddalena | 3 | Ho fatto le patate | ✨ | Scala da 5 |
 | Roberta | 1 | Ti chiamo un attimo… | ⚔️ | 2 carte con somma 7 |
-| Roberta | 2 | Chiusa in camera | 🛡️ | Tris |
-| Roberta | 3 | Sparecchio | ⚔️ | Poker |
-| Claudia | 1 | Prosecco | ✨ | 2 carte con somma 15 |
-| Claudia | 2 | Zeppata sui social | ⚔️ | 3 carte con somma 16 |
+| Roberta | 2 | Non disturbate | 🛡️ | Tris |
+| Roberta | 3 | Passami il piatto | ⚔️ | Poker |
+| Claudia | 1 | Cin cin | ✨ | 2 carte con somma 15 |
+| Claudia | 2 | Aggiornamento stato in corso | ⚔️ | 3 carte con somma 16 |
 | Claudia | 3 | Una fetta di torta? | 🛡️ | Doppia coppia |
 | Squacqualacchione | 1 | Burla | ⚔️ | 2 carte con somma 9 |
-| Squacqualacchione | 2 | Giacca al rovescio | ✨ | 3 carte dispari |
+| Squacqualacchione | 2 | Ma come ti vesti? | ✨ | 3 carte dispari |
 | Squacqualacchione | 3 | Volo infuocato | ⚔️ | 88 + una coppia qualsiasi |
 | Simone | 1 | Pranzo a domicilio | ✨ | 2 carte con somma 6 |
 | Simone | 2 | Scudo da gladiatore | 🛡️ | 3 carte dispari |
@@ -89,21 +89,21 @@ Regole usate:
 | Nonna Maria | 3 | La cionna | 🛡️ | 4 carte dispari |
 | Nonno Rafiluccio | 1 | Tiro su un muro | 🛡️ | 2 carte con somma 10 |
 | Nonno Rafiluccio | 2 | Straordinario | ✨ | 3 carte pari |
-| Nonno Rafiluccio | 3 | Brontola tutto il giorno | ⚔️ | Scala da 5 |
+| Nonno Rafiluccio | 3 | Che è sta cumedia? | ⚔️ | Scala da 5 |
 
 ## Carte singole
 
 | Persona | Liv. | Carta | Tipo | Codice |
 | --- | --- | --- | --- | --- |
-| Nicole | 2 | Parla parla parla | ⚔️ | 3 carte con somma 11 |
+| Nicole | 2 | BLA BLA BLA BLA | ⚔️ | 3 carte con somma 11 |
 | Christian | 1 | Ho tanta fame | ⚔️ | Coppia |
 | Alessia | 2 | Mangia mangia mangia | ✨ | 3 carte pari |
 | Greta | 2 | Risata contagiosa | ⚔️ | 3 carte dispari |
-| Donato | 2 | Non ti sento, sto suonando | 🛡️ | Scala da 3 |
+| Donato | 2 | L'agg itt e l'aggià fà | 🛡️ | Scala da 3 |
 | Franchino | 2 | Multa | ⚔️ | 3 carte con somma 15 |
 | Rocky | 2 | Bisiniss | ⚔️ | 3 carte con somma 14 |
 | Vincenzo | 1 | Frutta e verdura! | ✨ | 2 carte con somma 8 |
-| Don Pasquale (parroco) | 2 | Benedizione | 🛡️ | Tris |
+| Don Pasquale (parroco) | 2 | Maschio e femmina li creò | 🛡️ | Tris |
 | Dottor Racioppi (medico) | 1 | Ricetta | ✨ | 2 carte con somma 10 |
 | Zia Diana | 2 | Guardia medica | 🛡️ | 3 carte con somma 12 |
 
@@ -116,7 +116,7 @@ Regole usate:
 | 🍷 Taurasi | 1 | Tris |
 | 🍹 Campari | 2 | 2 carte qualsiasi |
 | 💒 Sono a un matrimonio | 2 | 2 carte qualsiasi |
-| ❄️ Nevicava, non è potuto venire | 2 | 2 carte qualsiasi |
+| ❄️ Sono bloccato dalla neve | 2 | 2 carte qualsiasi |
 | 🛒 Sono andato a Lioni a fa' a spesa | 2 | 2 carte qualsiasi |
 
 ## Carte attacco (0 punti, si usano una volta)

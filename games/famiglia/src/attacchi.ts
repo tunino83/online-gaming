@@ -58,7 +58,7 @@ export const DIFESE_ANCHE_PROATTIVE = new Set(["nuvola-di-fumo", "benedizione"])
 /** Fino a quale turno dura "il resto del giro" che si sta giocando. */
 const fineGiro = (s: StatoPartita) => (Math.floor(s.numeroTurno / s.ordine.length) + 1) * s.ordine.length - 1;
 
-/** Il giocatore può essere attaccato da `attaccante`? (Benedizione, Nevicava, Nuvola di fumo, Non ti sento.) */
+/** Il giocatore può essere attaccato da `attaccante`? (Maschio e femmina li creò, Nevicava, Nuvola di fumo, Non ti sento.) */
 export function attaccabile(s: StatoPartita, attaccante: IdGiocatore, bersaglio: IdGiocatore): boolean {
   if (s.benedizione !== null) return false;
   if (s.tregua !== null && s.numeroTurno <= s.tregua) return false;
@@ -66,7 +66,7 @@ export function attaccabile(s: StatoPartita, attaccante: IdGiocatore, bersaglio:
   return !g.protetto && !g.vietati.includes(attaccante);
 }
 
-/** Carte attivate e cariche che un attacco può far stancare (Versa il vino non tocca le carte di Francesco). */
+/** Carte attivate e cariche che un attacco può far stancare (Assaggia questo vino non tocca le carte di Francesco). */
 function caricheColpibili(g: StatoGiocatore, potere: string): Attivato[] {
   if (g.nonStancabile) return [];
   return g.attivati.filter(
@@ -276,7 +276,7 @@ function prosegui(s: StatoPartita): void {
   s.turno.attesa = dopo ?? attesaDelCanto(s);
 }
 
-/** Finito Si canta!, chi ha cantato sceglie quale carta ridare a ciascun avversario colpito. */
+/** Finito E one, E one ciù trii, chi ha cantato sceglie quale carta ridare a ciascun avversario colpito. */
 function attesaDelCanto(s: StatoPartita): Attesa | null {
   const canto = s.turno.canto;
   if (!canto || canto.a.length === 0 || s.giocatori[canto.da]!.mano.length === 0) {
@@ -301,7 +301,7 @@ function avanza(s: StatoPartita): void {
 
 /**
  * Applica l'effetto dell'attacco al giocatore `v`, con le sue scelte (se l'attacco le chiede; altrimenti a caso).
- * Restituisce una scelta da fare dopo l'attacco (zona piena per Sparecchio), se serve.
+ * Restituisce una scelta da fare dopo l'attacco (zona piena per Passami il piatto), se serve.
  */
 function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { carte?: string[]; bersaglio?: string }): Attesa | null {
   const A = s.giocatori[a.attaccante]!;
@@ -403,7 +403,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
     case "la-tomacella":
     case "volo-infuocato": {
       const x = a.potere === "volo-infuocato" ? aCaso(s, caricheColpibili(V, a.potere)) : originale(caricheColpibili(V, a.potere));
-      // Versa il vino: la carta si addormenta e ci mette 1 turno in più a ricaricarsi
+      // Assaggia questo vino: la carta si addormenta e ci mette 1 turno in più a ricaricarsi
       stancaCarta(s, x, a.potere === "versa-il-vino" ? 1 : 0);
       break;
     }
@@ -490,7 +490,7 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       const presa = originale(V.attivati.filter((x) => carta(x.copia.carta).livello <= 2));
       if (presa) {
         A.attivati.push(...V.attivati.splice(V.attivati.indexOf(presa), 1));
-        // La carta di Vertenza ci mette in più tanti turni quanto il livello della carta presa (3 + 1 o 2)
+        // La carta di Ai sensi dell'articolo… ci mette in più tanti turni quanto il livello della carta presa (3 + 1 o 2)
         const giuseppe = A.attivati.find((x) => x.copia.id === a.copia);
         if (giuseppe) giuseppe.stanca += carta(presa.copia.carta).livello;
         liberaPostoDifesa(s, a.attaccante, presa.copia);
@@ -565,7 +565,7 @@ export function difeseDisponibili(s: StatoPartita, v: IdGiocatore): DifesaPossib
   if (!a) return [];
   const g = s.giocatori[v]!;
   // Regola del livello; Tofu Super Seitan ferma anche gli attacchi di carne di qualsiasi livello,
-  // Non è ancora arrivato (Francesco 2) qualsiasi attacco (ma costa 1 mossa nel prossimo turno)
+  // Scusate il ritardo (Francesco 2) qualsiasi attacco (ma costa 1 mossa nel prossimo turno)
   const livelloOk = (c: Carta, potere: string) =>
     c.livello >= a.livello || potere === "non-e-ancora-arrivato" || (potere === "tofu-super-seitan" && ATTACCHI_DI_CARNE.has(a.potere));
   // Stuffosa non ferma gli attacchi: vale solo contro gli aiuti (poteri.ts)
@@ -624,7 +624,7 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
   a.difesi.push(id);
   s.turno.attesa = null;
 
-  // Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce.
+  // Non so se ho il turno: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce.
   // La carta girata va in mano a chi si difende (senza carte nel mazzo la difesa vince).
   let riuscita = true;
   let girata: number | undefined;
@@ -777,7 +777,7 @@ function effettoDifesa(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, poter
       stancaCarta(s, aCaso(s, caricheColpibili(A, potere)));
       break;
     }
-    // Le altre difese annullano soltanto: Per me è quadrato, Sempre calma, Forse c'è,
+    // Le altre difese annullano soltanto: Per me è quadrato, Ma siii…, Forse c'è,
     // Non c'è ha il turno, Paesano, Aglianico, Sono a un matrimonio.
   }
   avanza(s);

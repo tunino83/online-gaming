@@ -679,7 +679,7 @@ export function Evento({ id, turni }: { id: string; turni: number }) {
 
 export function Protezioni({ v, nick }: { v: VistaGiocatore; nick: (id: string) => string }) {
   const note: string[] = [];
-  if (v.benedizione) note.push(`🙏 Benedizione di ${nick(v.benedizione)}: nessuno può essere attaccato`);
+  if (v.benedizione) note.push(`🙏 ${nick(v.benedizione)} ha detto «Maschio e femmina li creò»: nessuno può essere attaccato`);
   if (v.tregua !== null) note.push("❄️ Nevicava: niente attacchi fino alla fine del giro");
   if (v.buio) note.push(`🖤 Total black di ${nick(v.buio)}: tavolo vuoto, si pesca solo dal mazzo fino al suo prossimo turno`);
   if (v.turno.zitto) note.push(`🤐 ${nick(v.turno.giocatore)} non può usare poteri in questo turno`);
@@ -772,7 +772,7 @@ export function AreaGiocatore({
   const g = v.giocatori[id]!;
   const mio = id === io;
   const fascicolo = v.fascicolo?.giocatore === id ? v.fascicolo : null;
-  // Degli avversari si vede solo quante carte hanno in mano (le carte vere solo con Studia il fascicolo)
+  // Degli avversari si vede solo quante carte hanno in mano (le carte vere solo con Fammi leggere le carte)
   const soloConteggi = !mio && !fascicolo;
   const nascondiMano = (mio && senzaMano) || soloConteggi;
   const riga = (etichetta: string, contenuto: ReactNode, vuota = false) =>
@@ -1311,7 +1311,7 @@ function SceltaInSospeso({
       <Foglio
         titolo={
           a.motivo === "patate"
-            ? `🥔 Patate al forno: scegli ${quante === 1 ? "la tua" : `le tue ${quante}`}`
+            ? `🥔 Ho fatto le patate: scegli ${quante === 1 ? "la tua" : `le tue ${quante}`}`
             : a.motivo === "posto"
               ? "🧹 Ogni cosa al suo posto: scegli la carta da tenere"
               : `🍅 Frutta e verdura: scegli ${quante} carte`
@@ -1330,11 +1330,11 @@ function SceltaInSospeso({
   }
 
   if (a.tipo === "canto") {
-    // Si canta!: tocca le carte nell'ordine dei giocatori a cui darle
+    // E one, E one ciù trii: tocca le carte nell'ordine dei giocatori a cui darle
     const quante = Math.min(a.a.length, v.mano.length);
     const restanti = v.mano.filter((c) => !scelte.includes(c.id));
     return (
-      <Foglio titolo="🎤 Si canta!: scegli quale carta dare a ciascuno">
+      <Foglio titolo="🎤 E one, E one ciù trii: scegli quale carta dare a ciascuno">
         <ul className="mb-2 space-y-1 text-sm">
           {a.a.slice(0, quante).map((chi, i) => {
             const data = v.mano.find((c) => c.id === scelte[i]);

@@ -88,7 +88,7 @@ Una difesa di livello 1 ferma solo attacchi di livello 1, una di livello 2 ferma
 una di livello 3 li ferma tutti. Fanno eccezione le carte che dicono già cosa fermano
 (es. Taurasi: qualsiasi attacco; Paesano: solo livello 1; Aglianico: livello 1 o 2).
 
-**Attacchi contro tutti** (Urla, È insipido, Rospe per tutti, Volo infuocato…): ogni avversario si difende
+**Attacchi contro tutti** (WEEEEEEEEEEEEEE, È insipido, Ho portato le rospe!, Volo infuocato…): ogni avversario si difende
 per conto suo e la sua difesa protegge solo lui. Un attacco contro tutti non si può deviare (Maddalena).
 
 **Carte rubate**: chi cura i danni (Zia Diana) recupera le carte scartate, non quelle rubate.
@@ -129,7 +129,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 3. Si possono attivare personaggi presi dal tavolo direttamente, o vanno prima in mano/in attesa?
 4. Contro un attacco si gioca una sola difesa? (proposta: sì)
 5. **Aperitivo** (Chicca 2): i vini e il Campari gratis valgono senza limiti, anche più volte nello stesso giro? (per ora sì)
-6. **Ho tanta fame** (Christian): se l'avversario più vicino nei punti non si può attaccare (es. Benedizione), Christian non può prendere da nessun altro? (per ora sì: le braccia non arrivano più in là)
+6. **Ho tanta fame** (Christian): se l'avversario più vicino nei punti non si può attaccare (es. Maschio e femmina li creò), Christian non può prendere da nessun altro? (per ora sì: le braccia non arrivano più in là)
 
 ## Decisioni sui poteri di aiuto (2026-10-24, passo A3)
 
@@ -145,12 +145,12 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
   - **Lezione di padel**: una carta "fatta in casa" non si può mettere sul tavolo.
   - **Ce l'ho io!**: si cerca solo nel mazzo (non negli scarti); se quel numero non c'è, non si prende niente; poi il mazzo si rimescola.
-  - **Sono due etti e mezzo, lascio?**: vale per ogni carta numero pescata da chi la usa in quel turno, anche con i poteri (es. L'orto: 4 carte).
-  - **Doppio turno**: il turno in più non ricarica le carte stanche.
+  - **Sono due etti e mezzo, lascio?**: vale per ogni carta numero pescata da chi la usa in quel turno, anche con i poteri (es. Questi so della campagna: 4 carte).
+  - **Che palle lavoro**: il turno in più non ricarica le carte stanche.
   - **Ne ho viste tante**: le carte non scelte tornano in cima al mazzo nello stesso ordine.
-  - **Patate al forno**: si scoprono tante carte quanti i giocatori; chi la usa ne prende 2, poi gli altri 1 a testa nell'ordine di turno.
+  - **Ho fatto le patate**: si scoprono tante carte quanti i giocatori; chi la usa ne prende 2, poi gli altri 1 a testa nell'ordine di turno.
   - **Mangia mangia mangia**: se a fine turno le altre carte non bastano per tornare a 7, si scartano solo quelle.
-  - **Te l'ho già detto? / L'ho già detto**: le mosse in più vanno usate dello stesso tipo dell'ultima mossa fatta
+  - **Stai di nuovo qua? / È l'ultima volta che venite!**: le mosse in più vanno usate dello stesso tipo dell'ultima mossa fatta
     (non un potere) e si possono anche non usare.
 
 ## Decisioni su attacchi e difese (2026-10-24, passo A4)
@@ -158,7 +158,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 - **Risponde solo l'attaccato**: quando c'è un attacco il gioco aspetta solo chi viene colpito (negli attacchi contro tutti,
   uno alla volta nell'ordine di turno). Ognuno si difende al massimo una volta per attacco.
 - **Antonio livello 3 "Per me è quadrato"**: annulla qualsiasi attacco contro di te, anche di livello 3.
-- **Don Pasquale "Benedizione"**: si usa nel proprio turno (costa una mossa): fino al prossimo turno di chi l'ha usata
+- **Don Pasquale "Maschio e femmina li creò"**: si usa nel proprio turno (costa una mossa): fino al prossimo turno di chi l'ha usata
   nessun giocatore può essere attaccato.
 - **Nuvola di fumo** si può usare in due modi: quando si è attaccati (annulla e protegge) o nel proprio turno, come un potere.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
@@ -167,7 +167,7 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
   - "Chi ti ha attaccato" (Scatto d'ira, Ho appena lavato, Taurasi, Non ti sento, Una fetta di torta?) è chi ti ha mandato
     l'attacco: dopo una deviazione di Maddalena o una E se poi te ne penti?, è chi l'ha deviato o rimandato.
   - Un attacco deviato o rimandato colpisce il nuovo bersaglio con scelte a caso (es. quale carta carica far stancare).
-  - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Vertenza, Tritacarne…)
+  - Gli attacchi che spostano carte tra chi attacca e chi è colpito (Burla, Comm sape, Baratto, Ai sensi dell'articolo…, Tritacarne…)
     non fanno niente se tornano a chi li ha fatti.
   - **Volo infuocato**: la carta che si stanca è scelta a caso. **Multa**: tra gli avversari; le 2 carte sono a caso.
   - **Tritacarne**: il legame con Chicca è stato tolto il 2026-10-28 (Chicca è vegana).
@@ -187,10 +187,10 @@ e si fa pace con i dolci: lei pesca 2 carte numero, chi l'ha attaccata 1.
 ## Poteri gratis (2026-10-25)
 
 Usare un potere costa una mossa, ma alcuni poteri **non costano mosse**: altrimenti spendere una mossa per riaverla non
-servirebbe a niente. Sono: *Te l'ho già detto?* (Nonno Salvatore 1), *L'ho già detto* (Nonno Salvatore 2), *Cambiamo un po'…* (Nonna Dina 1),
-*Anima della festa* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
+servirebbe a niente. Sono: *Stai di nuovo qua?* (Nonno Salvatore 1), *È l'ultima volta che venite!* (Nonno Salvatore 2), *Cambiamo un po'…* (Nonna Dina 1),
+*Sono il Party's King* (Zio Salvatore 3) e *Mangia mangia mangia* (Alessia), oltre alle carte blu.
 Si possono usare anche a mosse finite; la carta si stanca come le altre (le blu no). Gli altri poteri che danno mosse in
-più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Domani lo faccio*, *Doppio turno*).
+più ne danno almeno 2 oltre a quella spesa (*Offre la casa* con il caffè, *Domani lo faccio*, *Che palle lavoro*).
 
 ## Carte aiuto "blu" (decise il 2026-10-25)
 
@@ -199,20 +199,20 @@ Alcune carte aiuto sono come le carte blu di Il Portale (sulla carta hanno il si
 - Ogni effetto vale **una volta per turno**, salvo eccezioni scritte sulla carta.
 
 Le carte blu:
-- **L'orto** (Nonno Nicola 1): a inizio di ogni tuo turno peschi 1 carta numero.
+- **Questi so della campagna** (Nonno Nicola 1): a inizio di ogni tuo turno peschi 1 carta numero.
 - **Mercatino** (Nonna Patrizia 1, tolto il 2026-10-28: al suo posto *La vita è una ruota*): scambi una carta che hai in mano con una a scelta dalla pila degli scarti dello stesso
   tipo (carta numero con carta numero, personaggio nascosto con personaggio).
 - **Un caffè** (Generoso 1): fai sempre 4 mosse per turno invece di 3 (anche nel turno in cui la attivi).
-- **Studia il fascicolo** (Giuseppe 1): scegli un avversario e per tutto il turno vedi le sue carte in mano.
+- **Fammi leggere le carte** (Giuseppe 1): scegli un avversario e per tutto il turno vedi le sue carte in mano.
 - **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): se la prima mossa del turno è una pescata, la rifai gratis
   (peschi un'altra carta dallo stesso mazzo).
 - **Ne ho viste tante** (Nonno Antonio 1): nel tuo turno vedi le prime 2 carte del mazzo personaggi e, una volta per turno,
   pescando puoi prendere la seconda invece della prima.
-- **Prosecco** (Claudia 1): quando attivi un personaggio puoi pagare il codice di un'altra carta che hai (attivata o in mano)
+- **Cin cin** (Claudia 1): quando attivi un personaggio puoi pagare il codice di un'altra carta che hai (attivata o in mano)
   invece del suo ("sei brilla e ti confondi"). Codice più difficile: 2 carte con somma 15.
 
 Cambiate insieme alle blu (non blu, si stancano come le altre):
-- **Anima della festa** (Zio Salvatore 3): gratis, 3 mosse in più adesso; poi si addormenta con gli occhiali da sole:
+- **Sono il Party's King** (Zio Salvatore 3): gratis, 3 mosse in più adesso; poi si addormenta con gli occhiali da sole:
   1 mossa in meno nei tuoi 2 turni successivi.
 - **Mangia mangia mangia** (Alessia): gratis, peschi 4 carte numero alla cieca dal mazzo; poi l'indigestione: nei tuoi
   2 turni successivi, a fine turno, scarti **sempre 1 carta in più** di quelle che dovresti scartare (limite 7: con 8
@@ -227,8 +227,8 @@ Cambiate insieme alle blu (non blu, si stancano come le altre):
 Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare più di una mossa normale (1 carta).
 - **Cambiamo un po'…** (Nonna Dina 1): ora gratis.
 - **Ogni cosa al suo posto** (Nonna Maddalena 1): delle prime 5 carte numero ne prendi 1, le altre le riordini.
-- **Patate al forno** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
-- **Brace accesa** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
+- **Ho fatto le patate** (Nonna Maddalena 3): tante carte quanti i giocatori; tu ne prendi 2, poi gli altri 1; l'ultimo resta senza.
+- **Diavolina** (Totò 2): ricarichi 2 altre tue carte stanche (1 se ne hai una sola).
 - **Ho tanta fame** (Christian): 3 carte numero; Christian non ha più la difesa *Che paura!* (2026-10-25). Dal 2026-10-28 è un attacco (vedi sotto). **Colazione** (Generoso 2): 1 personaggio e 2 carte numero.
 - Restano come sono: *Mo faccio due cotolette* (il guadagno è scegliere quante carte cambiare), *Ricetta* e gli altri.
 
@@ -247,7 +247,7 @@ Regola usata: un potere costa 1 mossa e fa stancare la carta, quindi deve dare p
   in mano, di qualsiasi livello. Quello si attiva senza codice ma arriva stanco (per il suo tempo di ricarica, niente
   mancia dei nonni); l'altro torna in mano.
 
-## Forse c'è, forse no (Marika 1, 2026-10-25)
+## Non so se ho il turno (Marika 1, 2026-10-25)
 
 Niente più testa o croce: chi si difende gira la prossima carta del mazzo numeri. Se è **dispari** la difesa vince
 (l'attacco è annullato), se è **pari** l'attacco colpisce. In tutti e due i casi la carta girata va in mano a chi si
@@ -256,28 +256,28 @@ difende. Se il mazzo numeri e gli scarti sono vuoti la difesa vince.
 ## Correzioni dopo la simulazione (2026-10-25)
 
 Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazione.md`):
-- **Prosecco** (Claudia 1): il codice usato deve essere di un'altra carta con **al massimo 1 livello di differenza**
+- **Cin cin** (Claudia 1): il codice usato deve essere di un'altra carta con **al massimo 1 livello di differenza**
   (un livello 3 si attiva col codice di un livello 2 o 3, non di un livello 1).
 - **Un caffè** (Generoso 1): codice più difficile, **88 + una coppia qualsiasi** (prima 2 carte con somma 4).
 - **Mangia mangia mangia** (Alessia): resta gratis, perché poi per 2 turni si scarta una carta in più.
 - Carte deboli rinforzate:
-  - **Si incanta** (Totò 1): in più l'attaccante pesca 1 carta numero.
+  - **Freeeeeezee** (Totò 1): in più l'attaccante pesca 1 carta numero.
   - **Allergica al finocchietto** (Checca 3): dopo che l'avversario scarta il personaggio, l'attaccante pesca 2 carte numero. Tolta il 2026-10-28 (al suo posto Stuffosa).
-  - **Versa il vino** (Zio Salvatore 2): la carta colpita ci mette 1 turno in più a ricaricarsi.
+  - **Assaggia questo vino** (Zio Salvatore 2): la carta colpita ci mette 1 turno in più a ricaricarsi.
   - **Burla** (Squacqualacchione 1): si prendono 2 carte numero a caso (prima 1) e se ne dà 1 a scelta.
-  - **Grigliata** (Totò 3): diventa gratis (non usa mosse).
+  - **O al sangue o niente** (Totò 3): diventa gratis (non usa mosse).
   - **Ricetta** (Dottor Racioppi): in più si pesca 1 carta numero.
   - Restano come sono *Schietta* (Checca 1) e Maddalena 1: sembrano deboli soprattutto perché i robot non le sanno sfruttare.
 - **Il bastone** (Nonno Antonio 3): codice più facile, **poker dispari** (4 carte uguali di valore dispari: 1111, 3333, 5555
   o 7777; prima solo 1111).
-- **Vertenza** (Giuseppe 3): prende solo personaggi di livello 1 o 2, mai di livello 3; e per prenderlo si deve
+- **Ai sensi dell'articolo…** (Giuseppe 3): prende solo personaggi di livello 1 o 2, mai di livello 3; e per prenderlo si deve
   **pagare con le proprie carte il codice di attivazione** di quel personaggio. Il codice si paga quando si lancia
   l'attacco: se l'avversario si difende, le carte pagate sono perse.
-- **Si canta!** (Zio Salvatore 1): prima prendi 1 carta numero a caso da ogni avversario colpito (chi si difende non dà
+- **E one, E one ciù trii** (Zio Salvatore 1): prima prendi 1 carta numero a caso da ogni avversario colpito (chi si difende non dà
   e non riceve); solo dopo averle prese tutte scegli quale carta della tua mano dare a ciascuno (1 a testa).
-- **Punti tolti alle carte più forti**: Nonno Nicola 1 (L'orto) e Claudia 1 (Prosecco) valgono **0 punti**,
+- **Punti tolti alle carte più forti**: Nonno Nicola 1 (Questi so della campagna) e Claudia 1 (Cin cin) valgono **0 punti**,
   Alessia vale **1 punto** (invece di 2).
-- **Vertenza** (Giuseppe 3): dopo aver preso una carta, Giuseppe 3 si ricarica in 3 turni **più il livello della carta
+- **Ai sensi dell'articolo…** (Giuseppe 3): dopo aver preso una carta, Giuseppe 3 si ricarica in 3 turni **più il livello della carta
   presa** (4 o 5 turni). Se l'attacco viene fermato, resta la ricarica normale di 3 turni.
 - **Un caffè** (Generoso 1): 3 turni con 4 mosse, poi 1 turno con 2 mosse (troppi caffè!), e si ricomincia:
   4, 4, 4, 2, 4, 4, 4, 2… Il turno in cui si attiva la carta conta come il primo dei 3.
@@ -294,13 +294,13 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Tiro su un muro** (Nonno Rafiluccio 1): difesa di livello 1; dopo averla usata, fino al tuo prossimo turno gli
   attacchi di livello 1 non ti colpiscono (non serve difendersi).
 - **Straordinario** (Nonno Rafiluccio 2): gratis, 1 mossa in più adesso e 1 nel prossimo turno.
-- **Brontola tutto il giorno** (Nonno Rafiluccio 3): l'avversario sceglie se dare 2 carte numero (scelte da lui)
+- **Che è sta cumedia?** (Nonno Rafiluccio 3): l'avversario sceglie se dare 2 carte numero (scelte da lui)
   o saltare il suo prossimo turno; se ha meno di 2 carte salta il turno. Se non risponde in tempo, dà le carte.
 
 ## Poteri gratis: una volta per turno (2026-10-26)
 
 Un potere gratis (che non usa mosse) si usa al massimo **una volta per turno per ogni carta**. Di solito non cambia niente,
-perché la carta si stanca; serve quando la carta non si stanca (es. Grigliata di Totò durante La Resurrezione), altrimenti
+perché la carta si stanca; serve quando la carta non si stanca (es. O al sangue o niente di Totò durante La Resurrezione), altrimenti
 si potrebbe usare all'infinito e il turno non finirebbe mai.
 
 ## Varianti dei punti in prova (2026-10-26)
@@ -347,7 +347,7 @@ Cambia solo il nome (l'effetto è lo stesso):
   livello (*La tomacella*, *Tritacarne*). Se ferma un attacco di carne, Chicca pesca 2 carte numero e il personaggio che
   ha attaccato ci mette 1 turno in più a ricaricarsi (La tomacella si scarta, quindi lì c'è solo la pescata).
   Sulla stessa carta c'è **Puzza di brace** 🔵, sempre attiva anche con la carta stanca: quando un **avversario** usa
-  *Brace accesa* o *Grigliata* di Totò (anche copiate), Brace accesa ricarica 1 carta sola e la Grigliata lascia stanca
+  *Diavolina* o *O al sangue o niente* di Totò (anche copiate), Diavolina ricarica 1 carta sola e O al sangue o niente lascia stanca
   una delle carte (a caso); ogni avversario con il Tofu pesca 1 carta numero. La propria Chicca non conta.
 - **Livello 2 – Aperitivo** 🔵: sempre attiva; le carte vino (Paesano, Aglianico, Taurasi) e il Campari si usano
   d'emergenza senza pagarne il codice. È una carta solo aiuto: con le regole dei punti di adesso vale 0 punti.
@@ -369,7 +369,7 @@ Checca si infastidisce spesso quando qualcuno fa qualcosa:
 - Checca ha **10 secondi**: se si scoccia scarta 2 carte numero a sua scelta, l'aiuto **non ha effetto** (chi l'ha
   usato ha comunque speso la mossa e la sua carta si stanca lo stesso), Checca prende +1 punto come per una difesa
   riuscita e Stuffosa resta stanca **4 turni**. Se lascia stare o il tempo scade, l'aiuto funziona normalmente.
-- Non vale contro gli attacchi (lì ci sono le difese), né contro i poteri blu che funzionano da soli (L'orto, Un caffè,
+- Non vale contro gli attacchi (lì ci sono le difese), né contro i poteri blu che funzionano da soli (Questi so della campagna, Un caffè,
   Aperitivo, Puzza di brace…). Non si usa d'emergenza dalla mano: dev'essere già attivata.
 - Un aiuto con scelte sbagliate viene rifiutato subito, senza far aspettare Checca.
 
@@ -401,13 +401,13 @@ Le carte di Maddalena ora hanno un potere ciascuna (codici uguali a prima):
   altro giocatore a tua scelta, che non può difendersi.
 - Escono *Non sbaglio mai* e la vecchia difesa di livello 2 (*Non è colpa mia*: l'attacco andava a un altro, che poteva difendersi).
 
-## Francesco: Non è ancora arrivato (2026-10-28)
+## Francesco: Scusate il ritardo (2026-10-28)
 
-**Non è ancora arrivato** 🛡️ (Francesco livello 2, codice 3 carte con somma 20, 2 punti) prende il posto di *Smash*:
+**Scusate il ritardo** 🛡️ (Francesco livello 2, codice 3 carte con somma 20, 2 punti) prende il posto di *Smash*:
 Francesco è sempre in ritardo. Annulla un attacco di **qualsiasi livello** (anche 3, a differenza delle altre difese di
 livello 2), perché lui ancora non c'era; in cambio nel suo prossimo turno fa **1 mossa in meno**. Si usa come le altre
 difese: attivata e carica (poi si stanca 2 turni) oppure d'emergenza dalla mano pagando il codice.
-Ora Francesco non ha più attacchi: Lezione di padel, Non è ancora arrivato e Scatto d'ira.
+Ora Francesco non ha più attacchi: Lezione di padel, Scusate il ritardo e Scatto d'ira.
 
 ## Regole in prova contro le troppe difese (2026-10-28)
 
@@ -417,7 +417,7 @@ le confronta tra i robot (`docs/famiglia/confronto-difese.md`).
 - **Limite delle difese**: al massimo **un personaggio di difesa attivato per livello** (uno di livello 1, uno di 2, uno
   di 3). Una seconda difesa dello stesso livello si può tenere in mano, oppure attivare: allora prende il posto della
   vecchia, che va negli scarti con i suoi punti. Vale anche per le carte che arrivano tra gli attivati con i poteri
-  (Il mio corpo che cambia, Vertenza, Baratto). Le difese d'emergenza dalla mano non contano.
+  (Il mio corpo che cambia, Ai sensi dell'articolo…, Baratto). Le difese d'emergenza dalla mano non contano.
 - **Carico**: chi attacca può aggiungere all'attacco carte numero della mano; la loro somma è il carico e quelle carte
   le perde sempre. Per difendersi con un **personaggio attivato** bisogna scartare carte numero che fanno **almeno** il
   carico (poi la carta si stanca), oppure fare **harakiri**: la carta di difesa va negli scarti con i suoi punti e

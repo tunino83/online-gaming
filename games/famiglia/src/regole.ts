@@ -37,7 +37,7 @@ export { PUNTI_FAMIGLIA_AL_COMPLETO, famiglieComplete, puntiDi, risorseGiocatore
 /** Id della carta da quello della copia ("mercatino#1" → "mercatino"). */
 const cartaDiCopia = (idCopia: string) => idCopia.split("#")[0]!;
 
-/** Mosse in un turno in più (Doppio turno di Marika). */
+/** Mosse in un turno in più (Che palle lavoro di Marika). */
 const MOSSE_DOPPIO_TURNO = 2;
 
 /* ------------------------------------------------------------------ */
@@ -170,7 +170,7 @@ function iniziaTurno(s: StatoPartita): void {
   inizioTurnoConEvento(s, id);
   // Ricarica: ogni carta stanca recupera una tacca a inizio del proprio turno
   for (const a of g.attivati) if (a.stanca > 0) a.stanca -= 1;
-  // L'orto (blu): a inizio turno 1 carta numero
+  // Questi so della campagna (blu): a inizio turno 1 carta numero
   peschiNumeri(s, id, quantiBlu(g, "l-orto"));
 }
 
@@ -220,7 +220,7 @@ export function applicaMossa(stato: StatoPartita, id: IdGiocatore, mossa: Mossa)
   try {
     applica(s, id, mossa);
     riempiTavolo(s); // un mazzo può aver ricevuto carte negli scarti: i posti vuoti si riempiono
-    controllaTraguardo(s); // i punti cambiano anche con gli attacchi (Vertenza, Baratto, Sparecchio)
+    controllaTraguardo(s); // i punti cambiano anche con gli attacchi (Ai sensi dell'articolo…, Baratto, Passami il piatto)
     return { ok: true, stato: s };
   } catch (e) {
     if (e instanceof MossaNonValida) return { ok: false, errore: e.message };
@@ -383,7 +383,7 @@ function attivabili(g: StatoGiocatore): CopiaCarta[] {
 }
 
 /**
- * Le carte del giocatore di cui Prosecco può usare il codice per attivare `tranne`: le sue altre carte personaggio
+ * Le carte del giocatore di cui Cin cin può usare il codice per attivare `tranne`: le sue altre carte personaggio
  * (in mano, in attesa, attivate) con al massimo 1 livello di differenza.
  */
 function altreCarte(g: StatoGiocatore, tranne: CopiaCarta): CopiaCarta[] {
@@ -402,10 +402,10 @@ function attiva(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { tipo: "att
   if (!copia) rifiuta("Non puoi attivare questa carta");
   const c = carta(copia!.carta);
 
-  // Prosecco (blu): una volta per turno si paga il codice di un'altra propria carta
+  // Cin cin (blu): una volta per turno si paga il codice di un'altra propria carta
   let codice = c.codice;
   if (m.codiceDi !== undefined) {
-    if (quantiBlu(g, "prosecco") === 0 || s.turno.bluUsati.includes("prosecco")) rifiuta("Serve il Prosecco di Claudia (una volta per turno)");
+    if (quantiBlu(g, "prosecco") === 0 || s.turno.bluUsati.includes("prosecco")) rifiuta("Serve Cin cin di Claudia (una volta per turno)");
     const altra = altreCarte(g, copia!).find((x) => x.id === m.codiceDi);
     if (!altra) rifiuta("Scegli un'altra tua carta di cui usare il codice, con al massimo 1 livello di differenza");
     codice = carta(altra!.carta).codice;
@@ -455,7 +455,7 @@ function usaCartaAttacco(s: StatoPartita, id: IdGiocatore, m: Extract<Mossa, { t
   const i = g.attacchi.findIndex((c) => c.id === m.carta && carta(c.carta).categoria === "attacco");
   if (i < 0) rifiuta("Non hai questa carta attacco");
   const c = carta(g.attacchi[i]!.carta);
-  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (Parla parla parla)");
+  if (s.turno.zitto) rifiuta("In questo turno non puoi usare poteri (BLA BLA BLA BLA)");
   const { combinazione: _c, carta: _id, tipo: _t, ...parametri } = m;
   paga(s, g, c, m.combinazione);
   s.scarti.personaggi.push(...g.attacchi.splice(i, 1));
@@ -476,7 +476,7 @@ function fineTurno(s: StatoPartita, g: StatoGiocatore, scarta: string[]): void {
   registra(s, t.giocatore, { tipo: "fineTurno", scartate: scarta.length });
   fineTurnoEvento(s);
 
-  // Doppio turno (Marika): subito un altro turno con 2 mosse, senza ricarica
+  // Che palle lavoro (Marika): subito un altro turno con 2 mosse, senza ricarica
   if (t.doppioTurno) {
     s.turno = nuovoTurno(t.giocatore, MOSSE_DOPPIO_TURNO);
     return;
@@ -557,7 +557,7 @@ function mosseNormali(s: StatoPartita, g: StatoGiocatore): Mossa[] {
     for (const combinazione of trovaCombinazioni(risorse, carta(copia.carta).codice, COMBINAZIONI_PER_CARTA)) {
       mosse.push({ tipo: "attiva", carta: copia.id, combinazione });
     }
-    // Prosecco: con il codice di un'altra carta (una combinazione per carta)
+    // Cin cin: con il codice di un'altra carta (una combinazione per carta)
     if (prosecco) {
       for (const altra of altreCarte(g, copia)) {
         const [combinazione] = trovaCombinazioni(risorse, carta(altra.carta).codice, 1);
@@ -617,8 +617,8 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (s.finita || s.turno.attesa || s.turno.mosseRimaste > 0) return null;
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
-  // Un potere gratis carico (es. Grigliata, Te l'ho già detto?…): il giocatore può ancora usarlo.
-  // I poteri blu che si usano ogni turno (Studia il fascicolo…) non fermano la chiusura del turno.
+  // Un potere gratis carico (es. O al sangue o niente, Stai di nuovo qua?…): il giocatore può ancora usarlo.
+  // I poteri blu che si usano ogni turno (Fammi leggere le carte…) non fermano la chiusura del turno.
   if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && !potereBlu(cartaDiCopia(m.carta), m.potere))) return null;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè

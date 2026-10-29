@@ -26,13 +26,13 @@ export interface StatoGiocatore {
   /** Personaggi di attacco e carte attacco in attesa, scoperti. */
   attacchi: CopiaCarta[];
   attivati: Attivato[];
-  /** Mosse in più (o in meno, se negativo) nel prossimo turno (Domani lo faccio, Si incanta, Rospe…). */
+  /** Mosse in più (o in meno, se negativo) nel prossimo turno (Domani lo faccio, Freeeeeezee, Rospe…). */
   mosseProssimoTurno: number;
-  /** Nel prossimo turno non può usare poteri (Parla parla parla). */
+  /** Nel prossimo turno non può usare poteri (BLA BLA BLA BLA). */
   zittoProssimoTurno: boolean;
   /** Salta il prossimo turno: nessuna mossa (Ti chiamo un attimo…). */
   saltaProssimoTurno: boolean;
-  /** Turni in cui fa 1 mossa in meno dopo la festa (Anima della festa). */
+  /** Turni in cui fa 1 mossa in meno dopo la festa (Sono il Party's King). */
   dopoLaFesta: number;
   /** Turni di indigestione: a fine turno scarta 1 carta in più (Alessia). */
   indigestione: number;
@@ -43,7 +43,7 @@ export interface StatoGiocatore {
   protetto: boolean;
   /** Nessuna sua carta può essere fatta stancare (Mutandoni di lana). */
   nonStancabile: boolean;
-  /** Nessuno può guardare o prendere i suoi personaggi nascosti (Chiusa in camera). */
+  /** Nessuno può guardare o prendere i suoi personaggi nascosti (Non disturbate). */
   nascostiProtetti: boolean;
   /** Nessun attacco di livello 1 lo colpisce (Tiro su un muro). */
   muro?: boolean;
@@ -51,7 +51,7 @@ export interface StatoGiocatore {
   senzaAttivareProssimoTurno?: boolean;
   /** Punti guadagnati usando i poteri (variante "punti per i poteri"): restano anche se si perdono le carte. */
   puntiPoteri?: number;
-  /** Giocatori che non possono attaccarlo (Non ti sento, sto suonando). */
+  /** Giocatori che non possono attaccarlo (L'agg itt e l'aggià fà). */
   vietati: IdGiocatore[];
 }
 
@@ -68,7 +68,7 @@ export type Attesa =
   /**
    * Carte numero scoperte tra cui scegliere (visibili a tutti):
    * Vincenzo ("frutta": ne prende 2, il resto va negli scarti),
-   * Patate al forno ("patate": una a testa, in ordine; `coda` = chi sceglie dopo).
+   * Ho fatto le patate ("patate": una a testa, in ordine; `coda` = chi sceglie dopo).
    */
   | { tipo: "scegliNumeri"; giocatore: IdGiocatore; motivo: "frutta" | "patate" | "posto"; carte: CartaNumero[]; quante: number; coda: IdGiocatore[] }
   /** Ne ho viste tante: le prime carte del mazzo personaggi, ne prende una (le altre tornano in cima). */
@@ -83,7 +83,7 @@ export type Attesa =
   /** Il giocatore è attaccato (vedi StatoPartita.attacco): si difende o subisce (e sceglie, se l'attacco lo chiede). */
   | { tipo: "difesa"; giocatore: IdGiocatore }
   /**
-   * Si canta!: l'attaccante ha preso una carta da ogni avversario colpito e ora sceglie quale carta dare a ciascuno
+   * E one, E one ciù trii: l'attaccante ha preso una carta da ogni avversario colpito e ora sceglie quale carta dare a ciascuno
    * (`a`, nell'ordine di turno). Si risponde con "scegli": una carta della mano per ogni giocatore, nello stesso ordine.
    */
   | { tipo: "canto"; giocatore: IdGiocatore; a: IdGiocatore[] }
@@ -143,11 +143,11 @@ export interface StatoTurno {
   mossaFatta: boolean;
   /** Indigestione: a fine turno si scarta 1 carta in più (Alessia). */
   indigestione: boolean;
-  /** Avversario di cui si vedono le carte in mano per tutto il turno (Studia il fascicolo). */
+  /** Avversario di cui si vedono le carte in mano per tutto il turno (Fammi leggere le carte). */
   fascicolo: IdGiocatore | null;
-  /** Finito questo turno se ne fa subito un altro con 2 mosse (Doppio turno). */
+  /** Finito questo turno se ne fa subito un altro con 2 mosse (Che palle lavoro). */
   doppioTurno: boolean;
-  /** In questo turno non si possono usare poteri (Parla parla parla). */
+  /** In questo turno non si possono usare poteri (BLA BLA BLA BLA). */
   zitto: boolean;
   /** In questo turno non si possono attivare personaggi (Una sigaretta fuori al bar). */
   senzaAttivare?: boolean;
@@ -155,7 +155,7 @@ export interface StatoTurno {
   attivazioni?: number;
   /** Il punto per il primo aiuto del turno è già stato dato (variante "punti per i poteri"). */
   premioAiuto?: boolean;
-  /** Si canta! in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
+  /** E one, E one ciù trii in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
   canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */
   rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
@@ -203,7 +203,7 @@ export interface StatoPartita {
   turno: StatoTurno;
   /** Attacco in corso (mentre l'attaccato decide come difendersi). */
   attacco: AttaccoInCorso | null;
-  /** Benedizione di Don Pasquale: fino al prossimo turno di questo giocatore nessuno può essere attaccato. */
+  /** Maschio e femmina li creò (Don Pasquale): fino al prossimo turno di questo giocatore nessuno può essere attaccato. */
   benedizione: IdGiocatore | null;
   /** La vita è una ruota: il gioco va in senso antiorario (l'ordine di turno è già girato: serve per la freccia sullo schermo). */
   antiorario?: boolean;
@@ -243,8 +243,8 @@ export type DatiFatto =
   /** Inizio di un attacco: `bersagli` sono i giocatori colpiti (in ordine). */
   | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[]; carico?: number }
   /**
-   * Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Forse c'è, forse no andato male;
-   * `girata` = valore della carta numero girata da Forse c'è, forse no.
+   * Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Non so se ho il turno andato male;
+   * `girata` = valore della carta numero girata da Non so se ho il turno.
    */
   | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number; harakiri?: true }
   /** L'attacco ha colpito il giocatore. */
@@ -280,23 +280,23 @@ export interface ParametriPotere {
   posizioni?: number[];
   /** Valore cercato (Ce l'ho io!, Collezione). */
   valore?: number;
-  /** Giocatore scelto (Studia il fascicolo). */
+  /** Giocatore scelto (Fammi leggere le carte). */
   giocatore?: IdGiocatore;
   /** Più giocatori scelti (Invasione di campo: 2 avversari). */
   giocatori?: IdGiocatore[];
   /** Carta scelta: personaggio nascosto, carta stanca, carta negli scarti (Vuoi un panino con sta roba puzzolente?, Ricetta). */
   bersaglio?: string;
-  /** Più carte attivate scelte (Brace accesa: le carte stanche da ricaricare). */
+  /** Più carte attivate scelte (Diavolina: le carte stanche da ricaricare). */
   bersagli?: string[];
   /** Voci del menu (Offre la casa): due tra "caffe", "birra", "colazione". */
   scelte?: string[];
   /** Propria carta attivata da scambiare (Baratto, Il mio corpo che cambia). */
   propria?: string;
-  /** Carta attivata e carica di un avversario di cui usare il potere (Giacca al rovescio). */
+  /** Carta attivata e carica di un avversario di cui usare il potere (Ma come ti vesti?). */
   fonte?: string;
-  /** Potere della carta da copiare, se ne ha due (Giacca al rovescio). */
+  /** Potere della carta da copiare, se ne ha due (Ma come ti vesti?). */
   potereCopiato?: string;
-  /** Carte con cui si paga un codice (Vertenza: il codice del personaggio che si prende). */
+  /** Carte con cui si paga un codice (Ai sensi dell'articolo…: il codice del personaggio che si prende). */
   combinazione?: Combinazione;
   /** Carico dell'attacco (opzione "carico"): carte numero della mano che chi attacca scarta; la loro somma è il carico. */
   carico?: string[];
@@ -314,7 +314,7 @@ export type Mossa =
   /** Pesca un evento (solo se non ce n'è uno in corso). */
   | { tipo: "pescaEvento" }
   /** Attiva un personaggio nascosto in mano o in attesa tra gli attacchi. */
-  /** `codiceDi`: paga il codice di un'altra propria carta invece del suo (Prosecco). */
+  /** `codiceDi`: paga il codice di un'altra propria carta invece del suo (Cin cin). */
   | { tipo: "attiva"; carta: string; combinazione: Combinazione; codiceDi?: string }
   /** Usa il potere `potere` del personaggio attivato `carta` (id della copia). */
   | ({ tipo: "potere"; carta: string; potere: string } & ParametriPotere)
@@ -333,7 +333,7 @@ export type Mossa =
    * Difesa da un attacco con la carta `carta`: un personaggio attivato e carico, oppure (d'emergenza) un personaggio
    * nascosto o una carta difesa pagandone il codice con `combinazione`.
    * `potere`: se la carta ne ha due. `giocatore`: a chi deviare l'attacco (Maddalena).
-   * `carte` e `bersaglio`: carte da pagare (Ricorso) o scelte chieste dall'attacco (se passa comunque, Guardia medica).
+   * `carte` e `bersaglio`: carte da pagare (Mi oppongo) o scelte chieste dall'attacco (se passa comunque, Guardia medica).
    */
   | {
       tipo: "difendi";

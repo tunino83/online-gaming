@@ -35,7 +35,7 @@ export function slug(testo: string): string {
 }
 
 /**
- * Un potere: l'id è il nome senza accenti né spazi; per i poteri rinominati (2026-10-26) resta l'id di prima
+ * Un potere: l'id è il nome senza accenti né spazi; per i poteri rinominati (2026-10-26 e 2026-10-29) resta l'id di prima
  * (`id`), così le regole e le prove non cambiano.
  */
 const potere = (tipo: TipoPotere) => (nome: string, testo: string, id?: string): Potere => ({ id: id ?? slug(nome), nome, tipo, testo });
@@ -43,7 +43,7 @@ const attacco = potere("attacco");
 const difesa = potere("difesa");
 const aiuto = potere("aiuto");
 /** Aiuto "blu": sempre attivo dopo l'attivazione, non si stanca, una volta per turno. */
-const aiutoBlu = (nome: string, testo: string): Potere => ({ ...aiuto(nome, testo), blu: true });
+const aiutoBlu = (nome: string, testo: string, id?: string): Potere => ({ ...aiuto(nome, testo, id), blu: true });
 
 interface Lato {
   codice: Codice;
@@ -79,8 +79,8 @@ function singola(nome: string, livello: Livello, codice: Codice, poteri: Potere[
 }
 
 /** Carta difesa o attacco: si usa una volta sola e non dà punti. */
-function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello, codice: Codice, testo: string, copie: number): Carta {
-  const id = slug(nome);
+function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello, codice: Codice, testo: string, copie: number, idDiPrima?: string): Carta {
+  const id = idDiPrima ?? slug(nome);
   return {
     id,
     persona: id,
@@ -90,7 +90,7 @@ function oggetto(categoria: "difesa" | "attacco", nome: string, livello: Livello
     codice,
     punti: 0,
     ricarica: 0,
-    poteri: [potere(categoria === "difesa" ? "difesa" : "attacco")(nome, testo)],
+    poteri: [potere(categoria === "difesa" ? "difesa" : "attacco")(nome, testo, id)],
     copie,
   };
 }
@@ -120,8 +120,8 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Nonno Salvatore", [
-    { codice: coppia, poteri: [aiuto("Te l'ho già detto?", "Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto")] },
-    { codice: tris, poteri: [aiuto("L'ho già detto", "Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto")] },
+    { codice: coppia, poteri: [aiuto("Stai di nuovo qua?", "Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto", "te-l-ho-gia-detto")] },
+    { codice: tris, poteri: [aiuto("È l'ultima volta che venite!", "Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto", "l-ho-gia-detto")] },
     { codice: poker, poteri: [aiuto("Sempre la stessa storia", "Copi l'ultimo potere giocato al tavolo da chiunque")] },
   ]),
   ...persona("Nonna Dina", [
@@ -130,8 +130,8 @@ const ADULTI: Carta[] = [
     { codice: scala(5), poteri: [aiuto("Chissà se sta roba basta", "Tu peschi 4 carte numero, ogni avversario 1", "cucina-per-200")] },
   ]),
   ...persona("Nonno Nicola", [
-    { codice: dispari(2), poteri: [aiutoBlu("L'orto", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero")], ricarica: 0, punti: 0 },
-    { codice: somma(3, 12), poteri: [attacco("Solo per vedere comm sape", "Rubi 1 carta numero a caso dalla mano di un avversario")] },
+    { codice: dispari(2), poteri: [aiutoBlu("Questi so della campagna", "Sempre attiva: a inizio di ogni tuo turno peschi 1 carta numero", "l-orto")], ricarica: 0, punti: 0 },
+    { codice: somma(3, 12), poteri: [attacco("È per vedere comm sape", "Rubi 1 carta numero a caso dalla mano di un avversario", "solo-per-vedere-comm-sape")] },
     { codice: piuCoppia(6, 6), poteri: [attacco("È insipido", "Ogni avversario ti dà 1 carta numero (sceglie lui quale)", "manca-o-sale")] },
   ]),
   ...persona("Nonna Patrizia", [
@@ -163,7 +163,7 @@ const ADULTI: Carta[] = [
           "Tofu Super Seitan",
           "Annulli un attacco di livello 1 o un attacco di carne (La tomacella, Tritacarne) di qualsiasi livello; se era di carne peschi 2 carte numero e la carta che ti ha attaccato ci mette 1 turno in più a ricaricarsi",
         ),
-        aiutoBlu("Puzza di brace", "Sempre attiva: quando un avversario usa Brace accesa o Grigliata ricarica 1 carta in meno e tu peschi 1 carta numero"),
+        aiutoBlu("Puzza di brace", "Sempre attiva: quando un avversario usa Diavolina o O al sangue o niente ricarica 1 carta in meno e tu peschi 1 carta numero"),
       ],
     },
     {
@@ -174,9 +174,9 @@ const ADULTI: Carta[] = [
     { codice: doppiaCoppia, poteri: [difesa("E se poi te ne penti?", "L'attacco torna a chi l'ha fatto", "permalosa")] },
   ]),
   ...persona("Totò", [
-    { codice: somma(2, 11), poteri: [attacco("Si incanta", "Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero")] },
-    { codice: somma(3, 15), poteri: [aiuto("Brace accesa", "Ricarichi subito 2 altre tue carte stanche")] },
-    { codice: pari(4), poteri: [aiuto("Grigliata", "Gratis (non usa mosse): ricarichi subito tutte le tue carte stanche")] },
+    { codice: somma(2, 11), poteri: [attacco("Freeeeeezee", "Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero", "si-incanta")] },
+    { codice: somma(3, 15), poteri: [aiuto("Diavolina", "Ricarichi subito 2 altre tue carte stanche", "brace-accesa")] },
+    { codice: pari(4), poteri: [aiuto("O al sangue o niente", "Gratis (non usa mosse): ricarichi subito tutte le tue carte stanche", "grigliata")] },
   ]),
   ...persona("Checca", [
     { codice: somma(2, 6), poteri: [attacco("Lingua Glabra", "Un avversario mostra a tutti i personaggi nascosti in mano", "schietta")] },
@@ -204,14 +204,14 @@ const ADULTI: Carta[] = [
   ...persona("Donatina", [
     { codice: somma(2, 5), poteri: [aiuto("Scaffale", "Prendi 2 carte numero scoperte dal tavolo")] },
     { codice: scala(3), poteri: [aiuto("Ce l'ho io!", "Cerchi nel mazzo numeri la carta che vuoi e la prendi")] },
-    { codice: esatto(1, 2, 3, 4), poteri: [attacco("Urla", "Ogni avversario scarta 2 carte numero (sceglie lui quali)")] },
+    { codice: esatto(1, 2, 3, 4), poteri: [attacco("WEEEEEEEEEEEEEE", "Ogni avversario scarta 2 carte numero (sceglie lui quali)", "urla")] },
   ]),
   ...persona("Zio Salvatore", [
-    { codice: esatto(7, 7), poteri: [attacco("Si canta!", "Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno")] },
-    { codice: somma(3, 14), poteri: [attacco("Versa il vino", "Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi")] },
+    { codice: esatto(7, 7), poteri: [attacco("E one, E one ciù trii", "Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno", "si-canta")] },
+    { codice: somma(3, 14), poteri: [attacco("Assaggia questo vino", "Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi", "versa-il-vino")] },
     {
       codice: piuCoppia(8, 8),
-      poteri: [aiuto("Anima della festa", "Gratis: 3 mosse in più adesso, poi si addormenta con gli occhiali da sole: 1 mossa in meno nei tuoi 2 turni successivi")],
+      poteri: [aiuto("Sono il Party's King", "Gratis: 3 mosse in più adesso, poi si addormenta con gli occhiali da sole: 1 mossa in meno nei tuoi 2 turni successivi", "anima-della-festa")],
     },
   ]),
   ...persona("Generoso", [
@@ -232,40 +232,41 @@ const ADULTI: Carta[] = [
       },
       {
         codice: somma(3, 20),
-        poteri: [difesa("Non è ancora arrivato", "Annulli un attacco di qualsiasi livello: tu non c'eri ancora; però nel tuo prossimo turno fai 1 mossa in meno")],
+        poteri: [difesa("Scusate il ritardo", "Annulli un attacco di qualsiasi livello: tu non c'eri ancora; però nel tuo prossimo turno fai 1 mossa in meno", "non-e-ancora-arrivato")],
       },
       {
         codice: somma(4, 20),
         poteri: [difesa("Scatto d'ira", "Annulli l'attacco; chi ti ha attaccato scarta 1 carta numero e una sua carta carica diventa stanca", "si-arrabbia")],
       },
     ],
-    "Non beve vino: Versa il vino non ha effetto sulle sue carte",
+    "Non beve vino: Assaggia questo vino non ha effetto sulle sue carte",
   ),
   ...persona("Gerardina", [
-    { codice: coppia, poteri: [difesa("Sempre calma", "Annulli un attacco di livello 1")] },
-    { codice: somma(3, 13), poteri: [attacco("Una rospa?", "Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano")] },
-    { codice: somma(4, 22), poteri: [attacco("Rospe per tutti", "Ogni avversario nel suo prossimo turno fa 1 mossa in meno")] },
+    { codice: coppia, poteri: [difesa("Ma siii…", "Annulli un attacco di livello 1", "sempre-calma")] },
+    { codice: somma(3, 13), poteri: [attacco("Vuoi una rospa?", "Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano", "una-rospa")] },
+    { codice: somma(4, 22), poteri: [attacco("Ho portato le rospe!", "Ogni avversario nel suo prossimo turno fa 1 mossa in meno", "rospe-per-tutti")] },
   ]),
   ...persona("Marika", [
-    { codice: coppia, poteri: [difesa("Forse c'è, forse no", "Giri la prossima carta numero: se è dispari annulli l'attacco, se è pari l'attacco ti colpisce; poi la carta va in mano a te")] },
-    { codice: scala(3), poteri: [difesa("Non c'è, ha il turno", "Annulli un attacco contro di te")] },
-    { codice: scala(5), poteri: [aiuto("Doppio turno", "Finito il tuo turno ne fai subito un altro, con 2 mosse")] },
+    { codice: coppia, poteri: [difesa("Non so se ho il turno", "Giri la prossima carta numero: se è dispari annulli l'attacco, se è pari l'attacco ti colpisce; poi la carta va in mano a te", "forse-c-e-forse-no")] },
+    { codice: scala(3), poteri: [difesa("Mi dispiace lavoro", "Annulli un attacco contro di te", "non-c-e-ha-il-turno")] },
+    { codice: scala(5), poteri: [aiuto("Che palle lavoro", "Finito il tuo turno ne fai subito un altro, con 2 mosse", "doppio-turno")] },
   ]),
   ...persona(
     "Giuseppe",
     [
       {
         codice: somma(2, 13),
-        poteri: [aiutoBlu("Studia il fascicolo", "Sempre attiva, una volta per turno: scegli un avversario e vedi tutte le sue carte in mano")],
+        poteri: [aiutoBlu("Fammi leggere le carte", "Sempre attiva, una volta per turno: scegli un avversario e vedi tutte le sue carte in mano", "studia-il-fascicolo")],
         ricarica: 0,
       },
       {
         codice: pari(3),
-        poteri: [difesa("Ricorso", "Annulli un attacco, ma scarti tante carte numero quanto il livello dell'attacco (se non bastano, tutte)")],
+        poteri: [difesa("Mi oppongo", "Annulli un attacco, ma scarti tante carte numero quanto il livello dell'attacco (se non bastano, tutte)", "ricorso")],
       },
       { codice: somma(4, 18), poteri: [attacco(
-          "Vertenza",
+          "Ai sensi dell'articolo…",
           "Fai causa a un avversario: paghi con le tue carte il codice di un suo personaggio attivato di livello 1 o 2 e lo prendi, con i suoi punti; la carta si ricarica in 3 turni più il livello della carta presa",
+          "vertenza",
         )] },
     ],
     "Avvocato",
@@ -324,8 +325,9 @@ const ADULTI: Carta[] = [
       codice: scala(5),
       poteri: [
         aiuto(
-          "Patate al forno",
+          "Ho fatto le patate",
           "Scopri tante carte numero quanti sono i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza",
+          "patate-al-forno",
         ),
       ],
     },
@@ -336,20 +338,21 @@ const ADULTI: Carta[] = [
       poteri: [attacco("Ti chiamo un attimo…", "Regali 2 carte numero a un avversario, ma lo tieni al telefono: salta il suo prossimo turno")],
       ricarica: 2,
     },
-    { codice: tris, poteri: [difesa("Chiusa in camera", "Annulli un attacco e fino al tuo prossimo turno nessuno può guardare o prendere i tuoi personaggi nascosti")] },
-    { codice: poker, poteri: [attacco("Sparecchio", "Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva")] },
+    { codice: tris, poteri: [difesa("Non disturbate", "Annulli un attacco e fino al tuo prossimo turno nessuno può guardare o prendere i tuoi personaggi nascosti", "chiusa-in-camera")] },
+    { codice: poker, poteri: [attacco("Passami il piatto", "Una carta attivata di un avversario torna nella sua mano, nascosta: perde i punti finché non la riattiva", "sparecchio")] },
   ]),
   ...persona("Claudia", [
     {
       codice: somma(2, 15),
       poteri: [aiutoBlu(
-          "Prosecco",
+          "Cin cin",
           "Sempre attiva, una volta per turno: attivi un personaggio pagando il codice di un'altra tua carta con al massimo 1 livello di differenza (sei brilla e ti confondi)",
+          "prosecco",
         )],
       ricarica: 0,
       punti: 0,
     },
-    { codice: somma(3, 16), poteri: [attacco("Zeppata sui social", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca")] },
+    { codice: somma(3, 16), poteri: [attacco("Aggiornamento stato in corso", "Ogni avversario sceglie: ti dà 1 carta numero oppure una sua carta carica diventa stanca", "zeppata-sui-social")] },
     {
       codice: doppiaCoppia,
       poteri: [difesa("Una fetta di torta?", "Annulli l'attacco e fate pace con i dolci: tu peschi 2 carte numero, chi ti ha attaccato 1")],
@@ -361,7 +364,7 @@ const ADULTI: Carta[] = [
       { codice: somma(2, 9), poteri: [attacco("Burla", "Prendi 2 carte numero a caso a un avversario e gli dai una tua a scelta")] },
       {
         codice: dispari(3),
-        poteri: [aiuto("Giacca al rovescio", "Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca)")],
+        poteri: [aiuto("Ma come ti vesti?", "Usi il potere di una carta attivata e carica di un avversario come se fosse tua (la sua non si stanca)", "giacca-al-rovescio")],
       },
       { codice: piuCoppia(8, 8), poteri: [attacco("Volo infuocato", "Una carta carica di ogni avversario diventa stanca")] },
     ],
@@ -455,7 +458,7 @@ const ADULTI: Carta[] = [
       {
         codice: scala(5),
         poteri: [
-          attacco("Brontola tutto il giorno", "Un avversario, pur di non sentirti più, sceglie: ti dà 2 carte numero oppure salta il suo prossimo turno"),
+          attacco("Che è sta cumedia?", "Un avversario, pur di non sentirti più, sceglie: ti dà 2 carte numero oppure salta il suo prossimo turno", "brontola-tutto-il-giorno"),
         ],
       },
     ],
@@ -466,7 +469,7 @@ const ADULTI: Carta[] = [
 /* ---------------- carte singole ---------------- */
 
 const SINGOLE: Carta[] = [
-  singola("Nicole", 2, somma(3, 11), [attacco("Parla parla parla", "Un avversario nel suo prossimo turno non può usare poteri")]),
+  singola("Nicole", 2, somma(3, 11), [attacco("BLA BLA BLA BLA", "Un avversario nel suo prossimo turno non può usare poteri", "parla-parla-parla")]),
   singola(
     "Christian",
     1,
@@ -485,7 +488,7 @@ const SINGOLE: Carta[] = [
     punti: 1,
   },
   singola("Greta", 2, dispari(3), [attacco("Risata contagiosa", "Ogni avversario scarta 1 carta numero a caso")]),
-  singola("Donato", 2, scala(3), [difesa("Non ti sento, sto suonando", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro")]),
+  singola("Donato", 2, scala(3), [difesa("L'agg itt e l'aggià fà", "Annulli un attacco e chi ti ha attaccato non può attaccarti di nuovo in questo giro", "non-ti-sento-sto-suonando")]),
   singola("Franchino", 2, somma(3, 15), [attacco("Multa", "Chi ha più carte numero in mano ne scarta 2 (se sono più di uno a pari merito, tutti)")]),
   singola(
     "Rocky",
@@ -496,7 +499,7 @@ const SINGOLE: Carta[] = [
     "Il barbiere del paese",
   ),
   singola("Vincenzo", 1, somma(2, 8), [aiuto("Frutta e verdura!", "Scopri 4 carte dal mazzo numeri, ne prendi 2 e le altre vanno negli scarti")]),
-  singola("Don Pasquale", 2, tris, [difesa("Benedizione", "Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato")]),
+  singola("Don Pasquale", 2, tris, [difesa("Maschio e femmina li creò", "Nel tuo turno: fino al tuo prossimo turno nessun giocatore può essere attaccato", "benedizione")]),
   singola("Dottor Racioppi", 1, somma(2, 10), [aiuto("Ricetta", "Ricarichi subito una carta stanca di chi vuoi e peschi 1 carta numero")]),
   singola("Zia Diana", 2, somma(3, 12), [
     difesa("Guardia medica", "Dopo che un attacco ti ha colpito, le carte numero scartate tornano in mano e le carte fatte stancare tornano cariche"),
@@ -511,7 +514,7 @@ const DIFESE: Carta[] = [
   oggetto("difesa", "Taurasi", 3, tris, "Annulli qualsiasi attacco; chi ti ha attaccato fa 1 mossa in meno nel suo prossimo turno", 1),
   oggetto("difesa", "Campari", 2, qualsiasi(2), "Annulli un attacco e peschi 1 carta numero", 2),
   oggetto("difesa", "Sono a un matrimonio", 2, qualsiasi(2), "Annulli un attacco; durante l'evento Matrimonio la carta torna in mano", 2),
-  oggetto("difesa", "Nevicava, non è potuto venire", 2, qualsiasi(2), "Annulli un attacco; per il resto del giro nessuno può più attaccare", 2),
+  oggetto("difesa", "Sono bloccato dalla neve", 2, qualsiasi(2), "Annulli un attacco; per il resto del giro nessuno può più attaccare", 2, "nevicava-non-e-potuto-venire"),
   oggetto("difesa", "Sono andato a Lioni a fa' a spesa", 2, qualsiasi(2), "Annulli un attacco e peschi 2 carte numero", 2),
 ];
 

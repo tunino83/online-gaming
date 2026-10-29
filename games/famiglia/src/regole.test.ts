@@ -63,7 +63,7 @@ describe("prendere, pescare, bruciare", () => {
 
   it("un personaggio di attacco va scoperto tra gli attacchi, gli altri nascosti in mano", () => {
     let s = partita();
-    s.tavolo.personaggi = [copia("toto-1"), copia("toto-2")]; // Si incanta (attacco), Brace accesa (aiuto)
+    s.tavolo.personaggi = [copia("toto-1"), copia("toto-2")]; // Freeeeeezee (attacco), Diavolina (aiuto)
     s = fai(s, "anna", { tipo: "prendiPersonaggio", posizione: 0 });
     s = fai(s, "anna", { tipo: "prendiPersonaggio", posizione: 1 });
     expect(s.giocatori.anna!.attacchi.map((c) => c.carta)).toEqual(["toto-1"]);
@@ -454,7 +454,7 @@ describe("varianti dei punti (in prova)", () => {
     s.giocatori.anna!.attivati = [
       { copia: copia("nonna-dina-1"), stanca: 0 }, // Cambiamo un po'… (aiuto, gratis)
       { copia: copia("antonio-1"), stanca: 0 }, // Domani lo faccio (aiuto)
-      { copia: copia("toto-1"), stanca: 0 }, // Si incanta (attacco)
+      { copia: copia("toto-1"), stanca: 0 }, // Freeeeeezee (attacco)
     ];
     s = fai(s, "anna", { tipo: "potere", carta: "nonna-dina-1#1", potere: "sposta-i-mobili" });
     expect(s.giocatori.anna!.puntiPoteri).toBe(1);
@@ -486,7 +486,7 @@ describe("varianti dei punti (in prova)", () => {
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;
     s.giocatori.anna!.attivati = [{ copia: copia("toto-1"), stanca: 0 }];
-    s.giocatori.bruno!.attivati = [{ copia: copia("gerardina-1"), stanca: 0 }]; // Sempre calma
+    s.giocatori.bruno!.attivati = [{ copia: copia("gerardina-1"), stanca: 0 }]; // Ma siii…
     s = fai(s, "anna", { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" });
     s = fai(s, "bruno", { tipo: "difendi", carta: "gerardina-1#1" });
     expect(s.giocatori.bruno!.puntiPoteri).toBe(1);
@@ -514,8 +514,8 @@ describe("limite delle difese", () => {
     s.turno.mosseRimaste = 3;
     const g = s.giocatori.anna!;
     g.attivati = [
-      { copia: copia("gerardina-1"), stanca: 0 }, // Sempre calma: difesa di livello 1
-      { copia: copia("toto-1"), stanca: 0 }, // Si incanta: attacco di livello 1
+      { copia: copia("gerardina-1"), stanca: 0 }, // Ma siii…: difesa di livello 1
+      { copia: copia("toto-1"), stanca: 0 }, // Freeeeeezee: attacco di livello 1
     ];
     g.nascosti = [copia("marika-1"), copia("squacqualacchione-1")]; // Forse c'è (difesa, coppia) e un attacco di livello 1
     g.mano = [num(5, "a"), num(5, "b"), num(4, "c"), num(5, "d")];

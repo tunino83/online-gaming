@@ -64,7 +64,7 @@ describe("come funziona un attacco", () => {
   });
 
   it("regola del livello: una difesa di livello 1 non ferma un attacco di livello 2", () => {
-    let s = attivata(attivata(partita(), "anna", "nicole"), "bruno", "gerardina-1"); // Parla parla parla (2) contro Sempre calma (1)
+    let s = attivata(attivata(partita(), "anna", "nicole"), "bruno", "gerardina-1"); // BLA BLA BLA BLA (2) contro Ma siii… (1)
     s = attacca(s, "nicole", { giocatore: "bruno" });
     expect(s.turno.attesa).toBeNull(); // nessuna difesa possibile: colpito subito
     expect(g(s, "bruno").zittoProssimoTurno).toBe(true);
@@ -91,7 +91,7 @@ describe("come funziona un attacco", () => {
   });
 
   it("attacco contro tutti: un avversario alla volta, ognuno con la sua difesa", () => {
-    let s = attivata(attivata(partita(), "anna", "gerardina-3"), "carla", "chicca-3"); // Rospe per tutti; E se poi te ne penti?
+    let s = attivata(attivata(partita(), "anna", "gerardina-3"), "carla", "chicca-3"); // Ho portato le rospe!; E se poi te ne penti?
     s = attacca(s, "gerardina-3");
     // bruno non ha difese: colpito subito; poi tocca a carla
     expect(g(s, "bruno").mosseProssimoTurno).toBe(-1);
@@ -145,7 +145,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano).toEqual([]);
   });
 
-  it("Solo per vedere comm sape e Giro aperto: rubano una carta a caso", () => {
+  it("È per vedere comm sape e Giro aperto: rubano una carta a caso", () => {
     let s = attivata(partita(), "anna", "nonno-nicola-2");
     manoDi(s, "bruno", 5);
     s = attacca(s, "nonno-nicola-2", { giocatore: "bruno" });
@@ -169,7 +169,7 @@ describe("attacchi a un avversario", () => {
     expect(t.scarti.personaggi.map((c) => c.carta)).toEqual(["giro-aperto"]);
   });
 
-  it("Si incanta e Rospe per tutti: 1 mossa in meno nel prossimo turno (mai sotto zero); con Si incanta peschi 1 carta", () => {
+  it("Freeeeeezee e Ho portato le rospe!: 1 mossa in meno nel prossimo turno (mai sotto zero); con Freeeeeezee peschi 1 carta", () => {
     let s = attivata(partita(), "anna", "toto-1");
     s = attacca(s, "toto-1", { giocatore: "bruno" });
     expect(g(s, "anna").mano).toHaveLength(1);
@@ -205,7 +205,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").nascosti).toEqual([]);
   });
 
-  it("Versa il vino e La tomacella: la carta carica scelta si stanca; le carte di Francesco non bevono vino", () => {
+  it("Assaggia questo vino e La tomacella: la carta carica scelta si stanca; le carte di Francesco non bevono vino", () => {
     let s = attivata(attivata(attivata(partita(), "anna", "zio-salvatore-2"), "bruno", "generoso-3"), "bruno", "francesco-1");
     expect(rifiutata(s, "anna", { tipo: "potere", carta: "zio-salvatore-2#1", potere: "versa-il-vino", giocatore: "bruno", bersaglio: "francesco-1#1" })).toMatch(/carica/);
     s = attacca(s, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "generoso-3#1" });
@@ -220,7 +220,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano).toHaveLength(1);
   });
 
-  it("Una rospa?: dai una tua carta e prendi a caso un personaggio nascosto", () => {
+  it("Vuoi una rospa?: dai una tua carta e prendi a caso un personaggio nascosto", () => {
     let s = attivata(partita(), "anna", "gerardina-2");
     manoDi(s, "anna", 7);
     g(s, "bruno").nascosti = [copia("chicca-1")];
@@ -240,7 +240,7 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "bruno").mano.map((c) => c.id)).toContain("anna1");
   });
 
-  it("Vertenza: paghi il codice di un personaggio attivato di livello 1 o 2 dell'avversario e lo prendi, con i suoi punti", () => {
+  it("Ai sensi dell'articolo…: paghi il codice di un personaggio attivato di livello 1 o 2 dell'avversario e lo prendi, con i suoi punti", () => {
     let s = attivata(attivata(attivata(partita(), "anna", "giuseppe-3"), "bruno", "generoso-2"), "bruno", "generoso-3");
     manoDi(s, "anna", 2, 3, 5, 8); // Generoso 2: 3 carte con somma 10
     const paga = (...ids: [string, number][]) => ids.map(([id, valore]) => ({ tipo: "numero" as const, id, valore }));
@@ -259,19 +259,19 @@ describe("attacchi a un avversario", () => {
     expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["anna3"]);
     // la carta di Giuseppe si ricarica in 3 turni + 2 (il livello di Generoso 2)
     expect(g(s, "anna").attivati.find((x) => x.copia.carta === "giuseppe-3")!.stanca).toBe(5);
-    // senza carte per pagare, Vertenza non si può usare
+    // senza carte per pagare, Ai sensi dell'articolo… non si può usare
     const t = attivata(attivata(partita(), "anna", "giuseppe-3"), "bruno", "generoso-2");
     expect(mosseValide(t, "anna").some((m) => m.tipo === "potere" && m.potere === "vertenza")).toBe(false);
   });
 
-  it("Sparecchio: un personaggio attivato torna nella mano dell'avversario (e perde i punti)", () => {
+  it("Passami il piatto: un personaggio attivato torna nella mano dell'avversario (e perde i punti)", () => {
     let s = attivata(attivata(partita(), "anna", "roberta-3"), "bruno", "generoso-3");
     s = attacca(s, "roberta-3", { giocatore: "bruno", bersaglio: "generoso-3#1" });
     expect(g(s, "bruno").attivati).toEqual([]);
     expect(g(s, "bruno").nascosti).toEqual([copia("generoso-3")]);
   });
 
-  it("Sparecchio con la mano piena: l'avversario sceglie cosa scartare", () => {
+  it("Passami il piatto con la mano piena: l'avversario sceglie cosa scartare", () => {
     let s = attivata(attivata(partita(), "anna", "roberta-3"), "bruno", "generoso-3");
     g(s, "bruno").nascosti = [copia("paesano"), copia("taurasi"), copia("campari")];
     s = attacca(s, "roberta-3", { giocatore: "bruno", bersaglio: "generoso-3#1" });
@@ -333,14 +333,14 @@ describe("attacchi a un avversario", () => {
     expect(mosseValide(due, "anna").some((m) => m.tipo === "potere" && m.potere === "ho-tanta-fame" && m.giocatore === "bruno")).toBe(true);
   });
 
-  it("Parla parla parla: nel suo prossimo turno l'avversario non può usare poteri", () => {
+  it("BLA BLA BLA BLA: nel suo prossimo turno l'avversario non può usare poteri", () => {
     let s = attivata(attivata(partita(2), "anna", "nicole"), "bruno", "vincenzo");
     s = attacca(s, "nicole", { giocatore: "bruno" });
     s.turno.mosseRimaste = 0;
     s = fai(s, "anna", { tipo: "fineTurno", scarta: [] });
     expect(s.turno.zitto).toBe(true);
     expect(mosseValide(s, "bruno").some((m) => m.tipo === "potere")).toBe(false);
-    expect(rifiutata(s, "bruno", { tipo: "potere", carta: "vincenzo#1", potere: "frutta-e-verdura" })).toMatch(/Parla parla parla/);
+    expect(rifiutata(s, "bruno", { tipo: "potere", carta: "vincenzo#1", potere: "frutta-e-verdura" })).toMatch(/BLA BLA BLA BLA/);
   });
 
   it("Ti chiamo un attimo…: l'avversario riceve 2 carte numero ma salta il suo prossimo turno", () => {
@@ -402,7 +402,7 @@ describe("attacchi contro tutti", () => {
     expect(g(s, "anna").mano.map((c) => c.id).sort()).toEqual(["bruno1", "carla0"]);
   });
 
-  it("Urla: ogni avversario scarta 2 carte; Risata contagiosa: 1 a caso", () => {
+  it("WEEEEEEEEEEEEEE: ogni avversario scarta 2 carte; Risata contagiosa: 1 a caso", () => {
     let s = attivata(partita(), "anna", "greta");
     manoDi(s, "bruno", 1, 2);
     manoDi(s, "carla", 7);
@@ -411,7 +411,7 @@ describe("attacchi contro tutti", () => {
     expect(g(s, "carla").mano).toHaveLength(0);
   });
 
-  it("Si canta!: prendi una carta a caso da ognuno; solo dopo averle prese tutte scegli quale ridare a ciascuno", () => {
+  it("E one, E one ciù trii: prendi una carta a caso da ognuno; solo dopo averle prese tutte scegli quale ridare a ciascuno", () => {
     let s = attivata(partita(), "anna", "zio-salvatore-1");
     manoDi(s, "anna", 1);
     manoDi(s, "bruno", 5);
@@ -430,8 +430,8 @@ describe("attacchi contro tutti", () => {
     expect(s.turno.canto).toBeNull();
   });
 
-  it("Si canta!: chi si difende non dà e non riceve", () => {
-    let s = attivata(attivata(partita(), "anna", "zio-salvatore-1"), "bruno", "gerardina-1"); // Sempre calma
+  it("E one, E one ciù trii: chi si difende non dà e non riceve", () => {
+    let s = attivata(attivata(partita(), "anna", "zio-salvatore-1"), "bruno", "gerardina-1"); // Ma siii…
     manoDi(s, "anna", 1);
     manoDi(s, "bruno", 5);
     manoDi(s, "carla", 6);
@@ -444,7 +444,7 @@ describe("attacchi contro tutti", () => {
     expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["anna0"]);
   });
 
-  it("Zeppata sui social: ognuno sceglie se dare una carta o far stancare una sua carta carica", () => {
+  it("Aggiornamento stato in corso: ognuno sceglie se dare una carta o far stancare una sua carta carica", () => {
     let s = attivata(attivata(partita(), "anna", "claudia-2"), "bruno", "chicca-1");
     manoDi(s, "bruno", 4);
     manoDi(s, "carla", 6);
@@ -476,7 +476,7 @@ describe("attacchi contro tutti", () => {
 
 /* ---------------- difese ---------------- */
 
-/** Anna attacca bruno con Si incanta (livello 1) o Il bastone (livello 3); bruno ha la carta di difesa indicata, attivata. */
+/** Anna attacca bruno con Freeeeeezee (livello 1) o Il bastone (livello 3); bruno ha la carta di difesa indicata, attivata. */
 function bruno_si_difende(difesa: string, livelloAttacco: 1 | 3 = 1): StatoPartita {
   let s = attivata(partita(), "bruno", difesa);
   if (livelloAttacco === 1) {
@@ -563,7 +563,7 @@ describe("difese", () => {
     expect(t.turno.attesa).toBeNull(); // nessuna difesa possibile: l'attacco è passato subito
   });
 
-  it("Non è ancora arrivato (Francesco 2): ferma anche un attacco di livello 3, ma nel prossimo turno 1 mossa in meno", () => {
+  it("Scusate il ritardo (Francesco 2): ferma anche un attacco di livello 3, ma nel prossimo turno 1 mossa in meno", () => {
     const s = difendi(bruno_si_difende("francesco-2", 3), "bruno", "francesco-2");
     expect(g(s, "bruno").mano).toHaveLength(3); // il bastone non colpisce
     expect(g(s, "bruno").attivati[1]!.stanca).toBe(0);
@@ -571,7 +571,7 @@ describe("difese", () => {
     expect(g(s, "bruno").attivati[0]!.stanca).toBe(2);
   });
 
-  it("Forse c'è, forse no: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce; la carta va in mano", () => {
+  it("Non so se ho il turno: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce; la carta va in mano", () => {
     const s = bruno_si_difende("marika-1");
     s.mazzi.numeri.push(num(3, "dispari"));
     const vinta = difendi(s, "bruno", "marika-1");
@@ -587,7 +587,7 @@ describe("difese", () => {
     expect(persa.registro.find((f) => f.tipo === "difesa")).toMatchObject({ riuscita: false, girata: 4 });
   });
 
-  it("Ricorso: annulli l'attacco ma paghi tante carte quanto il livello dell'attacco", () => {
+  it("Mi oppongo: annulli l'attacco ma paghi tante carte quanto il livello dell'attacco", () => {
     let s = attivata(attivata(partita(), "anna", "antonio-2"), "bruno", "giuseppe-2"); // Alta idratazione, livello 2
     manoDi(s, "bruno", 1, 2, 3, 4);
     s = attacca(s, "antonio-2", { giocatore: "bruno" });
@@ -623,7 +623,7 @@ describe("difese", () => {
     void s;
   });
 
-  it("Benedizione: nel tuo turno, fino al tuo prossimo turno nessuno può essere attaccato", () => {
+  it("Maschio e femmina li creò: nel tuo turno, fino al tuo prossimo turno nessuno può essere attaccato", () => {
     let s = attivata(attivata(partita(), "anna", "don-pasquale"), "anna", "toto-1");
     s = attacca(s, "don-pasquale");
     expect(s.benedizione).toBe("anna");
@@ -652,7 +652,7 @@ describe("difese", () => {
     expect(mosseValide(s, "anna").some((m) => m.tipo === "potere" && m.potere === "versa-il-vino" && m.giocatore === "bruno")).toBe(false);
   });
 
-  it("Chiusa in camera: nessuno guarda o prende i tuoi personaggi nascosti", () => {
+  it("Non disturbate: nessuno guarda o prende i tuoi personaggi nascosti", () => {
     let s = difendi(bruno_si_difende("roberta-2"), "bruno", "roberta-2");
     g(s, "bruno").nascosti = [copia("chicca-1")];
     attivata(s, "anna", "checca-1");
@@ -671,11 +671,11 @@ describe("difese", () => {
 
   it("Guardia medica: l'attacco passa, ma le carte scartate tornano e le carte stancate si ricaricano", () => {
     const s = difendi(bruno_si_difende("zia-diana", 1), "bruno", "zia-diana");
-    expect(g(s, "bruno").mosseProssimoTurno).toBe(-1); // Si incanta passa (non è un danno da curare)
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(-1); // Freeeeeezee passa (non è un danno da curare)
     let t = attivata(attivata(partita(), "anna", "zio-salvatore-2"), "bruno", "zia-diana");
     attivata(t, "bruno", "chicca-1");
     manoDi(t, "bruno", 4, 5);
-    t = attacca(t, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "chicca-1#1" }); // Versa il vino: la carta si addormenta
+    t = attacca(t, "zio-salvatore-2", { giocatore: "bruno", bersaglio: "chicca-1#1" }); // Assaggia questo vino: la carta si addormenta
     t = difendi(t, "bruno", "zia-diana");
     expect(g(t, "bruno").mano).toHaveLength(2);
     expect(g(t, "bruno").attivati.find((a) => a.copia.carta === "chicca-1")!.stanca).toBe(0);
@@ -744,7 +744,7 @@ describe("poteri che copiano", () => {
     expect(s.registro.find((f) => f.tipo === "attacco" && f.bersagli[0] === "carla")).toMatchObject({ carta: "toto-1", potere: "si-incanta" });
   });
 
-  it("Giacca al rovescio: usi il potere di una carta carica di un avversario, che non si stanca", () => {
+  it("Ma come ti vesti?: usi il potere di una carta carica di un avversario, che non si stanca", () => {
     let s = attivata(attivata(partita(), "anna", "squacqualacchione-2"), "bruno", "generoso-3");
     s = attacca(s, "squacqualacchione-2", { fonte: "generoso-3#1", scelte: ["caffe", "birra"] });
     expect(s.turno.mosseRimaste).toBe(4);
@@ -886,7 +886,7 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
     expect(s.registro.at(-1)).toMatchObject({ tipo: "protetto", giocatore: "bruno" });
   });
 
-  it("Brontola tutto il giorno: l'avversario sceglie se dare 2 carte numero o saltare il prossimo turno", () => {
+  it("Che è sta cumedia?: l'avversario sceglie se dare 2 carte numero o saltare il prossimo turno", () => {
     let s = attivata(partita(), "anna", "nonno-rafiluccio-3");
     manoDi(s, "bruno", 4, 5, 6);
     s = attacca(s, "nonno-rafiluccio-3", { giocatore: "bruno" });
@@ -907,7 +907,7 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
 });
 
 describe("carico", () => {
-  /** Anna attacca bruno con Si incanta (livello 1) e un carico di 5 + 3; bruno ha Sempre calma attivata. */
+  /** Anna attacca bruno con Freeeeeezee (livello 1) e un carico di 5 + 3; bruno ha Ma siii… attivata. */
   const conCarico = (manoBruno: number[]) => {
     const s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
     s.opzioni.carico = true;
@@ -992,7 +992,7 @@ describe("Collezione (Checca 2)", () => {
   });
 
   it("è un attacco: chi ha una difesa può fermarlo", () => {
-    let s = attivata(attivata(partita(), "anna", "checca-2"), "bruno", "marika-2"); // Non c'è, ha il turno
+    let s = attivata(attivata(partita(), "anna", "checca-2"), "bruno", "marika-2"); // Mi dispiace lavoro
     g(s, "anna").mano = [num(3, "a1"), num(3, "a2")];
     g(s, "bruno").mano = [num(3, "b1")];
     s = attacca(s, "checca-2", { valore: 3 });

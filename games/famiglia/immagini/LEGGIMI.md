@@ -64,7 +64,7 @@ circa **5:6** (es. **1000 × 1200 pixel**), con il soggetto al centro. Usa solo 
 | 🍷 Taurasi | `taurasi` | — |
 | 🍹 Campari | `campari` | — |
 | 💒 Sono a un matrimonio | `sono-a-un-matrimonio` | — |
-| ❄️ Nevicava, non è potuto venire | `nevicava-non-e-potuto-venire` | — |
+| ❄️ Sono bloccato dalla neve | `nevicava-non-e-potuto-venire` | — |
 | 🛒 Sono andato a Lioni a fa' a spesa | `sono-andato-a-lioni-a-fa-a-spesa` | — |
 | 🌭 La tomacella | `la-tomacella` | — |
 | 🃏 Giro aperto | `giro-aperto` | — |

@@ -29,7 +29,7 @@ export const PROMEMORIA: Record<string, string> = {
   baratto: "scambi una tua carta attivata con una sua",
   // Chicca
   "tofu-super-seitan": "fermi il livello 1 e gli attacchi di carne",
-  "puzza-di-brace": "Brace e Grigliata degli altri: 1 carta in meno, tu peschi 1",
+  "puzza-di-brace": "Diavolina e O al sangue altrui: 1 in meno, tu peschi 1",
   aperitivo: "vini e Campari gratis, senza codice",
   permalosa: "l'attacco torna a chi l'ha fatto",
   // Totò

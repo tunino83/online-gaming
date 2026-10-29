@@ -3,9 +3,9 @@
  * mai il contenuto o l'ordine dei mazzi coperti, mai lo stato del generatore casuale.
  * Degli altri si vede: quante carte hanno in mano e nascoste, vetrina, mancia, attacchi in attesa e attivati.
  * Eccezioni previste dalle regole:
- * - Studia il fascicolo: per tutto il turno si vedono le carte in mano dell'avversario scelto;
+ * - Fammi leggere le carte: per tutto il turno si vedono le carte in mano dell'avversario scelto;
  * - Ne ho viste tante e Ogni cosa al suo posto: chi sceglie vede le carte prese dal mazzo;
- * - Vincenzo e Patate al forno: le carte scoperte tra cui scegliere le vedono tutti;
+ * - Vincenzo e Ho fatto le patate: le carte scoperte tra cui scegliere le vedono tutti;
  * - Schietta: le carte mostrate le vedono tutti per il resto del turno.
  */
 import type { IdGiocatore } from "@og/engine";
@@ -43,7 +43,7 @@ export interface VistaGiocatore {
     bluUsati: string[];
     /** Indigestione (Alessia): a fine turno si scarta 1 carta in più. */
     indigestione: boolean;
-    /** Chi è di turno non può usare poteri (Parla parla parla). */
+    /** Chi è di turno non può usare poteri (BLA BLA BLA BLA). */
     zitto: boolean;
     /** Chi è di turno non può attivare personaggi (Una sigaretta fuori al bar). */
     senzaAttivare: boolean;
@@ -54,7 +54,7 @@ export interface VistaGiocatore {
   };
   /** Attacco in corso (informazioni pubbliche). */
   attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile" | "carico"> | null;
-  /** Benedizione di Don Pasquale in corso (di chi). */
+  /** Maschio e femmina li creò (Don Pasquale) in corso (di chi). */
   benedizione: IdGiocatore | null;
   /** Total black: il tavolo resta vuoto fino al prossimo turno di questo giocatore. */
   buio: IdGiocatore | null;
@@ -77,14 +77,14 @@ export interface VistaGiocatore {
   scartiPersonaggi: CopiaCarta[];
   /** Ne ho viste tante (blu): le prime 2 carte del mazzo personaggi, solo nel proprio turno (la prima è in cima). */
   cimaPersonaggi?: CopiaCarta[];
-  /** Carte numero scoperte tra cui qualcuno sta scegliendo (Vincenzo, Patate al forno). */
+  /** Carte numero scoperte tra cui qualcuno sta scegliendo (Vincenzo, Ho fatto le patate). */
   offerta: CartaNumero[];
   /** Le proprie carte numero e i propri personaggi nascosti. */
   mano: CartaNumero[];
   nascosti: CopiaCarta[];
   /** Tutti i giocatori (per sé stessi i numeri coincidono con mano e nascosti). */
   giocatori: Record<IdGiocatore, VistaAvversario>;
-  /** Studia il fascicolo: le carte dell'avversario scelto, per tutto il proprio turno. */
+  /** Fammi leggere le carte: le carte dell'avversario scelto, per tutto il proprio turno. */
   fascicolo?: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] };
   /** Ultime cose successe (solo informazioni pubbliche), dalla più vecchia alla più recente. */
   registro: Fatto[];

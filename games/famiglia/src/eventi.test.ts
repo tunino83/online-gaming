@@ -168,7 +168,7 @@ describe("Famiglia al completo", () => {
 /* ---------------- fine partita ---------------- */
 
 describe("fine partita", () => {
-  it("a punti: si può arrivare ai punti anche con un attacco (Vertenza)", () => {
+  it("a punti: si può arrivare ai punti anche con un attacco (Ai sensi dell'articolo…)", () => {
     let s = attivata(partita(), "anna", "giuseppe-3");
     s.opzioni = { ...s.opzioni, puntiPerVincere: 20, aiutiSenzaPunti: false }; // qui si conta come con le regole vecchie
     for (const id of ["antonio-3", "maddalena-3", "chicca-3", "toto-3", "checca-3"]) attivata(s, "anna", id); // 18 punti

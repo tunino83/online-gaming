@@ -72,7 +72,7 @@ describe("annunci a schermo", () => {
 
   it("un attacco a segno dà +1 punto e compare a schermo", () => {
     const s = partita();
-    s.giocatori.anna!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 }); // Si incanta
+    s.giocatori.anna!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 }); // Freeeeeezee
     expect(dopoLaMossa(s, { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" }, "carla").annunci).toContainEqual(
       expect.objectContaining({ tipo: "punto", testo: "+1 punto a Anna: attacco a segno" }),
     );
@@ -80,7 +80,7 @@ describe("annunci a schermo", () => {
 
   it("usare un potere fa partire la voce del suo tipo (attacco, aiuto…)", () => {
     const s = partita();
-    s.giocatori.anna!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 }); // Si incanta (attacco)
+    s.giocatori.anna!.attivati.push({ copia: { id: "toto-1#1", carta: "toto-1" }, stanca: 0 }); // Freeeeeezee (attacco)
     expect(dopoLaMossa(s, { tipo: "potere", carta: "toto-1#1", potere: "si-incanta", giocatore: "bruno" }, "bruno").voci).toEqual([
       { idCarta: "toto-1", quando: "ATT", potere: "si-incanta" },
     ]);

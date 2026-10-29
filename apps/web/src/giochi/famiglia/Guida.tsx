@@ -42,7 +42,7 @@ export function GuidaFamiglia({ larga = false }: { larga?: boolean }) {
           type="search"
           value={cerca}
           onChange={(e) => setCerca(e.target.value)}
-          placeholder="🔎 Cerca un personaggio o un potere (es. Chicca, Grigliata)"
+          placeholder="🔎 Cerca un personaggio o un potere (es. Chicca, Diavolina)"
           aria-label="Cerca un personaggio o un potere"
           className="w-full rounded-xl border-2 border-oro/60 bg-white px-3 py-2 text-base text-inchiostro shadow-sm outline-none focus:border-oro"
         />
@@ -249,7 +249,7 @@ function TestoGuida({ larga }: { larga: boolean }) {
             scarti). Costa una mossa.
           </li>
           <li>
-            <strong>Attacchi contro tutti</strong> (Urla, Rospe per tutti, Collezione…): colpiscono ogni avversario, uno alla volta, e
+            <strong>Attacchi contro tutti</strong> (WEEEEEEEEEEEEEE, Ho portato le rospe!, Collezione…): colpiscono ogni avversario, uno alla volta, e
             ognuno si difende per conto suo.
           </li>
           <li>

@@ -557,7 +557,7 @@ describe("gioco La Famiglia", () => {
     const partitaId = creata.partitaId;
     await chiedi(B, { azione: "unisciti", codice: creata.codice, nickname: "Bruno" });
     await chiedi(A, { azione: "avvia", partitaId });
-    // Si prepara la situazione: anna di turno con Totò (Si incanta), bruno con Christian (Che paura!)
+    // Si prepara la situazione: anna di turno con Totò (Freeeeeezee), bruno con Christian (Che paura!)
     const salvato = archivio.dati.stati.get(partitaId)!;
     const s = salvato.stato as StatoFamiglia;
     s.ordine = [A, B];

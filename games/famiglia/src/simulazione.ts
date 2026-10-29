@@ -386,7 +386,7 @@ export function rapporto(st: Statistiche, titolo = "La Famiglia – statistiche 
 
   r("## Difese usate");
   r();
-  r("| Difesa | Riuscite | Fallite (Forse c'è, forse no) |");
+  r("| Difesa | Riuscite | Fallite (Non so se ho il turno) |");
   r("| --- | --- | --- |");
   for (const d of [...st.difese].sort((x, y) => y.riuscite - x.riuscite)) r(`| ${d.nome} | ${d.riuscite} | ${d.fallite} |`);
   r();
