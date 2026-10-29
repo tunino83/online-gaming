@@ -567,7 +567,7 @@ function plancia(doc: Doc, C: number, H: number) {
     .font(FONT.mano)
     .fontSize(10)
     .fillColor(MATITA)
-    .text("le carte stanche stanno a mucchietto e a ogni tuo turno scendono di un gradino · i personaggi nascosti si tengono in mano", mm(xi), mm(M + 3.4), {
+    .text("carico: chi si difende con una carta attivata scarta almeno il carico o fa harakiri · i personaggi nascosti si tengono in mano", mm(xi), mm(M + 3.4), {
       width: mm(W - 8),
       align: "right",
       lineBreak: false,
@@ -598,11 +598,11 @@ function plancia(doc: Doc, C: number, H: number) {
   const wAttacchi = Math.min(larga * 0.4, C + 2 * Math.min(C * 0.6, 28) + 2 * pad + 6);
   const wCarica = larga - wAttacchi - gap;
   const passoC = Math.min(C * 0.62, (wCarica - C - 2 * pad - 6) / 4);
-  zonaPlancia(doc, mm(xs), mm(yTop), mm(wCarica), mm(riga), col.carica, "CARICA", (x, y) => fulmine(doc, x, y, mm(3.4), "#ffffff"), "le carte attivate, pronte da usare");
+  zonaPlancia(doc, mm(xs), mm(yTop), mm(wCarica), mm(riga), col.carica, "CARICA", (x, y) => fulmine(doc, x, y, mm(3.4), "#ffffff"), "le carte attivate, pronte da usare · al massimo 1 difesa per livello");
   ventaglio(xs + 3, yRiga1, 5, passoC, col.carica);
   const xa = xs + wCarica + gap;
   const passoA = Math.min(C * 0.6, (wAttacchi - C - 2 * pad - 6) / 2);
-  zonaPlancia(doc, mm(xa), mm(yTop), mm(wAttacchi), mm(riga), col.attacchi, "ATTACCHI IN ATTESA", undefined, "scoperti · max 3");
+  zonaPlancia(doc, mm(xa), mm(yTop), mm(wAttacchi), mm(riga), col.attacchi, "ATTACCHI IN ATTESA", undefined, "scoperti · max 3 · puoi aggiungere un carico");
   ventaglio(xa + 3, yRiga1, 3, passoA, col.attacchi);
 
   // riga in basso: la scaletta delle carte stanche (a mucchietto) e la mancia
