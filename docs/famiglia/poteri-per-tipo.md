@@ -82,7 +82,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Antonio | 1 | **Domani lo faccio** | Ti costa solo la mossa con cui lo usi (non ne perdi altre); nel tuo prossimo turno hai 2 mosse in più | 2 carte con somma 9 | ricarica 1 |
 | Maddalena | 2 | **Total black** | Bruci le carte scoperte sul tavolo: per un giro il tavolo resta vuoto e si pesca solo dal mazzo | 3 carte dispari | ricarica 2 |
 | Maddalena | 1 | **Fatto in casa** | Unisci 2 tue carte numero in una sola che vale la loro somma (massimo 8) | 2 carte pari | ricarica 1 |
-| Nonno Salvatore | 1 | **Stai di nuovo qua?** | Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto | Coppia | ricarica 1, gratis |
+| Nonno Salvatore | 1 | **Stai di nuovo qua?** | Gratis (non usa mosse): se le prime 2 mosse sono uguali, dopo la terza ne fai una in più uguale alla terza | Coppia | ricarica 1, gratis |
 | Nonno Salvatore | 2 | **È l'ultima volta che venite!** | Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto | Tris | ricarica 2, gratis |
 | Nonno Salvatore | 3 | **Sempre la stessa storia** | Copi l'ultimo potere giocato al tavolo da chiunque | Poker | ricarica 3 |
 | Nonna Dina | 1 | **Cambiamo un po'…** | Cambi tutte le carte scoperte sul tavolo (numeri e personaggi) | 2 carte con somma 7 | ricarica 1, gratis |
@@ -103,7 +103,7 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Francesco | 1 | 🔵 **Lezione di padel** | Una volta per turno scambi 1 carta numero della tua mano con 1 scoperta sul tavolo | 2 carte con somma 12 | blu |
 | Marika | 3 | **Che palle lavoro** | Finito il tuo turno ne fai subito un altro, con 2 mosse | Scala da 5 | ricarica 3 |
 | Giuseppe | 1 | 🔵 **Fammi leggere le carte** | Una volta per turno guardi le carte in mano a un avversario | 2 carte con somma 13 | blu |
-| Sara e Giuseppe | 1 | 🔵 **Sono due etti e mezzo, lascio?** | Se la prima mossa del turno è una pescata, la rifai gratis | 25 | blu |
+| Sara e Giuseppe | 1 | 🔵 **Sono due etti e mezzo, lascio?** | Dopo 3 carte numero o 3 personaggi presi nel turno (pescati o dal tavolo), il quarto lo peschi gratis | 25 | blu |
 | Nonno Antonio | 1 | 🔵 **Ne ho viste tante** | Vedi le prime 2 carte del mazzo personaggi e, pescando, scegli quale prendere | 12 | blu |
 | Nonna Maddalena | 1 | **Ogni cosa al suo posto** | Guardi le prime 5 carte del mazzo numeri, ne prendi 1 e rimetti le altre nell'ordine che vuoi | 2 carte pari | ricarica 1 |
 | Nonna Maddalena | 3 | **Ho fatto le patate** | Scopri tante carte numero quanti i giocatori; tu ne prendi 2 per prima, poi gli altri 1 a turno; l'ultimo resta senza | Scala da 5 | ricarica 3 |

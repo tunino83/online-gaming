@@ -12,7 +12,7 @@ export const PROMEMORIA: Record<string, string> = {
   "total-black": "tavolo vuoto fino al tuo turno",
   "e-colpa-di-qualcun-altro": "passi l'attacco a un altro: non si difende",
   // Nonno Salvatore
-  "te-l-ho-gia-detto": "gratis: rifai l'ultima mossa",
+  "te-l-ho-gia-detto": "gratis: prime 2 mosse uguali? la terza la rifai",
   "l-ho-gia-detto": "gratis: rifai 2 volte l'ultima mossa",
   "sempre-la-stessa-storia": "copi l'ultimo potere giocato al tavolo",
   // Nonna Dina
@@ -69,7 +69,7 @@ export const PROMEMORIA: Record<string, string> = {
   ricorso: "fermi l'attacco, scarti tante carte quanto il suo livello",
   vertenza: "paghi il codice e ti prendi una sua carta (liv. 1-2)",
   // Sara e Giuseppe
-  "sono-due-etti-e-mezzo-lascio": "la prima pescata del turno la rifai gratis",
+  "sono-due-etti-e-mezzo-lascio": "dopo 3 numeri o 3 personaggi, il 4° è gratis",
   "cella-frigorifera": "fermi l'attacco: la sua carta dorme 1 turno in più",
   tritacarne: "mescoli le carte con uno: tu +1, lui -1",
   // Nonno Antonio
@@ -140,6 +140,8 @@ export const PROMEMORIA: Record<string, string> = {
  */
 export const CON_DETTAGLI: ReadonlySet<string> = new Set([
   "total-black", // si pesca solo dal mazzo
+  "te-l-ho-gia-detto", // pescare e prendere dal tavolo contano uguali
+  "sono-due-etti-e-mezzo-lascio", // valgono anche le carte prese dal tavolo; il 4° si pesca dal mazzo
   "la-vita-e-una-ruota", // non si usa nell'ultimo giro
   "baratto", // stesso livello o 1 di differenza, punti compresi, tutte e due stanche
   "tofu-super-seitan", // contro la carne: peschi 2 e la sua carta dorme 1 turno in più

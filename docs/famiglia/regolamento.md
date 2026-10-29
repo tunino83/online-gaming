@@ -146,7 +146,6 @@ Le simulazioni tra robot diranno quanto durano le partite nei due modi.
 - Dettagli scelti durante la programmazione (da confermare o cambiare):
   - **Lezione di padel**: una carta "fatta in casa" non si può mettere sul tavolo.
   - **Ce l'ho io!**: si cerca solo nel mazzo (non negli scarti); se quel numero non c'è, non si prende niente; poi il mazzo si rimescola.
-  - **Sono due etti e mezzo, lascio?**: vale per ogni carta numero pescata da chi la usa in quel turno, anche con i poteri (es. Questi so della campagna: 4 carte).
   - **Che palle lavoro**: il turno in più non ricarica le carte stanche.
   - **Ne ho viste tante**: le carte non scelte tornano in cima al mazzo nello stesso ordine.
   - **Ho fatto le patate**: si scoprono tante carte quanti i giocatori; chi la usa ne prende 2, poi gli altri 1 a testa nell'ordine di turno.
@@ -205,8 +204,10 @@ Le carte blu:
   tipo (carta numero con carta numero, personaggio nascosto con personaggio).
 - **Un caffè** (Generoso 1): fai sempre 4 mosse per turno invece di 3 (anche nel turno in cui la attivi).
 - **Fammi leggere le carte** (Giuseppe 1): scegli un avversario e per tutto il turno vedi le sue carte in mano.
-- **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): se la prima mossa del turno è una pescata, la rifai gratis
-  (peschi un'altra carta dallo stesso mazzo).
+- **Sono due etti e mezzo, lascio?** (Sara e Giuseppe 1): chi ordina tanto ma sempre la stessa cosa. Cambiata il 2026-10-29
+  (prima: se la prima mossa del turno era una pescata, la rifacevi gratis): dopo aver preso nello stesso turno 3 carte numero
+  o 3 personaggi (pescate dal mazzo o prese dal tavolo, come mosse), ne peschi gratis una quarta dallo stesso mazzo.
+  Una volta per turno; le carte avute con i poteri non contano.
 - **Ne ho viste tante** (Nonno Antonio 1): nel tuo turno vedi le prime 2 carte del mazzo personaggi e, una volta per turno,
   pescando puoi prendere la seconda invece della prima.
 - **Cin cin** (Claudia 1): quando attivi un personaggio puoi pagare il codice di un'altra carta che hai (attivata o in mano)
@@ -440,3 +441,9 @@ e dici che stai facendo la collezione di quel numero; **ogni avversario ti dà t
 ha in mano. Ci si può difendere come da ogni attacco (con il carico, se la partita lo prevede). Se a fine turno hai più
 di 7 carte, scarti come sempre. Le carte "fatte in casa" (Fatto in casa) non contano.
 
+## Stai di nuovo qua? (Nonno Salvatore 1, cambiata il 2026-10-29)
+
+Prima si poteva usare ogni turno (si ricarica in 1 turno) e dava sempre 4 mosse. Ora: se le **prime 2 mosse** del turno
+sono uguali (2 numeri, 2 personaggi, 2 attivazioni…; pescare o prendere dal tavolo un numero contano uguali, lo stesso per i
+personaggi), dopo la **terza** mossa ne fai una in più uguale alla terza. Resta gratis. *È l'ultima volta che venite!*
+(Nonno Salvatore 2) non cambia.

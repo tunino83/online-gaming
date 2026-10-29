@@ -81,7 +81,7 @@ describe("usare un potere", () => {
       s.scarti.personaggi = [copia("zia-diana")];
       s.turno.ultimaMossa = "pescaNumero";
       s.turno.appenaPescata = { mazzo: "numeri", id: "h2" };
-      s.turno.primaPescata = "numeri";
+      s.turno.mosseFatte = ["pescaNumero", "pescaNumero", "pescaNumero"];
       const prima = contaCarte(s);
       const mosse = mosseValide(s, "anna").filter((m) => m.tipo === "potere" && m.potere === p.id);
       expect(mosse.length, p.id).toBeGreaterThan(0);
@@ -123,6 +123,27 @@ describe("mosse in più", () => {
     s = fai(s, "anna", { tipo: "pescaNumero" });
     expect(s.turno.mosseUguali?.quante).toBe(0);
     expect(anna(s).mano).toHaveLength(3);
+  });
+
+  it("Stai di nuovo qua?: solo se le prime 2 mosse sono uguali, dopo la terza ne rifai una uguale alla terza", () => {
+    // prime 2 diverse: niente
+    let s = conCarta("nonno-salvatore-1");
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    s = fai(s, "anna", { tipo: "brucia" });
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    expect(rifiutata(s, "anna", potere("nonno-salvatore-1"))).toMatch(/prime 2 mosse uguali/);
+
+    // prime 2 uguali (pescare e prendere dal tavolo un numero contano uguali), ma solo dopo la terza
+    let u = conCarta("nonno-salvatore-1");
+    u = fai(u, "anna", { tipo: "pescaNumero" });
+    u = fai(u, "anna", { tipo: "prendiNumero", posizione: u.tavolo.numeri.findIndex((c) => c !== null) });
+    expect(rifiutata(u, "anna", potere("nonno-salvatore-1"))).toMatch(/prime 2 mosse uguali/);
+    u = fai(u, "anna", { tipo: "pescaPersonaggio" });
+    expect(u.turno.mosseRimaste).toBe(0);
+    expect(mossaAutomatica(u)).toBeNull(); // il turno aspetta: si può ancora usare
+    u = usa(u, "nonno-salvatore-1");
+    expect(u.turno.mosseUguali).toEqual({ tipo: "pescaPersonaggio", quante: 1 });
+    expect(mosseValide(u, "anna").some((m) => m.tipo === "pescaPersonaggio")).toBe(true);
   });
 
   it("Che palle lavoro: finito il turno ne fa subito un altro con 2 mosse", () => {
@@ -564,19 +585,31 @@ describe("carte blu", () => {
     expect(rifiutata(s, "anna", { ...colCodiceDiDina("antonio-3#1", "c", "d", 2, 5), codiceDi: "antonio-2#1" } as Mossa)).toMatch(/Cin cin/);
   });
 
-  it("Sono due etti e mezzo, lascio?: se la prima mossa è una pescata, la rifai gratis", () => {
+  it("Sono due etti e mezzo, lascio?: dopo 3 carte numero (pescate o dal tavolo) la quarta si pesca gratis", () => {
     let s = conCarta("sara-e-giuseppe-1");
-    expect(rifiutata(s, "anna", potere("sara-e-giuseppe-1"))).toMatch(/prima mossa/);
-    s = fai(s, "anna", { tipo: "pescaPersonaggio" });
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    s = fai(s, "anna", { tipo: "prendiNumero", posizione: s.tavolo.numeri.findIndex((c) => c !== null) });
+    expect(rifiutata(s, "anna", potere("sara-e-giuseppe-1"))).toMatch(/3 carte numero o 3 personaggi/);
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    expect(s.turno.mosseRimaste).toBe(0);
+    expect(mossaAutomatica(s)).toBeNull(); // il turno non si chiude da solo: c'è ancora la quarta carta
     s = usa(s, "sara-e-giuseppe-1");
-    expect(anna(s).nascosti.length + anna(s).attacchi.length).toBe(2);
-    expect(s.turno.mosseRimaste).toBe(2);
+    expect(anna(s).mano).toHaveLength(4);
     expect(rifiutata(s, "anna", potere("sara-e-giuseppe-1"))).toMatch(/una volta per turno/);
+  });
 
-    let t = conCarta("sara-e-giuseppe-1");
-    t = fai(t, "anna", { tipo: "brucia" });
-    t = fai(t, "anna", { tipo: "pescaNumero" });
-    expect(rifiutata(t, "anna", potere("sara-e-giuseppe-1"))).toMatch(/prima mossa/);
+  it("Sono due etti e mezzo, lascio?: con 3 personaggi il quarto è un personaggio; con mosse miste niente", () => {
+    let s = conCarta("sara-e-giuseppe-1");
+    s.turno.mosseRimaste = 4;
+    s = fai(s, "anna", { tipo: "pescaPersonaggio" });
+    s = fai(s, "anna", { tipo: "pescaNumero" });
+    s = fai(s, "anna", { tipo: "pescaPersonaggio" });
+    expect(rifiutata(s, "anna", potere("sara-e-giuseppe-1"))).toMatch(/3 carte numero o 3 personaggi/);
+    s = fai(s, "anna", { tipo: "pescaPersonaggio" });
+    const prima = anna(s).nascosti.length + anna(s).attacchi.length;
+    s = usa(s, "sara-e-giuseppe-1");
+    expect(anna(s).nascosti.length + anna(s).attacchi.length).toBe(prima + 1);
+    expect(anna(s).mano).toHaveLength(1);
   });
 
   it("La vita è una ruota: il senso del gioco si inverte, dopo di te gioca chi giocava prima; i giri si contano come prima", () => {

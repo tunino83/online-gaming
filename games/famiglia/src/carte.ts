@@ -120,7 +120,7 @@ const ADULTI: Carta[] = [
     },
   ]),
   ...persona("Nonno Salvatore", [
-    { codice: coppia, poteri: [aiuto("Stai di nuovo qua?", "Gratis (non usa mosse): 1 mossa in più, uguale all'ultima che hai fatto", "te-l-ho-gia-detto")] },
+    { codice: coppia, poteri: [aiuto("Stai di nuovo qua?", "Gratis (non usa mosse): se le prime 2 mosse del turno sono uguali, dopo la terza ne fai una in più uguale alla terza", "te-l-ho-gia-detto")] },
     { codice: tris, poteri: [aiuto("È l'ultima volta che venite!", "Gratis (non usa mosse): 2 mosse in più, uguali all'ultima che hai fatto", "l-ho-gia-detto")] },
     { codice: poker, poteri: [aiuto("Sempre la stessa storia", "Copi l'ultimo potere giocato al tavolo da chiunque")] },
   ]),
@@ -279,7 +279,7 @@ const ADULTI: Carta[] = [
         poteri: [
           aiutoBlu(
             "Sono due etti e mezzo, lascio?",
-            "Sempre attiva, una volta per turno: se la prima mossa del turno è una pescata, la rifai gratis (peschi un'altra carta dallo stesso mazzo)",
+            "Sempre attiva, una volta per turno: dopo aver preso 3 carte numero o 3 personaggi (pescate o dal tavolo), ne peschi gratis una quarta dallo stesso mazzo",
           ),
         ],
         ricarica: 0,

@@ -117,7 +117,7 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
     mosseUguali: null,
     appenaPescata: null,
     bluUsati: [],
-    primaPescata: null,
+    mosseFatte: [],
     mossaFatta: false,
     indigestione: false,
     fascicolo: null,
@@ -323,7 +323,6 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       const prese = peschiNumeri(s, id, 1);
       if (prese.length === 0) rifiuta("Il mazzo numeri è vuoto");
       t.appenaPescata = { mazzo: "numeri", id: prese.at(-1)!.id };
-      if (primaMossa) t.primaPescata = "numeri";
       registra(s, id, { tipo: "pescaNumero" });
       break;
     }
@@ -339,7 +338,6 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
         c = pesca(s, "personaggi");
       }
       if (!c) rifiuta("Il mazzo personaggi è vuoto");
-      if (primaMossa) t.primaPescata = "personaggi";
       // Un attacco va scoperto, quindi tutti sanno quale; una carta nascosta resta segreta
       registra(s, id, { tipo: "pescaPersonaggio", ...(zonaDi(c!) === "attacchi" ? { carta: c!.carta } : {}) });
       t.appenaPescata = { mazzo: "personaggi", id: c!.id };
@@ -363,7 +361,10 @@ function applica(s: StatoPartita, id: IdGiocatore, m: Mossa): void {
       usaCartaAttacco(s, id, m);
       break;
   }
-  if (m.tipo !== "potere" && m.tipo !== "usaCarta") t.ultimaMossa = m.tipo as TipoMossaNormale;
+  if (m.tipo !== "potere" && m.tipo !== "usaCarta") {
+    t.ultimaMossa = m.tipo as TipoMossaNormale;
+    t.mosseFatte = [...(t.mosseFatte ?? []), m.tipo as TipoMossaNormale];
+  }
   riempiTavolo(s);
 }
 
@@ -618,8 +619,11 @@ export function mossaAutomatica(s: StatoPartita): { giocatore: IdGiocatore; moss
   if (s.turno.mosseUguali && s.turno.mosseUguali.quante > 0) return null;
   const giocatore = s.turno.giocatore;
   // Un potere gratis carico (es. O al sangue o niente, Stai di nuovo qua?…): il giocatore può ancora usarlo.
-  // I poteri blu che si usano ogni turno (Fammi leggere le carte…) non fermano la chiusura del turno.
-  if (mosseDiPotere(s, giocatore).some((m) => m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && !potereBlu(cartaDiCopia(m.carta), m.potere))) return null;
+  // I poteri blu che si usano ogni turno (Fammi leggere le carte…) non fermano la chiusura del turno, tranne Sono due etti
+  // e mezzo, lascio?, che si usa proprio dopo l'ultima mossa (la terza pescata).
+  const aspetta = (m: Mossa) =>
+    m.tipo === "potere" && POTERI_GRATIS.has(m.potere) && (!potereBlu(cartaDiCopia(m.carta), m.potere) || m.potere === "sono-due-etti-e-mezzo-lascio");
+  if (mosseDiPotere(s, giocatore).some(aspetta)) return null;
   const g = s.giocatori[giocatore]!;
   if (g.mancia.some((x) => x.tipo === "caffe")) return null; // può ancora bere il caffè
   if (daScartare(s, g) > 0) return null; // deve scegliere cosa scartare

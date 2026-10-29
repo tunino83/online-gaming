@@ -137,8 +137,11 @@ export interface StatoTurno {
   appenaPescata: { mazzo: "numeri" | "personaggi"; id: string } | null;
   /** Poteri blu già usati in questo turno (ognuno una volta per turno). */
   bluUsati: string[];
-  /** Mazzo della prima pescata, se la prima mossa del turno è stata una pescata (Sono due etti e mezzo, lascio?). */
-  primaPescata: "numeri" | "personaggi" | null;
+  /**
+   * Mosse che costano fatte in questo turno, in ordine, esclusi i poteri (Sono due etti e mezzo, lascio? e Stai di nuovo qua?).
+   * Manca nelle partite iniziate prima di questa regola.
+   */
+  mosseFatte?: TipoMossaNormale[];
   /** È già stata fatta una mossa che costa in questo turno. */
   mossaFatta: boolean;
   /** Indigestione: a fine turno si scarta 1 carta in più (Alessia). */

@@ -25,7 +25,7 @@ import {
 import { DIFESE_ANCHE_PROATTIVE, avviaAttacco, parametriAttacco } from "./attacchi";
 import { MEDICI, carta } from "./carte";
 import { poteriBloccati } from "./effetti-eventi";
-import type { AiutoSospeso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita } from "./stato";
+import type { AiutoSospeso, Attivato, Mossa, ParametriPotere, StatoGiocatore, StatoPartita, StatoTurno, TipoMossaNormale } from "./stato";
 import type { Carta, CartaNumero, CopiaCarta } from "./tipi-carte";
 
 type MossaPotere = Extract<Mossa, { tipo: "potere" }>;
@@ -57,6 +57,26 @@ export const POTERI_GRATIS = new Set([
  * Aperitivo (difendendosi con vini e Campari), Puzza di brace (quando un avversario usa Diavolina o O al sangue o niente).
  */
 export const BLU_DA_SOLI = new Set(["un-caffe", "l-orto", "prosecco", "ne-ho-viste-tante", "aperitivo", "puzza-di-brace"]);
+
+/** Pescare o prendere dal tavolo un numero sono mosse "uguali" (numeri), lo stesso per i personaggi; le altre restano come sono. */
+export function gruppoMossa(m: TipoMossaNormale): string {
+  if (m === "pescaNumero" || m === "prendiNumero") return "numeri";
+  if (m === "pescaPersonaggio" || m === "prendiPersonaggio") return "personaggi";
+  return m;
+}
+
+/** Sono due etti e mezzo, lascio?: il mazzo da cui si è già preso 3 volte in questo turno (pescando o dal tavolo), se c'è. */
+function ordinazione(t: StatoTurno): "numeri" | "personaggi" | null {
+  const fatte = t.mosseFatte ?? [];
+  for (const mazzo of ["numeri", "personaggi"] as const) if (fatte.filter((x) => gruppoMossa(x) === mazzo).length >= 3) return mazzo;
+  return null;
+}
+
+/** Stai di nuovo qua?: le prime 2 mosse del turno sono uguali e ne è già stata fatta una terza. */
+function ripetiLaTerza(t: StatoTurno): boolean {
+  const fatte = t.mosseFatte ?? [];
+  return fatte.length >= 3 && gruppoMossa(fatte[0]!) === gruppoMossa(fatte[1]!);
+}
 
 /** Voci del menu di Generoso (Offre la casa). */
 const MENU = ["caffe", "birra", "colazione"] as const;
@@ -226,6 +246,7 @@ function applicaAiuto(
     case "te-l-ho-gia-detto":
     case "l-ho-gia-detto": {
       if (!t.ultimaMossa) rifiuta("Prima devi fare una mossa da ripetere");
+      if (potere === "te-l-ho-gia-detto" && !ripetiLaTerza(t)) rifiuta("Servono le prime 2 mosse uguali e poi una terza mossa");
       const quante = potere === "te-l-ho-gia-detto" ? 1 : 2;
       const gia = t.mosseUguali?.tipo === t.ultimaMossa ? t.mosseUguali!.quante : 0;
       t.mosseUguali = { tipo: t.ultimaMossa!, quante: gia + quante };
@@ -261,16 +282,18 @@ function applicaAiuto(
       if (scelte.includes("colazione")) pescaPersonaggio(s, id); // per ultima: può chiedere di scartare
       return;
     }
-    case "sono-due-etti-e-mezzo-lascio":
-      // La prima mossa del turno era una pescata: si rifà gratis dallo stesso mazzo
-      if (!t.primaPescata) rifiuta("Si usa solo se la prima mossa del turno è stata una pescata");
-      if (t.primaPescata === "numeri") {
+    case "sono-due-etti-e-mezzo-lascio": {
+      // Già 3 carte dallo stesso mazzo (pescate o prese dal tavolo): la quarta si pesca gratis
+      const mazzo = ordinazione(t);
+      if (!mazzo) rifiuta("Si usa dopo aver preso 3 carte numero o 3 personaggi in questo turno");
+      if (mazzo === "numeri") {
         if (peschiNumeri(s, id, 1).length === 0) rifiuta("Il mazzo numeri è vuoto");
       } else {
         if (!puoPescare(s, "personaggi")) rifiuta("Il mazzo personaggi è vuoto");
         pescaPersonaggio(s, id);
       }
       return;
+    }
     case "frigge-di-tutto": {
       const carte = carteDallaMano(g, m.carte, 1, Infinity);
       scartaNumeri(s, carte);
@@ -667,6 +690,7 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
   const posizioniNumeri = s.tavolo.numeri.flatMap((c, i) => (c ? [i] : []));
   switch (potere) {
     case "te-l-ho-gia-detto":
+      return t.ultimaMossa && ripetiLaTerza(t) ? [{}] : [];
     case "l-ho-gia-detto":
       return t.ultimaMossa ? [{}] : [];
     case "total-black":
@@ -686,8 +710,10 @@ function parametriPossibili(s: StatoPartita, id: IdGiocatore, g: StatoGiocatore,
       return posizioniNumeri.length === 1 ? [{ posizioni: posizioniNumeri }] : coppie(posizioniNumeri).map((posizioni) => ({ posizioni }));
     case "mangia-mangia-mangia":
       return puoPescare(s, "numeri") ? [{}] : [];
-    case "sono-due-etti-e-mezzo-lascio":
-      return t.primaPescata && puoPescare(s, t.primaPescata) ? [{}] : [];
+    case "sono-due-etti-e-mezzo-lascio": {
+      const mazzo = ordinazione(t);
+      return mazzo && puoPescare(s, mazzo) ? [{}] : [];
+    }
     case "lezione-di-padel": {
       // Carte uguali danno lo stesso scambio: se ne propone uno solo
       const perValore = [...new Map(g.mano.filter((c) => !c.unite).map((c) => [c.valore, c])).values()];
