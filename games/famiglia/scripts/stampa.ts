@@ -17,6 +17,8 @@
  * Con una scelta il file è docs/famiglia/stampa/la-famiglia-scelta_<data_ora>.pdf;
  * con --una-copia le carte con più copie (vini, scuse…) si stampano una volta sola.
  *
+ * Senza la tabella dei poteri all'inizio: --senza-tabella (es. pnpm stampa:famiglia personaggi --fronte-retro --senza-tabella).
+ *
  * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è la pagina dei loro dorsi, messi a specchio,
  * da stampare in fronte/retro sul lato lungo (es. pnpm stampa:famiglia personaggi --fronte-retro).
  *
@@ -1026,9 +1028,10 @@ function leggiScelta(argomenti: string[]): Scelta {
   const unaCopia = parole.includes("--una-copia");
   const fronteRetro = parole.includes("--fronte-retro");
   const leggero = parole.includes("--dorso-leggero");
-  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero");
+  const senzaTabella = parole.includes("--senza-tabella");
+  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero" && a !== "--senza-tabella");
   if (nomi.length === 0) {
-    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: true, unaCopia, fronteRetro, leggero, plancia: false, perFoglio };
+    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: !senzaTabella, unaCopia, fronteRetro, leggero, plancia: false, perFoglio };
   }
   const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi", "plancia"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
@@ -1046,7 +1049,7 @@ function leggiScelta(argomenti: string[]): Scelta {
     mancia: nomi.includes("mancia"),
     eventi: nomi.includes("eventi"),
     dorsi: nomi.includes("dorsi"),
-    tabella: nomi.includes("tabella") || carte.length > 0,
+    tabella: nomi.includes("tabella") || (carte.length > 0 && !senzaTabella),
     unaCopia,
     fronteRetro,
     leggero,
