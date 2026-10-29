@@ -543,12 +543,13 @@ function frecciaPlancia(doc: Doc, cx: number, cy: number, verso: "sinistra" | "s
 
 /**
  * Plancia di un giocatore su un A4 orizzontale, per carte larghe `C` e alte `H` (mm). I personaggi nascosti restano in mano.
- * In alto: CARICA (le carte attivate e pronte, a ventaglio) e ATTACCHI IN ATTESA (a ventaglio).
- * In basso la scaletta delle carte stanche: 1 turno, 2 turni, 3+ turni (a mucchietto: all'inizio del tuo turno ogni
- * mucchietto scende di un gradino, quello di "1 turno" torna in CARICA), e la MANCIA. A destra il segnapunti 0–30.
+ * Le carte pronte (attivate e cariche) sono divise per tipo: ATTACCO e AIUTO in alto, DIFESA (un posto per livello) in basso,
+ * con gli ATTACCHI IN ATTESA e la MANCIA. Le carte stanche stanno sul tavolo, appena fuori dal bordo basso del foglio,
+ * sotto le tacche della scaletta (1 turno, 2 turni, 3+ turni): a ogni tuo turno scendono di una tacca verso sinistra.
+ * A destra il segnapunti 0–30.
  */
 function plancia(doc: Doc, C: number, H: number) {
-  const col = PLANCIA_COLORI;
+  const col = { attacco: COLORI_TIPI.attacco.colore, difesa: COLORI_TIPI.difesa.colore, aiuto: COLORI_TIPI.aiuto.scuro, ...PLANCIA_COLORI };
   const M = 4.5; // margine del foglio
   const W = 297 - 2 * M;
   const T = 210 - 2 * M;
@@ -557,70 +558,94 @@ function plancia(doc: Doc, C: number, H: number) {
   doc.roundedRect(mm(M), mm(M), mm(W), mm(T), mm(4)).lineWidth(1.6).stroke(ORO);
   doc.roundedRect(mm(M + 1.4), mm(M + 1.4), mm(W - 2.8), mm(T - 2.8), mm(3)).lineWidth(0.5).dash(1, { space: 2 }).stroke(ORO).undash();
 
-  // intestazione
-  const xi = M + 4;
-  doc.font(FONT.nero).fontSize(14).fillColor("#7a4a26").text("La Famiglia", mm(xi), mm(M + 2.2), { lineBreak: false });
-  const fine = mm(xi) + doc.widthOfString("La Famiglia");
-  scintilla(doc, fine + mm(3), mm(M + 5), mm(1.6), ORO);
-  doc.font(FONT.mano).fontSize(13).fillColor(MATITA).text("plancia di ______________", fine + mm(6), mm(M + 2.4), { lineBreak: false });
-  doc
-    .font(FONT.mano)
-    .fontSize(10)
-    .fillColor(MATITA)
-    .text("carico: chi si difende con una carta attivata scarta almeno il carico o fa harakiri · i personaggi nascosti si tengono in mano", mm(xi), mm(M + 3.4), {
-      width: mm(W - 8),
-      align: "right",
-      lineBreak: false,
-    });
-
-  // due righe di zone e il segnapunti a destra
   const pad = 0.8;
   const testa = 2.5; // spazio sotto l'etichetta
   const riga = H + 2 * pad + testa;
-  const gap = 2.6;
-  const spazio = T - 11.5 - 1.5;
-  const yTop = M + 11.5 + Math.max(0, Math.min(6, (spazio - 2 * riga - gap) / 2));
+  const gap = 2;
+  const striscia = 6.5; // in basso, sul bordo: le tacche della scaletta delle carte stanche
   const tw = 11;
   const xs = M + 3;
   const larga = W - 6 - tw - 3;
-  const yRiga1 = yTop + testa + pad;
-  /** Carte a ventaglio: la prima intera, le altre più leggere. */
-  const ventaglio = (x: number, y: number, quante: number, passo: number, colore: string) => {
-    for (let k = quante - 1; k >= 0; k--) postoCarta(doc, mm(x + k * passo), mm(y), mm(C), mm(H), colore, k === 0 ? 1 : 0.3);
+  // dal basso: la striscia delle tacche tocca il bordo del foglio, sopra ci sono le due righe di zone
+  const yS = M + T - 1.6 - striscia;
+  const yBasso = yS - 1.6 - riga;
+  const yTop = yBasso - gap - riga;
+  const spazioSopra = yTop - M - 3.5;
+  /** Carte a ventaglio: la prima intera, le altre più leggere (con un'etichetta piccola in alto, se c'è). */
+  const ventaglio = (x: number, y: number, quante: number, passo: number, colore: string, etichette: string[] = []) => {
+    for (let k = quante - 1; k >= 0; k--) {
+      postoCarta(doc, mm(x + k * passo), mm(y), mm(C), mm(H), colore, k === 0 ? 1 : 0.35);
+      if (etichette[k]) doc.font(FONT.nero).fontSize(7).fillColor(colore).text(etichette[k]!, mm(x + k * passo + 1.5), mm(y + 1.5), { lineBreak: false });
+    }
   };
-  const pila = (x: number, y: number, colore: string) => {
-    postoCarta(doc, mm(x + 1.6), mm(y + 1.6), mm(C), mm(H), colore, 0.3);
-    postoCarta(doc, mm(x + 0.8), mm(y + 0.8), mm(C), mm(H), colore, 0.55);
-    postoCarta(doc, mm(x), mm(y), mm(C), mm(H), colore);
-  };
+  const larghezzaVentaglio = (quante: number, passo: number) => C + (quante - 1) * passo + 2 * pad + 4;
 
-  // riga in alto: CARICA (a ventaglio) e ATTACCHI IN ATTESA (3 a ventaglio)
-  const wAttacchi = Math.min(larga * 0.4, C + 2 * Math.min(C * 0.6, 28) + 2 * pad + 6);
-  const wCarica = larga - wAttacchi - gap;
-  const passoC = Math.min(C * 0.62, (wCarica - C - 2 * pad - 6) / 4);
-  zonaPlancia(doc, mm(xs), mm(yTop), mm(wCarica), mm(riga), col.carica, "CARICA", (x, y) => fulmine(doc, x, y, mm(3.4), "#ffffff"), "le carte attivate, pronte da usare · al massimo 1 difesa per livello");
-  ventaglio(xs + 3, yRiga1, 5, passoC, col.carica);
-  const xa = xs + wCarica + gap;
-  const passoA = Math.min(C * 0.6, (wAttacchi - C - 2 * pad - 6) / 2);
-  zonaPlancia(doc, mm(xa), mm(yTop), mm(wAttacchi), mm(riga), col.attacchi, "ATTACCHI IN ATTESA", undefined, "scoperti · max 3 · puoi aggiungere un carico");
-  ventaglio(xa + 3, yRiga1, 3, passoA, col.attacchi);
+  // riga in alto: le carte pronte d'attacco e d'aiuto
+  const wMezza = (larga - gap) / 2;
+  const passoA = Math.min(C * 0.6, (wMezza - C - 2 * pad - 4) / 4);
+  zonaPlancia(doc, mm(xs), mm(yTop), mm(wMezza), mm(riga), col.attacco, "ATTACCO", undefined, "pronte da usare");
+  ventaglio(xs + 2, yTop + testa + pad, 5, passoA, col.attacco);
+  const xAiuto = xs + wMezza + gap;
+  zonaPlancia(doc, mm(xAiuto), mm(yTop), mm(wMezza), mm(riga), col.aiuto, "AIUTO", undefined, "pronte da usare · le sempre attive stanno qui");
+  ventaglio(xAiuto + 2, yTop + testa + pad, 5, passoA, col.aiuto);
 
-  // riga in basso: la scaletta delle carte stanche (a mucchietto) e la mancia
-  const yBasso = yTop + riga + gap;
-  const yRiga2 = yBasso + testa + pad;
-  const wMancia = Math.max(C / 2 + 8, 30);
-  const wPila = (larga - wMancia - 3 * gap) / 3;
-  ["1 TURNO", "2 TURNI", "3+ TURNI"].forEach((testo, i) => {
-    const x = xs + i * (wPila + gap);
-    zonaPlancia(doc, mm(x), mm(yBasso), mm(wPila), mm(riga), col.stanche, testo);
-    doc.font(FONT.mano).fontSize(14).fillColor(col.stanche).text("z Z", mm(x + wPila - 11), mm(yBasso + 2.5), { lineBreak: false });
-    pila(x + (wPila - C - 1.6) / 2, yRiga2, col.stanche);
-    if (i > 0) frecciaPlancia(doc, mm(x - gap / 2), mm(yBasso + riga / 2), "sinistra", "ogni turno");
-  });
-  frecciaPlancia(doc, mm(xs + wPila * 0.72), mm(yBasso - gap / 2), "su", "torna carica");
-  const xm = xs + 3 * (wPila + gap);
+  // riga in basso: difese pronte (un posto per livello), attacchi in attesa, mancia, nome
+  const yc = yBasso + testa + pad;
+  const wMancia = Math.max(C / 2 + 6, 26);
+  const passoD = Math.max(8, Math.min(C * 0.6, 22, (larga - wMancia - 3 * gap - 2 * (C + 2 * pad + 4)) / 4));
+  const wDifesa = larghezzaVentaglio(3, passoD);
+  zonaPlancia(doc, mm(xs), mm(yBasso), mm(wDifesa), mm(riga), col.difesa, "DIFESA", undefined, "1 per livello");
+  ventaglio(xs + 2, yc, 3, passoD, col.difesa, ["liv. 1", "liv. 2", "liv. 3"]);
+  const xa = xs + wDifesa + gap;
+  const wAttesa = larghezzaVentaglio(3, passoD);
+  zonaPlancia(doc, mm(xa), mm(yBasso), mm(wAttesa), mm(riga), col.attacchi, "IN ATTESA", undefined, "scoperti · max 3");
+  ventaglio(xa + 2, yc, 3, passoD, col.attacchi);
+  const xm = xa + wAttesa + gap;
   zonaPlancia(doc, mm(xm), mm(yBasso), mm(wMancia), mm(riga), col.mancia, "MANCIA");
-  for (let k = 0; k < 2; k++) postoCarta(doc, mm(xm + (wMancia - C / 2) / 2), mm(yRiga2 + k * (H / 2 + 0.8)), mm(C / 2), mm(H / 2 - 0.4), col.mancia);
+  for (let k = 0; k < 2; k++) postoCarta(doc, mm(xm + (wMancia - C / 2) / 2), mm(yc + k * (H / 2 + 0.8)), mm(C / 2), mm(H / 2 - 0.4), col.mancia);
+  // nel posto che resta: titolo, nome e promemoria delle regole
+  const xn = xm + wMancia + gap;
+  const wn = xs + larga - xn;
+  const promemoria = [
+    "3 mosse a turno · a fine turno al massimo 7 carte numero",
+    "i personaggi nascosti si tengono in mano",
+    "carico: chi si difende con una carta attivata scarta almeno il carico o fa harakiri",
+  ];
+  if (spazioSopra > 9) {
+    // carte piccole: titolo, nome e promemoria in alto
+    doc.font(FONT.nero).fontSize(16).fillColor("#7a4a26").text("La Famiglia", mm(xs + 1), mm(M + 4), { lineBreak: false });
+    doc.font(FONT.mano).fontSize(14).fillColor(MATITA).text("plancia di ____________________", mm(xs + 1), mm(M + 12), { lineBreak: false });
+    promemoria.forEach((r, k) => rigaCheSta(doc, r, mm(xs + 90), mm(M + 4 + k * 6.5), mm(larga - 90), FONT.mano, 11, MATITA, "right"));
+  } else if (wn > 30) {
+    // titolo e promemoria nel posto che resta in basso a destra
+    doc.font(FONT.nero).fontSize(16).fillColor("#7a4a26").text("La Famiglia", mm(xn), mm(yBasso + 2), { width: mm(wn), align: "center", lineBreak: false });
+    scintilla(doc, mm(xn + wn / 2), mm(yBasso + 12), mm(1.8), ORO);
+    doc.font(FONT.mano).fontSize(13).fillColor(MATITA).text("plancia di", mm(xn), mm(yBasso + 15), { width: mm(wn), align: "center", lineBreak: false });
+    doc.moveTo(mm(xn + 4), mm(yBasso + 28)).lineTo(mm(xn + wn - 4), mm(yBasso + 28)).lineWidth(0.6).dash(1.5, { space: 1.5 }).stroke(MATITA).undash();
+    promemoria.forEach((r, k) => rigaCheSta(doc, `· ${r}`, mm(xn + 1), mm(yBasso + 31 + k * 9), mm(wn - 2), FONT.mano, 9.5, MATITA, "left"));
+  }
+
+  // bordo basso: le tacche della scaletta; le carte stanche si appoggiano sul tavolo, sotto il foglio
+  const wTacca = C + 4;
+  const gT = 7;
+  ["1 TURNO", "2 TURNI", "3+ TURNI"].forEach((testo, i) => {
+    const x = xs + i * (wTacca + gT);
+    doc.roundedRect(mm(x), mm(yS), mm(wTacca), mm(striscia - 1.5), mm(2)).fill(col.stanche);
+    doc.font(FONT.nero).fontSize(8).fillColor("#ffffff").text(`${testo}  z Z`, mm(x), mm(yS + 1.4), { width: mm(wTacca), align: "center", lineBreak: false });
+    // freccia verso il bordo del foglio: la carta stanca va qui sotto
+    const cx = mm(x + wTacca / 2);
+    doc.polygon([cx - mm(2.2), mm(yS + striscia - 1.5)], [cx + mm(2.2), mm(yS + striscia - 1.5)], [cx, mm(yS + striscia + 0.6)]).fill(col.stanche);
+    if (i > 0) frecciaPlancia(doc, mm(x - gT / 2), mm(yS + (striscia - 1.5) / 2), "sinistra", "");
+  });
+  const fine = xs + 3 * (wTacca + gT) - gT + 2;
+  const quanto = xs + larga - fine;
+  if (wn <= 30 && spazioSopra <= 9) {
+    // carte grandi: titolo e nome qui, accanto alle tacche
+    rigaCheSta(doc, "La Famiglia · plancia di ________", mm(fine), mm(yS + 0.2), mm(quanto), FONT.nero, 9, "#7a4a26", "right");
+    rigaCheSta(doc, "carte stanche fuori dal foglio, sotto le tacche: ogni tuo turno una tacca a sinistra", mm(fine), mm(yS + 3.6), mm(quanto), FONT.mano, 8.5, MATITA, "right");
+  } else {
+    rigaCheSta(doc, "le carte stanche, fuori dal foglio sotto le tacche: a ogni tuo turno scendono di una tacca", mm(fine), mm(yS + 1), mm(quanto), FONT.mano, 10, MATITA, "left");
+  }
 
   // segnapunti: monete da 0 (in basso) a 30 (in alto)
   const xt = M + W - 3 - tw;
