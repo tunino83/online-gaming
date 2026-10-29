@@ -49,7 +49,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   (un A4 orizzontale: carte pronte divise in attacco, aiuto e difesa con un posto per livello, attacchi in attesa, mancia,
   segnapunti 0–30; le stanche stanno fuori dal foglio sotto le tacche 1/2/3+ turni del bordo basso; i nascosti restano in mano);
   contenuto sempre identico a parità di carte e foto: data fissa dentro il PDF, data e ora solo nel nome, caratteri in `games/famiglia/stampa/font`). Il PDF non va su GitHub.
-  Carta stampata: nastro con nome e faccine che dormono (una per turno di ricarica), sotto il nome del potere, immagine con il
+  Carta stampata: nastro con nome e faccine che dormono (una per turno di ricarica), immagine con in alto il nome del potere su una striscia bianca e il
   codice sovrapposto al bordo basso, in fondo un promemoria breve (`games/famiglia/src/promemoria.ts`, da correggere lì; testo intero
   nella tabella dei poteri). Codice disegnato con carte piccole
   (`codiceDisegnato`: numeri colorati, AA coppia, AAA tris, AABB doppia coppia, "+3 = moneta" per le somme di 3 carte, P/D, ?). Solo alcune carte:

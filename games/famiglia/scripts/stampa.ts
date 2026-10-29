@@ -189,12 +189,7 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   else if (c.ricarica === 0) rigaCheSta(doc, "non dorme", finePunti - larghezzaSonno, y + 16.5, larghezzaSonno, FONT.mano, 9, "#ffffff", "right");
   else for (let i = 0; i < c.ricarica; i++) dormiglione(doc, finePunti - 5 - i * 10, y + 20.5);
 
-  // sotto il nome: il nome del potere (o dei due poteri)
   const nomi = c.poteri.map((p) => ({ nome: pulito(p.nome), colore: TIPO[tipologiaPotere(c, p)].scuro }));
-  const testoNomi = nomi.map((n) => n.nome).join(" / ");
-  const xn = x + 32;
-  const wn = L - 32 - 10;
-  rigaCheSta(doc, testoNomi, xn, y + 35, wn, FONT.forte, 10.5, nomi[0]!.colore);
 
   // promemoria del potere in fondo (2–3 righe)
   const tx = x + 11;
@@ -205,9 +200,9 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   while (dimP > 6.5 && doc.fontSize(dimP).heightOfString(promemoria, { width: tw, align: "center" }) > 30) dimP -= 0.5;
   const hP = doc.fontSize(dimP).heightOfString(promemoria, { width: tw, align: "center" });
 
-  // immagine (o iniziale): tra il nome del potere e il promemoria, lasciando posto al codice che la sormonta
+  // immagine (o iniziale): tra il nastro e il promemoria, lasciando posto al codice che la sormonta
   const fx = x + 8;
-  const fy = y + 49;
+  const fy = y + 34;
   const fw = L - 16;
   const fh = y + A - 12 - hP - 13 - fy;
   const foto = immagine(c);
@@ -222,10 +217,17 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
   doc.restore();
   doc.roundedRect(fx, fy, fw, fh, 5).lineWidth(0.8).stroke("#b9a48a");
 
-  // livello (stelle) in alto a destra sulla foto (a sinistra c'è il secondo stemma delle carte con due poteri)
+  // nome del potere (o dei due poteri) in alto sulla foto, su una striscia bianca: con le carte a scaletta si legge
+  // insieme al nome (le carte con due poteri lasciano posto a sinistra al secondo stemma)
+  const xn = fx + (tipologie(c).length > 1 ? 24 : 4);
+  const wn = fx + fw - 4 - xn;
+  doc.save().fillOpacity(0.88).roundedRect(xn, fy + 3, wn, 14, 4).fill("#fffaf0").restore();
+  rigaCheSta(doc, nomi.map((n) => n.nome).join(" / "), xn + 3, fy + 5.6, wn - 6, FONT.forte, 10.5, nomi[0]!.colore);
+
+  // livello (stelle) in basso a sinistra sulla foto, sopra la pillola del codice (che può essere larga)
   const ls = 6 + c.livello * 10;
-  doc.roundedRect(fx + fw - 3 - ls, fy + 3, ls, 10, 3).fill("#3a2417");
-  for (let i = 0; i < c.livello; i++) stella(doc, fx + fw - 3 - ls + 8 + i * 10, fy + 8, 4, "#ffd59a");
+  doc.roundedRect(fx + 3, fy + fh - 25, ls, 10, 3).fill("#3a2417");
+  for (let i = 0; i < c.livello; i++) stella(doc, fx + 11 + i * 10, fy + fh - 20, 4, "#ffd59a");
 
   // stemmi del tipo (uno per tipo di potere) e punti nel biscotto
   tipologie(c).forEach((tp, i) => stemma(doc, x + 5, y + 4 + i * 27, i === 0 ? 26 : 22, tp));
