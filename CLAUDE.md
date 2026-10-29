@@ -42,7 +42,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
 - La Famiglia: `pnpm simula:famiglia [n] [mazzo]` (resoconto in `docs/famiglia/`).
   Confronto strategie (robot "attivatore" contro "poteri") con le varianti dei punti: `pnpm strategie:famiglia [n]` → `docs/famiglia/confronto-strategie.md`.
   Carte da stampare: `pnpm stampa:famiglia` → `docs/famiglia/stampa/la-famiglia-carte_<data_ora>.pdf` (A4, 9 carte formato poker per pagina staccate di 4 mm,
-  mancia piccola 4 per posto, dorsi in fondo; con `--fronte-retro` ogni pagina è seguita dai suoi dorsi a specchio;
+  mancia piccola 4 per posto, dorsi in fondo; con `--fronte-retro` ogni pagina è seguita da un retro a rombi su tutto il foglio (`retroContinuo`: non serve allinearlo);
   `--per-foglio 16|30` carte rimpicciolite, file `la-famiglia-carte-16_…`; `--dorso-leggero` dorsi con poco inchiostro
   (fondo bianco, cornice dorata con bordo del colore del mazzo, stemma con il nome in cerchio, uguale anche capovolto), file `…-leggero_…`;
   `--senza-tabella` toglie la tabella dei poteri all'inizio;

@@ -19,8 +19,8 @@
  *
  * Senza la tabella dei poteri all'inizio: --senza-tabella (es. pnpm stampa:famiglia personaggi --fronte-retro --senza-tabella).
  *
- * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è la pagina dei loro dorsi, messi a specchio,
- * da stampare in fronte/retro sul lato lungo (es. pnpm stampa:famiglia personaggi --fronte-retro).
+ * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è il suo retro, un disegno a rombi che copre tutto il foglio
+ * (non serve che sia allineato alle carte), da stampare in fronte/retro sul lato lungo (es. pnpm stampa:famiglia personaggi --fronte-retro).
  *
  * Carte per foglio: --per-foglio 16 o --per-foglio 30 (carte rimpicciolite; di base 9 in formato poker).
  * La mancia resta sempre 36 per foglio. Il nome del file dice il formato (es. la-famiglia-carte-16_<data_ora>.pdf).
@@ -581,6 +581,39 @@ function dorsoLeggero(doc: Doc, x: number, y: number, mazzo: Mazzo) {
   }
 }
 
+/**
+ * Retro di una pagina in fronte/retro: un disegno a rombi che copre tutto il foglio, uguale dappertutto (stelline
+ * sugli incroci, gemme e puntini al centro dei rombi, colore del mazzo). Così il retro non deve essere allineato alle
+ * carte: anche se la stampante lo sposta di qualche millimetro, dietro ogni carta c'è lo stesso disegno.
+ * Con --dorso-leggero il fondo resta bianco e le righe sono sottili.
+ */
+function retroContinuo(doc: Doc, mazzo: Mazzo, scala: number) {
+  const d = DORSI[mazzo];
+  const leggero = dorsiLeggeri;
+  const s = 18 * scala; // metà della diagonale di un rombo
+  const { w, h } = PAGINA;
+  if (!leggero) doc.rect(0, 0, w, h).fill(d.scuro);
+  // le righe diagonali dei rombi, nei due versi
+  doc.save().lineWidth(leggero ? 0.5 : 0.7).strokeColor(leggero ? d.chiaro : ORO).strokeOpacity(leggero ? 0.55 : 0.6);
+  for (let c = -Math.ceil(h / (2 * s)) * 2 * s; c <= w + h; c += 2 * s) {
+    doc.moveTo(c, 0).lineTo(c + h, h).stroke();
+    doc.moveTo(c, 0).lineTo(c - h, h).stroke();
+  }
+  doc.restore();
+  // stelline sugli incroci; al centro dei rombi, a righe alterne, una gemma o un puntino
+  for (let j = 0; j <= Math.ceil(h / s); j++) {
+    for (let i = 0; i <= Math.ceil(w / s); i++) {
+      const x = i * s;
+      const y = j * s;
+      if ((i + j) % 2 === 0) scintilla(doc, x, y, 2.6 * scala, ORO);
+      else if (j % 2 === 0) {
+        if (leggero) doc.polygon(...ottagono(x, y, 4.5 * scala)).lineWidth(0.6).stroke(d.chiaro);
+        else doc.polygon(...ottagono(x, y, 5 * scala)).lineWidth(0.6).fillAndStroke(d.chiaro, ORO);
+      } else doc.circle(x, y, 1 * scala).fill(leggero ? d.chiaro : "#e8c56a");
+    }
+  }
+}
+
 /* ---------------- plancia del giocatore ---------------- */
 
 const PLANCIA_COLORI = { carica: "#3e8a4f", stanche: "#5a3488", attacchi: "#c63d2f", nascosti: "#2d5f9a", mancia: "#a8801f", punti: "#a8801f" };
@@ -830,7 +863,7 @@ let pagineFatte = 0;
 
 /**
  * Le carte, una pagina dopo l'altra, con le linee di taglio e una scritta piccola in fondo.
- * Con `retro` dopo ogni pagina c'è quella dei dorsi, a specchio (fronte/retro sul lato lungo).
+ * Con `retro` dopo ogni pagina c'è il suo retro: un disegno continuo su tutto il foglio (fronte/retro sul lato lungo).
  */
 function pagine(doc: Doc, disegni: Disegno[], titolo: string, g: Griglia, opzioni: { retro?: Mazzo } = {}) {
   const perPagina = g.posti.length;
@@ -848,13 +881,9 @@ function pagine(doc: Doc, disegni: Disegno[], titolo: string, g: Griglia, opzion
     lineeDiTaglio(doc, g);
     scrittaInFondo(doc, `La Famiglia · ${titolo} · ${n}/${totale}`);
     if (!retro) continue;
+    // il retro è un disegno unico su tutto il foglio: non serve che combaci con le carte
     doc.addPage({ size: "A4", margin: 0 });
-    qui.forEach((_, k) => {
-      const specchio = Math.floor(k / g.colonne) * g.colonne + (g.colonne - 1 - (k % g.colonne));
-      disegna(doc, (d, x, y) => dorso(d, x, y, retro), g.posti[specchio]!.x, g.posti[specchio]!.y, g.scala);
-    });
-    lineeDiTaglio(doc, g);
-    scrittaInFondo(doc, `La Famiglia · ${titolo} · retro della pagina ${n}/${totale}`);
+    retroContinuo(doc, retro, g.scala);
   }
 }
 
