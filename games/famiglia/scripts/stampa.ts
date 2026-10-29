@@ -223,11 +223,94 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
     cy = doc.y;
   }
 
-  // in fondo: il codice e la ricarica (o "si usa una volta")
+  // in fondo: il codice disegnato con le carte (a sinistra) e la ricarica con le faccine che dormono (a destra)
   doc.moveTo(tx, y + A - 26).lineTo(tx + tw, y + A - 26).lineWidth(0.5).stroke("#d8c6a6");
-  rigaCheSta(doc, `Codice: ${pulito(descriviCodice(c.codice))}`, tx, y + A - 22, tw * 0.64, FONT.mano, 11, MATITA, "left");
-  const dx = oggetto ? (c.categoria === "difesa" ? "difesa, una volta" : "attacco, una volta") : c.ricarica === 0 ? "non si stanca" : `ricarica ${c.ricarica}`;
-  rigaCheSta(doc, dx, tx + tw * 0.62, y + A - 19.5, tw * 0.38, FONT.normale, 6.5, MATITA, "right");
+  const yc = y + A - 13.5;
+  const larghezzaRicarica = oggetto || c.ricarica === 0 ? 34 : c.ricarica * 10.5;
+  codiceDisegnato(doc, c.codice, tx, yc, tw - larghezzaRicarica - 6);
+  if (oggetto) rigaCheSta(doc, "usa e getta", tx + tw - 40, yc - 3.5, 40, FONT.mano, 9, MATITA, "right");
+  else if (c.ricarica === 0) rigaCheSta(doc, "non dorme mai", tx + tw - 44, yc - 3.5, 44, FONT.mano, 9, MATITA, "right");
+  else for (let i = 0; i < c.ricarica; i++) dormiglione(doc, tx + tw - 4.5 - i * 10.5, yc);
+}
+
+/** Faccina che dorme (un turno di ricarica): tonda, occhi chiusi e una "z". */
+function dormiglione(doc: Doc, cx: number, cy: number) {
+  const r = 4.3;
+  doc.circle(cx, cy + 0.6, r).lineWidth(0.6).fillAndStroke("#ffe2a6", "#b07a2a");
+  // occhi chiusi: due archetti
+  doc.lineWidth(0.6).lineCap("round");
+  doc.moveTo(cx - 2.6, cy - 0.1).quadraticCurveTo(cx - 1.6, cy + 0.9, cx - 0.6, cy - 0.1).stroke("#5a3a1a");
+  doc.moveTo(cx + 0.6, cy - 0.1).quadraticCurveTo(cx + 1.6, cy + 0.9, cx + 2.6, cy - 0.1).stroke("#5a3a1a");
+  // bocca piccola
+  doc.circle(cx, cy + 2.4, 0.6).fill("#5a3a1a");
+  doc.font(FONT.nero).fontSize(5).fillColor("#7a5ab0").text("z", cx + 2.6, cy - 7.2, { lineBreak: false });
+}
+
+/** Pezzo del codice disegnato: una carta piccola (con un numero, un simbolo o vuota) o un segno tra le carte. */
+type PezzoCodice = { carta: string; valore?: number } | { segno: string } | { parola: string };
+
+/** Il codice di attivazione fatto di carte piccole: "5 5" sono carte uguali, "+ + = 12" una somma, "P P P" carte pari… */
+function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
+  const carte = (n: number, testo: string): PezzoCodice[] => Array.from({ length: n }, () => ({ carta: testo }));
+  const numeri = (valori: number[]): PezzoCodice[] => valori.map((v) => ({ carta: String(v), valore: v }));
+  switch (codice.tipo) {
+    case "esatto":
+      return numeri(codice.valori);
+    case "uguali": {
+      const nome = codice.carte === 2 ? "coppia" : codice.carte === 3 ? "tris" : "poker";
+      const lettera = codice.parita === "dispari" ? "D" : codice.parita === "pari" ? "P" : "=";
+      return [...carte(codice.carte, lettera), { parola: codice.parita ? `${nome} ${codice.parita}` : nome }];
+    }
+    case "somma":
+      return [...Array.from({ length: codice.carte }, (_, i): PezzoCodice[] => (i === 0 ? [{ carta: "" }] : [{ segno: "+" }, { carta: "" }])).flat(), { segno: "=" }, { parola: String(codice.totale) }];
+    case "scala":
+      return [...carte(codice.lunghezza, "↗"), { parola: "in fila" }];
+    case "doppiaCoppia":
+      return [{ carta: "A" }, { carta: "A" }, { carta: "B" }, { carta: "B" }, { parola: "2 coppie" }];
+    case "parita":
+      return [...carte(codice.carte, codice.parita === "pari" ? "P" : "D"), { parola: codice.parita }];
+    case "qualsiasi":
+      return [...carte(codice.carte, "?"), { parola: "qualsiasi" }];
+    case "combinato":
+      return [...numeri(codice.esatto), { segno: "+" }, ...pezziDelCodice(codice.piu)];
+  }
+}
+
+/** Disegna il codice con le carte piccole, centrato in altezza su `cy`, al massimo largo `massimo`. */
+function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: number, massimo: number) {
+  const pezzi = pezziDelCodice(codice);
+  const cw = 10;
+  const ch = 14;
+  doc.font(FONT.nero).fontSize(9);
+  /** Il totale di una somma sta in una moneta d'oro. */
+  const moneta = (pz: PezzoCodice) => "parola" in pz && /^\d+$/.test(pz.parola);
+  const larghezza = (pz: PezzoCodice) =>
+    "carta" in pz ? cw + 1.6 : "segno" in pz ? 7 : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
+  const totale = pezzi.reduce((s, pz) => s + larghezza(pz), 0);
+  const scala = Math.min(1, massimo / totale);
+  doc.save().translate(x, cy).scale(scala);
+  let px = 0;
+  for (const pz of pezzi) {
+    if ("carta" in pz) {
+      const gemma = pz.valore ? COLORI_NUMERI[pz.valore as keyof typeof COLORI_NUMERI] : undefined;
+      doc.roundedRect(px, -ch / 2, cw, ch, 2).lineWidth(0.7).fillAndStroke(gemma ? gemma.chiaro : "#fffaf0", gemma ? gemma.scuro : "#b9a48a");
+      if (pz.carta === "↗") {
+        // scala: tre gradini
+        for (let k = 0; k < 3; k++) doc.rect(px + 2 + k * 2.2, 3 - k * 2.4, 1.8, 1 + k * 2.4).fill("#8a6a3a");
+      } else if (pz.carta) {
+        doc.font(FONT.nero).fontSize(8).fillColor(gemma ? gemma.scuro : "#7a4a26").text(pz.carta, px, -4.2, { width: cw, align: "center", lineBreak: false });
+      }
+    } else if ("segno" in pz) {
+      doc.font(FONT.nero).fontSize(9).fillColor(MATITA).text(pz.segno, px, -5, { width: 7, align: "center", lineBreak: false });
+    } else if (moneta(pz)) {
+      doc.circle(px + 7, 0, 6.8).lineWidth(0.8).fillAndStroke("#f3dc9a", "#a8801f");
+      doc.font(FONT.nero).fontSize(8).fillColor("#6a4410").text(pz.parola, px, -4.2, { width: 14, align: "center", lineBreak: false });
+    } else {
+      doc.font(FONT.mano).fontSize(11).fillColor(INCHIOSTRO).text(pz.parola, px + 1.5, -6.6, { lineBreak: false });
+    }
+    px += larghezza(pz);
+  }
+  doc.restore();
 }
 
 /** Ottagono centrato in (cx, cy): i suoi 8 vertici. */
