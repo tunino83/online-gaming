@@ -45,7 +45,7 @@ Il primo gioco si chiama **Il Portale** (nome tecnico interno `primo-gioco`) ed 
   mancia piccola 4 per posto, dorsi in fondo; con `--fronte-retro` ogni pagina è seguita dai suoi dorsi a specchio;
   `--per-foglio 16|30` carte rimpicciolite, file `la-famiglia-carte-16_…`; `--dorso-leggero` dorsi con poco inchiostro
   (fondo bianco, cornice dorata con bordo del colore del mazzo, stemma con il nome in cerchio, uguale anche capovolto), file `…-leggero_…`;
-  `--senza-tabella` toglie la tabella dei poteri all'inizio; `--dorsi-prima` fronte/retro a mano: prima tutte le pagine di dorsi (piene e uguali), poi le carte;
+  `--senza-tabella` toglie la tabella dei poteri all'inizio;
   Plancia del giocatore per giocare con le carte stampate: `pnpm stampa:famiglia plancia [--per-foglio 16]` → `la-famiglia-plancia[-16]_…`
   (un A4 orizzontale: carte pronte divise in attacco, aiuto e difesa con un posto per livello, attacchi in attesa, mancia,
   segnapunti 0–30; le stanche stanno fuori dal foglio sotto le tacche 1/2/3+ turni del bordo basso; i nascosti restano in mano);
