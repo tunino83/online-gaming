@@ -1,6 +1,6 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
 import { CARTE, type Carta, EVENTI, descriviCodice, soloAiuto, tipologiaPotere } from "@og/famiglia";
-import { type ReactNode, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CartaFamiglia, Stemma } from "./carte";
 
 function Voce({ titolo, children }: { titolo: string; children: ReactNode }) {
@@ -56,8 +56,44 @@ export function GuidaFamiglia({ larga = false }: { larga?: boolean }) {
 /** Elenco delle carte: sul computer, nella guida larga, su 2 o 3 colonne. */
 const elencoCarte = (larga: boolean) => (larga ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3");
 
+/** Vero se la finestra soddisfa la condizione (es. "(min-width: 768px)"), aggiornato quando cambia. */
+function useMedia(condizione: string): boolean {
+  const [vero, setVero] = useState(() => window.matchMedia(condizione).matches);
+  useEffect(() => {
+    const m = window.matchMedia(condizione);
+    const cambia = () => setVero(m.matches);
+    m.addEventListener("change", cambia);
+    return () => m.removeEventListener("change", cambia);
+  }, [condizione]);
+  return vero;
+}
+
+/**
+ * Sul computer (guida larga) niente carosello: tutte le carte una accanto all'altra, 3 per riga
+ * (così ogni adulto ha i suoi 3 livelli sulla stessa riga). Sul telefono resta il carosello.
+ */
+function useCarteEsposte(larga: boolean) {
+  const computer = useMedia("(min-width: 768px)");
+  const moltoLargo = useMedia("(min-width: 1280px)");
+  return larga && computer ? { dimensione: moltoLargo ? 220 : 170 } : null;
+}
+
+/** Le carte di un gruppo: una per casella, 3 per riga (sul computer). */
+function CarteEsposte({ persone, dimensione, onApri }: { persone: Carta[][]; dimensione: number; onApri: (c: Carta) => void }) {
+  return (
+    <ul className="grid grid-cols-3 gap-3">
+      {persone.flat().map((c) => (
+        <li key={c.id}>
+          <Carosello carte={[c]} dimensione={dimensione} onApri={onApri} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function RisultatiRicerca({ cerca, larga }: { cerca: string; larga: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
+  const esposte = useCarteEsposte(larga);
   const persone = new Map<string, { carte: Carta[]; prima: Carta; perNome: boolean }>();
   for (const c of IN_ORDINE) {
     const come = trovata(c, cerca);
@@ -71,13 +107,17 @@ function RisultatiRicerca({ cerca, larga }: { cerca: string; larga: boolean }) {
   return (
     <div>
       <p className="mb-2 text-sm">{trovate.length === 1 ? "1 carta trovata" : `${trovate.length} carte trovate`}</p>
-      <ul className={elencoCarte(larga)}>
-        {trovate.map((x) => (
-          <li key={`${x.prima.persona}-${x.prima.id}`}>
-            <Carosello carte={x.carte} iniziale={x.carte.indexOf(x.prima)} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
-          </li>
-        ))}
-      </ul>
+      {esposte ? (
+        <CarteEsposte persone={trovate.map((x) => x.carte)} dimensione={esposte.dimensione} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+      ) : (
+        <ul className={elencoCarte(larga)}>
+          {trovate.map((x) => (
+            <li key={`${x.prima.persona}-${x.prima.id}`}>
+              <Carosello carte={x.carte} iniziale={x.carte.indexOf(x.prima)} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+            </li>
+          ))}
+        </ul>
+      )}
       {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
     </div>
   );
@@ -294,7 +334,7 @@ function TestoGuida({ larga }: { larga: boolean }) {
 }
 
 const GRUPPI: { titolo: string; filtro: (c: Carta) => boolean }[] = [
-  { titolo: "Adulti (3 carte ciascuno: girale con le frecce)", filtro: (c) => c.categoria === "personaggio" && c.id !== c.persona },
+  { titolo: "Adulti (3 carte ciascuno, una per livello)", filtro: (c) => c.categoria === "personaggio" && c.id !== c.persona },
   { titolo: "Carte singole", filtro: (c) => c.categoria === "personaggio" && c.id === c.persona },
   { titolo: "Carte difesa (si usano una volta, quando ti attaccano)", filtro: (c) => c.categoria === "difesa" },
   { titolo: "Carte attacco (si usano una volta)", filtro: (c) => c.categoria === "attacco" },
@@ -316,22 +356,28 @@ const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).f
  */
 export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
+  const esposte = useCarteEsposte(larga);
   const copie = CARTE.reduce((n, c) => n + c.copie, 0);
   return (
     <div>
       <p className="mb-2 text-sm">
-        {CARTE.length} carte diverse, {copie} nel mazzo. Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo.
+        {CARTE.length} carte diverse, {copie} nel mazzo.{" "}
+        {esposte ? "Tocca una carta per vederla a tutto schermo." : "Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo."}
       </p>
       {GRUPPI.map((g) => (
         <div key={g.titolo} className="mb-5">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
-          <ul className={elencoCarte(larga)}>
-            {perPersona(g.filtro).map((carte) => (
-              <li key={carte[0]!.persona}>
-                <Carosello carte={carte} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
-              </li>
-            ))}
-          </ul>
+          {esposte ? (
+            <CarteEsposte persone={perPersona(g.filtro)} dimensione={esposte.dimensione} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+          ) : (
+            <ul className={elencoCarte(larga)}>
+              {perPersona(g.filtro).map((carte) => (
+                <li key={carte[0]!.persona}>
+                  <Carosello carte={carte} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       ))}
       {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
@@ -339,8 +385,8 @@ export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
   );
 }
 
-/** Le carte di una persona, una alla volta: frecce, pallini dei livelli e scorrimento del dito. */
-function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c: Carta) => void; iniziale?: number }) {
+/** Le carte di una persona, una alla volta: frecce, pallini dei livelli e scorrimento del dito. `dimensione`: larghezza fissa della carta. */
+function Carosello({ carte, onApri, iniziale = 0, dimensione }: { carte: Carta[]; onApri: (c: Carta) => void; iniziale?: number; dimensione?: number }) {
   const [i, setI] = useState(Math.max(0, iniziale));
   const inizio = useRef<number | null>(null);
   const c = carte[i]!;
@@ -348,7 +394,7 @@ function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c
   const vai = (passo: number) => setI((x) => (x + passo + carte.length) % carte.length);
   return (
     <div
-      className="flex flex-col items-center gap-2 rounded-xl border border-inchiostro/15 bg-white/50 p-3 text-center"
+      className="flex h-full flex-col items-center gap-2 rounded-xl border border-inchiostro/15 bg-white/50 p-3 text-center"
       onTouchStart={(e) => {
         inizio.current = e.touches[0]?.clientX ?? null;
       }}
@@ -369,7 +415,7 @@ function Carosello({ carte, onApri, iniziale = 0 }: { carte: Carta[]; onApri: (c
           </button>
         )}
         {/* sul telefono la carta si stringe quanto basta per lasciare posto alle frecce */}
-        <CartaFamiglia idCarta={c.id} dimensione={Math.min(220, Math.max(140, window.innerWidth - 180))} onClick={() => onApri(c)} />
+        <CartaFamiglia idCarta={c.id} dimensione={dimensione ?? Math.min(220, Math.max(140, window.innerWidth - 180))} onClick={() => onApri(c)} />
         {piu && (
           <button type="button" onClick={() => vai(1)} className="rounded-full bg-inchiostro/10 px-3 py-2 text-2xl" aria-label="Livello successivo">
             ›
