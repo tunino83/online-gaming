@@ -219,15 +219,22 @@ function cartaPersonaggio(doc: Doc, x: number, y: number, c: Carta) {
 
   // nome del potere (o dei due poteri) in alto sulla foto, su una striscia bianca: con le carte a scaletta si legge
   // insieme al nome (le carte con due poteri lasciano posto a sinistra al secondo stemma)
-  const xn = fx + (tipologie(c).length > 1 ? 24 : 4);
-  const wn = fx + fw - 4 - xn;
-  doc.save().fillOpacity(0.88).roundedRect(xn, fy + 3, wn, 14, 4).fill("#fffaf0").restore();
-  rigaCheSta(doc, nomi.map((n) => n.nome).join(" / "), xn + 3, fy + 5.6, wn - 6, FONT.forte, 10.5, nomi[0]!.colore);
+  // la striscia bianca è lunga quanto il nome, centrata (lascia libera a sinistra la colonna delle stelle)
+  const testoNomi = nomi.map((n) => n.nome).join(" / ");
+  const xMin = fx + (tipologie(c).length > 1 ? 24 : 17);
+  const wMax = fx + fw - 4 - xMin;
+  let dimN = 10.5;
+  doc.font(FONT.forte);
+  while (dimN > 6 && doc.fontSize(dimN).widthOfString(testoNomi) > wMax - 8) dimN -= 0.5;
+  const wStriscia = doc.fontSize(dimN).widthOfString(testoNomi) + 8;
+  const xStriscia = Math.max(xMin, fx + (fw - wStriscia) / 2);
+  doc.save().fillOpacity(0.88).roundedRect(xStriscia, fy + 3, wStriscia, dimN + 4, 4).fill("#fffaf0").restore();
+  doc.fillColor(nomi[0]!.colore).text(testoNomi, xStriscia + 4, fy + 5.2, { lineBreak: false });
 
-  // livello (stelle) in basso a sinistra sulla foto, sopra la pillola del codice (che può essere larga)
-  const ls = 6 + c.livello * 10;
-  doc.roundedRect(fx + 3, fy + fh - 25, ls, 10, 3).fill("#3a2417");
-  for (let i = 0; i < c.livello; i++) stella(doc, fx + 11 + i * 10, fy + fh - 20, 4, "#ffd59a");
+  // livello: stelle in colonna in alto a sinistra sulla foto (sotto il secondo stemma, se c'è)
+  const ys = fy + (tipologie(c).length > 1 ? 22 : 3);
+  doc.roundedRect(fx + 3, ys, 11, 4 + c.livello * 9.5, 3).fill("#3a2417");
+  for (let i = 0; i < c.livello; i++) stella(doc, fx + 8.5, ys + 6.8 + i * 9.5, 3.8, "#ffd59a");
 
   // stemmi del tipo (uno per tipo di potere) e punti nel biscotto
   tipologie(c).forEach((tp, i) => stemma(doc, x + 5, y + 4 + i * 27, i === 0 ? 26 : 22, tp));
