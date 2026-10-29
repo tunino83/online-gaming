@@ -251,7 +251,7 @@ type PezzoCodice = { carta: string; valore?: number } | { segno: string } | { pa
 
 /**
  * Il codice di attivazione fatto di carte piccole, senza parole: lettere uguali = carte uguali (AA coppia, AAA tris,
- * AAAA poker, AABB doppia coppia), "▢+▢ = 12" una somma, P e D carte pari o dispari, ? carte qualsiasi, 88 AA numeri e coppia.
+ * AAAA poker, AABB doppia coppia), "+3 = 12" una somma di 3 carte, P e D carte pari o dispari, ? carte qualsiasi, 88 AA numeri e coppia.
  */
 function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
   const carte = (n: number, testo: string): PezzoCodice[] => Array.from({ length: n }, () => ({ carta: testo }));
@@ -263,7 +263,8 @@ function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
       // poker dispari (Il bastone): 4 carte uguali di valore dispari, lo dice la parola
       return [...carte(codice.carte, "A"), ...(codice.parita ? [{ parola: codice.parita }] : [])];
     case "somma":
-      return [...Array.from({ length: codice.carte }, (_, i): PezzoCodice[] => (i === 0 ? [{ carta: "" }] : [{ segno: "+" }, { carta: "" }])).flat(), { segno: "=" }, { parola: String(codice.totale) }];
+      // "+3 = 15": una carta con il numero di carte da sommare, poi il totale nella moneta
+      return [{ carta: `+${codice.carte}` }, { segno: "=" }, { parola: String(codice.totale) }];
     case "scala":
       return carte(codice.lunghezza, "↗");
     case "doppiaCoppia":
@@ -283,10 +284,12 @@ function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: numbe
   const cw = 10;
   const ch = 14;
   doc.font(FONT.nero).fontSize(9);
+  /** Le carte con "+3" sono un po' più larghe. */
+  const larghezzaCarta = (testo: string) => (testo.length > 1 && testo !== "↗" ? 15 : cw);
   /** Il totale di una somma sta in una moneta d'oro. */
   const moneta = (pz: PezzoCodice) => "parola" in pz && /^\d+$/.test(pz.parola);
   const larghezza = (pz: PezzoCodice) =>
-    "carta" in pz ? cw + 1.6 : "segno" in pz ? 7 : "spazio" in pz ? pz.spazio : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
+    "carta" in pz ? larghezzaCarta(pz.carta) + 1.6 : "segno" in pz ? 7 : "spazio" in pz ? pz.spazio : moneta(pz) ? 15 : doc.font(FONT.mano).fontSize(11).widthOfString(pz.parola) + 3;
   const totale = pezzi.reduce((s, pz) => s + larghezza(pz), 0);
   const scala = Math.min(1, massimo / totale);
   doc.save().translate(x, cy).scale(scala);
@@ -294,12 +297,12 @@ function codiceDisegnato(doc: Doc, codice: Carta["codice"], x: number, cy: numbe
   for (const pz of pezzi) {
     if ("carta" in pz) {
       const gemma = pz.valore ? COLORI_NUMERI[pz.valore as keyof typeof COLORI_NUMERI] : undefined;
-      doc.roundedRect(px, -ch / 2, cw, ch, 2).lineWidth(0.7).fillAndStroke(gemma ? gemma.chiaro : "#fffaf0", gemma ? gemma.scuro : "#b9a48a");
+      doc.roundedRect(px, -ch / 2, larghezzaCarta(pz.carta), ch, 2).lineWidth(0.7).fillAndStroke(gemma ? gemma.chiaro : "#fffaf0", gemma ? gemma.scuro : "#b9a48a");
       if (pz.carta === "↗") {
         // scala: tre gradini
         for (let k = 0; k < 3; k++) doc.rect(px + 2 + k * 2.2, 3 - k * 2.4, 1.8, 1 + k * 2.4).fill("#8a6a3a");
       } else if (pz.carta) {
-        doc.font(FONT.nero).fontSize(8).fillColor(gemma ? gemma.scuro : "#7a4a26").text(pz.carta, px, -4.2, { width: cw, align: "center", lineBreak: false });
+        doc.font(FONT.nero).fontSize(8).fillColor(gemma ? gemma.scuro : "#7a4a26").text(pz.carta, px, -4.2, { width: larghezzaCarta(pz.carta), align: "center", lineBreak: false });
       }
     } else if ("spazio" in pz) {
       // solo spazio
