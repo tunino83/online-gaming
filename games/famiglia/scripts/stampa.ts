@@ -17,6 +17,8 @@
  * Con una scelta il file è docs/famiglia/stampa/la-famiglia-scelta_<data_ora>.pdf;
  * con --una-copia le carte con più copie (vini, scuse…) si stampano una volta sola.
  *
+ * Fronte e retro a mano (es. carta fotografica lucida da un lato solo): --dorsi-prima mette prima tutte le pagine di dorsi
+ * (sempre piene, tutte uguali e simmetriche: il foglio si rimette girato come capita) e poi tutte le pagine delle carte.
  * Senza la tabella dei poteri all'inizio: --senza-tabella (es. pnpm stampa:famiglia personaggi --fronte-retro --senza-tabella).
  *
  * Fronte e retro: con --fronte-retro dopo ogni pagina di carte c'è la pagina dei loro dorsi, messi a specchio,
@@ -85,8 +87,8 @@ function adesso(): string {
 }
 const quando = adesso();
 /** Nome del PDF: "carte" (tutto) o "scelta", con le carte per foglio se non sono 9 (es. la-famiglia-carte-16_…). */
-const uscita = (cosa: "carte" | "scelta" | "plancia", perFoglio: number, leggero: boolean) =>
-  radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}${leggero ? "-leggero" : ""}_${quando}.pdf`);
+const uscita = (cosa: "carte" | "scelta" | "plancia", perFoglio: number, leggero: boolean, dorsiPrima = false) =>
+  radice(`docs/famiglia/stampa/la-famiglia-${cosa}${perFoglio === 9 ? "" : `-${perFoglio}`}${leggero ? "-leggero" : ""}${dorsiPrima ? "-dorsi-prima" : ""}_${quando}.pdf`);
 
 /** Foto della carta (prima quella della carta, poi quella della persona), come nel gioco. */
 function immagine(c: Carta): string | undefined {
@@ -832,10 +834,27 @@ let pagineFatte = 0;
  * Le carte, una pagina dopo l'altra, con le linee di taglio e una scritta piccola in fondo.
  * Con `retro` dopo ogni pagina c'è quella dei dorsi, a specchio (fronte/retro sul lato lungo).
  */
-function pagine(doc: Doc, disegni: Disegno[], titolo: string, g: Griglia, opzioni: { retro?: Mazzo } = {}) {
+function pagine(doc: Doc, disegni: Disegno[], titolo: string, g: Griglia, opzioni: { retro?: Mazzo; dorsiPrima?: boolean } = {}) {
   const perPagina = g.posti.length;
   const totale = Math.ceil(disegni.length / perPagina);
   const { retro } = opzioni;
+  if (retro && opzioni.dorsiPrima) {
+    // prima tutte le pagine di dorsi, poi tutte quelle delle carte. Ogni pagina di dorsi è piena (anche l'ultima):
+    // le pagine di dorsi sono tutte uguali e la griglia è simmetrica, così il foglio si può rimettere girato come capita
+    for (let n = 1; n <= totale; n++) {
+      doc.addPage({ size: "A4", margin: 0 });
+      for (const p of g.posti) disegna(doc, (d, x, y) => dorso(d, x, y, retro), p.x, p.y, g.scala);
+      lineeDiTaglio(doc, g);
+      scrittaInFondo(doc, `La Famiglia · ${titolo} · dorsi ${n}/${totale} (stampali prima, sul lato opaco)`);
+    }
+    for (let i = 0; i < disegni.length; i += perPagina) {
+      doc.addPage({ size: "A4", margin: 0 });
+      disegni.slice(i, i + perPagina).forEach((d, k) => disegna(doc, d, g.posti[k]!.x, g.posti[k]!.y, g.scala));
+      lineeDiTaglio(doc, g);
+      scrittaInFondo(doc, `La Famiglia · ${titolo} · ${i / perPagina + 1}/${totale}`);
+    }
+    return;
+  }
   if (retro && pagineFatte % 2 === 1) {
     doc.addPage({ size: "A4", margin: 0 });
     scrittaInFondo(doc, "pagina lasciata bianca (retro della pagina prima)");
@@ -865,7 +884,6 @@ interface Colonna {
   larghezza: number;
 }
 
-/** Tabella su più pagine A4: intestazione ripetuta, righe alternate, testo che va a capo. */
 /** Tabella su A4 con titolo (e una nota piccola accanto, se c'è), che continua su altre pagine se serve. */
 function tabella(doc: Doc, titolo: string, colonne: Colonna[], righe: { celle: string[]; colore?: string }[], nota?: string) {
   const margine = 30;
@@ -1003,6 +1021,8 @@ interface Scelta {
   tabella: boolean;
   unaCopia: boolean;
   fronteRetro: boolean;
+  /** Fronte/retro a mano: prima tutte le pagine di dorsi (piene), poi tutte quelle delle carte. */
+  dorsiPrima: boolean;
   /** Dorsi leggeri, con poco inchiostro. */
   leggero: boolean;
   /** Plancia del giocatore. */
@@ -1026,12 +1046,13 @@ function leggiScelta(argomenti: string[]): Scelta {
     }
   }
   const unaCopia = parole.includes("--una-copia");
-  const fronteRetro = parole.includes("--fronte-retro");
   const leggero = parole.includes("--dorso-leggero");
   const senzaTabella = parole.includes("--senza-tabella");
-  const nomi = parole.filter((a) => a !== "--una-copia" && a !== "--fronte-retro" && a !== "--dorso-leggero" && a !== "--senza-tabella");
+  const dorsiPrima = parole.includes("--dorsi-prima");
+  const fronteRetro = parole.includes("--fronte-retro") || dorsiPrima;
+  const nomi = parole.filter((a) => !["--una-copia", "--fronte-retro", "--dorso-leggero", "--senza-tabella", "--dorsi-prima"].includes(a));
   if (nomi.length === 0) {
-    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: !senzaTabella, unaCopia, fronteRetro, leggero, plancia: false, perFoglio };
+    return { tutto: true, carte: [...CARTE], numeri: true, mancia: true, eventi: true, dorsi: !fronteRetro, tabella: !senzaTabella, unaCopia, fronteRetro, dorsiPrima, leggero, plancia: false, perFoglio };
   }
   const MAZZI = ["numeri", "mancia", "eventi", "dorsi", "tabella", "personaggi", "plancia"];
   const sconosciuti = nomi.filter((n) => !MAZZI.includes(n) && !CARTE.some((c) => c.id === n || c.persona === n));
@@ -1052,6 +1073,7 @@ function leggiScelta(argomenti: string[]): Scelta {
     tabella: nomi.includes("tabella") || (carte.length > 0 && !senzaTabella),
     unaCopia,
     fronteRetro,
+    dorsiPrima,
     leggero,
     plancia: nomi.includes("plancia"),
     perFoglio,
@@ -1065,7 +1087,7 @@ function crea(): void {
     console.error("La plancia c'è per le carte da 9 e da 16 per foglio.");
     process.exit(1);
   }
-  const file = uscita(scelta.tutto ? "carte" : soloPlancia ? "plancia" : "scelta", scelta.perFoglio, scelta.leggero);
+  const file = uscita(scelta.tutto ? "carte" : soloPlancia ? "plancia" : "scelta", scelta.perFoglio, scelta.leggero, scelta.dorsiPrima);
   dorsiLeggeri = scelta.leggero;
   const formato = FORMATI[scelta.perFoglio]!;
   const normale = griglia(formato.colonne, formato.righe);
@@ -1089,10 +1111,11 @@ function crea(): void {
   if (scelta.tutto) copertina(doc, { personaggi: personaggi.length, numeri: numeri.length, mancia: mancia.length, eventi: eventi.length }, normale);
   if (scelta.tabella) tabellaPoteri(doc, scelta.carte, scelta.tutto || scelta.eventi || scelta.mancia);
   const retro = (mazzo: Mazzo) => (scelta.fronteRetro ? mazzo : undefined);
-  if (personaggi.length > 0) pagine(doc, personaggi, "personaggi", normale, { retro: retro("personaggi") });
-  if (numeri.length > 0) pagine(doc, numeri, "carte numero", normale, { retro: retro("numeri") });
-  if (mancia.length > 0) pagine(doc, mancia, "mancia dei nonni", GRIGLIA_MANCIA, { retro: retro("mancia") });
-  if (eventi.length > 0) pagine(doc, eventi, "eventi", normale, { retro: retro("eventi") });
+  const dorsiPrima = scelta.dorsiPrima;
+  if (personaggi.length > 0) pagine(doc, personaggi, "personaggi", normale, { retro: retro("personaggi"), dorsiPrima });
+  if (numeri.length > 0) pagine(doc, numeri, "carte numero", normale, { retro: retro("numeri"), dorsiPrima });
+  if (mancia.length > 0) pagine(doc, mancia, "mancia dei nonni", GRIGLIA_MANCIA, { retro: retro("mancia"), dorsiPrima });
+  if (eventi.length > 0) pagine(doc, eventi, "eventi", normale, { retro: retro("eventi"), dorsiPrima });
   if (scelta.dorsi) {
     for (const mazzo of ["personaggi", "numeri", "mancia", "eventi"] as const) {
       const g = mazzo === "mancia" ? GRIGLIA_MANCIA : normale;
