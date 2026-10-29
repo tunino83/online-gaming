@@ -6,7 +6,7 @@ import "@fontsource/caveat/700.css";
 import "@fontsource/fredoka/500.css";
 import "@fontsource/fredoka/600.css";
 import "@fontsource/fredoka/700.css";
-import { COLORI_NUMERI, COLORI_TIPI, type Carta, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta, type CartaMancia, type CartaNumero, carta, descriviCodice, soloAiuto } from "@og/famiglia";
+import { COLORI_NUMERI, COLORI_TIPI, type Carta, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta, type CartaMancia, type CartaNumero, carta, descriviCodice, pezziDelCodice, soloAiuto } from "@og/famiglia";
 import { type CSSProperties, type ReactNode, createContext, useContext } from "react";
 import "./famiglia.css";
 import { immagineCarta } from "./immagini";
@@ -63,6 +63,36 @@ export function Stemma({ tipo, dimensione = 22 }: { tipo: Tipologia; dimensione?
         </text>
       )}
     </svg>
+  );
+}
+
+/**
+ * Il codice di attivazione disegnato con carte piccole, come sulle carte stampate: numeri colorati, AA coppia,
+ * AAA tris, AABB doppia coppia, "+3 = moneta" per le somme, P/D pari e dispari, ? qualsiasi.
+ */
+export function CodiceDisegnato({ codice }: { codice: Carta["codice"] }) {
+  const testo = descriviCodice(codice);
+  return (
+    <div className="cf-codice" title={testo} aria-label={`Codice: ${testo}`}>
+      {pezziDelCodice(codice).map((pz, i) => {
+        if ("carta" in pz) {
+          const gemma = pz.valore ? COLORI_NUMERI[pz.valore as keyof typeof COLORI_NUMERI] : undefined;
+          return (
+            <span
+              key={i}
+              className={`cf-codice-carta ${pz.carta.length > 1 && pz.carta !== "↗" ? "cf-codice-larga" : ""}`}
+              style={gemma ? ({ background: gemma.chiaro, borderColor: gemma.scuro, color: gemma.scuro } as CSSProperties) : undefined}
+            >
+              {pz.carta}
+            </span>
+          );
+        }
+        if ("spazio" in pz) return <span key={i} className="cf-codice-spazio" />;
+        if ("segno" in pz) return <span key={i} className="cf-codice-segno">{pz.segno}</span>;
+        if (/^\d+$/.test(pz.parola)) return <span key={i} className="cf-codice-moneta">{pz.parola}</span>;
+        return <span key={i} className="cf-codice-parola">{pz.parola}</span>;
+      })}
+    </div>
   );
 }
 
@@ -125,7 +155,7 @@ export function CartaFamiglia({
         </div>
         <div className="cf-etichetta">
           <div className="cf-potere">{c.poteri.map((p) => p.nome).join(" / ")}</div>
-          <div className="cf-codice">🔑 {descriviCodice(c.codice)}</div>
+          <CodiceDisegnato codice={c.codice} />
         </div>
       </div>
       <div className="cf-stemmi">

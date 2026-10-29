@@ -41,6 +41,7 @@ import { OPZIONI_DEFAULT } from "../src/parametri";
 import { nomiImmagine } from "../src/carte";
 import { puntiCarta } from "../src/base";
 import { PROMEMORIA } from "../src/promemoria";
+import { type PezzoCodice, pezziDelCodice } from "../src/codice-disegnato";
 import { COLORI_NUMERI, COLORI_TIPI, type TipologiaCarta, tipologiaPotere, tipologiaPrincipale, tipologieCarta } from "../src/colori";
 import type { Carta, CartaMancia, CartaNumero, Evento, TipoPotere } from "../src/tipi-carte";
 
@@ -263,38 +264,6 @@ function dormiglione(doc: Doc, cx: number, cy: number) {
   // bocca piccola
   doc.circle(cx, cy + 2.4, 0.6).fill("#5a3a1a");
   doc.font(FONT.nero).fontSize(5).fillColor("#7a5ab0").text("z", cx + 2.6, cy - 7.2, { lineBreak: false });
-}
-
-/** Pezzo del codice disegnato: una carta piccola (con un numero, una lettera o vuota), un segno tra le carte o uno spazio. */
-type PezzoCodice = { carta: string; valore?: number } | { segno: string } | { parola: string } | { spazio: number };
-
-/**
- * Il codice di attivazione fatto di carte piccole, senza parole: lettere uguali = carte uguali (AA coppia, AAA tris,
- * AAAA poker, AABB doppia coppia), "+3 = 12" una somma di 3 carte, P e D carte pari o dispari, ? carte qualsiasi, 88 AA numeri e coppia.
- */
-function pezziDelCodice(codice: Carta["codice"]): PezzoCodice[] {
-  const carte = (n: number, testo: string): PezzoCodice[] => Array.from({ length: n }, () => ({ carta: testo }));
-  const numeri = (valori: number[]): PezzoCodice[] => valori.map((v) => ({ carta: String(v), valore: v }));
-  switch (codice.tipo) {
-    case "esatto":
-      return numeri(codice.valori);
-    case "uguali":
-      // poker dispari (Il bastone): 4 carte uguali di valore dispari, lo dice la parola
-      return [...carte(codice.carte, "A"), ...(codice.parita ? [{ parola: codice.parita }] : [])];
-    case "somma":
-      // "+3 = 15": una carta con il numero di carte da sommare, poi il totale nella moneta
-      return [{ carta: `+${codice.carte}` }, { segno: "=" }, { parola: String(codice.totale) }];
-    case "scala":
-      return carte(codice.lunghezza, "↗");
-    case "doppiaCoppia":
-      return [{ carta: "A" }, { carta: "A" }, { carta: "B" }, { carta: "B" }];
-    case "parita":
-      return carte(codice.carte, codice.parita === "pari" ? "P" : "D");
-    case "qualsiasi":
-      return carte(codice.carte, "?");
-    case "combinato":
-      return [...numeri(codice.esatto), { spazio: 4 }, ...pezziDelCodice(codice.piu)];
-  }
 }
 
 /**

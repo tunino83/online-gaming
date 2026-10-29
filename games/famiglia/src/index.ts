@@ -14,4 +14,5 @@ export * from "./gioco";
 export * from "./bot";
 export * from "./valida-mossa";
 export * from "./colori";
+export * from "./codice-disegnato";
 export { eDifesa, puntiCarta, soloAiuto } from "./base";

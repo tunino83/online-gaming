@@ -134,6 +134,7 @@ difesa riuscita (`puntiPerIPoteri`, `puntiPerGliAiuti: false`); `puntiDi(g, s.op
 (contesto in `carte.tsx`) mostra lo 0 sulle carte aiuto; le partite vecchie restano con le opzioni salvate allora.
 Schermata: `apps/web/src/giochi/famiglia` (`Tavolo.tsx`: mostra le mosse valide descritte in `descrivi.ts`; `TavoloSpettatore.tsx`).
 Grafica "di casa" in `famiglia.css` (caratteri Fredoka e Caveat): carte con stemma del tipo (`Stemma` in `carte.tsx`),
+codice di attivazione disegnato con carte piccole come sul PDF (`CodiceDisegnato` in `carte.tsx`, pezzi da `pezziDelCodice` in `games/famiglia/src/codice-disegnato.ts`),
 tovaglia a quadretti; carte numero, mancia, eventi e dorsi in stile fantasy (gemme colorate su pergamena con cornice dorata,
 monete d'oro, pozione del caffè, dorsi a cielo stellato; colori delle gemme in `games/famiglia/src/colori.ts`, uguali nel PDF); i colori del tema cambiano solo dentro `.gioco-famiglia`
 e sul `body` con la classe `sfondo-famiglia` (messa da `useSfondoFamiglia` mentre si gioca).

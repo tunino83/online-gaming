@@ -407,19 +407,64 @@ html[data-tema="chiaro"] .gioco-famiglia .fm-zona {
   font-weight: 600;
   font-size: min(calc(7.5px * var(--s)), 15px);
 }
+/* codice di attivazione disegnato con carte piccole (come sulle carte stampate) */
 .cf-codice {
+  --cc: clamp(0.85px, calc(1px * var(--s, 1)), 2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(1.2 * var(--cc));
+  margin-top: calc(1 * var(--cc));
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  line-height: 1;
+}
+.cf-codice-carta {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: calc(9 * var(--cc));
+  height: calc(12.5 * var(--cc));
+  border: max(1px, calc(0.8 * var(--cc))) solid #b9a48a;
+  border-radius: calc(2 * var(--cc));
+  background: #fffaf0;
+  color: #7a4a26;
+  font-weight: 700;
+  font-size: calc(7.5 * var(--cc));
+}
+.cf-codice-larga {
+  width: calc(14 * var(--cc));
+}
+.cf-codice-segno {
+  color: #7a6048;
+  font-weight: 700;
+  font-size: calc(8.5 * var(--cc));
+}
+.cf-codice-spazio {
+  width: calc(2 * var(--cc));
+}
+.cf-codice-moneta {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: calc(13 * var(--cc));
+  height: calc(13 * var(--cc));
+  border: max(1px, calc(0.8 * var(--cc))) solid #a8801f;
+  border-radius: 50%;
+  background: #f3dc9a;
+  color: #6a4410;
+  font-weight: 700;
+  font-size: calc(7 * var(--cc));
+}
+.cf-codice-parola {
   color: #7a6048;
   font-family: "Caveat", "Comic Sans MS", cursive;
   font-weight: 700;
-  font-size: min(calc(9px * var(--s)), 18px);
+  font-size: calc(9.5 * var(--cc));
 }
 
 /* carte grandi (scheda e guida): i testi vanno a capo invece di essere tagliati */
-.cf-grande .cf-potere,
-.cf-grande .cf-codice {
+.cf-grande .cf-potere {
   white-space: normal;
 }
 
