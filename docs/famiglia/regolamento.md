@@ -70,6 +70,42 @@ Ogni turno si fanno **3 mosse**, scegliendo tra:
 Dopo l'uso il personaggio diventa **stanco**. A ogni inizio del proprio turno ogni carta stanca recupera 1 tacca;
 quando le tacche arrivano al suo tempo di ricarica torna **carica**.
 
+## Quanto costano i poteri (riassunto, aggiornato al 2026-10-30)
+
+| Cosa | Costa una mossa? | Quante volte |
+| --- | --- | --- |
+| Attivare un personaggio | Sì | Quante mosse hai |
+| Usare il potere di un personaggio attivato (attacco, aiuto) | Sì, poi la carta si stanca | Quando è carica |
+| Usare una carta attacco usa e getta (Tomacella, Giro aperto, Occhi 'nguoll, Vento…) | Sì, più il suo codice | Una volta, poi si scarta |
+| Difendersi quando ti attaccano (personaggio attivato o d'emergenza) | No | Una volta per attacco |
+| Bere un caffè | No: dà 1 mossa in più | Quando lo hai |
+
+**Poteri gialli gratis** (non usano mosse, ma la carta si stanca come sempre; si possono usare anche dopo aver finito le mosse):
+- *Stai di nuovo qua?* (Nonno Salvatore 1): se le prime 2 mosse del turno sono uguali, dopo la terza ne fai una in più uguale alla terza.
+- *È l'ultima volta che venite!* (Nonno Salvatore 2): 2 mosse in più, uguali all'ultima che hai fatto.
+- *Cambiamo un po'…* (Nonna Dina 1): cambi tutte le carte scoperte sul tavolo.
+- *O al sangue o niente* (Totò 3): ricarichi subito tutte le tue carte stanche.
+- *Sono il Party's King* (Zio Salvatore 3): 3 mosse in più, poi 1 in meno nei 2 turni dopo.
+- *Straordinario* (Nonno Rafiluccio 2): 1 mossa in più adesso e 1 nel prossimo turno.
+- *Mangia mangia mangia* (Alessia): peschi 4 carte numero, poi l'indigestione.
+
+**Carte verdi, sempre attive** (simbolo dell'infinito): una volta attivate non si stancano mai e non costano mosse.
+- Da usare quando vuoi, **una volta per turno**:
+  - *Sono due etti e mezzo, lascio?* (Sara e Giuseppe 1): dopo 3 carte numero o 3 personaggi presi nel turno, il quarto è gratis.
+  - *Fammi leggere le carte* (Giuseppe 1): vedi tutte le carte in mano di un avversario.
+  - *Lezione di padel* (Francesco 1): scambi 1 carta numero della mano con 1 del tavolo.
+  - *Medico in famiglia* (Annalisa 2): prendi Dottor Racioppi o Zia Diana dagli scarti (e li attivi senza codice).
+- Che funzionano da sole:
+  - *Un caffè* (Generoso 1): 4 mosse per 3 turni, poi un turno da 2.
+  - *Questi so della campagna* (Nonno Nicola 1): a inizio turno peschi 1 carta numero.
+  - *Cin cin* (Claudia 1): una volta per turno attivi pagando il codice di un'altra tua carta.
+  - *Ne ho viste tante* (Nonno Antonio 1): vedi le prime 2 carte del mazzo personaggi e, una volta per turno, scegli quale pescare.
+  - *Aperitivo* (Chicca 2): vini e Campari senza pagarne il codice.
+  - *Puzza di brace* (Chicca 1): quando un avversario usa Diavolina o O al sangue o niente, ricarica 1 carta in meno e tu peschi 1 carta.
+
+**Difese che si usano nel proprio turno, come un potere** (costano una mossa): *Maschio e femmina li creò* (Don Pasquale, solo nel
+tuo turno) e *Nuvola di fumo* (Nonna Patrizia 2, nel tuo turno oppure quando ti attaccano: in quel caso non costa mosse).
+
 ## Attacchi e difese
 
 Quando un giocatore usa un attacco contro un avversario, la partita si ferma e l'attaccato sceglie se difendersi.
@@ -92,6 +128,28 @@ una di livello 3 li ferma tutti. Fanno eccezione le carte che dicono già cosa f
 per conto suo e la sua difesa protegge solo lui. Un attacco contro tutti non si può deviare (Maddalena).
 
 **Carte rubate**: chi cura i danni (Zia Diana) recupera le carte scartate, non quelle rubate.
+
+### Carico e duello al buio (regole accese di base, si possono spegnere creando la partita)
+
+Chi attacca può aggiungere all'attacco carte numero della sua mano, **coperte**: gli altri vedono quante sono, non quanto valgono.
+La loro somma è il **carico**.
+- Chi si difende con un **personaggio attivato** mette anche lui carte numero coperte, quante vuole, senza sapere il carico.
+  Se la sua somma arriva **almeno** al carico la difesa regge (a parità vince chi si difende); se no l'attacco colpisce e la
+  carta di difesa si stanca lo stesso.
+- Oppure fa **harakiri**: la carta di difesa va negli scarti (con i suoi punti), l'attacco è fermato e non mette carte.
+- Le difese d'emergenza e le carte difesa (vini, Campari, scuse) fermano l'attacco senza mettere carte.
+- Finito l'attacco si girano le carte: **chi ha messo di più si prende tutte le carte** messe sul tavolo e le tiene in mano
+  (se a fine turno ne ha più di 7, scarta come sempre).
+- Se l'attacco viene fermato senza carte (harakiri, d'emergenza, carte difesa), chi attacca **perde le sue** (negli scarti).
+  Se nessuno si difende, chi attacca le riprende.
+- **Attacchi contro tutti**: ognuno mette le sue carte al buio, senza vedere quelle degli altri; ognuno è difeso se arriva
+  almeno al carico. Alla fine chi ha messo di più si prende tutto; se a pari merito ci sono più giocatori che si difendono,
+  nessuno prende niente e tutte le carte vanno negli scarti.
+- Se l'attacco viene rimandato a chi l'ha fatto (E se poi te ne penti?), lui si difende senza mettere carte.
+- Con il duello al buio attacchi e difese **non danno il +1 punto**: il premio sono le carte.
+
+Senza duello al buio (opzione spenta) vale la regola vecchia: le carte del carico si perdono sempre, e chi si difende con un
+personaggio attivato scarta carte che fanno almeno il carico (o fa harakiri); +1 punto per attacco a segno e difesa riuscita.
 
 Le carte difesa (vini, Campari, scuse) non si attivano mai: si usano solo d'emergenza.
 Le carte attacco (tomacella, giro aperto, occhi 'nguoll, vento) stanno scoperte negli attacchi in attesa:
@@ -446,6 +504,24 @@ Prima si poteva usare ogni turno (si ricarica in 1 turno) e dava sempre 4 mosse.
 sono uguali (2 numeri, 2 personaggi, 2 attivazioni…; pescare o prendere dal tavolo un numero contano uguali, lo stesso per i
 personaggi), dopo la **terza** mossa ne fai una in più uguale alla terza. Resta gratis. *È l'ultima volta che venite!*
 (Nonno Salvatore 2) non cambia.
+
+## Carte già stampate: poteri cambiati dopo la stampa
+
+Elenco dei poteri cambiati dopo la stampa delle carte (con i nomi nuovi dei poteri, 2026-10-29): sulle carte stampate prima
+di quel cambio il promemoria in fondo è quello vecchio, vale il testo "Adesso". Una carta stampata dopo la data della colonna "Cambiato il" ha già il testo nuovo.
+Ogni nuovo cambio di un potere va aggiunto qui. **I codici di attivazione non sono cambiati**
+(la proposta di codici nuovi in `proposta-codici.md` aspetta ancora l'ok).
+
+| Carta | Potere | Cambiato il | Prima (sulla carta stampata) | Adesso |
+| --- | --- | --- | --- | --- |
+| Sara e Giuseppe 1 | Sono due etti e mezzo, lascio? (verde) | 2026-10-29 sera | Se la prima mossa è una pescata, la rifai gratis | Dopo aver preso 3 carte numero o 3 personaggi (pescati o dal tavolo), ne peschi gratis una quarta dallo stesso mazzo; una volta per turno |
+| Nonno Salvatore 1 | Stai di nuovo qua? (gratis) | 2026-10-29 sera | 1 mossa in più uguale all'ultima | Se le prime 2 mosse del turno sono uguali, dopo la terza ne fai una in più uguale alla terza |
+| Checca 1 | Lingua Glabra (attacco) | 2026-10-30 | Un avversario mostra a tutti i personaggi nascosti | **Contro tutti**: mostri i tuoi nascosti, gli avversari i loro; ne prendi uno a ciascuno e lo tieni o lo scarti |
+| Zio Salvatore 1 | E one, E one ciù trii (attacco) | 2026-10-30 | Contro tutti: prendi 1 carta a ciascuno e poi ne ridai 1 a testa | Contro un avversario: scarti 1 carta numero, peschi 1 personaggio e 1 carta numero, poi gli rubi 1 carta numero a caso (se si difende, le pescate restano) |
+
+Cambiano anche regole scritte sul foglio stampato (non sulle carte): il **duello al buio** sostituisce il carico di prima
+e toglie i +1 di attacchi e difese (vedi "Carico e duello al buio" in "Attacchi e difese"). Sulla plancia stampata la riga
+del carico è quella vecchia.
 
 ## Duello al buio e attacchi di livello 1 più forti (2026-10-30)
 
