@@ -124,6 +124,7 @@ function nuovoTurno(giocatore: IdGiocatore, mosse: number): StatoTurno {
     doppioTurno: false,
     zitto: false,
     canto: null,
+    lingua: null,
     rivelati: [],
   };
 }

@@ -87,6 +87,11 @@ export type Attesa =
    * (`a`, nell'ordine di turno). Si risponde con "scegli": una carta della mano per ogni giocatore, nello stesso ordine.
    */
   | { tipo: "canto"; giocatore: IdGiocatore; a: IdGiocatore[] }
+  /**
+   * Lingua Glabra: gli avversari colpiti hanno mostrato i personaggi nascosti; chi attacca ne prende uno da ciascuno (`a`, nell'ordine).
+   * Si risponde con "scegli": una carta per giocatore (che ne ha), nello stesso ordine; `scarta` = quelle che non tiene.
+   */
+  | { tipo: "lingua"; giocatore: IdGiocatore; a: IdGiocatore[] }
   /** La Resurrezione: chi ha Totò ha pescato una carta in più e sceglie a chi darla. */
   | { tipo: "regalo"; giocatore: IdGiocatore; carta: CartaNumero }
   /**
@@ -123,6 +128,13 @@ export interface AttaccoInCorso {
   premiato?: boolean;
   /** Carico (opzione "carico"): per difendersi con una carta attivata si scarta almeno questo valore, o si sacrifica la carta. */
   carico?: number;
+  /**
+   * Duello al buio: le carte coperte messe da chi attacca (la prima) e da chi si difende con una carta attivata, in ordine.
+   * Privato: alla fine dell'attacco va tutto a chi ha messo di più.
+   */
+  posta?: { giocatore: IdGiocatore; carte: CartaNumero[] }[];
+  /** Duello al buio: qualcuno ha fermato l'attacco senza mettere carte (harakiri, d'emergenza): chi attacca perde le sue. */
+  postaPersa?: boolean;
 }
 
 export interface StatoTurno {
@@ -160,6 +172,10 @@ export interface StatoTurno {
   premioAiuto?: boolean;
   /** E one, E one ciù trii in corso: chi canta e gli avversari colpiti, a cui poi ridarà una carta a scelta. */
   canto: { da: IdGiocatore; a: IdGiocatore[] } | null;
+  /** Scelta da fare finito l'attacco in corso (zona piena dopo E one, E one ciù trii). */
+  dopoAttacco?: Attesa | null;
+  /** Lingua Glabra in corso: chi attacca e gli avversari colpiti, da cui poi prende un personaggio nascosto. */
+  lingua?: { da: IdGiocatore; a: IdGiocatore[] } | null;
   /** Carte mostrate a tutti in questo turno (Schietta). */
   rivelati: { giocatore: IdGiocatore; mano: CartaNumero[]; nascosti: CopiaCarta[] }[];
   /** Aiuto in attesa della risposta di chi ha Stuffosa: si applica se non lo blocca (le scelte restano segrete). */
@@ -244,12 +260,17 @@ export type DatiFatto =
   | { tipo: "potere"; carta: string; potere: string; bersaglio?: IdGiocatore }
   | { tipo: "sceglie"; quante: number }
   /** Inizio di un attacco: `bersagli` sono i giocatori colpiti (in ordine). */
-  | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[]; carico?: number }
+  | { tipo: "attacco"; carta: string; potere: string; bersagli: IdGiocatore[]; carico?: number; coperte?: number }
   /**
    * Difesa di chi è attaccato (`carta` è la carta usata, ora scoperta); `riuscita` false = Non so se ho il turno andato male;
    * `girata` = valore della carta numero girata da Non so se ho il turno.
    */
-  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number; harakiri?: true }
+  | { tipo: "difesa"; carta: string; potere: string; riuscita: boolean; devia?: IdGiocatore; girata?: number; harakiri?: true; coperte?: number }
+  /**
+   * Duello al buio finito (`giocatore` = chi ha attaccato): le carte girate, quanto ha messo ciascuno e chi si prende tutto
+   * (null = pareggio tra chi si difende, nessuno); `persa`: chi attacca ha perso le sue (attacco fermato senza carte).
+   */
+  | { tipo: "duello"; somme: Record<IdGiocatore, number>; carte: number; vince: IdGiocatore | null; persa?: true }
   /** L'attacco ha colpito il giocatore. */
   | { tipo: "colpito"; potere: string }
   /** L'attacco non ha effetto sul giocatore (protetto o non c'era niente da colpire). */
@@ -327,7 +348,8 @@ export type Mossa =
   | { tipo: "caffe"; mancia: string }
   // --- risposte a una decisione in attesa ---
   | { tipo: "scartaCarta"; carta: string }
-  | { tipo: "scegli"; carte: string[] }
+  /** `scarta`: Lingua Glabra, le carte prese che non si tengono. */
+  | { tipo: "scegli"; carte: string[]; scarta?: string[] }
   /** Id delle carte nell'ordine voluto: la prima sarà la prima pescata. */
   | { tipo: "riordina"; ordine: string[] }
   /** La Resurrezione: a chi dare la carta in più (anche a sé stessi). */
@@ -346,7 +368,10 @@ export type Mossa =
       giocatore?: IdGiocatore;
       carte?: string[];
       bersaglio?: string;
-      /** Attacco con il carico, difesa con una carta attivata: carte numero da scartare (almeno quanto il carico)... */
+      /**
+       * Attacco con il carico, difesa con una carta attivata: carte numero da scartare (almeno quanto il carico);
+       * con il duello al buio: carte coperte da mettere (quante si vuole)...
+       */
       carico?: string[];
       /** ...oppure si sacrifica la carta di difesa (va negli scarti con i suoi punti). */
       harakiri?: true;

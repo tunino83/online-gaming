@@ -166,6 +166,8 @@ export const puntiDi = (g: Pick<StatoGiocatore, "attivati" | "puntiPoteri">, opz
 /** Regola "punti per i poteri": 1 punto in più al giocatore (e si scrive nel registro). */
 export function premioPotere(s: StatoPartita, id: IdGiocatore, motivo: "attacco" | "difesa" | "aiuto"): void {
   if (!s.opzioni.puntiPerIPoteri) return;
+  // Duello al buio: il premio di attacchi e difese sono le carte del duello, non il punto
+  if (s.opzioni.duello && motivo !== "aiuto") return;
   const g = s.giocatori[id]!;
   g.puntiPoteri = (g.puntiPoteri ?? 0) + 1;
   registra(s, id, { tipo: "punto", motivo });

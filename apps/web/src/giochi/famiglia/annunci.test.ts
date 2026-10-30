@@ -5,7 +5,8 @@ import { annunciTraViste } from "./annunci";
 const nick = (id: string) => ({ anna: "Anna", bruno: "Bruno", carla: "Carla" })[id] ?? id;
 
 function partita(): StatoPartita {
-  const s = setup(["anna", "bruno", "carla"], {}, 1);
+  // senza duello al buio: gli attacchi a segno danno +1 punto
+  const s = setup(["anna", "bruno", "carla"], { duello: false }, 1);
   s.ordine = ["anna", "bruno", "carla"];
   s.turno.giocatore = "anna";
   s.turno.mosseRimaste = 3;

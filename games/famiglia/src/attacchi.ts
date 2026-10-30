@@ -11,6 +11,7 @@ import {
   avversariDopo,
   pesca,
   peschiNumeri,
+  riceviCarta,
   puntiDi,
   registra,
   rifiuta,
@@ -32,7 +33,7 @@ import type { Carta, CartaNumero } from "./tipi-carte";
 /* ------------------------------------------------------------------ */
 
 /** Attacchi contro tutti gli avversari (gli altri colpiscono un avversario scelto). */
-const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "si-canta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa", "collezione"]);
+const CONTRO_TUTTI = new Set(["manca-o-sale", "urla", "schietta", "rospe-per-tutti", "zeppata-sui-social", "volo-infuocato", "risata-contagiosa", "multa", "collezione"]);
 
 /** Attacchi che fanno stancare una carta carica scelta dall'attaccante. */
 const STANCANO_UNA_CARTA = new Set(["versa-il-vino", "la-tomacella", "il-bastone"]);
@@ -136,8 +137,16 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     controllaScelteAttacco(s, id, potere, v!, p);
     bersagli = [v!];
   }
-  const carico = pagaCarico(s, id, p);
-  registra(s, id, { tipo: "attacco", carta: origine.id, potere, bersagli, ...(carico > 0 ? { carico } : {}) });
+  const carteCarico = prendiCarico(s, id, p);
+  const carico = somma(carteCarico);
+  // Duello al buio: le carte restano coperte fino alla fine dell'attacco; senza duello si perdono subito
+  const duello = !!s.opzioni.duello && carteCarico.length > 0;
+  if (!duello) scartaNumeri(s, carteCarico);
+  // E one, E one ciù trii (Zio Salvatore 1): scarta la carta scelta e pesca 1 numero e 1 personaggio, anche se poi l'avversario si difende
+  if (potere === "si-canta") s.turno.dopoAttacco = cantaEPesca(s, id, p);
+  // Lingua Glabra (Checca 1): prima mostra a tutti i suoi personaggi nascosti
+  if (potere === "schietta" && g.nascosti.length > 0) s.turno.rivelati.push({ giocatore: id, mano: [], nascosti: structuredClone(g.nascosti) });
+  registra(s, id, { tipo: "attacco", carta: origine.id, potere, bersagli, ...(duello ? { coperte: carteCarico.length } : carico > 0 ? { carico } : {}) });
   s.attacco = {
     attaccante: id,
     carta: origine.id,
@@ -152,27 +161,47 @@ export function avviaAttacco(s: StatoPartita, id: IdGiocatore, origine: Carta, p
     controTutti,
     copia,
     ...(carico > 0 ? { carico } : {}),
+    ...(duello ? { posta: [{ giocatore: id, carte: carteCarico }] } : {}),
   };
   prosegui(s);
+}
+
+/** E one, E one ciù trii: scarta la carta numero scelta, pesca 1 carta numero e 1 personaggio. Zona piena: si sceglie dopo l'attacco. */
+function cantaEPesca(s: StatoPartita, id: IdGiocatore, p: ParametriPotere): Attesa | null {
+  const g = s.giocatori[id]!;
+  scartaNumeri(s, [togliNumero(g, p.carte![0]!)!]);
+  peschiNumeri(s, id, 1);
+  const c = pesca(s, "personaggi");
+  if (!c) return null;
+  registra(s, id, { tipo: "pescaPersonaggio", ...(zonaDi(c) === "attacchi" ? { carta: c.carta } : {}) });
+  const prima = s.turno.attesa;
+  riceviCarta(s, id, c);
+  const piena = s.turno.attesa !== prima ? s.turno.attesa : null;
+  s.turno.attesa = prima;
+  return piena;
 }
 
 /** Valore delle carte numero indicate. */
 const somma = (carte: CartaNumero[]) => carte.reduce((n, c) => n + c.valore, 0);
 
 /**
- * Carico (opzione): chi attacca scarta le carte numero scelte dalla mano e la loro somma è il carico.
- * Le carte si perdono sempre, che l'avversario si difenda o no. Restituisce il carico (0 se non c'è).
+ * Carico (opzione): chi attacca toglie dalla mano le carte numero scelte e la loro somma è il carico.
+ * Senza duello al buio le carte si perdono sempre, che l'avversario si difenda o no.
  */
-function pagaCarico(s: StatoPartita, id: IdGiocatore, p: ParametriPotere): number {
+function prendiCarico(s: StatoPartita, id: IdGiocatore, p: ParametriPotere): CartaNumero[] {
   const ids = p.carico ?? [];
-  if (ids.length === 0) return 0;
+  if (ids.length === 0) return [];
   if (!s.opzioni.carico) rifiuta("In questa partita non si attacca con il carico");
   const g = s.giocatori[id]!;
   if (new Set(ids).size !== ids.length || !ids.every((x) => g.mano.some((c) => c.id === x))) rifiuta("Il carico si fa con carte numero della tua mano");
   if (p.carte?.some((x) => ids.includes(x))) rifiuta("La carta da dare non può stare anche nel carico");
-  const carte = ids.map((x) => togliNumero(g, x)!);
-  scartaNumeri(s, carte);
-  return somma(carte);
+  return ids.map((x) => togliNumero(g, x)!);
+}
+
+/** Harakiri: la carta di difesa va negli scarti (con i suoi punti) e l'attacco è fermato lo stesso. */
+function harakiri(s: StatoPartita, g: StatoGiocatore, x: Attivato): void {
+  g.attivati.splice(g.attivati.indexOf(x), 1);
+  s.scarti.personaggi.push(x.copia);
 }
 
 /**
@@ -180,11 +209,7 @@ function pagaCarico(s: StatoPartita, id: IdGiocatore, p: ParametriPotere): numbe
  * oppure fa harakiri: la carta di difesa va negli scarti (con i suoi punti) e l'attacco è fermato lo stesso.
  */
 function pagaDifesaConCarico(s: StatoPartita, g: StatoGiocatore, x: Attivato, carico: number, m: Extract<Mossa, { tipo: "difendi" }>): void {
-  if (m.harakiri) {
-    g.attivati.splice(g.attivati.indexOf(x), 1);
-    s.scarti.personaggi.push(x.copia);
-    return;
-  }
+  if (m.harakiri) return harakiri(s, g, x);
   const ids = m.carico ?? [];
   if (new Set(ids).size !== ids.length || !ids.every((y) => g.mano.some((c) => c.id === y)) || somma(g.mano.filter((c) => ids.includes(c.id))) < carico) {
     rifiuta(`Per difenderti scarta carte numero che fanno almeno ${carico}, oppure sacrifica la carta (harakiri)`);
@@ -210,6 +235,39 @@ function modiDiPagareIlCarico(g: StatoGiocatore, carico: number, giaUsate: Set<s
   }
   if (tot >= carico && !(alte.length === 1 && una && alte[0] === una.id)) modi.push({ carico: alte });
   return modi;
+}
+
+/** Duello al buio: modi di difendersi con una carta attivata: harakiri, oppure alcune scelte di carte coperte da mettere. */
+function modiDiPuntare(g: StatoGiocatore): Pick<Extract<Mossa, { tipo: "difendi" }>, "carico" | "harakiri">[] {
+  const perValore = [...g.mano].sort((a, b) => a.valore - b.valore).map((c) => c.id);
+  const alte = [...perValore].reverse();
+  const scelte = [perValore.slice(0, 1), alte.slice(0, 1), alte.slice(0, 2), alte.slice(0, 3), alte.slice(0, 4)].filter((x) => x.length > 0);
+  return [{ harakiri: true }, ...[...new Map(scelte.map((x) => [x.join(), x])).values()].map((carico) => ({ carico }))];
+}
+
+/**
+ * Fine del duello al buio: si girano le carte e chi ha messo di più si prende tutto. Tra chi attacca e chi si difende,
+ * a parità vince chi si difende; se a pari merito ci sono più giocatori che si difendono, nessuno prende niente (tutto negli scarti).
+ * Se qualcuno ha fermato l'attacco senza mettere carte (harakiri, d'emergenza), chi attacca perde le sue e restano in gara gli altri.
+ */
+function chiudiDuello(s: StatoPartita, a: AttaccoInCorso): void {
+  const posta = a.posta;
+  if (!posta) return;
+  delete a.posta;
+  const chi = posta[0]!;
+  const somme = Object.fromEntries(posta.map((x) => [x.giocatore, somma(x.carte)]));
+  if (a.postaPersa) scartaNumeri(s, chi.carte);
+  const inGara = a.postaPersa ? posta.slice(1) : posta;
+  let vince: IdGiocatore | null = null;
+  if (inGara.length > 0) {
+    const max = Math.max(...inGara.map((x) => somma(x.carte)));
+    const primi = inGara.filter((x) => somma(x.carte) === max && x !== chi);
+    vince = primi.length === 0 ? chi.giocatore : primi.length === 1 ? primi[0]!.giocatore : null;
+  }
+  const tutte = inGara.flatMap((x) => x.carte);
+  if (vince) s.giocatori[vince]!.mano.push(...tutte);
+  else scartaNumeri(s, tutte);
+  registra(s, chi.giocatore, { tipo: "duello", somme, carte: tutte.length, vince, ...(a.postaPersa ? { persa: true as const } : {}) });
 }
 
 /** Valori di cui il giocatore ha almeno due carte numero in mano (Collezione). */
@@ -246,6 +304,8 @@ function controllaScelteAttacco(s: StatoPartita, id: IdGiocatore, potere: string
     const sua = o.attivati.find((a) => a.copia.id === p.bersaglio);
     if (!mia || !sua) rifiuta("Scegli una tua carta attivata e una dell'avversario");
     if (!livelloVicino(mia!, sua!)) rifiuta("Le due carte devono essere dello stesso livello o con un livello di differenza");
+  } else if (potere === "si-canta") {
+    if (p.carte?.length !== 1 || !g.mano.some((c) => c.id === p.carte![0])) rifiuta("Scegli la carta numero da scartare");
   } else if (potere === "burla" || potere === "una-rospa") {
     if (p.carte && (p.carte.length !== 1 || !g.mano.some((c) => c.id === p.carte![0]))) rifiuta("Scegli una tua carta numero da dare");
   }
@@ -273,7 +333,20 @@ function prosegui(s: StatoPartita): void {
     }
     avanza(s);
   }
-  s.turno.attesa = dopo ?? attesaDelCanto(s);
+  const finale = s.turno.dopoAttacco ?? null;
+  s.turno.dopoAttacco = null;
+  s.turno.attesa = dopo ?? finale ?? attesaDelCanto(s) ?? attesaDellaLingua(s);
+}
+
+/** Finita Lingua Glabra, chi l'ha usata prende un personaggio nascosto da ogni avversario colpito che ne ha. */
+function attesaDellaLingua(s: StatoPartita): Attesa | null {
+  const l = s.turno.lingua;
+  const a = l ? l.a.filter((x) => s.giocatori[x]!.nascosti.length > 0 && !s.giocatori[x]!.nascostiProtetti) : [];
+  if (!l || a.length === 0) {
+    s.turno.lingua = null;
+    return null;
+  }
+  return { tipo: "lingua", giocatore: l.da, a };
 }
 
 /** Finito E one, E one ciù trii, chi ha cantato sceglie quale carta ridare a ciascun avversario colpito. */
@@ -291,6 +364,7 @@ function avanza(s: StatoPartita): void {
   const a = s.attacco!;
   const prossimo = a.coda.shift();
   if (prossimo === undefined) {
+    chiudiDuello(s, a);
     s.attacco = null;
     return;
   }
@@ -368,12 +442,10 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       break;
     }
     case "si-canta": {
-      // Prima si prende una carta a caso da ogni avversario colpito; finito l'attacco si sceglie cosa ridare a ciascuno
+      // Scartata la carta e fatte le pescate (all'inizio), prende 1 carta numero a caso all'avversario
       if (suSeStesso) break;
       const c = rubaACaso();
       if (c) A.mano.push(c);
-      const canto = (s.turno.canto ??= { da: a.attaccante, a: [] });
-      canto.a.push(v);
       break;
     }
     case "si-incanta":
@@ -393,7 +465,10 @@ function colpisci(s: StatoPartita, a: AttaccoInCorso, v: IdGiocatore, scelta: { 
       V.saltaProssimoTurno = true;
       break;
     case "schietta":
-      if (!V.nascostiProtetti) s.turno.rivelati.push({ giocatore: v, mano: [], nascosti: structuredClone(V.nascosti) });
+      // Mostra a tutti i personaggi nascosti; finito l'attacco chi l'ha usata ne prende uno da ciascuno
+      if (suSeStesso || V.nascostiProtetti) break;
+      s.turno.rivelati.push({ giocatore: v, mano: [], nascosti: structuredClone(V.nascosti) });
+      (s.turno.lingua ??= { da: a.attaccante, a: [] }).a.push(v);
       break;
     case "gli-occhi-nguoll":
       if (V.nascostiProtetti || V.nascosti.length === 0) break;
@@ -609,7 +684,12 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
   const c = carta(g.attivati.find((x) => x.copia.id === d!.copia)?.copia.carta ?? g.nascosti.find((x) => x.id === d!.copia)!.carta);
 
   // Pagare la difesa: carica che si stanca, oppure (d'emergenza) codice pagato e carta scartata
+  const duello = !!a.posta && id !== a.attaccante;
+  let coperte: number | undefined;
+  let duelloPerso = false;
   if (d!.emergenza) {
+    // Duello al buio: fermato senza mettere carte, chi attacca perde le sue
+    if (duello) a.postaPersa = true;
     if (!gratisConAperitivo(g, c.id)) paga(s, g, c, mossa.combinazione);
     // "Sono a un matrimonio": durante l'evento Matrimonio la carta non si scarta e resta in mano
     if (!(d!.potere === "sono-a-un-matrimonio" && s.evento?.id === "matrimonio")) {
@@ -617,18 +697,30 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
     }
   } else {
     const x = g.attivati.find((y) => y.copia.id === d!.copia)!;
-    if (a.carico && s.opzioni.carico) pagaDifesaConCarico(s, g, x, a.carico, mossa);
+    if (duello && mossa.harakiri) {
+      harakiri(s, g, x);
+      a.postaPersa = true;
+    } else if (duello) {
+      // Duello al buio: carte coperte, quante si vuole; la difesa regge se arriva almeno al carico
+      const ids = mossa.carico ?? [];
+      if (new Set(ids).size !== ids.length || !ids.every((y) => g.mano.some((c) => c.id === y))) rifiuta("Metti carte numero della tua mano");
+      const carte = ids.map((y) => togliNumero(g, y)!);
+      a.posta!.push({ giocatore: id, carte });
+      coperte = carte.length;
+      duelloPerso = somma(carte) < a.carico!;
+      stancaCarta(s, x);
+    } else if (a.carico && s.opzioni.carico && !a.posta) pagaDifesaConCarico(s, g, x, a.carico, mossa);
     else stancaCarta(s, x);
   }
-  if ((mossa.harakiri || mossa.carico) && (d!.emergenza || !a.carico)) rifiuta("Il carico si paga solo difendendosi con una carta attivata");
+  if ((mossa.harakiri || mossa.carico) && (d!.emergenza || !a.carico || (a.posta && !duello))) rifiuta("Il carico si paga solo difendendosi con una carta attivata");
   a.difesi.push(id);
   s.turno.attesa = null;
 
   // Non so se ho il turno: si gira la prossima carta numero; dispari la difesa vince, pari l'attacco colpisce.
   // La carta girata va in mano a chi si difende (senza carte nel mazzo la difesa vince).
-  let riuscita = true;
+  let riuscita = !duelloPerso;
   let girata: number | undefined;
-  if (d!.potere === "forse-c-e-forse-no") {
+  if (riuscita && d!.potere === "forse-c-e-forse-no") {
     const c = pesca(s, "numeri");
     if (c) {
       girata = c.valore;
@@ -646,11 +738,13 @@ export function rispondiAttacco(s: StatoPartita, id: IdGiocatore, m: Mossa): voi
     ...(devia ? { devia } : {}),
     ...(girata ? { girata } : {}),
     ...(mossa.harakiri ? { harakiri: true as const } : {}),
+    ...(coperte !== undefined ? { coperte } : {}),
   });
 
   let dopo: Attesa | null = null;
   if (!riuscita) {
-    dopo = colpisci(s, a, id, mossa);
+    // Duello perso: le scelte della mossa erano per la difesa (es. la parcella di Mi oppongo), l'attacco sceglie a caso
+    dopo = colpisci(s, a, id, duelloPerso ? {} : mossa);
     avanza(s);
   } else {
     premioPotere(s, id, "difesa");
@@ -801,8 +895,10 @@ export function mosseDiDifesa(s: StatoPartita, v: IdGiocatore): Mossa[] {
     let conPagamento: Extract<Mossa, { tipo: "difendi" }>[] = d.emergenza && !gratisConAperitivo(g, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).id)
       ? trovaCombinazioni(risorse, carta(g.nascosti.find((x) => x.id === d.copia)!.carta).codice, 1).map((combinazione) => ({ ...base, combinazione }))
       : [base];
-    // Carico: con una carta attivata si paga il carico (o si fa harakiri)
-    if (!d.emergenza && a.carico && s.opzioni.carico) conPagamento = modiDiPagareIlCarico(g, a.carico, new Set()).map((x) => ({ ...base, ...x }));
+    // Carico: con una carta attivata si paga il carico (o si fa harakiri); con il duello al buio si mettono carte coperte
+    if (!d.emergenza && a.posta) {
+      if (v !== a.attaccante) conPagamento = modiDiPuntare(g).map((x) => ({ ...base, ...x }));
+    } else if (!d.emergenza && a.carico && s.opzioni.carico) conPagamento = modiDiPagareIlCarico(g, a.carico, new Set()).map((x) => ({ ...base, ...x }));
     for (const m of conPagamento) {
       if (DEVIANO.has(d.potere)) {
         for (const giocatore of s.ordine.filter((x) => x !== v)) mosse.push({ ...m, giocatore });
@@ -886,6 +982,11 @@ export function parametriAttacco(s: StatoPartita, id: IdGiocatore, potere: strin
       return [{ giocatore }];
     }
     if (potere === "burla" && g.mano.length > 0) return [{ giocatore, carte: [g.mano[0]!.id] }];
+    if (potere === "si-canta") {
+      // si scarta la carta più bassa
+      const bassa = [...g.mano].sort((a, b) => a.valore - b.valore)[0];
+      return bassa ? [{ giocatore, carte: [bassa.id] }] : [];
+    }
     if (potere === "ho-tanta-fame" && !piuVicini(s, id).includes(giocatore)) return [];
     return [{ giocatore }];
   });

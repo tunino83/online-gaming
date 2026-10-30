@@ -63,7 +63,7 @@ export function validaMossa(m: unknown): m is Mossa {
     case "scartaCarta":
       return campi(m, ["carta"]) && isTesto(m.carta);
     case "scegli":
-      return campi(m, ["carte"]) && listaTesti(m.carte);
+      return campi(m, ["carte"], ["scarta"]) && listaTesti(m.carte) && (m.scarta === undefined || listaTesti(m.scarta));
     case "riordina":
       return campi(m, ["ordine"]) && listaTesti(m.ordine);
     case "potere":

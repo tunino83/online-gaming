@@ -129,7 +129,10 @@ Stuffosa (Checca 3): quando un avversario usa un aiuto, l'aiuto resta in `turno.
 (attesa "stuffosa", 10 s con `attesaMassimaMs`, risposta "scegli": nessuna carta = lascia stare, 2 carte = blocca).
 Regole contro le troppe difese (accese di base dal 2026-10-28, si possono spegnere creando la partita): `limiteDifese` (una difesa attivata
 per livello, `liberaPostoDifesa` in `base.ts`) e `carico` (carte numero aggiunte all'attacco, `AttaccoInCorso.carico`;
-la difesa con carta attivata paga almeno il carico o fa harakiri). Confronto tra robot: `npx tsx games/famiglia/scripts/difese.ts [n]`.
+la difesa con carta attivata paga almeno il carico o fa harakiri). Dal 2026-10-30 c'è anche `duello` (acceso di base, va col carico):
+carte del carico coperte (`AttaccoInCorso.posta`, mai nella vista: gli altri vedono `coperte`), chi si difende mette carte al buio,
+a fine attacco `chiudiDuello` in `attacchi.ts` dà tutto a chi ha messo di più; niente +1 per attacchi e difese. I test partono con il duello spento
+(`partita()` in `aiuti-test.ts`): i suoi test lo accendono. Confronto tra robot: `npx tsx games/famiglia/scripts/difese.ts [n]`.
 I robot si difendono quasi sempre quando possono (come le persone). Colori dei tipi di carta in `COLORI_TIPI` (`colori.ts`).
 Punti (dal 2026-10-26, opzioni di base): carte solo aiuto 0 punti (`aiutiSenzaPunti`), +1 per attacco a segno e
 difesa riuscita (`puntiPerIPoteri`, `puntiPerGliAiuti: false`); `puntiDi(g, s.opzioni)`; nella schermata `RegolePunti`

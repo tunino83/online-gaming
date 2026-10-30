@@ -12,9 +12,9 @@ Elenco di tutte le carte e dei loro poteri (aggiornato al 2026-10-25).
 | Nonna Patrizia | 3 | **Baratto** | Scambi una tua carta attivata con una attivata di un avversario (punti compresi), dello stesso livello o con un livello di differenza; tutte e due diventano stanche | 4 carte dispari | ricarica 3 |
 | Totò | 1 | **Freeeeeezee** | Un avversario fa 1 mossa in meno nel suo prossimo turno e tu peschi 1 carta numero | 2 carte con somma 11 | ricarica 1 |
 | Checca | 2 | **Collezione** | Mostri a tutti una coppia: ogni avversario ti dà tutte le carte numero di quel valore che ha in mano | 123 | ricarica 2 |
-| Checca | 1 | **Lingua Glabra** | Un avversario mostra a tutti i personaggi nascosti in mano | 2 carte con somma 6 | ricarica 1 |
+| Checca | 1 | **Lingua Glabra** | Contro tutti: mostri i tuoi personaggi nascosti e gli avversari mostrano i loro; poi ne prendi uno a ciascuno (lo tieni o lo scarti) | 2 carte con somma 6 | ricarica 1 |
 | Donatina | 3 | **WEEEEEEEEEEEEEE** | Ogni avversario scarta 2 carte numero (sceglie lui quali) | 1234 | ricarica 3 |
-| Zio Salvatore | 1 | **E one, E one ciù trii** | Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno | Ogni avversario ti dà 1 carta numero a caso e tu ne dai 1 a tua scelta a ciascuno | 77 | ricarica 1 |
+| Zio Salvatore | 1 | **E one, E one ciù trii** | Scarti 1 carta numero, peschi 1 personaggio e 1 carta numero; poi prendi 1 carta numero a caso a un avversario (questa parte si può fermare) | Scarti, peschi e rubi | 77 | ricarica 1 |
 | Zio Salvatore | 2 | **Assaggia questo vino** | Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi | 3 carte con somma 14 | ricarica 2 |
 | Gerardina | 2 | **Vuoi una rospa?** | Dai 1 tua carta numero a un avversario e in cambio prendi a caso un personaggio nascosto dalla sua mano | 3 carte con somma 13 | ricarica 2 |
 | Gerardina | 3 | **Ho portato le rospe!** | Ogni avversario nel suo prossimo turno fa 1 mossa in meno | 4 carte con somma 22 | ricarica 3 |

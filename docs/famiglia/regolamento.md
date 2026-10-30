@@ -275,8 +275,7 @@ Decise dopo la simulazione di 1000 partite (`docs/famiglia/statistiche-simulazio
 - **Ai sensi dell'articolo…** (Giuseppe 3): prende solo personaggi di livello 1 o 2, mai di livello 3; e per prenderlo si deve
   **pagare con le proprie carte il codice di attivazione** di quel personaggio. Il codice si paga quando si lancia
   l'attacco: se l'avversario si difende, le carte pagate sono perse.
-- **E one, E one ciù trii** (Zio Salvatore 1): prima prendi 1 carta numero a caso da ogni avversario colpito (chi si difende non dà
-  e non riceve); solo dopo averle prese tutte scegli quale carta della tua mano dare a ciascuno (1 a testa).
+- **E one, E one ciù trii** (Zio Salvatore 1): cambiata il 2026-10-30, vedi "Duello al buio e attacchi di livello 1 più forti".
 - **Punti tolti alle carte più forti**: Nonno Nicola 1 (Questi so della campagna) e Claudia 1 (Cin cin) valgono **0 punti**,
   Alessia vale **1 punto** (invece di 2).
 - **Ai sensi dell'articolo…** (Giuseppe 3): dopo aver preso una carta, Giuseppe 3 si ricarica in 3 turni **più il livello della carta
@@ -447,3 +446,39 @@ Prima si poteva usare ogni turno (si ricarica in 1 turno) e dava sempre 4 mosse.
 sono uguali (2 numeri, 2 personaggi, 2 attivazioni…; pescare o prendere dal tavolo un numero contano uguali, lo stesso per i
 personaggi), dopo la **terza** mossa ne fai una in più uguale alla terza. Resta gratis. *È l'ultima volta che venite!*
 (Nonno Salvatore 2) non cambia.
+
+## Duello al buio e attacchi di livello 1 più forti (2026-10-30)
+
+Gli attacchi di livello 1 non convenivano quasi mai: qualsiasi difesa li ferma e la difesa riuscita dava +1 punto a chi si
+difendeva. Nuova opzione della partita **Duello al buio**, accesa di base (va insieme al carico; chi crea la partita la può
+spegnere; le partite già iniziate restano come erano):
+- Le carte del carico restano **coperte**: gli altri vedono solo quante sono, il valore lo sa solo chi attacca.
+- Chi si difende con un **personaggio attivato** mette anche lui carte numero coperte, quante vuole, senza sapere il carico.
+  La difesa regge se la sua somma arriva **almeno** al carico (a parità vince chi si difende); se no l'attacco colpisce
+  (la carta di difesa si stanca lo stesso).
+- Finito l'attacco si girano le carte: **chi ha messo di più si prende tutte le carte** (le sue e quelle degli altri) e le
+  tiene in mano; se a fine turno ne ha troppe, scarta come sempre.
+- **Harakiri** resta: si sacrifica la carta di difesa, l'attacco è fermato e non si mettono carte. Anche le difese d'emergenza
+  e usa e getta (vini, Campari, scuse) fermano l'attacco senza carte. In questi casi **chi attacca perde le sue** (negli scarti).
+- Nessuno si difende: chi attacca riprende le sue carte.
+- **Attacchi contro tutti**: ognuno mette le sue carte al buio, senza vedere quelle degli altri. Ognuno si difende se arriva
+  almeno al carico; alla fine chi ha messo di più si prende tutto. Se a pari merito ci sono più giocatori che si difendono,
+  nessuno prende niente e le carte vanno negli scarti.
+- Con il duello **non ci sono più i +1** per l'attacco a segno e la difesa riuscita: il premio sono le carte.
+
+Due attacchi di livello 1 rinforzati:
+- **Lingua Glabra** (Checca 1): ora è **contro tutti**. Checca mostra a tutti i suoi personaggi nascosti e ogni avversario
+  colpito mostra i suoi; finito l'attacco Checca ne prende **uno a ciascuno** e decide se tenerlo (tra i suoi nascosti, se c'è
+  posto) o scartarlo. Chi si difende non mostra e non dà niente.
+- **E one, E one ciù trii** (Zio Salvatore 1): ora contro un avversario. Scarti 1 carta numero e peschi 1 personaggio e 1 carta
+  numero; poi prendi 1 carta numero a caso all'avversario scelto. Se l'avversario si difende, le pescate restano: si ferma
+  solo la carta presa.
+
+Prova con i robot (che giocano a caso): senza i +1 le partite durano circa **3 volte di più** (a 3 giocatori circa 260 turni
+in tutto invece di 80; con 20 punti per vincere circa 180). Le persone attivano meglio dei robot, ma è da controllare nelle
+prossime partite: forse conviene abbassare i punti per vincere.
+
+Scelte fatte senza chiedere (da confermare):
+- Se l'attacco viene rimandato a chi l'ha fatto (E se poi te ne penti?), lui si difende senza mettere carte.
+- Con Lingua Glabra si tengono solo i personaggi che entrano tra i nascosti (al massimo 3): gli altri vanno scartati.
+- Se il duello è perso, le scelte chieste dall'attacco (es. quali carte dare) le fa il caso.

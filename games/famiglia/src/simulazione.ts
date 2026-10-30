@@ -13,8 +13,8 @@ import type { OpzioniPartita } from "./parametri";
 import { applicaMossa, chiDeveMuovere, finePartita, mossaAutomatica, puntiDi, setup } from "./regole";
 import type { StatoPartita } from "./stato";
 
-/** Oltre questo numero di turni una partita si considera bloccata. */
-export const TURNI_MASSIMI = 600;
+/** Oltre questo numero di turni una partita si considera bloccata (alto: senza i +1 del duello al buio i robot a caso fanno partite lunghe). */
+export const TURNI_MASSIMI = 1500;
 
 /** Id della carta da quello della copia ("antonio-2#1" → "antonio-2"). */
 const cartaDiCopia = (idCopia: string) => idCopia.split("#")[0]!;

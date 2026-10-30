@@ -599,11 +599,20 @@ function MosseConCarico({ mosse, v, nick, gioca, bloccato }: { mosse: Mossa[]; v
     <>
       {attacchi && v.mano.length > 0 && (
         <div className="mb-3 rounded-xl border border-rosso/40 bg-rosso/5 p-2">
-          <p className="text-sm font-semibold">⚖️ Carico (facoltativo): {carico.length > 0 ? `${somma}` : "nessuno"}</p>
-          <p className="mb-1.5 text-xs text-tenue">
-            Tocca le carte da aggiungere all'attacco: le perdi comunque. Per difendersi con una carta attivata, l'altro deve scartare almeno
-            questo valore oppure sacrificare la carta.
+          <p className="text-sm font-semibold">
+            {v.opzioni.duello ? "🂠 Carte coperte (facoltative)" : "⚖️ Carico (facoltativo)"}: {carico.length > 0 ? `${somma}` : "nessuno"}
           </p>
+          {v.opzioni.duello ? (
+            <p className="mb-1.5 text-xs text-tenue">
+              Tocca le carte da mettere coperte con l'attacco. Chi si difende con una carta attivata mette anche lui carte coperte senza sapere le tue:
+              se arriva almeno alla tua somma la difesa regge. Si girano: chi ha messo di più si prende tutte le carte (a parità vince chi si difende).
+            </p>
+          ) : (
+            <p className="mb-1.5 text-xs text-tenue">
+              Tocca le carte da aggiungere all'attacco: le perdi comunque. Per difendersi con una carta attivata, l'altro deve scartare almeno
+              questo valore oppure sacrificare la carta.
+            </p>
+          )}
           <div className="flex flex-wrap gap-1.5">
             {v.mano.map((c) => (
               <CartaNumeroGrafica key={c.id} c={c} selezionata={carico.includes(c.id)} onClick={() => setCarico((s) => (s.includes(c.id) ? s.filter((x) => x !== c.id) : [...s, c.id]))} />
@@ -1239,6 +1248,7 @@ function SceltaInSospeso({
 }) {
   const a = v.turno.attesa!;
   const [scelte, setScelte] = useState<string[]>([]);
+  const [daScartare, setDaScartare] = useState<string[]>([]);
 
   if (a.tipo === "difesa" && v.attacco) {
     const att = v.attacco;
@@ -1253,13 +1263,50 @@ function SceltaInSospeso({
           <b>{nomePotere(att.carta, att.potere)}</b> ({nomeCarta(att.carta)}, livello {att.livello}): {testoPotere}
         </p>
         {secondi !== null && <p className="mt-1 text-sm font-bold text-rosso">⏱ Hai ancora {secondi} secondi, poi l'attacco passa.</p>}
-        {att.carico ? (
+        {att.coperte ? (
+          <div className="mt-2 rounded-xl border border-rosso/40 bg-rosso/5 p-2">
+            <p className="text-sm">
+              🂠 <b>Duello al buio</b>: {nick(att.attaccante)} ha messo <b>{att.coperte === 1 ? "1 carta coperta" : `${att.coperte} carte coperte`}</b>. Per
+              difenderti con una carta attivata metti anche tu carte coperte: se la tua somma arriva almeno alla sua, la difesa regge. Alla fine si
+              girano e chi ha messo di più si prende tutte le carte (a parità vince chi si difende). Oppure fai <b>harakiri</b> (la carta va negli
+              scarti, l'attacco è fermato e lui perde le sue). Vini, scuse e difese d'emergenza fermano l'attacco senza carte: lui perde le sue.
+            </p>
+            <p className="mb-1 mt-2 text-sm font-semibold">
+              Le tue carte coperte: {scelte.length > 0 ? v.mano.filter((c) => scelte.includes(c.id)).reduce((n, c) => n + c.valore, 0) : "nessuna"}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {v.mano.map((c) => (
+                <CartaNumeroGrafica key={c.id} c={c} selezionata={scelte.includes(c.id)} onClick={() => setScelte((s) => alterna(s, c.id, 30))} />
+              ))}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {[...new Map(
+                mosse
+                  .filter((m): m is Extract<Mossa, { tipo: "difendi" }> => m.tipo === "difendi" && !!m.carico)
+                  .map((m) => {
+                    const { carico: _c, ...resto } = m;
+                    return [JSON.stringify(resto), resto] as const;
+                  }),
+              ).values()].map((m) => (
+                <Pulsante key={JSON.stringify(m)} disabled={bloccato || scelte.length === 0} onClick={() => gioca({ ...m, carico: scelte })}>
+                  {descriviMossa({ ...m, carico: scelte }, v, nick)}
+                </Pulsante>
+              ))}
+            </div>
+          </div>
+        ) : att.carico ? (
           <p className="mt-1 text-sm">
             ⚖️ <b>Carico {att.carico}</b>: per difenderti con una carta attivata scarti carte numero che fanno almeno {att.carico}, oppure fai{" "}
             <b>harakiri</b> (la carta va negli scarti con i suoi punti). Vini, scuse e difese d'emergenza non pagano il carico.
           </p>
         ) : null}
-        <ListaMosse mosse={mosse.filter((m) => m.tipo === "difendi")} v={v} nick={nick} onScegli={gioca} disabilitata={bloccato} />
+        <ListaMosse
+          mosse={mosse.filter((m) => m.tipo === "difendi" && !(att.coperte && m.carico))}
+          v={v}
+          nick={nick}
+          onScegli={gioca}
+          disabilitata={bloccato}
+        />
         {n > 0 && (
           <div className="mt-3">
             <p className="mb-1 text-sm font-semibold">Se lo lasci passare, scegli {n} {n === 1 ? "carta" : "carte"}:</p>
@@ -1392,6 +1439,59 @@ function SceltaInSospeso({
             Scambia
           </Pulsante>
         </div>
+      </Foglio>
+    );
+  }
+
+  if (a.tipo === "lingua") {
+    // Lingua Glabra: un personaggio nascosto da ciascuno; si può decidere di scartarlo invece di tenerlo
+    const io = v.giocatori[v.io]!;
+    const posto = Math.max(0, v.opzioni.maxNascosti - io.nascosti);
+    const scelto = (chi: string) => scelte.find((id) => v.turno.rivelati.find((r) => r.giocatore === chi)?.nascosti.some((c) => c.id === id));
+    const carte = a.a.map(scelto);
+    const tenute = carte.filter((id) => id && !daScartare.includes(id)).length;
+    return (
+      <Foglio titolo="👅 Lingua Glabra: prendi un personaggio a ciascuno">
+        <p className="mb-2 text-sm">
+          Tocca un personaggio per ogni giocatore. Puoi tenerlo (hai posto per {posto}) o scartarlo.
+        </p>
+        {a.a.map((chi) => {
+          const mostrati = v.turno.rivelati.filter((r) => r.giocatore === chi).at(-1)?.nascosti ?? [];
+          const preso = scelto(chi);
+          return (
+            <div key={chi} className="mb-3">
+              <p className="mb-1 text-sm font-semibold">Da {nick(chi)}:</p>
+              <div className="flex flex-wrap gap-2">
+                {mostrati.map((c) => (
+                  <div key={c.id} className={preso === c.id ? "rounded-xl ring-4 ring-oro" : ""}>
+                    <CartaFamiglia
+                      idCarta={c.carta}
+                      onClick={() => setScelte((s) => [...s.filter((x) => !mostrati.some((y) => y.id === x)), c.id])}
+                    />
+                  </div>
+                ))}
+              </div>
+              {preso && (
+                <label className="mt-1 flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={daScartare.includes(preso)}
+                    onChange={() => setDaScartare((s) => (s.includes(preso) ? s.filter((x) => x !== preso) : [...s, preso]))}
+                  />
+                  Scartalo invece di tenerlo
+                </label>
+              )}
+            </div>
+          );
+        })}
+        {tenute > posto && <p className="text-sm font-bold text-rosso">Ne tieni {tenute} ma hai posto per {posto}: scartane qualcuno.</p>}
+        <Pulsante
+          className="mt-2"
+          disabled={bloccato || carte.some((x) => !x) || tenute > posto}
+          onClick={() => gioca({ tipo: "scegli", carte: carte as string[], scarta: daScartare.filter((x) => carte.includes(x)) })}
+        >
+          Prendi
+        </Pulsante>
       </Foglio>
     );
   }

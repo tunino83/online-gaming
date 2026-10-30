@@ -53,7 +53,12 @@ export interface VistaGiocatore {
     rivelati: StatoTurno["rivelati"];
   };
   /** Attacco in corso (informazioni pubbliche). */
-  attacco: Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile" | "carico"> | null;
+  attacco:
+    | (Pick<AttaccoInCorso, "attaccante" | "da" | "carta" | "potere" | "livello" | "bersaglio" | "controTutti" | "indifendibile" | "carico"> & {
+        /** Duello al buio: quante carte coperte ha messo chi attacca (il carico lo vede solo lui). */
+        coperte?: number;
+      })
+    | null;
   /** Maschio e femmina li creò (Don Pasquale) in corso (di chi). */
   benedizione: IdGiocatore | null;
   /** Total black: il tavolo resta vuoto fino al prossimo turno di questo giocatore. */
@@ -126,7 +131,9 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
           bersaglio: s.attacco.bersaglio,
           controTutti: s.attacco.controTutti,
           indifendibile: s.attacco.indifendibile,
-          ...(s.attacco.carico ? { carico: s.attacco.carico } : {}),
+          // Duello al buio: il carico lo conosce solo chi attacca, gli altri vedono quante carte coperte ha messo
+          ...(s.attacco.carico && (!s.attacco.posta || id === s.attacco.attaccante) ? { carico: s.attacco.carico } : {}),
+          ...(s.attacco.posta ? { coperte: s.attacco.posta[0]!.carte.length } : {}),
         }
       : null,
     benedizione: s.benedizione,
@@ -177,7 +184,9 @@ export function vistaGiocatore(s: StatoPartita, id: IdGiocatore): VistaGiocatore
 export function vistaPubblica(s: StatoPartita): VistaGiocatore {
   const { fascicolo: _privato, ...v } = vistaGiocatore(s, s.ordine[0]!);
   const { cimaPersonaggi: _cima, ...pubblica } = v;
-  return { ...pubblica, io: "", turno: { ...v.turno, attesa: null, bluUsati: [] }, mano: [], nascosti: [] };
+  // Duello al buio: anche se il primo giocatore è chi attacca, il carico resta coperto
+  const attacco = v.attacco && s.attacco?.posta ? (({ carico: _carico, ...x }) => x)(v.attacco) : v.attacco;
+  return { ...pubblica, io: "", attacco, turno: { ...v.turno, attesa: null, bluUsati: [] }, mano: [], nascosti: [] };
 }
 
 /** Le proprie risorse per i codici, ricavate dalla propria vista (le usa il browser). */

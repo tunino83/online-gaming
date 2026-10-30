@@ -122,7 +122,7 @@ function StanzaAttesa({ partita, giocatori, io }: { partita: InfoPartita; giocat
             : `Punti per vincere: ${partita.opzioni.puntiPerVincere ?? (partita.gioco === "famiglia" ? 25 : 15)}`}
           {partita.gioco === "famiglia" && ` · ${partita.opzioni.secondiDifesa ?? 30} secondi per difendersi`}
           {partita.gioco === "famiglia" && partita.opzioni.limiteDifese === true && " · limite delle difese (una per livello)"}
-          {partita.gioco === "famiglia" && partita.opzioni.carico === true && " · attacchi con il carico"}
+          {partita.gioco === "famiglia" && partita.opzioni.carico === true && (partita.opzioni.duello === true ? " · duello al buio" : " · attacchi con il carico")}
           {(partita.gioco === "primo-gioco" || partita.gioco === "famiglia") &&
             ` · Chi resta fermo 60 secondi: ${partita.opzioni.computerAlPosto === false ? "si aspetta" : "gioca il computer al suo posto"}`}
         </p>

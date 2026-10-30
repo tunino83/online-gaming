@@ -37,7 +37,7 @@ export const PROMEMORIA: Record<string, string> = {
   "brace-accesa": "ricarichi 2 tue carte stanche",
   grigliata: "gratis: ricarichi tutte le tue carte",
   // Checca
-  schietta: "un avversario mostra i suoi nascosti",
+  schietta: "tutti mostrano i nascosti, ne prendi 1 a testa",
   collezione: "mostri una coppia: tutti ti danno quel numero",
   stuffosa: "blocchi un aiuto altrui scartando 2 carte",
   // Donatina
@@ -45,7 +45,7 @@ export const PROMEMORIA: Record<string, string> = {
   "ce-l-ho-io": "cerchi nel mazzo la carta che vuoi",
   urla: "ogni avversario scarta 2 carte (sceglie lui)",
   // Zio Salvatore
-  "si-canta": "prendi 1 carta a ognuno, poi ne ridai una a testa",
+  "si-canta": "scarti 1, peschi 1 personaggio e 1 numero, rubi 1",
   "versa-il-vino": "una carta avversaria dorme 1 turno in più",
   "anima-della-festa": "gratis: +3 mosse ora, poi 2 turni con 1 in meno",
   // Generoso

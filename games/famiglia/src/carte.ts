@@ -179,7 +179,7 @@ const ADULTI: Carta[] = [
     { codice: pari(4), poteri: [aiuto("O al sangue o niente", "Gratis (non usa mosse): ricarichi subito tutte le tue carte stanche", "grigliata")] },
   ]),
   ...persona("Checca", [
-    { codice: somma(2, 6), poteri: [attacco("Lingua Glabra", "Un avversario mostra a tutti i personaggi nascosti in mano", "schietta")] },
+    { codice: somma(2, 6), poteri: [attacco("Lingua Glabra", "Contro tutti: mostri i tuoi personaggi nascosti e gli avversari mostrano i loro; poi ne prendi uno a ciascuno (lo tieni o lo scarti)", "schietta")] },
     {
       codice: esatto(1, 2, 3),
       poteri: [
@@ -207,7 +207,7 @@ const ADULTI: Carta[] = [
     { codice: esatto(1, 2, 3, 4), poteri: [attacco("WEEEEEEEEEEEEEE", "Ogni avversario scarta 2 carte numero (sceglie lui quali)", "urla")] },
   ]),
   ...persona("Zio Salvatore", [
-    { codice: esatto(7, 7), poteri: [attacco("E one, E one ciù trii", "Prendi 1 carta numero a caso da ogni avversario; dopo averle prese tutte, scegli quale carta dare a ciascuno", "si-canta")] },
+    { codice: esatto(7, 7), poteri: [attacco("E one, E one ciù trii", "Scarti 1 carta numero, peschi 1 personaggio e 1 carta numero; poi prendi 1 carta numero a caso a un avversario (questa parte si può fermare)", "si-canta")] },
     { codice: somma(3, 14), poteri: [attacco("Assaggia questo vino", "Una carta carica di un avversario si addormenta: diventa stanca e ci mette 1 turno in più a ricaricarsi", "versa-il-vino")] },
     {
       codice: piuCoppia(8, 8),

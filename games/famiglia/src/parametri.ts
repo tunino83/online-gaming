@@ -33,6 +33,12 @@ export interface OpzioniPartita {
   limiteDifese: boolean;
   /** Carico: chi attacca può aggiungere carte numero; per difendersi con una carta attivata si scarta almeno quel valore (o si sacrifica la carta). */
   carico: boolean;
+  /**
+   * Duello al buio (dal 2026-10-30, insieme al carico): le carte del carico restano coperte, chi si difende con una carta attivata
+   * mette anche lui carte coperte (quante vuole) senza sapere il carico; si gira e la difesa regge se arriva almeno al carico.
+   * Chi ha messo di più si prende tutte le carte. Niente +1 per attacchi a segno e difese riuscite.
+   */
+  duello?: boolean;
 }
 
 export const OPZIONI_DEFAULT: OpzioniPartita = {
@@ -52,6 +58,7 @@ export const OPZIONI_DEFAULT: OpzioniPartita = {
   // Contro le troppe difese (accese per tutti il 2026-10-28; le partite già iniziate restano come erano)
   limiteDifese: true,
   carico: true,
+  duello: true,
 };
 
 export const MIN_GIOCATORI = 2;

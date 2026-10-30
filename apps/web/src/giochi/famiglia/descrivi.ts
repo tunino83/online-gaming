@@ -125,6 +125,11 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
       if (attesa?.tipo === "canto") {
         return `Dai ${elenco(m.carte.map((id, i) => `il ${numeri.get(id)?.valore ?? "?"} a ${nick(attesa.a[i] ?? "")}`))}`;
       }
+      if (attesa?.tipo === "lingua") {
+        const scarta = new Set(m.scarta ?? []);
+        const nascosti = new Map(v.turno.rivelati.flatMap((r) => r.nascosti).map((c) => [c.id, c]));
+        return `👅 Prendi ${elenco(m.carte.map((id, i) => `${nomeCarta(nascosti.get(id)?.carta ?? id.split("#")[0]!)} da ${nick(attesa.a[i] ?? "")}${scarta.has(id) ? " (e lo scarti)" : ""}`))}`;
+      }
       if (attesa?.tipo === "stuffosa") return m.carte.length === 0 ? "Lascia stare" : `😤 Ti scocci: scarti ${valori(m.carte)}`;
       if (v.turno.attesa?.tipo === "scambiaTavolo") {
         if (m.carte.length === 0) return "Nessuno scambio";
@@ -149,7 +154,13 @@ export function descriviMossa(m: Mossa, v: VistaGiocatore, nick: (id: string) =>
           : "";
       const devia = m.giocatore ? ` → l'attacco va a ${nick(m.giocatore)}` : "";
       const paga = potere === "ricorso" && m.carte ? ` (parcella: ${valori(m.carte)})` : "";
-      const carico = m.harakiri ? " · harakiri: sacrifichi la carta" : m.carico ? ` · carico: scarti ${valori(m.carico)}` : "";
+      const carico = m.harakiri
+        ? " · harakiri: sacrifichi la carta"
+        : m.carico && v.attacco?.coperte
+          ? ` · metti coperte ${valori(m.carico)} (${m.carico.reduce((n, id) => n + (numeri.get(id)?.valore ?? 0), 0)})`
+          : m.carico
+            ? ` · carico: scarti ${valori(m.carico)}`
+            : "";
       return `🛡️ ${nomePotere(idCarta, potere)} – ${nomeCarta(idCarta)}${emergenza}${devia}${paga}${carico}`;
     }
     case "subisci": {
@@ -186,11 +197,18 @@ export function descriviFatto(f: Fatto, nick: (id: string) => string, io: string
     case "sceglie":
       return `${chi}: sceglie ${f.quante === 1 ? "una carta" : `${f.quante} carte`}`;
     case "attacco":
-      return `⚔️ ${chi}: ${nomePotere(f.carta, f.potere)} contro ${elenco(f.bersagli.map(nick))}${f.carico ? ` con carico ${f.carico}` : ""}`;
+      return `⚔️ ${chi}: ${nomePotere(f.carta, f.potere)} contro ${elenco(f.bersagli.map(nick))}${f.coperte ? ` con ${f.coperte === 1 ? "1 carta coperta" : `${f.coperte} carte coperte`} 🂠` : f.carico ? ` con carico ${f.carico}` : ""}`;
     case "difesa":
       return f.riuscita
         ? `🛡️ ${chi}: si difende con ${nomePotere(f.carta, f.potere)}${f.harakiri ? " (harakiri: sacrifica la carta)" : ""}${f.girata ? ` (gira un ${f.girata}: dispari!)` : ""}${f.devia ? ` e passa l'attacco a ${nick(f.devia)}` : ""}`
-        : `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)}${f.girata ? `, gira un ${f.girata}: pari` : ""}… ma non funziona!`;
+        : f.coperte !== undefined
+          ? `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)} con ${f.coperte} carte coperte… ma non bastano!`
+          : `🛡️ ${chi}: prova ${nomePotere(f.carta, f.potere)}${f.girata ? `, gira un ${f.girata}: pari` : ""}… ma non funziona!`;
+    case "duello": {
+      const somme = Object.entries(f.somme).map(([g, n]) => `${g === io ? "tu" : nick(g)} ${n}`);
+      const premio = f.carte === 0 ? "" : f.vince ? `: ${f.vince === io ? "ti prendi" : `${nick(f.vince)} si prende`} ${f.carte === 1 ? "la carta" : `tutte le ${f.carte} carte`}` : ": pareggio, le carte vanno negli scarti";
+      return `🂠 Si girano le carte: ${elenco(somme)}${f.persa ? ` (${chi === "Tu" ? "perdi" : "perde"} le sue: attacco fermato senza carte)` : ""}${premio}`;
+    }
     case "colpito":
       return `💥 ${chi}: colpito`;
     case "protetto":

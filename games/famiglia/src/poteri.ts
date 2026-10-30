@@ -568,6 +568,30 @@ export function rispondiScelta(s: StatoPartita, id: IdGiocatore, m: Mossa): void
     s.turno.canto = null;
     return;
   }
+  if (a?.tipo === "lingua" && m.tipo === "scegli") {
+    // Lingua Glabra: un personaggio nascosto per ogni avversario colpito, nello stesso ordine; quelli in `scarta` non si tengono
+    if (m.carte.length !== a.a.length) rifiuta(a.a.length === 1 ? "Scegli il personaggio da prendere" : `Scegli ${a.a.length} personaggi, uno per giocatore`);
+    const prese = m.carte.map((x, i) => {
+      const o = s.giocatori[a.a[i]!]!;
+      const c = o.nascosti.find((y) => y.id === x);
+      if (!c) rifiuta("Scegli tra i personaggi nascosti mostrati");
+      return { o, c: c! };
+    });
+    const scarta = new Set(m.scarta ?? []);
+    if (![...scarta].every((x) => m.carte.includes(x))) rifiuta("Puoi scartare solo i personaggi che prendi");
+    const tenute = prese.filter((x) => !scarta.has(x.c.id)).length;
+    const posto = Math.max(0, s.opzioni.maxNascosti - g.nascosti.length);
+    if (tenute > posto) rifiuta(posto === 0 ? "Non hai posto tra i nascosti: scarta i personaggi che prendi" : `Hai posto per ${posto} personaggi nascosti: scarta gli altri`);
+    for (const { o, c } of prese) {
+      o.nascosti.splice(o.nascosti.indexOf(c), 1);
+      if (scarta.has(c.id)) s.scarti.personaggi.push(c);
+      else g.nascosti.push(c);
+    }
+    registra(s, id, { tipo: "sceglie", quante: prese.length });
+    s.turno.attesa = null;
+    s.turno.lingua = null;
+    return;
+  }
   if (a?.tipo === "scambiaTavolo" && m.tipo === "scegli") {
     if (m.carte.length > 0) {
       const mia = m.carte.length === 2 ? g.mano.find((c) => c.id === m.carte[0] && !c.unite) : undefined;
@@ -607,6 +631,13 @@ export function mosseDiScelta(s: StatoPartita): Mossa[] {
     const ids = g.mano.map((c) => c.id);
     const scelte = [ids.slice(0, quante), ids.slice(-quante), perValore.slice(0, quante), perValore.slice(-quante)];
     return [...new Map(scelte.map((x) => [x.join(), x])).values()].map((carte): Mossa => ({ tipo: "scegli", carte }));
+  }
+  if (a?.tipo === "lingua") {
+    // Il primo personaggio di ciascuno: tenuti finché c'è posto (gli altri scartati), oppure tutti scartati
+    const carte = a.a.map((x) => s.giocatori[x]!.nascosti[0]!.id);
+    const posto = Math.max(0, s.opzioni.maxNascosti - s.giocatori[a.giocatore]!.nascosti.length);
+    const tieni: Mossa = { tipo: "scegli", carte, ...(carte.length > posto ? { scarta: carte.slice(posto) } : {}) };
+    return posto > 0 ? [tieni, { tipo: "scegli", carte, scarta: carte }] : [tieni];
   }
   if (a?.tipo === "scambiaTavolo") {
     // Niente scambio, oppure una carta per valore della mano con una del tavolo di valore diverso

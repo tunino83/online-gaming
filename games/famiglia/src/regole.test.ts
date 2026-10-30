@@ -41,6 +41,7 @@ describe("preparazione", () => {
       puntiPerGliAiuti: false,
       limiteDifese: true,
       carico: true,
+      duello: true,
     });
   });
 
@@ -447,7 +448,7 @@ describe("varianti dei punti (in prova)", () => {
   });
 
   it("punti per i poteri: 1 punto al primo aiuto del turno, all'attacco a segno e alla difesa riuscita", () => {
-    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: true, aiutiSenzaPunti: false }, 1);
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: true, aiutiSenzaPunti: false, duello: false }, 1);
     s.ordine = ["anna", "bruno", "carla"];
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;
@@ -466,7 +467,7 @@ describe("varianti dei punti (in prova)", () => {
   });
 
   it("punti per i poteri senza gli aiuti (C1): gli aiuti non danno punti, gli attacchi a segno sì", () => {
-    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: false }, 1);
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true, puntiPerGliAiuti: false, duello: false }, 1);
     s.ordine = ["anna", "bruno", "carla"];
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;
@@ -481,7 +482,7 @@ describe("varianti dei punti (in prova)", () => {
   });
 
   it("punti per i poteri: chi ferma un attacco con una difesa guadagna 1 punto", () => {
-    let s = setup(GIOCATORI, { puntiPerIPoteri: true }, 1);
+    let s = setup(GIOCATORI, { puntiPerIPoteri: true, duello: false }, 1);
     s.ordine = ["anna", "bruno", "carla"];
     s.turno.giocatore = "anna";
     s.turno.mosseRimaste = 3;

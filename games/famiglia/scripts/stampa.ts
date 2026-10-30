@@ -731,7 +731,7 @@ function plancia(doc: Doc, C: number, H: number) {
   const promemoria = [
     "3 mosse a turno · a fine turno al massimo 7 carte numero",
     "i personaggi nascosti si tengono in mano",
-    "carico: chi si difende con una carta attivata scarta almeno il carico o fa harakiri",
+    "duello al buio: carte coperte, regge chi arriva al carico, chi mette di più prende tutto",
   ];
   if (spazioSopra > 9) {
     // carte piccole: titolo, nome e promemoria in alto

@@ -9,11 +9,13 @@ export const GIOCATORI = ["anna", "bruno", "carla"];
 /**
  * Partita con un ordine fisso: anna, bruno, carla (anna di turno).
  * Senza campanelli e con gli scarti vuoti, così i test non dipendono dal caso
- * (i test sul campanello lo mettono apposta).
+ * (i test sul campanello lo mettono apposta). Duello al buio spento.
  */
 export function partita(n = 3): StatoPartita {
   const s = setup(GIOCATORI.slice(0, n), {}, 1);
   s.ordine = GIOCATORI.slice(0, n);
+  // I test provano le regole una per una: il duello al buio (acceso di base) lo accendono solo i suoi test
+  s.opzioni.duello = false;
   s.turno.giocatore = "anna";
   for (const c of [...s.mazzi.numeri, ...s.tavolo.numeri]) delete c?.campanello;
   s.mazzi.personaggi.unshift(...s.scarti.personaggi);

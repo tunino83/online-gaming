@@ -46,13 +46,14 @@ export function Home() {
   // La Famiglia: limite delle difese e carico negli attacchi (accesi di base, si possono spegnere)
   const [limiteDifese, setLimiteDifese] = useState(true);
   const [carico, setCarico] = useState(true);
+  const [duello, setDuello] = useState(true);
   const scelto = GIOCHI.find((g) => g.id === gioco)!;
   const famiglia = gioco === "famiglia";
   /** Opzioni scelte da chi crea la partita (alcune solo per certi giochi). */
   const opzioni = () => ({
     puntiPerVincere: punti,
     ...(gioco === "primo-gioco" || famiglia ? { computerAlPosto } : {}),
-    ...(famiglia ? { modoFine, secondiDifesa, limiteDifese, carico } : {}),
+    ...(famiglia ? { modoFine, secondiDifesa, limiteDifese, carico, duello: carico && duello } : {}),
   });
   const scegliGioco = (id: IdGioco) => {
     setGioco(id);
@@ -235,6 +236,15 @@ export function Home() {
                   <b>Carico</b>: chi attacca può aggiungere carte numero; per difendersi si scarta almeno quel valore o si sacrifica la carta
                 </span>
               </label>
+              {carico && (
+                <label className="ml-6 flex items-start gap-2 text-sm">
+                  <input type="checkbox" checked={duello} onChange={(e) => setDuello(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#b8892b]" />
+                  <span>
+                    <b>Duello al buio</b>: le carte del carico restano coperte, anche chi si difende mette carte coperte e chi ha messo di più si
+                    prende tutto (niente +1 per attacchi e difese)
+                  </span>
+                </label>
+              )}
             </div>
           )}
           <Errore testo={errore} />

@@ -4,7 +4,7 @@ import { contaCarte, copia, fai, num, partita, rifiutata } from "./aiuti-test";
 import { CARTE, carta } from "./carte";
 import { mossaAutomatica, mosseValide, puntiDi } from "./regole";
 import type { Mossa, ParametriPotere, StatoPartita } from "./stato";
-import { vistaGiocatore } from "./vista";
+import { vistaGiocatore, vistaPubblica } from "./vista";
 
 /* ---------------- aiuti ---------------- */
 
@@ -181,11 +181,45 @@ describe("attacchi a un avversario", () => {
     expect(mossaAutomatica(s)?.mossa.tipo).toBe("fineTurno");
   });
 
-  it("Schietta: i personaggi nascosti dell'avversario li vedono tutti per il resto del turno", () => {
+  it("Lingua Glabra: contro tutti; tutti mostrano i nascosti e Checca ne prende uno a testa (lo tiene o lo scarta)", () => {
     let s = attivata(partita(), "anna", "checca-1");
+    g(s, "anna").nascosti = [copia("antonio-1")];
+    g(s, "bruno").nascosti = [copia("chicca-1"), copia("zia-diana")];
+    g(s, "carla").nascosti = [copia("generoso-1")];
+    s = attacca(s, "checca-1");
+    // Checca mostra i suoi, poi tutti gli avversari colpiti
+    expect(vistaGiocatore(s, "carla").turno.rivelati.map((r) => r.giocatore)).toEqual(["anna", "bruno", "carla"]);
+    expect(s.turno.attesa).toEqual({ tipo: "lingua", giocatore: "anna", a: ["bruno", "carla"] });
+    expect(rifiutata(s, "anna", { tipo: "scegli", carte: ["zia-diana#1"] })).toMatch(/2 personaggi/);
+    expect(rifiutata(s, "anna", { tipo: "scegli", carte: ["generoso-1#1", "zia-diana#1"] })).toMatch(/nascosti mostrati/);
+    s = fai(s, "anna", { tipo: "scegli", carte: ["zia-diana#1", "generoso-1#1"], scarta: ["generoso-1#1"] });
+    expect(g(s, "anna").nascosti.map((c) => c.carta)).toEqual(["antonio-1", "zia-diana"]);
+    expect(g(s, "bruno").nascosti.map((c) => c.carta)).toEqual(["chicca-1"]);
+    expect(g(s, "carla").nascosti).toEqual([]);
+    expect(s.scarti.personaggi.map((c) => c.carta)).toContain("generoso-1");
+    expect(s.turno.attesa).toBeNull();
+  });
+
+  it("Lingua Glabra: si tiene solo quello che entra tra i nascosti; chi si difende o non ha nascosti non dà niente", () => {
+    let s = attivata(attivata(partita(), "anna", "checca-1"), "carla", "gerardina-1"); // Ma siii…
+    g(s, "anna").nascosti = [copia("antonio-1"), copia("nonna-dina-1")];
     g(s, "bruno").nascosti = [copia("chicca-1")];
-    s = attacca(s, "checca-1", { giocatore: "bruno" });
-    expect(vistaGiocatore(s, "carla").turno.rivelati).toEqual([{ giocatore: "bruno", mano: [], nascosti: [copia("chicca-1")] }]);
+    g(s, "carla").nascosti = [copia("generoso-1")];
+    s = attacca(s, "checca-1");
+    s = difendi(s, "carla", "gerardina-1");
+    expect(s.turno.attesa).toEqual({ tipo: "lingua", giocatore: "anna", a: ["bruno"] });
+    s = fai(s, "anna", { tipo: "scegli", carte: ["chicca-1#1"] });
+    expect(g(s, "anna").nascosti).toHaveLength(3);
+
+    let pieno = attivata(partita(), "anna", "checca-1");
+    g(pieno, "anna").nascosti = [copia("antonio-1"), copia("nonna-dina-1"), copia("zia-diana")];
+    g(pieno, "bruno").nascosti = [copia("chicca-1")];
+    pieno = attacca(pieno, "checca-1");
+    expect(rifiutata(pieno, "anna", { tipo: "scegli", carte: ["chicca-1#1"] })).toMatch(/Non hai posto/);
+    expect(mosseValide(pieno, "anna")).toEqual([{ tipo: "scegli", carte: ["chicca-1#1"], scarta: ["chicca-1#1"] }]);
+
+    const vuoto = attacca(attivata(partita(), "anna", "checca-1"), "checca-1");
+    expect(vuoto.turno.attesa).toBeNull();
   });
 
   it("Gli occhi 'nguoll: una carta nascosta a caso", () => {
@@ -411,37 +445,33 @@ describe("attacchi contro tutti", () => {
     expect(g(s, "carla").mano).toHaveLength(0);
   });
 
-  it("E one, E one ciù trii: prendi una carta a caso da ognuno; solo dopo averle prese tutte scegli quale ridare a ciascuno", () => {
+  it("E one, E one ciù trii: scarti 1 carta, peschi 1 personaggio e 1 numero, poi rubi 1 carta a caso all'avversario scelto", () => {
     let s = attivata(partita(), "anna", "zio-salvatore-1");
-    manoDi(s, "anna", 1);
+    manoDi(s, "anna", 1, 9);
     manoDi(s, "bruno", 5);
-    manoDi(s, "carla", 6);
-    s = attacca(s, "zio-salvatore-1");
-    // prima prende da tutti
-    expect(g(s, "anna").mano.map((c) => c.id).sort()).toEqual(["anna0", "bruno0", "carla0"]);
-    expect(s.turno.attesa).toEqual({ tipo: "canto", giocatore: "anna", a: ["bruno", "carla"] });
-    expect(rifiutata(s, "anna", { tipo: "scegli", carte: ["anna0"] })).toMatch(/2 carte/);
-    // poi decide: a bruno la carta di carla, a carla la sua
-    s = fai(s, "anna", { tipo: "scegli", carte: ["carla0", "anna0"] });
-    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["carla0"]);
-    expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["anna0"]);
-    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["bruno0"]);
-    expect(s.turno.attesa).toBeNull();
-    expect(s.turno.canto).toBeNull();
+    s.mazzi.personaggi.push(copia("antonio-1", 7));
+    expect(rifiutata(s, "anna", { tipo: "potere", carta: "zio-salvatore-1#1", potere: "si-canta", giocatore: "bruno" })).toMatch(/da scartare/);
+    expect(mosseValide(s, "anna")).toContainEqual({ tipo: "potere", carta: "zio-salvatore-1#1", potere: "si-canta", giocatore: "bruno", carte: ["anna0"] });
+    s = attacca(s, "zio-salvatore-1", { giocatore: "bruno", carte: ["anna0"] });
+    expect(s.scarti.numeri.map((c) => c.id)).toContain("anna0");
+    expect(g(s, "anna").nascosti.map((c) => c.id)).toContain("antonio-1#7");
+    expect(g(s, "anna").mano.map((c) => c.id)).toContain("bruno0");
+    expect(g(s, "anna").mano).toHaveLength(3); // il 9, la carta pescata e quella di bruno
+    expect(g(s, "bruno").mano).toEqual([]);
   });
 
-  it("E one, E one ciù trii: chi si difende non dà e non riceve", () => {
+  it("E one, E one ciù trii: se l'avversario si difende le pescate restano; con la zona piena si sceglie dopo l'attacco", () => {
     let s = attivata(attivata(partita(), "anna", "zio-salvatore-1"), "bruno", "gerardina-1"); // Ma siii…
     manoDi(s, "anna", 1);
     manoDi(s, "bruno", 5);
-    manoDi(s, "carla", 6);
-    s = attacca(s, "zio-salvatore-1");
+    g(s, "anna").nascosti = [copia("nonna-dina-1"), copia("generoso-1"), copia("zia-diana")];
+    s.mazzi.personaggi.push(copia("antonio-1", 7));
+    s = attacca(s, "zio-salvatore-1", { giocatore: "bruno", carte: ["anna0"] });
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "bruno" });
     s = difendi(s, "bruno", "gerardina-1");
-    expect(s.turno.attesa).toEqual({ tipo: "canto", giocatore: "anna", a: ["carla"] });
-    s = fai(s, "anna", { tipo: "scegli", carte: ["anna0"] });
     expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno0"]);
-    expect(g(s, "carla").mano.map((c) => c.id)).toEqual(["anna0"]);
+    expect(g(s, "anna").mano).toHaveLength(1); // la carta pescata
+    expect(s.turno.attesa).toEqual({ tipo: "scartaCarta", giocatore: "anna", zona: "nascosti", nuova: "antonio-1#7" });
   });
 
   it("Aggiornamento stato in corso: ognuno sceglie se dare una carta o far stancare una sua carta carica", () => {
@@ -656,8 +686,9 @@ describe("difese", () => {
     let s = difendi(bruno_si_difende("roberta-2"), "bruno", "roberta-2");
     g(s, "bruno").nascosti = [copia("chicca-1")];
     attivata(s, "anna", "checca-1");
-    s = attacca(s, "checca-1", { giocatore: "bruno" }); // Lingua Glabra
-    expect(s.turno.rivelati).toEqual([]);
+    s = attacca(s, "checca-1"); // Lingua Glabra
+    expect(s.turno.rivelati.filter((r) => r.giocatore === "bruno")).toEqual([]);
+    expect(s.turno.attesa?.tipo).not.toBe("lingua");
     expect(g(s, "bruno").nascosti).toHaveLength(1);
   });
 
@@ -879,11 +910,11 @@ describe("Nonna Maria e Nonno Rafiluccio (attacchi e difese)", () => {
     expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
     expect(g(s, "bruno").muro).toBe(true);
     // un altro attacco di livello 1 non ha effetto
-    attivata(s, "anna", "checca-1"); // Schietta, livello 1
+    attivata(s, "anna", "checca-1"); // Lingua Glabra, livello 1
     g(s, "bruno").nascosti = [copia("chicca-1")];
-    s = attacca(s, "checca-1", { giocatore: "bruno" });
-    expect(s.turno.rivelati).toEqual([]);
-    expect(s.registro.at(-1)).toMatchObject({ tipo: "protetto", giocatore: "bruno" });
+    s = attacca(s, "checca-1");
+    expect(s.turno.rivelati.filter((r) => r.giocatore === "bruno")).toEqual([]);
+    expect(s.registro).toContainEqual(expect.objectContaining({ tipo: "protetto", giocatore: "bruno" }));
   });
 
   it("Che è sta cumedia?: l'avversario sceglie se dare 2 carte numero o saltare il prossimo turno", () => {
@@ -972,6 +1003,109 @@ describe("carico", () => {
     s = difendi(s, "bruno", "antonio-3", { harakiri: true });
     expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
     expect(mosseValide(s, "carla")).toContainEqual({ tipo: "difendi", carta: "antonio-3#2", potere: "ho-sempre-ragione-io", harakiri: true });
+  });
+});
+
+describe("duello al buio", () => {
+  /** Anna attacca bruno con Freeeeeezee (livello 1) e 5 + 3 coperte; bruno ha Ma siii… attivata. */
+  const duello = (manoBruno: number[]) => {
+    const s = attivata(attivata(partita(), "anna", "toto-1"), "bruno", "gerardina-1");
+    s.opzioni.duello = true;
+    g(s, "anna").mano = [num(5, "a5"), num(3, "a3"), num(2, "a2")];
+    manoDi(s, "bruno", ...manoBruno);
+    return attacca(s, "toto-1", { giocatore: "bruno", carico: ["a5", "a3"] });
+  };
+
+  it("le carte di chi attacca restano coperte: gli altri vedono solo quante sono", () => {
+    const s = duello([4, 4, 1]);
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["a2"]);
+    expect(vistaGiocatore(s, "bruno").attacco).toMatchObject({ coperte: 2 });
+    expect(vistaGiocatore(s, "bruno").attacco?.carico).toBeUndefined();
+    expect(vistaPubblica(s).attacco?.carico).toBeUndefined();
+    expect(vistaGiocatore(s, "anna").attacco?.carico).toBe(8);
+    expect(s.registro.find((f) => f.tipo === "attacco")).toMatchObject({ coperte: 2 });
+    expect(JSON.stringify(s.registro)).not.toContain('"carico"');
+    // si può mettere qualsiasi carta, anche meno del carico
+    const difese = mosseValide(s, "bruno").filter((m) => m.tipo === "difendi");
+    expect(difese).toContainEqual({ tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma", carico: ["bruno2"] });
+    expect(difese).toContainEqual({ tipo: "difendi", carta: "gerardina-1#1", potere: "sempre-calma", harakiri: true });
+  });
+
+  it("chi si difende arriva almeno al carico: la difesa regge e si prende tutte le carte (a parità vince la difesa), niente +1", () => {
+    let s = duello([4, 4, 1]);
+    s = difendi(s, "bruno", "gerardina-1", { carico: ["bruno0", "bruno1"] }); // 8 contro 8
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "bruno").mano.map((c) => c.id).sort()).toEqual(["a3", "a5", "bruno0", "bruno1", "bruno2"]);
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "duello", giocatore: "anna", somme: { anna: 8, bruno: 8 }, vince: "bruno", carte: 4 });
+    expect(g(s, "bruno").puntiPoteri ?? 0).toBe(0);
+    expect(s.attacco).toBeNull();
+  });
+
+  it("chi si difende mette meno del carico: l'attacco colpisce e chi attacca si prende tutto", () => {
+    let s = duello([4, 1, 1]);
+    s = difendi(s, "bruno", "gerardina-1", { carico: ["bruno0", "bruno1"] }); // 5 contro 8
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(-1); // Freeeeeezee a segno
+    expect(g(s, "bruno").attivati[0]!.stanca).toBe(1); // la carta di difesa si è stancata lo stesso
+    expect(g(s, "anna").mano.map((c) => c.id).sort()).toContain("bruno0");
+    expect(g(s, "bruno").mano.map((c) => c.id)).toEqual(["bruno2"]);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "duello", vince: "anna", carte: 4 });
+    expect(g(s, "anna").puntiPoteri ?? 0).toBe(0);
+  });
+
+  it("nessuna difesa: l'attacco colpisce e chi attacca riprende le sue carte", () => {
+    let s = duello([4]);
+    s = subisci(s, "bruno");
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(expect.arrayContaining(["a2", "a3", "a5"]));
+    expect(g(s, "anna").mano).toHaveLength(4); // più la carta di Freeeeeezee
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "duello", vince: "anna", carte: 2 });
+  });
+
+  it("harakiri o difesa d'emergenza: l'attacco è fermato senza carte e chi attacca perde le sue", () => {
+    let s = duello([4]);
+    s = difendi(s, "bruno", "gerardina-1", { harakiri: true });
+    expect(g(s, "bruno").attivati).toEqual([]);
+    expect(g(s, "bruno").mosseProssimoTurno).toBe(0);
+    expect(g(s, "anna").mano.map((c) => c.id)).toEqual(["a2"]);
+    expect(s.scarti.numeri.map((c) => c.id)).toEqual(expect.arrayContaining(["a5", "a3"]));
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "duello", vince: null, persa: true, carte: 0 });
+
+    let e = attivata(partita(), "anna", "toto-1");
+    e.opzioni.duello = true;
+    g(e, "anna").mano = [num(5, "a5")];
+    g(e, "bruno").nascosti = [copia("paesano")];
+    manoDi(e, "bruno", 1);
+    e = attacca(e, "toto-1", { giocatore: "bruno", carico: ["a5"] });
+    const paesano = mosseValide(e, "bruno").find((m) => m.tipo === "difendi")!;
+    expect(paesano).not.toHaveProperty("carico");
+    e = fai(e, "bruno", paesano);
+    expect(g(e, "anna").mano).toEqual([]);
+    expect(e.scarti.numeri.map((c) => c.id)).toContain("a5");
+  });
+
+  it("contro tutti: ognuno mette carte al buio; chi ha messo di più si prende tutto, pareggio tra chi si difende = nessuno", () => {
+    const tutti = (bruno: string[], carla: string[]) => {
+      let s = attivata(attivata(attivata(partita(), "anna", "gerardina-3"), "bruno", "antonio-3"), "carla", "antonio-3", 0, 2);
+      s.opzioni.duello = true;
+      g(s, "anna").mano = [num(6, "a6")];
+      manoDi(s, "bruno", 4, 5, 2);
+      manoDi(s, "carla", 7, 2, 3);
+      s = attacca(s, "gerardina-3", { carico: ["a6"] });
+      s = fai(s, "bruno", { tipo: "difendi", carta: "antonio-3#1", carico: bruno });
+      expect(s.turno.attesa).toEqual({ tipo: "difesa", giocatore: "carla" });
+      // carla non vede quante ha messo bruno
+      expect(JSON.stringify(vistaGiocatore(s, "carla").registro.at(-1))).not.toMatch(/somme/);
+      return fai(s, "carla", { tipo: "difendi", carta: "antonio-3#2", carico: carla });
+    };
+    // bruno 9, carla 7: tutte e due reggono (almeno 6), bruno si prende tutto
+    const s = tutti(["bruno0", "bruno1"], ["carla0"]);
+    expect(s.registro.at(-1)).toMatchObject({ tipo: "duello", somme: { anna: 6, bruno: 9, carla: 7 }, vince: "bruno", carte: 4 });
+    expect(g(s, "bruno").mano).toHaveLength(5);
+    // pareggio tra bruno e carla (7 e 7): nessuno prende, tutto negli scarti
+    const pari = tutti(["bruno1", "bruno2"], ["carla0"]);
+    expect(pari.registro.at(-1)).toMatchObject({ tipo: "duello", vince: null, carte: 4 });
+    expect(g(pari, "bruno").mano).toHaveLength(1);
+    expect(g(pari, "carla").mano).toHaveLength(2);
   });
 });
 

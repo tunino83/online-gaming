@@ -224,9 +224,9 @@ function TestoGuida({ larga }: { larga: boolean }) {
           valgono <strong>0 punti</strong>: si attivano per usarle.
         </p>
         <p>
-          🎯 <strong>+1 punto</strong> ogni volta che un tuo <strong>attacco va a segno</strong> (una volta per attacco, anche se colpisce
-          più avversari) e ogni volta che una tua <strong>difesa ferma un attacco</strong>. Questi punti restano anche se poi perdi le
-          carte. <strong>Famiglia al completo</strong>: le 3 carte della stessa persona attivate danno <strong>+2 punti</strong>.
+          🎯 Senza il duello al buio: <strong>+1 punto</strong> ogni volta che un tuo <strong>attacco va a segno</strong> (una volta per
+          attacco, anche se colpisce più avversari) e ogni volta che una tua <strong>difesa ferma un attacco</strong>. Questi punti restano
+          anche se poi perdi le carte. Con il duello al buio il premio sono le carte del duello. <strong>Famiglia al completo</strong>: le 3 carte della stessa persona attivate danno <strong>+2 punti</strong>.
         </p>
         <p>
           😴 Usato il potere, la carta <strong>si stanca</strong> per tanti turni quanto il suo livello (la ricarica è scritta sulla
@@ -255,6 +255,13 @@ function TestoGuida({ larga }: { larga: boolean }) {
           <li>
             ⚖️ <strong>Carico</strong> (facoltativo): all'attacco puoi aggiungere carte numero della tua mano. La loro somma è il carico
             e quelle carte <strong>le perdi comunque</strong>, che l'altro si difenda o no. Più è alto, più è difficile difendersi.
+          </li>
+          <li>
+            🂠 <strong>Duello al buio</strong> (acceso di base): le carte del carico restano <strong>coperte</strong> e non le perdi
+            subito. Chi si difende con un personaggio attivato mette anche lui carte coperte senza sapere le tue: se arriva almeno alla
+            tua somma la difesa regge. Alla fine si girano e <strong>chi ha messo di più si prende tutte le carte</strong> (a parità vince
+            chi si difende; tra più giocatori che si difendono a pari merito, nessuno). Se nessuno si difende riprendi le tue; se ti
+            fermano senza carte (harakiri, d'emergenza) le perdi.
           </li>
         </ul>
       </Voce>
