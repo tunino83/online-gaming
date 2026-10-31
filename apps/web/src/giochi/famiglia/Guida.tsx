@@ -375,6 +375,7 @@ const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).f
 export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
   const [colore, setColore] = useState("tutte");
+  const [comeTabella, setComeTabella] = useState(false);
   const esposte = useCarteEsposte(larga);
   const tipi = COLORI.find((x) => x.id === colore)!.tipi;
   const gruppi = GRUPPI.map((g) => ({ ...g, persone: perPersona(g.filtro, tipi) })).filter((g) => g.persone.length > 0);
@@ -405,11 +406,32 @@ export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
           );
         })}
       </div>
+      <div className="mb-2 inline-flex overflow-hidden rounded-xl border-2 border-oro/60 text-sm font-semibold" role="group" aria-label="Come vedere le carte">
+        {[
+          { tabella: false, nome: "🃏 Carte" },
+          { tabella: true, nome: "📋 Tabella dei poteri" },
+        ].map((x) => (
+          <button
+            key={x.nome}
+            type="button"
+            aria-pressed={comeTabella === x.tabella}
+            onClick={() => setComeTabella(x.tabella)}
+            className={comeTabella === x.tabella ? "bg-oro px-3 py-1 text-[#2b1a05]" : "bg-white px-3 py-1 text-inchiostro"}
+          >
+            {x.nome}
+          </button>
+        ))}
+      </div>
       <p className="mb-2 text-sm">
         {colore === "tutte" ? `${CARTE.length} carte diverse, ${copie} nel mazzo.` : `${scelte} ${scelte === 1 ? "carta" : "carte"} di questo colore.`}{" "}
-        {esposte ? "Tocca una carta per vederla a tutto schermo." : "Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo."}
+        {comeTabella
+          ? "Un potere per riga, con il suo colore."
+          : esposte
+            ? "Tocca una carta per vederla a tutto schermo."
+            : "Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo."}
       </p>
-      {gruppi.map((g) => (
+      {comeTabella && <TabellaPoteri carte={inOrdine} tipi={tipi} />}
+      {!comeTabella && gruppi.map((g) => (
         <div key={g.titolo} className="mb-5">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
           {esposte ? (
@@ -427,6 +449,65 @@ export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
       ))}
       {aperta !== null && <CartaInGrande carte={inOrdine} indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
     </div>
+  );
+}
+
+/** Nome del colore di ogni tipo di potere (come nella tabella del PDF). */
+const NOME_COLORE: Record<TipologiaCarta, string> = {
+  attacco: "Rosso · attacco",
+  difesa: "Blu · difesa",
+  aiuto: "Giallo · aiuto",
+  blu: "Verde · sempre attiva",
+  difesaUnaVolta: "Viola · difesa usa e getta",
+  attaccoUnaVolta: "Arancione · attacco usa e getta",
+};
+
+/**
+ * Tabella dei poteri (come quella stampata): un potere per riga con colore e cosa fa; sotto il nome del potere la carta,
+ * sotto la descrizione codice e ricarica. Con un filtro di colore restano solo i poteri di quel colore.
+ */
+function TabellaPoteri({ carte, tipi }: { carte: readonly Carta[]; tipi: TipologiaCarta[] }) {
+  const righe = carte.flatMap((c) =>
+    c.poteri.filter((p) => tipi.length === 0 || tipi.includes(tipologiaPotere(c, p))).map((p) => ({ c, p, tipo: tipologiaPotere(c, p) })),
+  );
+  return (
+    <table className="w-full border-collapse text-left text-sm">
+      <thead>
+        <tr className="border-b-2 border-oro/60 text-xs uppercase tracking-wide text-tenue">
+          <th className="py-1 pr-2">Potere</th>
+          <th className="py-1 pr-2">Colore</th>
+          <th className="py-1">Cosa fa</th>
+        </tr>
+      </thead>
+      <tbody>
+        {righe.map(({ c, p, tipo }) => {
+          const tinta = COLORI_TIPI[tipo];
+          const oggetto = c.categoria !== "personaggio";
+          const ricarica = oggetto ? "si usa una volta" : c.ricarica === 0 ? "non si stanca" : `ricarica ${c.ricarica} ${c.ricarica === 1 ? "turno" : "turni"}`;
+          return (
+            <tr key={`${c.id}-${p.id}`} className="border-b border-inchiostro/10 align-top">
+              <td className="border-l-4 py-1.5 pl-2 pr-2" style={{ borderColor: tinta.colore }}>
+                <b style={{ color: tinta.scuro }}>{p.nome}</b>
+                <div className="text-xs text-tenue">
+                  {c.nome}
+                  {oggetto ? (c.copie > 1 ? ` (${c.copie} copie)` : "") : <span className="text-oro"> {"★".repeat(c.livello)}</span>}
+                </div>
+              </td>
+              <td className="py-1.5 pr-2 text-xs">
+                <span className="mr-1 inline-block h-3 w-3 rounded-full align-middle" style={{ background: tinta.colore }} />
+                {NOME_COLORE[tipo]}
+              </td>
+              <td className="py-1.5">
+                {p.testo}
+                <div className="text-xs text-tenue">
+                  🔑 {descriviCodice(c.codice)} · {ricarica}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
 
