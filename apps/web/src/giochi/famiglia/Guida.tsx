@@ -1,5 +1,5 @@
 /** Guida della Famiglia: le regole in breve (riassunto di docs/famiglia/regolamento.md) e tutte le carte. */
-import { CARTE, type Carta, EVENTI, descriviCodice, soloAiuto, tipologiaPotere } from "@og/famiglia";
+import { CARTE, COLORI_TIPI, type Carta, EVENTI, type TipologiaCarta, descriviCodice, soloAiuto, tipologiaPotere } from "@og/famiglia";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CartaFamiglia, Stemma } from "./carte";
 
@@ -347,14 +347,25 @@ const GRUPPI: { titolo: string; filtro: (c: Carta) => boolean }[] = [
   { titolo: "Carte attacco (si usano una volta)", filtro: (c) => c.categoria === "attacco" },
 ];
 
-/** Le carte di un gruppo, raccolte per persona (gli adulti hanno 3 carte, le altre una). */
-function perPersona(filtro: (c: Carta) => boolean): Carta[][] {
+/** Filtri per colore: una carta compare se almeno un suo potere è di quel colore (Chicca 1 è sia blu sia verde). */
+const COLORI: { id: string; nome: string; tipi: TipologiaCarta[] }[] = [
+  { id: "tutte", nome: "Tutte", tipi: [] },
+  { id: "attacco", nome: "⚔️ Attacco", tipi: ["attacco", "attaccoUnaVolta"] },
+  { id: "difesa", nome: "🛡️ Difesa", tipi: ["difesa", "difesaUnaVolta"] },
+  { id: "aiuto", nome: "✨ Gialle", tipi: ["aiuto"] },
+  { id: "blu", nome: "♾️ Verdi", tipi: ["blu"] },
+];
+
+const delColore = (c: Carta, tipi: TipologiaCarta[]) => tipi.length === 0 || c.poteri.some((p) => tipi.includes(tipologiaPotere(c, p)));
+
+/** Le carte di un gruppo (e del colore scelto), raccolte per persona (gli adulti hanno 3 carte, le altre una). */
+function perPersona(filtro: (c: Carta) => boolean, tipi: TipologiaCarta[] = []): Carta[][] {
   const persone = new Map<string, Carta[]>();
-  for (const c of CARTE.filter(filtro)) persone.set(c.persona, [...(persone.get(c.persona) ?? []), c]);
+  for (const c of CARTE.filter((x) => filtro(x) && delColore(x, tipi))) persone.set(c.persona, [...(persone.get(c.persona) ?? []), c]);
   return [...persone.values()];
 }
 
-/** Ordine per sfogliare le carte a tutto schermo: lo stesso dell'elenco. */
+/** Ordine per sfogliare tutte le carte a tutto schermo: lo stesso dell'elenco. */
 const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).flat());
 
 /**
@@ -363,31 +374,58 @@ const IN_ORDINE: readonly Carta[] = GRUPPI.flatMap((g) => perPersona(g.filtro).f
  */
 export function CatalogoFamiglia({ larga = false }: { larga?: boolean }) {
   const [aperta, setAperta] = useState<number | null>(null);
+  const [colore, setColore] = useState("tutte");
   const esposte = useCarteEsposte(larga);
+  const tipi = COLORI.find((x) => x.id === colore)!.tipi;
+  const gruppi = GRUPPI.map((g) => ({ ...g, persone: perPersona(g.filtro, tipi) })).filter((g) => g.persone.length > 0);
+  // Ordine per sfogliare le carte a tutto schermo: lo stesso dell'elenco (solo le carte del colore scelto)
+  const inOrdine = gruppi.flatMap((g) => g.persone.flat());
   const copie = CARTE.reduce((n, c) => n + c.copie, 0);
+  const scelte = inOrdine.length;
   return (
     <div>
+      <div className="mb-2 flex flex-wrap gap-1.5" role="group" aria-label="Mostra solo le carte di un colore">
+        {COLORI.map((x) => {
+          const attivo = x.id === colore;
+          const tinta = x.tipi[0] ? COLORI_TIPI[x.tipi[0]].colore : "#7a4a26";
+          return (
+            <button
+              key={x.id}
+              type="button"
+              aria-pressed={attivo}
+              onClick={() => {
+                setColore(x.id);
+                setAperta(null);
+              }}
+              className="rounded-full border-2 px-3 py-1 text-sm font-semibold"
+              style={attivo ? { background: tinta, borderColor: tinta, color: "white" } : { borderColor: tinta, color: tinta, background: "white" }}
+            >
+              {x.nome}
+            </button>
+          );
+        })}
+      </div>
       <p className="mb-2 text-sm">
-        {CARTE.length} carte diverse, {copie} nel mazzo.{" "}
+        {colore === "tutte" ? `${CARTE.length} carte diverse, ${copie} nel mazzo.` : `${scelte} ${scelte === 1 ? "carta" : "carte"} di questo colore.`}{" "}
         {esposte ? "Tocca una carta per vederla a tutto schermo." : "Usa le frecce per vedere i livelli; tocca la carta per vederla a tutto schermo."}
       </p>
-      {GRUPPI.map((g) => (
+      {gruppi.map((g) => (
         <div key={g.titolo} className="mb-5">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-tenue">{g.titolo}</h4>
           {esposte ? (
-            <CarteEsposte persone={perPersona(g.filtro)} dimensione={esposte.dimensione} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+            <CarteEsposte key={colore} persone={g.persone} dimensione={esposte.dimensione} onApri={(c) => setAperta(inOrdine.indexOf(c))} />
           ) : (
             <ul className={elencoCarte(larga)}>
-              {perPersona(g.filtro).map((carte) => (
-                <li key={carte[0]!.persona}>
-                  <Carosello carte={carte} onApri={(c) => setAperta(IN_ORDINE.indexOf(c))} />
+              {g.persone.map((carte) => (
+                <li key={`${colore}-${carte[0]!.persona}`}>
+                  <Carosello carte={carte} onApri={(c) => setAperta(inOrdine.indexOf(c))} />
                 </li>
               ))}
             </ul>
           )}
         </div>
       ))}
-      {aperta !== null && <CartaInGrande indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
+      {aperta !== null && <CartaInGrande carte={inOrdine} indice={aperta} onCambia={setAperta} onChiudi={() => setAperta(null)} />}
     </div>
   );
 }
@@ -467,10 +505,20 @@ function Carosello({ carte, onApri, iniziale = 0, dimensione }: { carte: Carta[]
 }
 
 /** Una carta a tutto schermo, con le frecce (o lo scorrimento del dito) per passare alle altre. */
-function CartaInGrande({ indice, onCambia, onChiudi }: { indice: number; onCambia: (i: number) => void; onChiudi: () => void }) {
+function CartaInGrande({
+  carte = IN_ORDINE,
+  indice,
+  onCambia,
+  onChiudi,
+}: {
+  carte?: readonly Carta[];
+  indice: number;
+  onCambia: (i: number) => void;
+  onChiudi: () => void;
+}) {
   const inizio = useRef<number | null>(null);
-  const vai = (passo: number) => onCambia((indice + passo + IN_ORDINE.length) % IN_ORDINE.length);
-  const c = IN_ORDINE[indice]!;
+  const vai = (passo: number) => onCambia((indice + passo + carte.length) % carte.length);
+  const c = carte[indice]!;
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black/80 p-4"
@@ -503,7 +551,7 @@ function CartaInGrande({ indice, onCambia, onChiudi }: { indice: number; onCambi
           </p>
         ))}
         <p className="mt-1 text-white/70">
-          🔑 {descriviCodice(c.codice)} · {indice + 1} di {IN_ORDINE.length}
+          🔑 {descriviCodice(c.codice)} · {indice + 1} di {carte.length}
         </p>
       </div>
       <button type="button" onClick={onChiudi} className="rounded-xl border-2 border-oro px-4 py-2 font-bold text-oro-chiaro">
