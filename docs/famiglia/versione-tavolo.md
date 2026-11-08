@@ -26,8 +26,10 @@ Materiale: le carte già stampate (personaggi e carte numero), più fino a 3 seg
 
 ### Codici di attivazione (deciso il 2026-11-08)
 
-**Restano i codici già stampati sulle carte**, senza cambiarli e senza ristampare: devono esserci carte più forti e più
-difficili da attivare. Il prezzo a somma (6 per stella) è scartato.
+**Ogni carta mantiene un suo codice**: devono esserci carte più forti e più difficili da attivare. Il prezzo a somma (6 per stella) è scartato.
+
+La ristampa però non è più un vincolo (deciso il 2026-11-08): le carte prima o poi si ristampano, quindi stelle e codici si
+possono cambiare per livellare il gioco. Le proposte si discutono potere per potere.
 
 Limite da controllare giocando: con i codici di oggi ★ e ★★ sono facili quasi uguali (76% e 72% con 7 carte in mano, ★★★ 40%)
 e alcune ★★★ sono più facili di alcune ★ (`codici-difficolta.md`).
@@ -93,7 +95,7 @@ Vince chi arriva per primo a **20 punti**.
 
 | Oggi | Con questa versione |
 | --- | --- |
-| Codici | Restano uguali |
+| Codici | Restano, uno per carta; si possono cambiare per livellare |
 | Ricarica da 1 a 3 turni, con le tacche | Dritta o girata, e si risveglia con i caffè |
 | Mano, attacchi in attesa e tre limiti diversi | Una mano da 8 carte |
 | Plancia e segnapunti | Non servono |
@@ -128,7 +130,7 @@ Da decidere a parte:
 ## Domande aperte
 
 1. 3 azioni, 8 carte in mano, 20 punti e 1 caffè iniziale sono il punto di partenza (deciso il 2026-11-08): si correggono giocando.
-2. I codici stampati vanno bene a tavola o sono ancora troppo faticosi da controllare?
+2. I codici vanno bene a tavola o sono ancora troppo faticosi da controllare?
 3. Senza limite delle difese tornano gli attacchi fermati sempre? Il codice da pagare per le difese in mano e i caffè dovrebbero frenarlo, ma va visto in partita.
 
 ## Idee scartate
