@@ -39,10 +39,14 @@ e alcune ★★★ sono più facili di alcune ★ (`codici-difficolta.md`).
 3. Fai **3 azioni** a scelta:
    - **Prendi** una carta, numero o personaggio, dal tavolo o dal mazzo;
    - **Chiama a tavola** un personaggio dalla mano: paghi il suo codice e lo metti davanti a te, già sveglio;
-   - **Usa un potere** di una carta a tavola, poi la giri di lato: è stanca.
+   - **Usa un potere** di una carta a tavola, poi la giri di lato: è stanca;
+   - **Brucia** (deciso il 2026-11-08): scarti le 4 carte numero scoperte sul tavolo e ne scopri 4 nuove.
 
 Le carte "sempre attive" funzionano senza azione e non si stancano mai.
 Le carte usa e getta si pagano con il loro codice, si usano e si scartano.
+
+**Campanello** (deciso il 2026-11-08): come oggi, quando esce scoperta sul tavolo una carta numero con il campanello,
+i 2 personaggi scoperti vanno negli scarti e ne arrivano 2 nuovi. Non costa azioni a nessuno.
 
 ### Il caffè (idea del proprietario del gioco)
 
@@ -94,7 +98,8 @@ Vince chi arriva per primo a **20 punti**.
 | Mano, attacchi in attesa e tre limiti diversi | Una mano da 8 carte |
 | Plancia e segnapunti | Non servono |
 | Carico, duello al buio, limite delle difese | Tolti |
-| Bruciare, poteri gratis, mancia, campanello, eventi | Tolti |
+| Bruciare e campanello | Restano come oggi |
+| Poteri gratis, mancia, eventi | Tolti |
 
 Eventi e mancia si possono rimettere dopo, come espansione, se il gioco funziona.
 
@@ -118,7 +123,7 @@ Da decidere a parte:
 | Risvegliano gratis: con i caffè diventano molto più forti | Diavolina, O al sangue o niente |
 | Allungano la ricarica, che non c'è più | Tofu Super Seitan, Cella frigorifera |
 | Sono poteri gratis, che verrebbero tolti | Stai di nuovo qua?, È l'ultima volta che venite!, Cambiamo un po'…, O al sangue o niente, Sono il Party's King, Straordinario, Mangia mangia mangia |
-| Parlano di mancia, caffè, campanello o eventi | Da cercare tra i testi delle carte |
+| Parlano di mancia, caffè o eventi | Da cercare tra i testi delle carte |
 
 ## Domande aperte
 
