@@ -155,7 +155,7 @@ Carte "blu" (sempre attive, una volta per turno): `blu: true` sul potere; una ca
 Simulazione: `pnpm simula:famiglia [n] [mazzo]` (`src/simulazione.ts`) scrive `docs/famiglia/statistiche-simulazione.md`
 (o `statistiche-simulazione-mazzo.md`): durata, vantaggio di chi comincia, carte forti/deboli rispetto al loro livello, attacchi e difese.
 Ancora da fare: effetti di Pranzo della domenica e Ferragosto.
-**Proposta in corso (2026-11-08, non decisa): versione semplificata da tavolo** con prezzo a somma e caffè per risvegliare le carte: tutto in `docs/famiglia/versione-tavolo.md`.
+**Proposta in corso (2026-11-08, in parte decisa): versione semplificata da tavolo** con i codici già stampati e i caffè per risvegliare le carte (da provare a tavola): tutto in `docs/famiglia/versione-tavolo.md`.
 Possibile evoluzione (idea del 2026-10-27, non decisa, per ora non si fa): **costo degli attacchi**, cioè per usare un attacco
 attivato si scartano carte numero quante il suo livello. Motivo: con le regole C1 in 4 giocatori il robot "poteri" vince il 61%.
 Dubbi da chiarire prima: carte qualsiasi o con un valore minimo, mancia e caffè valgono, vale per le carte attacco "una volta",
